@@ -1,0 +1,670 @@
+// 武器数据库 + 计算
+// 数据校准（2026-06，第四轮联网 AI）：13 件武器使用 Fandom 90/90 + R1 真实数据
+// 来源：https://wutheringwaves.fandom.com/wiki/Weapon
+//
+// 数据结构：
+//   r: 稀有度 3/4/5
+//   type: 武器类型（长刃/迅刀/佩枪/臂铠/音感仪）
+//   atk90: 90 级基础攻击（真实数据：5★大武器 587 / 音感仪 500 / 守岸人专武 412 / 4★ 412 / 3★ 246）
+//   sub: 副词条 { stat, value90 }  - value90 是 90 级数值（百分比小数）
+//   passive: 静态被动（无条件生效，进入 stats 时一次性计算）
+//     [{ type, value, element? }]
+//   triggers: 触发型被动（战斗中按条件激活，运行时处理）
+//     [{ on, effect, value, maxStacks?, duration?, condition? }]
+//     on:        'normal_hit' | 'skill_hit' | 'burst_cast' | 'variation' (变奏) | 'outro' (延奏) | 'always'
+//     effect:    'atk_pct' | 'normal_pct' | 'skill_pct' | 'burst_pct' | 'elem_dmg' | 'heavy_pct' | 'concerto_refund' | 'def_pierce' | 'team_atk_after_outro' | 'condition_bonus'
+//     value:     单层效果值
+//     maxStacks: 叠层上限（默认 1）
+//     duration:  持续回合（默认永久；模拟器一回合算一次衰减）
+//     condition: 'enemy_has_erosion_aero' 类条件标签
+//   desc: 中文展示文案
+//
+// 数值规律（用于估算未查到的武器）：
+//   5★ 长刃/迅刀/臂铠/佩枪：atk90 = 587
+//   5★ 音感仪：atk90 = 500
+//   5★ 守岸人型副C武器：atk90 = 412（副词条偏 HP / 共鸣效率）
+//   主词条副词条搭配：
+//     主输出武器 = 暴击 24.3% / 暴伤 48.6% / 攻击 36.4%
+//     辅助武器   = 共鸣效率 77% / 生命 72.2%
+//     佩枪暴伤型 = 暴伤 72%
+//     音感仪攻击型 = 攻击 53.9%
+//   4★ 武器：atk90 估算 412 / 副词条按 5★ 的 ~50%
+//   3★ 武器：atk90 估算 246 / 副词条 ~30%
+
+const W = {
+  // ============================================================
+  // 5★ 限定（角色专武）— 13 件 AI 校准数据 + 其余按规律估算
+  // ============================================================
+
+  // ✅ 忌炎专武：Verdant Summit
+  '苍鳞千嶂': {
+    r: 5, type: '长刃', atk90: 587,
+    sub: { stat: 'cdmg', value90: 0.486 },
+    passive: [
+      { type: 'elem_all', value: 0.12 }   // 属性伤害 +12%
+    ],
+    triggers: [
+      { on: 'variation', effect: 'heavy_pct', value: 0.24, maxStacks: 2, duration: 7 },  // 变奏后重击 +24% × 2层（14秒约 7 回合）
+      { on: 'burst_cast', effect: 'heavy_pct', value: 0.24, maxStacks: 2, duration: 7 }
+    ],
+    desc: '属性伤害+12%；变奏/解放后重击伤害+24%，最多 2 层'
+  },
+
+  // ✅ 今汐专武：Ages of Harvest
+  '时和岁稔': {
+    r: 5, type: '长刃', atk90: 587,
+    sub: { stat: 'crate', value90: 0.243 },
+    passive: [
+      { type: 'elem_all', value: 0.12 }
+    ],
+    triggers: [
+      { on: 'variation', effect: 'skill_pct', value: 0.24, maxStacks: 1, duration: 6 },
+      { on: 'skill_hit', effect: 'skill_pct', value: 0.24, maxStacks: 1, duration: 6 }
+    ],
+    desc: '属性伤害+12%；变奏给技能+24%，技能再给技能+24%'
+  },
+
+  // ✅ 吟霖专武：Stringmaster
+  '掣傀之手': {
+    r: 5, type: '音感仪', atk90: 500,
+    sub: { stat: 'crate', value90: 0.360 },
+    passive: [
+      { type: 'elem_all', value: 0.12 }
+    ],
+    triggers: [
+      { on: 'skill_hit', effect: 'atk_pct', value: 0.12, maxStacks: 2, duration: 10 },
+      { on: 'offstage', effect: 'atk_pct', value: 0.12, maxStacks: 1, duration: 99 }  // 后台时额外 +12%
+    ],
+    desc: '全属性+12%；技能命中后攻击+12%×2 层；后台时攻击+12%'
+  },
+
+  // ✅ 守岸人专武：Stellar Symphony
+  '星序协响': {
+    r: 5, type: '音感仪', atk90: 412,
+    sub: { stat: 'resonance', value90: 0.770 },   // 共鸣效率 77%
+    passive: [
+      { type: 'hp', value: 0.12 }
+    ],
+    triggers: [
+      { on: 'burst_cast', effect: 'concerto_refund', value: 8, maxStacks: 1, duration: 1 },  // 解放回 8 协奏值
+      { on: 'heal_skill', effect: 'team_atk', value: 0.14, maxStacks: 1, duration: 15 }
+    ],
+    desc: '生命+12%；解放回 8 协奏；治疗型技能给附近队友攻击+14%'
+  },
+
+  // ✅ 椿专武：Red Spring
+  '裁春': {
+    r: 5, type: '迅刀', atk90: 587,
+    sub: { stat: 'crate', value90: 0.243 },
+    passive: [
+      { type: 'atk_pct', value: 0.12 }
+    ],
+    triggers: [
+      { on: 'normal_hit', effect: 'normal_pct', value: 0.10, maxStacks: 3, duration: 5 },
+      { on: 'concerto_consume', effect: 'normal_pct', value: 0.40, maxStacks: 1, duration: 5 }
+    ],
+    desc: '攻击+12%；普攻后普攻+10%×3 层；消耗协奏后普攻+40%'
+  },
+
+  // ✅ 珂莱塔专武：The Last Dance
+  '死与舞': {
+    r: 5, type: '佩枪', atk90: 500,
+    sub: { stat: 'cdmg', value90: 0.720 },
+    passive: [
+      { type: 'atk_pct', value: 0.12 }
+    ],
+    triggers: [
+      { on: 'variation', effect: 'skill_pct', value: 0.48, maxStacks: 1, duration: 3 },
+      { on: 'burst_cast', effect: 'skill_pct', value: 0.48, maxStacks: 1, duration: 3 }
+    ],
+    desc: '攻击+12%；变奏/解放后技能+48%'
+  },
+
+  // ✅ 卡提希娅专武：Defier's Thorn
+  '驳问之刺': {
+    r: 5, type: '迅刀', atk90: 412,
+    sub: { stat: 'hp', value90: 0.722 },
+    passive: [
+      { type: 'hp', value: 0.12 },
+      { type: 'def_pierce', value: 0.08 }       // 8% 防御穿透
+    ],
+    triggers: [
+      { on: 'always', effect: 'condition_bonus', value: 0.20, condition: 'enemy_has_erosion_aero' }
+    ],
+    desc: '生命+12%；伤害无视 8% 防御；气动侵蚀目标受伤+20%'
+  },
+
+  // ✅ 露帕专武：Wildfire Mark
+  '焰痕': {
+    r: 5, type: '长刃', atk90: 587,
+    sub: { stat: 'cdmg', value90: 0.486 },
+    passive: [
+      { type: 'atk_pct', value: 0.12 }
+    ],
+    triggers: [
+      { on: 'variation', effect: 'burst_pct', value: 0.24, maxStacks: 1, duration: 15 },
+      { on: 'burst_cast', effect: 'burst_pct', value: 0.24, maxStacks: 1, duration: 15 },
+      { on: 'heavy_hit', effect: 'team_elem_dmg', value: 0.24, element: '热熔', duration: 15 }
+    ],
+    desc: '攻击+12%；变奏/解放后解放+24%；延长后全队热熔+24%'
+  },
+
+  // ✅ 菲比专武：Luminous Hymn（"焰光裁定"国服需核验）
+  '焰光裁定': {
+    r: 5, type: '音感仪', atk90: 500,
+    sub: { stat: 'crate', value90: 0.360 },
+    passive: [
+      { type: 'atk_pct', value: 0.12 }
+    ],
+    triggers: [
+      { on: 'condition_attack', effect: 'normal_pct', value: 0.14, maxStacks: 3, duration: 5, condition: 'enemy_has_spectro_frazzle' },
+      { on: 'condition_attack', effect: 'heavy_pct', value: 0.14, maxStacks: 3, duration: 5, condition: 'enemy_has_spectro_frazzle' },
+      { on: 'outro', effect: 'spectro_frazzle_dmg', value: 0.30, maxStacks: 1, duration: 15 }
+    ],
+    desc: '攻击+12%；攻击衍射失序敌人时普攻/重击+14%×3 层；延奏后失序伤害+30%'
+  },
+
+  // 赞妮专武（衍射 + 长刃，AI 未给数据 — 按规律推断）
+  '黎明霜露': {
+    r: 5, type: '长刃', atk90: 587,
+    sub: { stat: 'crate', value90: 0.243 },
+    passive: [
+      { type: 'elem_dmg', element: '衍射', value: 0.20 }
+    ],
+    triggers: [
+      { on: 'skill_hit', effect: 'elem_dmg', value: 0.10, element: '衍射', maxStacks: 2, duration: 5 }
+    ],
+    desc: '衍射+20%；技能后衍射+10%×2 层（占位 · 真实武器名待核验）'
+  },
+
+  // ============================================================
+  // 5★ 限定（其他角色专武）— 按 AI 给的规律推断
+  //   主输出武器 sub: crate 24.3% / cdmg 48.6% / atk 36.4%
+  //   被动：属伤+12% + 1~2 个触发型条件
+  // ============================================================
+
+  // 长离专武（迅刀）— Blazing Brilliance
+  '赫奕流明': {
+    r: 5, type: '迅刀', atk90: 587,
+    sub: { stat: 'crate', value90: 0.243 },
+    passive: [
+      { type: 'atk_pct', value: 0.12 }
+    ],
+    triggers: [
+      { on: 'skill_hit', effect: 'skill_pct', value: 0.12, maxStacks: 3, duration: 5 },
+      { on: 'burst_cast', effect: 'burst_pct', value: 0.30, maxStacks: 1, duration: 8 }
+    ],
+    desc: '攻击+12%；技能后技能+12%×3 层；解放后解放+30%'
+  },
+
+  // 折枝专武（迅刀）— Comet Flare
+  '琼枝冰绡': {
+    r: 5, type: '迅刀', atk90: 587,
+    sub: { stat: 'cdmg', value90: 0.486 },
+    passive: [
+      { type: 'atk_pct', value: 0.12 }
+    ],
+    triggers: [
+      { on: 'skill_hit', effect: 'crate', value: 0.04, maxStacks: 4, duration: 8 }
+    ],
+    desc: '攻击+12%；技能命中后暴击+4%×4 层'
+  },
+
+  // 相里要专武（臂铠）— Static Mist 同类
+  '诸方玄枢': {
+    r: 5, type: '臂铠', atk90: 587,
+    sub: { stat: 'atk_pct', value90: 0.364 },
+    passive: [
+      { type: 'elem_dmg', element: '导电', value: 0.20 }
+    ],
+    triggers: [
+      { on: 'skill_hit', effect: 'elem_dmg', value: 0.10, element: '导电', maxStacks: 2, duration: 5 }
+    ],
+    desc: '导电+20%；技能后导电+10%×2 层'
+  },
+
+  // 洛可可专武（臂铠）
+  '悲喜剧': {
+    r: 5, type: '臂铠', atk90: 587,
+    sub: { stat: 'crate', value90: 0.243 },
+    passive: [
+      { type: 'elem_dmg', element: '湮灭', value: 0.20 }
+    ],
+    triggers: [
+      { on: 'normal_hit', effect: 'elem_dmg', value: 0.12, element: '湮灭', maxStacks: 2, duration: 5 }
+    ],
+    desc: '湮灭+20%；普攻后湮灭+12%×2 层'
+  },
+
+  // 布兰特专武（迅刀，辅助）
+  '不灭航路': {
+    r: 5, type: '迅刀', atk90: 412,
+    sub: { stat: 'hp', value90: 0.722 },
+    passive: [
+      { type: 'hp', value: 0.12 }
+    ],
+    triggers: [
+      { on: 'outro', effect: 'team_atk', value: 0.18, maxStacks: 1, duration: 12 }
+    ],
+    desc: '生命+12%；延奏后全队攻击+18%'
+  },
+
+  // 坎特蕾拉专武（音感仪）
+  '海妖低语': {
+    r: 5, type: '音感仪', atk90: 500,
+    sub: { stat: 'cdmg', value90: 0.486 },
+    passive: [
+      { type: 'atk_pct', value: 0.12 }
+    ],
+    triggers: [
+      { on: 'skill_hit', effect: 'skill_pct', value: 0.15, maxStacks: 3, duration: 5 }
+    ],
+    desc: '攻击+12%；技能后技能+15%×3 层'
+  },
+
+  // 赞妮专武（长刃）
+  '驳问之刺_v_zani': null, // 占位 — 删除
+  '驳问': null,             // 占位 — 删除
+
+  // 夏空专武（音感仪，辅助）
+  '林间的咏叹调': {
+    r: 5, type: '音感仪', atk90: 412,
+    sub: { stat: 'hp', value90: 0.722 },
+    passive: [
+      { type: 'hp', value: 0.12 }
+    ],
+    triggers: [
+      { on: 'outro', effect: 'team_atk', value: 0.20, maxStacks: 1, duration: 10 }
+    ],
+    desc: '生命+12%；延奏后全队攻击+20%'
+  },
+
+  // 弗洛洛专武（音感仪）
+  '忘川': {
+    r: 5, type: '音感仪', atk90: 500,
+    sub: { stat: 'crate', value90: 0.360 },
+    passive: [
+      { type: 'elem_dmg', element: '湮灭', value: 0.20 }
+    ],
+    triggers: [
+      { on: 'skill_hit', effect: 'elem_dmg', value: 0.10, element: '湮灭', maxStacks: 2, duration: 5 }
+    ],
+    desc: '湮灭+20%；技能后湮灭+10%×2 层'
+  },
+
+  // 奥古斯塔专武（臂铠）
+  '雷霆疆域': {
+    r: 5, type: '臂铠', atk90: 587,
+    sub: { stat: 'cdmg', value90: 0.486 },
+    passive: [
+      { type: 'elem_dmg', element: '导电', value: 0.20 }
+    ],
+    triggers: [
+      { on: 'normal_hit', effect: 'elem_dmg', value: 0.10, element: '导电', maxStacks: 3, duration: 5 }
+    ],
+    desc: '导电+20%；普攻后导电+10%×3 层'
+  },
+
+  // 尤诺专武（佩枪）
+  '望月': {
+    r: 5, type: '佩枪', atk90: 587,
+    sub: { stat: 'atk_pct', value90: 0.364 },
+    passive: [
+      { type: 'elem_dmg', element: '冷凝', value: 0.20 }
+    ],
+    triggers: [
+      { on: 'skill_hit', effect: 'elem_dmg', value: 0.10, element: '冷凝', maxStacks: 2, duration: 5 }
+    ],
+    desc: '冷凝+20%；技能后冷凝+10%×2 层'
+  },
+
+  // 嘉贝莉娜专武（佩枪）
+  '光与影': {
+    r: 5, type: '佩枪', atk90: 587,
+    sub: { stat: 'crate', value90: 0.243 },
+    passive: [
+      { type: 'elem_dmg', element: '热熔', value: 0.20 }
+    ],
+    triggers: [
+      { on: 'heavy_hit', effect: 'heavy_pct', value: 0.15, maxStacks: 3, duration: 5 }
+    ],
+    desc: '热熔+20%；重击+15%×3 层'
+  },
+
+  // 仇远专武（长刃）
+  '秋水长天': {
+    r: 5, type: '长刃', atk90: 587,
+    sub: { stat: 'atk_pct', value90: 0.364 },
+    passive: [
+      { type: 'elem_dmg', element: '气动', value: 0.20 }
+    ],
+    triggers: [
+      { on: 'skill_hit', effect: 'elem_dmg', value: 0.10, element: '气动', maxStacks: 2, duration: 5 }
+    ],
+    desc: '气动+20%；技能后气动+10%×2 层'
+  },
+
+  // 千咲专武（臂铠）
+  '云雾切': {
+    r: 5, type: '臂铠', atk90: 587,
+    sub: { stat: 'cdmg', value90: 0.486 },
+    passive: [
+      { type: 'elem_dmg', element: '湮灭', value: 0.20 }
+    ],
+    triggers: [
+      { on: 'normal_hit', effect: 'elem_dmg', value: 0.10, element: '湮灭', maxStacks: 3, duration: 5 }
+    ],
+    desc: '湮灭+20%；普攻后湮灭+10%×3 层'
+  },
+
+  // 琳奈专武（佩枪）
+  '光谱': {
+    r: 5, type: '佩枪', atk90: 587,
+    sub: { stat: 'atk_pct', value90: 0.364 },
+    passive: [
+      { type: 'elem_dmg', element: '衍射', value: 0.20 }
+    ],
+    triggers: [
+      { on: 'skill_hit', effect: 'elem_dmg', value: 0.10, element: '衍射', maxStacks: 2, duration: 5 }
+    ],
+    desc: '衍射+20%；技能后衍射+10%×2 层'
+  },
+
+  // 莫宁专武（迅刀）
+  '星野': {
+    r: 5, type: '迅刀', atk90: 587,
+    sub: { stat: 'crate', value90: 0.243 },
+    passive: [
+      { type: 'elem_dmg', element: '冷凝', value: 0.20 }
+    ],
+    triggers: [
+      { on: 'skill_hit', effect: 'elem_dmg', value: 0.10, element: '冷凝', maxStacks: 2, duration: 5 }
+    ],
+    desc: '冷凝+20%；技能后冷凝+10%×2 层'
+  },
+
+  // 露西专武（佩枪，3.4 联动）
+  '蜃影': {
+    r: 5, type: '佩枪', atk90: 587,
+    sub: { stat: 'atk_pct', value90: 0.364 },
+    passive: [
+      { type: 'elem_dmg', element: '衍射', value: 0.20 }
+    ],
+    triggers: [
+      { on: 'normal_hit', effect: 'normal_pct', value: 0.10, maxStacks: 3, duration: 5 }
+    ],
+    desc: '衍射+20%；普攻后普攻+10%×3 层'
+  },
+
+  // 丽贝卡专武（佩枪，3.4 联动）
+  '碎骨': {
+    r: 5, type: '佩枪', atk90: 587,
+    sub: { stat: 'atk_pct', value90: 0.364 },
+    passive: [
+      { type: 'elem_dmg', element: '导电', value: 0.18 }
+    ],
+    triggers: [
+      { on: 'concerto_consume', effect: 'normal_pct', value: 0.30, maxStacks: 1, duration: 5 }
+    ],
+    desc: '导电+18%；消耗协奏后普攻+30%'
+  },
+
+  // 洛瑟菈专武（音感仪）
+  '存帧': {
+    r: 5, type: '音感仪', atk90: 500,
+    sub: { stat: 'cdmg', value90: 0.486 },
+    passive: [
+      { type: 'elem_dmg', element: '湮灭', value: 0.20 }
+    ],
+    triggers: [
+      { on: 'skill_hit', effect: 'elem_dmg', value: 0.10, element: '湮灭', maxStacks: 2, duration: 5 }
+    ],
+    desc: '湮灭+20%；技能后湮灭+10%×2 层'
+  },
+
+  '焚野': {
+    r: 5, type: '臂铠', atk90: 587,
+    sub: { stat: 'atk_pct', value90: 0.364 },
+    passive: [
+      { type: 'elem_dmg', element: '热熔', value: 0.20 }
+    ],
+    triggers: [
+      { on: 'normal_hit', effect: 'elem_dmg', value: 0.10, element: '热熔', maxStacks: 2, duration: 5 }
+    ],
+    desc: '热熔+20%；普攻后热熔+10%×2 层'
+  },
+
+  '碎骨_old': null,
+
+  // 菲比专武（音感仪 + 治疗向）
+  '和光回唱': {
+    r: 5, type: '音感仪', atk90: 412,
+    sub: { stat: 'resonance', value90: 0.770 },
+    passive: [
+      { type: 'hp', value: 0.12 }
+    ],
+    triggers: [
+      { on: 'heal_skill', effect: 'team_heal', value: 0.20, maxStacks: 1, duration: 15 }
+    ],
+    desc: '生命+12%；治疗技能后全队治疗+20%'
+  },
+
+  // 限定占位武器（type: null 表示任意角色可用）
+  '限定武器': {
+    r: 5, type: null, atk90: 412,
+    sub: { stat: 'atk_pct', value90: 0.28 },
+    passive: [
+      { type: 'atk_pct', value: 0.12 }
+    ],
+    triggers: [],
+    desc: '攻击+28%, 攻击+12%（占位 · 任意角色可用）'
+  },
+
+  // ============================================================
+  // 5★ 常驻"冬烟系列"（AI 校准 真实数据）
+  // ============================================================
+
+  '千古洑流': {
+    r: 5, type: '迅刀', atk90: 587,
+    sub: { stat: 'crate', value90: 0.243 },
+    passive: [
+      { type: 'resonance', value: 0.128 }   // 共鸣效率 +12.8%
+    ],
+    triggers: [
+      { on: 'skill_hit', effect: 'atk_pct', value: 0.06, maxStacks: 2, duration: 5 }
+    ],
+    desc: '共鸣效率+12.8%；技能后攻击+6%×2 层'
+  },
+
+  '浩境粼光': {
+    r: 5, type: '长刃', atk90: 587,
+    sub: { stat: 'atk_pct', value90: 0.364 },
+    passive: [
+      { type: 'resonance', value: 0.128 }
+    ],
+    triggers: [
+      { on: 'skill_hit', effect: 'burst_pct', value: 0.07, maxStacks: 3, duration: 6 }
+    ],
+    desc: '共鸣效率+12.8%；技能后解放+7%×3 层'
+  },
+
+  '停驻之烟': {
+    r: 5, type: '佩枪', atk90: 587,
+    sub: { stat: 'crate', value90: 0.243 },
+    passive: [
+      { type: 'resonance', value: 0.128 }
+    ],
+    triggers: [
+      { on: 'outro', effect: 'team_atk', value: 0.10, maxStacks: 1, duration: 7 }
+    ],
+    desc: '共鸣效率+12.8%；延奏后下场角色攻击+10%'
+  },
+
+  '擎渊怒涛': {
+    r: 5, type: '臂铠', atk90: 587,
+    sub: { stat: 'atk_pct', value90: 0.364 },
+    passive: [
+      { type: 'resonance', value: 0.128 }
+    ],
+    triggers: [
+      { on: 'skill_hit', effect: 'normal_pct', value: 0.10, maxStacks: 1, duration: 4 },
+      { on: 'normal_hit', effect: 'skill_pct', value: 0.10, maxStacks: 1, duration: 4 }
+    ],
+    desc: '共鸣效率+12.8%；技能↔普攻互相 +10%'
+  },
+
+  '漪澜浮录': {
+    r: 5, type: '音感仪', atk90: 500,
+    sub: { stat: 'atk_pct', value90: 0.539 },
+    passive: [
+      { type: 'resonance', value: 0.128 }
+    ],
+    triggers: [
+      { on: 'normal_hit', effect: 'normal_pct', value: 0.032, maxStacks: 5, duration: 4 }
+    ],
+    desc: '共鸣效率+12.8%；普攻后普攻+3.2%×5 层'
+  },
+
+  // ============================================================
+  // 4★ 武器（atk90 = 412，sub 数值 ~50%）
+  // ============================================================
+
+  '奇幻变奏': { r: 4, type: '音感仪', atk90: 412,
+    sub: { stat: 'crate', value90: 0.080 },
+    passive: [{ type: 'atk_pct', value: 0.08 }],
+    triggers: [],
+    desc: '暴击+8%, 攻击+8%' },
+  '骇行': { r: 4, type: '长刃', atk90: 412,
+    sub: { stat: 'atk_pct', value90: 0.180 },
+    passive: [{ type: 'atk_pct', value: 0.08 }],
+    triggers: [],
+    desc: '攻击+18%, 攻击+8%' },
+  '呼啸重音': { r: 4, type: '佩枪', atk90: 412,
+    sub: { stat: 'atk_pct', value90: 0.180 },
+    passive: [{ type: 'elem_dmg', element: '气动', value: 0.10 }],
+    triggers: [],
+    desc: '攻击+18%, 气动+10%' },
+  '永夜长明': { r: 4, type: '臂铠', atk90: 412,
+    sub: { stat: 'crate', value90: 0.080 },
+    passive: [{ type: 'skill_pct', value: 0.15 }],
+    triggers: [],
+    desc: '暴击+8%, 技能伤害+15%' },
+  '异度': { r: 4, type: '迅刀', atk90: 412,
+    sub: { stat: 'atk_pct', value90: 0.180 },
+    passive: [{ type: 'elem_dmg', element: '湮灭', value: 0.10 }],
+    triggers: [],
+    desc: '攻击+18%, 湮灭+10%' },
+  '不归孤军': { r: 4, type: '音感仪', atk90: 412,
+    sub: { stat: 'atk_pct', value90: 0.180 },
+    passive: [{ type: 'elem_dmg', element: '热熔', value: 0.10 }],
+    triggers: [],
+    desc: '攻击+18%, 热熔+10%' },
+  '钢影拳': { r: 4, type: '臂铠', atk90: 412,
+    sub: { stat: 'atk_pct', value90: 0.180 },
+    passive: [{ type: 'normal_pct', value: 0.15 }],
+    triggers: [],
+    desc: '攻击+18%, 普攻+15%' },
+  '飞景': { r: 4, type: '迅刀', atk90: 412,
+    sub: { stat: 'crate', value90: 0.100 },
+    passive: [{ type: 'atk_pct', value: 0.08 }],
+    triggers: [],
+    desc: '暴击+10%, 攻击+8%' },
+  '行进序曲': { r: 4, type: '长刃', atk90: 412,
+    sub: { stat: 'atk_pct', value90: 0.180 },
+    passive: [{ type: 'team_atk', value: 0.08 }],
+    triggers: [],
+    desc: '攻击+18%, 全队+8%' },
+  '核熔星盘': { r: 4, type: '佩枪', atk90: 412,
+    sub: { stat: 'atk_pct', value90: 0.180 },
+    passive: [{ type: 'elem_dmg', element: '热熔', value: 0.12 }],
+    triggers: [],
+    desc: '攻击+18%, 热熔+12%' },
+  '华彩乐段': { r: 4, type: '臂铠', atk90: 412,
+    sub: { stat: 'cdmg', value90: 0.180 },
+    passive: [{ type: 'burst_pct', value: 0.10 }],
+    triggers: [],
+    desc: '暴伤+18%, 解放+10%' },
+  '袍泽之固': { r: 4, type: '臂铠', atk90: 412,
+    sub: { stat: 'hp', value90: 0.180 },
+    passive: [{ type: 'def_pct', value: 0.10 }],
+    triggers: [],
+    desc: '生命+18%, 防御+10%' },
+
+  // ============================================================
+  // 3★ 武器（atk90 = 246，sub ~6-8%）
+  // ============================================================
+  '训练迅刀':   { r: 3, type: '迅刀',   atk90: 246, sub: { stat: 'atk_pct', value90: 0.06 }, passive: [], triggers: [], desc: '攻击+6%' },
+  '训练长刃':   { r: 3, type: '长刃',   atk90: 246, sub: { stat: 'atk_pct', value90: 0.06 }, passive: [], triggers: [], desc: '攻击+6%' },
+  '训练佩枪':   { r: 3, type: '佩枪',   atk90: 246, sub: { stat: 'atk_pct', value90: 0.06 }, passive: [], triggers: [], desc: '攻击+6%' },
+  '训练臂铠':   { r: 3, type: '臂铠',   atk90: 246, sub: { stat: 'atk_pct', value90: 0.06 }, passive: [], triggers: [], desc: '攻击+6%' },
+  '训练音感仪': { r: 3, type: '音感仪', atk90: 246, sub: { stat: 'atk_pct', value90: 0.06 }, passive: [], triggers: [], desc: '攻击+6%' },
+  '暗夜迅刀':   { r: 3, type: '迅刀',   atk90: 280, sub: { stat: 'atk_pct', value90: 0.08 }, passive: [], triggers: [], desc: '攻击+8%' },
+  '暗夜长刃':   { r: 3, type: '长刃',   atk90: 280, sub: { stat: 'atk_pct', value90: 0.08 }, passive: [], triggers: [], desc: '攻击+8%' },
+  '暗夜佩枪':   { r: 3, type: '佩枪',   atk90: 280, sub: { stat: 'atk_pct', value90: 0.08 }, passive: [], triggers: [], desc: '攻击+8%' },
+  '暗夜臂铠':   { r: 3, type: '臂铠',   atk90: 280, sub: { stat: 'atk_pct', value90: 0.08 }, passive: [], triggers: [], desc: '攻击+8%' },
+  '暗夜音感仪': { r: 3, type: '音感仪', atk90: 280, sub: { stat: 'atk_pct', value90: 0.08 }, passive: [], triggers: [], desc: '攻击+8%' }
+};
+
+// 清理掉 null 占位
+Object.keys(W).forEach(k => { if (W[k] === null) delete W[k]; });
+
+export const WEAPON_DATA = W;
+
+// 90 级 → 当前等级缩放：等级 1 时 ~20% 数值，等级 90 时 100%
+function levelScale(level) {
+  return 0.20 + (level || 1) * 0.0089;
+}
+
+// 计算武器在指定等级 + 精炼度下的输出
+// 返回 { atk: 加到角色身上的基础攻击, bonuses: 静态被动数组, triggers: 触发器数组, passiveDesc }
+export function weaponContrib(weaponName, level = 1, refine = 1) {
+  const w = W[weaponName];
+  if (!w) return { atk: 0, bonuses: [], triggers: [], passiveDesc: '' };
+  const scale = levelScale(level);
+  const refineMult = 1 + (refine - 1) * 0.25;   // 1 精 100%, 5 精 200%
+  // 武器基础攻击按 atk90 × scale
+  const baseAtk = Math.round(w.atk90 * scale);
+
+  // 副词条：按 90 级满值 × scale
+  const bonuses = [];
+  if (w.sub) {
+    bonuses.push({ type: w.sub.stat, value: w.sub.value90 * scale, source: '副词条' });
+  }
+  // 静态被动：精炼倍率 × value
+  if (w.passive) {
+    w.passive.forEach(p => {
+      bonuses.push({ ...p, value: p.value * refineMult, source: '被动' });
+    });
+  }
+  // 触发器：精炼倍率 × value（运行时使用）
+  const triggers = (w.triggers || []).map(t => ({
+    ...t,
+    value: t.value * refineMult
+  }));
+
+  return {
+    atk: baseAtk,
+    bonuses,
+    triggers,
+    passiveDesc: w.desc,
+    refine
+  };
+}
+
+// 武器类型查询（角色装备过滤用）
+export function weaponType(weaponName) {
+  return W[weaponName]?.type || null;
+}
+
+export function isFiveStarWeapon(name) {
+  return W[name]?.r === 5;
+}
+
+export function isFourStarWeapon(name) {
+  return W[name]?.r === 4;
+}
+
+// 升级所需突破石（沿用旧公式）
+export function weaponBookForLevel(targetLevel) {
+  return Math.ceil(targetLevel * 1.5);
+}
