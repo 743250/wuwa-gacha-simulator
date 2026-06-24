@@ -20,11 +20,17 @@ export function setAnimating(v) { animating = v; }
 export const state0 = () => ({
   today: date('2024-05-23'), selected: null,
   total: 0, five: 0, four: 0, upHits: 0,
-  pity: { eventChar: 0, eventWeapon: 0, collabChar: 0, collabWeapon: 0, standardChar: 0, standardWeapon: 0, beginner: 0, noviceChoice: 0 },
-  p4: { eventChar: 0, eventWeapon: 0, collabChar: 0, collabWeapon: 0, standardChar: 0, standardWeapon: 0, beginner: 0, noviceChoice: 0 },
+  pity: { eventChar: 0, eventWeapon: 0, collabChar: 0, collabWeapon: 0, standardChar: 0, standardWeapon: 0, beginner: 0, noviceChoice: 0, noviceWeapon: 0 },
+  p4: { eventChar: 0, eventWeapon: 0, collabChar: 0, collabWeapon: 0, standardChar: 0, standardWeapon: 0, beginner: 0, noviceChoice: 0, noviceWeapon: 0 },
   g: { eventChar: false, collabChar: false, noviceChoice: false },
-  g4: { eventChar: false, eventWeapon: false, collabChar: false, collabWeapon: false, standardChar: false, standardWeapon: false, beginner: false, noviceChoice: false },
-  beginnerPulls: 0, beginnerDone: false, noviceTarget: '守岸人', standardWeaponTarget: '千古洑流',
+  g4: { eventChar: false, eventWeapon: false, collabChar: false, collabWeapon: false, standardChar: false, standardWeapon: false, beginner: false, noviceChoice: false, noviceWeapon: false },
+  beginnerPulls: 0, beginnerDone: false,
+  // 新旅池目标：分角色 / 武器
+  noviceTarget: '守岸人',
+  noviceWeaponTarget: '星序协响',
+  // 新旅池启用时间戳：开始用第一抽时记录，过 30 天后两个池都隐藏
+  noviceStarted: 0,
+  standardWeaponTarget: '千古洑流',
   astrite: 16000, lunite: 0, radiant: 0, forging: 0, lustrous: 0, dream: 0, mirage: 0,
   afterglow: 0, oscillated: 0, spent: 0, days: 0,
   oscBuy: { radiant: 0, forging: 0, lustrous: 0 }, waveBuy: {},
@@ -43,8 +49,10 @@ export const state0 = () => ({
     exp_super: 2,         // 特级共鸣促剂 = 20000 经验
     // 武器突破石（统一）
     weapon_book: 30,
-    // 结晶溶剂（官方体力药剂，单档 +60）
-    crystal_solvent: 3
+    // 结晶溶剂（高级药剂，无上限）
+    crystal_solvent: 3,
+    // 凝缩波片（普通药剂，官方上限 5）
+    condensed_waveplate: 2
   },
 
   // ===== P3 体力/日常/深渊（先埋字段） =====
@@ -54,7 +62,21 @@ export const state0 = () => ({
   dailyCommissions: [],
   lastDailyReset: '',
   abyss: { stars: {}, lastReset: '' },
-  weeklyBoss: { used: {}, lastReset: '' }
+  weeklyBoss: { used: {}, lastReset: '' },
+
+  // ===== 先约电台（70 级 BP，双线，每版本重置）=====
+  podcast: {
+    version: '1.0',
+    exp: 0,
+    level: 0,
+    paid: false,                       // 内幕频道（付费轨解锁）
+    premium: false,                    // 寰宇频道（内幕 + 立即 +10 级）
+    claimedFree: [],                   // 已领免费轨等级
+    claimedPaid: [],                   // 已领付费轨等级
+    tasks: { daily: {}, weekly: {}, period: {} },
+    lastDailyReset: '',
+    lastWeeklyReset: ''
+  }
 });
 
 export let S = state0();

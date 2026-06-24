@@ -23,21 +23,29 @@ export function computeBattleStats(roleName) {
     element: base.element,
     type: base.type,
     weaponType: base.weaponType,
-    // 元素伤害加成（来自武器被动）
     elemBonus: {},
-    // 类型伤害加成
-    normalBonus: 0,    // 普攻伤害
-    skillBonus: 0,     // 技能伤害
-    burstBonus: 0,     // 解放伤害
-    heavyBonus: 0,     // 重击伤害
-    healBonus: 0,      // 治疗加成
-    teamAtkBonus: 0,   // 给全队攻击加成（光环）
-    resonanceBonus: 0, // 共鸣效率（影响协奏值积累）
-    defPierce: 0,      // 防御穿透
-    elemAllBonus: 0,   // 全属性伤害加成
+    normalBonus: 0,
+    skillBonus: 0,
+    burstBonus: 0,
+    heavyBonus: 0,
+    healBonus: 0,
+    teamAtkBonus: 0,
+    resonanceBonus: 0,
+    defPierce: 0,
+    elemAllBonus: 0,
     weapon: null,
-    weaponTriggers: []  // 武器触发器（战斗中由 combat.js 监听）
+    weaponTriggers: []
   };
+
+  // 真实数值角色的突破加成（守岸人：治疗 +21.6%）
+  if (base.healBonus)   stats.healBonus  += base.healBonus;
+  if (base.atkBonusFixed)   stats.atk       = Math.round(stats.atk * (1 + base.atkBonusFixed));
+  if (base.cdmgBonusFixed)  stats.cdmg     += base.cdmgBonusFixed;
+  if (base.crateBonusFixed) stats.crate    += base.crateBonusFixed;
+  if (base.elemBonusFixed)  stats.elemAllBonus += base.elemBonusFixed;
+  if (base.forteStart)      stats.forteStart   = base.forteStart;
+
+  // ★ 当期角色加成（#12）：已取消（用户决定）
 
   // 应用武器
   if (o.equipWeapon && S.weapons[o.equipWeapon]) {
@@ -47,6 +55,8 @@ export function computeBattleStats(roleName) {
     stats.atk += w.atk;
     w.bonuses.forEach(b => applyBonus(stats, b));
     stats.weaponTriggers = w.triggers || [];
+
+    // ★ 当期武器加成（#12）：已取消（用户决定）
   }
   return stats;
 }
@@ -103,22 +113,25 @@ export function calcBP(roleName) {
   );
 }
 
-// 角色升到下一级所需的经验数（方案 B：1/4 真实数值）
-// 真实游戏 1→90 总 ~170 万经验，这里设为 ~42.5 万
-// 公式：level² × 50 大致拟合
+// 角色升到下一级所需的经验数（按官方真实数值）
+// 累加 1→90 总约 170 万经验，对应官方
+// 公式拟合：lv² × 7 + 300 → 累加约 171 万
+//   1→2: 307     · 42→43: 12,648  · 70→71: 34,600  · 89→90: 55,747
 export function expToNext(role) {
   const lv = role.level || 1;
   if (lv >= 90) return Infinity;
-  return lv * lv * 50 + 200;  // 1→2 需 250, 89→90 需 ~39 万
+  return lv * lv * 7 + 300;
 }
 
-// 武器升到下一级所需武器突破石（方案 B）
-// 真实 5 星武器 1→90 ~150 本，这里设为 ~40 本
+// 武器升到下一级所需武器突破石（按官方真实数值）
+// 5 星武器 1→90 累加约 150 本（按密音筒折算口径）
+// 公式：max(1, floor((lv+5)/25))
+//   1→19: 1 本/级 · 20→44: 1 本/级 · 45→69: 2 本/级 · 70→89: 3 本/级
+//   累加约 154 本
 export function weaponToNext(weapon) {
   const lv = weapon.level || 1;
   if (lv >= 90) return Infinity;
-  // 1→90 累加约 40 本
-  return Math.max(1, Math.ceil(lv / 12));
+  return Math.max(1, Math.floor((lv + 5) / 25));
 }
 
 // 经验书提供经验值（鸣潮真实数值）

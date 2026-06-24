@@ -3,6 +3,7 @@ import { S, msg } from '../state.js';
 import { expToNext, weaponToNext, EXP_VALUES } from '../battle/stats.js';
 import { isFiveStarWeapon, isFourStarWeapon, WEAPON_DATA, weaponType } from '../equip/weapons.js';
 import { getMeta } from '../battle/template.js';
+import { progressTask } from '../podcast/core.js';
 
 // 玩家总持有经验值
 export function totalExp() {
@@ -49,6 +50,9 @@ export function levelUpRole(roleName) {
   }
   consumeExp(cost);
   o.level++;
+  progressTask('d_upgrade', 1);
+  progressTask('w_levelup', 1);
+  if (o.level >= 90) progressTask('p_char90', 1);
   return true;
 }
 
@@ -63,6 +67,11 @@ export function levelUpRoleMax(roleName) {
     consumeExp(cost);
     o.level++;
     count++;
+  }
+  if (count > 0) {
+    progressTask('d_upgrade', 1);
+    progressTask('w_levelup', count);
+    if (o.level >= 90) progressTask('p_char90', 1);
   }
   return count;
 }
@@ -79,6 +88,8 @@ export function levelUpWeapon(weaponName) {
   }
   S.materials.weapon_book -= cost;
   w.level++;
+  progressTask('d_upgrade', 1);
+  if (w.level >= 90) progressTask('p_weapon90', 1);
   return true;
 }
 
@@ -92,6 +103,10 @@ export function levelUpWeaponMax(weaponName) {
     S.materials.weapon_book -= cost;
     w.level++;
     count++;
+  }
+  if (count > 0) {
+    progressTask('d_upgrade', 1);
+    if (w.level >= 90) progressTask('p_weapon90', 1);
   }
   return count;
 }

@@ -39,11 +39,10 @@ export const FORTE = {
     desc: '攒满离火，普攻进入心眼派生（×2.2 重击）'
   },
   '守岸人': {
-    kind: 'gauge', resourceName: '星蝶', max: 100,
-    gainPerNormal: 8, gainPerSkill: 20, gainPerBurst: 30,
-    effectType: 'teamShield',
-    effectMult: 0.5,                  // 全队 50% 最大生命护盾
-    desc: '星蝶满时，下次共鸣技能为全队展开领域（50% 生命护盾）'
+    kind: 'gauge', resourceName: '协奏', max: 100,
+    gainPerNormal: 8, gainPerSkill: 18, gainPerBurst: 30,
+    effectType: 'shorekeeperField',           // 仅作 UI 标识，实际效果在 doBurst 里
+    desc: '共鸣解放·终末回环展开「星域」：全队每回合回血 + 暴击 +20% + 暴伤 +30%（3 回合）。守岸人是治疗位，所有共鸣链都用来加强星域'
   },
   '椿': {
     kind: 'gauge', resourceName: '红椿', max: 100,
@@ -105,10 +104,12 @@ export function getForte(roleName) {
 // 战斗中给单位添加 forte 状态
 export function initForte(unit) {
   const f = getForte(unit.name);
+  // 起始值（如守岸人开局自带 50 坍缩核，避免裸打第一次技能）
+  const start = unit.forteStart || 0;
   unit.forte = {
     ...f,
-    current: 0,
-    ready: false                    // 满值标志（满后下次相应操作触发效果，触发后清空）
+    current: Math.min(start, f.max),
+    ready: start >= f.max          // 满值标志（满后下次相应操作触发效果，触发后清空）
   };
 }
 

@@ -67,6 +67,20 @@ export const ROLE_META = {
   '卜灵':      { type: '辅助', element: '导电', weaponType: '音感仪' }
 };
 
+// 90 级真实面板覆盖（按库街区角色页 90 级满突属性，逐角色覆盖默认模板）
+// 后续角色按此格式继续补：
+//   stats:    90 级满突核心面板
+//   bonuses:  突破属性自带的伤害/治疗加成
+export const OVERRIDE_STATS = {
+  '守岸人': {
+    // 库街区"守岸人"角色页 → 角色数据 → 90 级满突
+    stats: { hp: 12508, atk: 309, def: 1180, crate: 0.05, cdmg: 1.50, energy: 125, dodge: 0.08 },
+    bonuses: { healBonus: 0.216 },        // 突破属性：治疗效果加成 +21.6%
+    forteStart: 0,                        // 协奏自然累积
+    notes: '辅助·衍射 · 队伍治疗 + 暴击 Buff 核心'
+  }
+};
+
 // 默认元数据（找不到时用）
 const DEFAULT_META = { type: '副C', element: '湮灭', weaponType: '长刃' };
 
@@ -79,7 +93,34 @@ export function getMeta(roleName) {
 export function getStats(roleName, level = 1, chain = 0) {
   const meta = getMeta(roleName);
   const tpl = TEMPLATES[meta.type];
-  const scale = 0.20 + level * 0.0089;    // 1 级 0.21x, 90 级 1.0x
+  const scale = 0.20 + (level - 1) * (0.80 / 89);    // 1 级 = 20%, 90 级 = 100%
+
+  // 真实数值覆盖：等级 < 90 时按 scale 衰减
+  const override = OVERRIDE_STATS[roleName];
+  if (override) {
+    const s = override.stats;
+    const lvScale = level >= 90 ? 1.0 : scale;
+    return {
+      hp:   Math.round(s.hp  * lvScale),
+      atk:  Math.round(s.atk * lvScale),
+      def:  Math.round(s.def * lvScale),
+      crate: s.crate,
+      cdmg:  s.cdmg,
+      dodge: s.dodge,
+      maxEnergy: s.energy,
+      element: meta.element,
+      type: meta.type,
+      weaponType: meta.weaponType,
+      // 突破属性加成（不走 scale，每级都有）
+      healBonus: override.bonuses?.healBonus || 0,
+      atkBonusFixed: override.bonuses?.atkBonusFixed || 0,
+      cdmgBonusFixed: override.bonuses?.cdmgBonusFixed || 0,
+      crateBonusFixed: override.bonuses?.crateBonusFixed || 0,
+      elemBonusFixed: override.bonuses?.elemBonusFixed || 0,
+      forteStart: override.forteStart || 0
+    };
+  }
+
   return {
     hp: Math.round(tpl.hp * scale),
     atk: Math.round(tpl.atk * scale),

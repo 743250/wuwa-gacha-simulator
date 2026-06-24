@@ -25,6 +25,7 @@
       <button class="tbtn" id="nextDay">＋1 日</button>
       <button class="tbtn" id="nextPhase">下一期</button>
       <button class="tbtn" id="nextVersion">下版本</button>
+      <button class="tbtn" id="pickVersion">选版本</button>
       <button class="tbtn" id="todayBtn">今 天</button>
       <button class="tbtn danger" id="reset">重 置</button>
     </div>
@@ -34,7 +35,8 @@
   <div class="view-tabs">
     <button class="vtab on" data-v="gacha"><span class="vt-zh">唤 取</span><span class="vt-sub">卡池 · 角色 · 海市</span></button>
     <button class="vtab" data-v="adventure"><span class="vt-zh">冒 险</span><span class="vt-sub">编队 · 日常 · 副本 · 深塔</span></button>
-    <button class="vtab" data-v="storage"><span class="vt-zh">仓 库</span><span class="vt-sub">背包 · 商店</span></button>
+    <button class="vtab" data-v="bag"><span class="vt-zh">背 包</span><span class="vt-sub">材料 · 武器 · 药剂</span></button>
+    <button class="vtab" data-v="storage"><span class="vt-zh">商 店</span><span class="vt-sub">充值 · 月卡 · 电台</span></button>
   </div>
 
   <!-- ====== 视图 1：唤取 ====== -->
@@ -87,7 +89,10 @@
               <div class="stat"><b id="sWave">0</b><span>波段持有</span></div>
               <div class="stat"><b id="sCharPity">0</b><span>角色垫</span></div>
               <div class="stat"><b id="sWeapPity">0</b><span>武器垫</span></div>
+              <div class="stat"><b id="sRoles">0</b><span>已拥角色</span></div>
+              <div class="stat"><b id="sWeapons">0</b><span>已拥武器</span></div>
             </div>
+            <div id="sCollectionDetail" style="margin-top:10px;font-size:11px;color:var(--muted);text-align:center;letter-spacing:.5px"></div>
           </div>
 
           <div class="pane" id="paneEx" style="display:none">
@@ -124,22 +129,31 @@
         <div class="a-tab" data-a="daily">日 常</div>
         <div class="a-tab" data-a="dungeon">副 本</div>
         <div class="a-tab" data-a="abyss">深 塔</div>
+        <div class="a-tab" data-a="wastes">海 墟</div>
       </div>
       <div class="pane" id="paneTeam"></div>
       <div class="pane" id="paneDaily" style="display:none"></div>
       <div class="pane" id="paneDungeon" style="display:none"></div>
       <div class="pane" id="paneAbyss" style="display:none"></div>
+      <div class="pane" id="paneWastes" style="display:none"></div>
     </div>
   </div>
 
-  <!-- ====== 视图 3：仓库 ====== -->
+  <!-- ====== 视图 3：背包（独立顶层 tab）====== -->
+  <div class="view" id="viewBag" style="display:none">
+    <div class="col-wrap">
+      <div id="paneBag"></div>
+    </div>
+  </div>
+
+  <!-- ====== 视图 4：商店 ====== -->
   <div class="view" id="viewStorage" style="display:none">
     <div class="col-wrap">
       <div class="side-tabs">
-        <div class="b-tab on" data-b="bag">背 包</div>
+        <div class="b-tab on" data-b="podcast">电 台</div>
         <div class="b-tab" data-b="shop">商 店</div>
       </div>
-      <div class="pane" id="paneBag"></div>
+      <div class="pane" id="panePodcast"></div>
       <div class="pane" id="paneShop" style="display:none">
         <h2 class="col-head" style="margin-top:0">钱 包</h2>
         <div class="shop-bar">

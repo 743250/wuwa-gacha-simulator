@@ -1,0 +1,322 @@
+{
+  "忌炎": [
+    {
+      "title": "济世",
+      "summary": "<b class=\"term-skill\">共鸣技能·枪扫风定</b>的冷却时间缩短。",
+      "desc": "<b class=\"term-skill\">共鸣技能·枪扫风定</b>的冷却时间由 <b class=\"term-num\">3</b> 回合缩短至 <b class=\"term-num\">2</b> 回合，攒满<b class=\"term-resource\">锐意之势</b>的节奏更快。"
+    },
+    {
+      "title": "通变",
+      "summary": "切换至忌炎入场（<b class=\"term-variation\">变奏</b>）时，立即积攒<b class=\"term-resource\">破阵值</b>，并大幅提升攻击力。",
+      "desc": "切换至忌炎入场触发<b class=\"term-variation\">变奏</b>时：<br>· 立即积攒 <b class=\"term-num\">30</b> 点<b class=\"term-resource\">破阵值</b>（推快下次强化普攻）。<br>· 自身攻击力提升 <b class=\"term-num\">28%</b>，持续 <b class=\"term-num\">2</b> 回合。"
+    },
+    {
+      "title": "观势",
+      "summary": "每次<b class=\"term-skill\">共鸣技能</b>、<b class=\"term-burst\">共鸣解放</b>、<b class=\"term-heavy\">重击</b>或<b class=\"term-variation\">变奏</b>后，自身暴击与暴击伤害提升。",
+      "desc": "每次施放<b class=\"term-skill\">共鸣技能</b>、<b class=\"term-burst\">共鸣解放</b>、<b class=\"term-heavy\">重击</b>或<b class=\"term-variation\">变奏</b>后，忌炎获得「观势」状态：<br>· 暴击率 +<b class=\"term-num\">16%</b><br>· 暴击伤害 +<b class=\"term-num\">32%</b><br>持续 <b class=\"term-num\">2</b> 回合，效果可被刷新但不叠加。"
+    },
+    {
+      "title": "奇正",
+      "summary": "施放<b class=\"term-burst\">共鸣解放</b>后，全队<b class=\"term-heavy\">重击</b>伤害提升，<b class=\"term-resource\">锐意之势</b>循环的收益也分给队友。",
+      "desc": "施放<b class=\"term-burst\">共鸣解放·苍躣八荒</b>后，<b class=\"term-num\">2</b> 回合内全队<b class=\"term-heavy\">重击</b>伤害提升 <b class=\"term-num\">25%</b>。<br>让忌炎的<b class=\"term-resource\">锐意之势</b>爆发窗口同时变成全队的输出窗口。"
+    },
+    {
+      "title": "明断",
+      "summary": "切换至忌炎入场（<b class=\"term-variation\">变奏</b>）时，再获得一份强力攻击加成（与「通变」叠加）。",
+      "desc": "切换至忌炎入场触发<b class=\"term-variation\">变奏</b>时，自身攻击力额外提升 <b class=\"term-num\">45%</b>，持续 <b class=\"term-num\">2</b> 回合。<br>该效果与共鸣链 2「通变」的攻击加成<b class=\"term-num\">独立叠加</b>，共可叠加至 +<b class=\"term-num\">73%</b> 攻击。"
+    },
+    {
+      "title": "移山",
+      "summary": "<b class=\"term-resource\">锐意之势</b>上限提升，每层放大解放伤害的倍率也提高。",
+      "desc": "<b class=\"term-resource\">锐意之势</b>获得加强：<br>· 上限由 <b class=\"term-num\">2</b> 层提升至 <b class=\"term-num\">3</b> 层。<br>· 释放<b class=\"term-burst\">共鸣解放</b>时，每层消耗的<b class=\"term-resource\">锐意</b>使解放伤害倍率提升由 <b class=\"term-num\">+100%</b> 增至 <b class=\"term-num\">+120%</b>。<br>满层 3 锐意时，解放伤害放大至原本的 <b class=\"term-num\">×4.6</b>。"
+    }
+  ],
+  "今汐": [
+    {
+      "title": "沉海洄天溯",
+      "desc": "今汐施放<b class=\"term-normal\">普攻</b>凌霄·<b class=\"term-normal\">普攻</b>、<b class=\"term-skill\">共鸣技能</b>逐天取月时，获得一层惊蛰效果，可叠加<b class=\"term-num\">4层</b>，持续<b class=\"term-num\">6秒</b>。施放<b class=\"term-skill\">共鸣技能</b>惊龙破空时，消耗惊蛰效果的所有层数，每消耗一层，<b class=\"term-skill\">共鸣技能</b>惊龙破空造成的伤害提升<b class=\"term-num\">20%</b>。",
+      "summary": "今汐施放<b class=\"term-normal\">普攻</b>凌霄·<b class=\"term-normal\">普攻</b>、<b class=\"term-skill\">共鸣技能</b>逐天取月时，获得一层惊蛰效果，可叠加<b class=\"term-num\">4层</b>，持续<b class=\"term-num\">6秒</b>"
+    },
+    {
+      "title": "绒雪凝屏息",
+      "desc": "今汐处于非战斗状态大于<b class=\"term-num\">4秒</b>时，回复<b class=\"term-num\">50点</b>【韶光】，每<b class=\"term-num\">4秒</b>只生效<b class=\"term-num\">1次</b>。",
+      "summary": "今汐处于非战斗状态大于<b class=\"term-num\">4秒</b>时，回复<b class=\"term-num\">50点</b>【韶光】，每<b class=\"term-num\">4秒</b>只生效<b class=\"term-num\">1次</b>"
+    },
+    {
+      "title": "天定神子身",
+      "desc": "今汐施放<b class=\"term-variation\">变奏技能</b>蟠龙清辉后，获得一层谪仙效果，每层使攻击提升<b class=\"term-num\">25%</b>，可叠加<b class=\"term-num\">2层</b>，效果持续<b class=\"term-num\">20秒</b>。",
+      "summary": "今汐施放<b class=\"term-variation\">变奏技能</b>蟠龙清辉后，获得一层谪仙效果，每层使攻击提升<b class=\"term-num\">25%</b>，可叠加<b class=\"term-num\">2层</b>，效果持续<b class=\"term-num\">20秒</b>"
+    },
+    {
+      "title": "自甘佑凡尘",
+      "desc": "今汐施放<b class=\"term-burst\">共鸣解放</b>移岁诛邪或<b class=\"term-skill\">共鸣技能</b>惊龙破空时，附近队伍中所有角色全属性伤害加成提升<b class=\"term-num\">20%</b>，持续<b class=\"term-num\">20秒</b>。",
+      "summary": "今汐施放<b class=\"term-burst\">共鸣解放</b>移岁诛邪或<b class=\"term-skill\">共鸣技能</b>惊龙破空时，附近队伍中所有角色全属性伤害加成提升<b class=\"term-num\">20%</b>，持续<b class=\"term-num\">20秒</b>"
+    },
+    {
+      "title": "流光化霜雪",
+      "desc": "<b class=\"term-burst\">共鸣解放</b>移岁诛邪伤害倍率提升<b class=\"term-num\">120%</b>。",
+      "summary": "<b class=\"term-burst\">共鸣解放</b>移岁诛邪伤害倍率提升<b class=\"term-num\">120%</b>"
+    },
+    {
+      "title": "寒尽又逢春",
+      "desc": "<b class=\"term-skill\">共鸣技能</b>惊龙破空伤害倍率提升<b class=\"term-num\">45%</b>，消耗【韶光】时带来的倍率增加效果额外提升<b class=\"term-num\">45%</b>。",
+      "summary": "<b class=\"term-skill\">共鸣技能</b>惊龙破空伤害倍率提升<b class=\"term-num\">45%</b>，消耗【韶光】时带来的倍率增加效果额外提升<b class=\"term-num\">45%</b>"
+    }
+  ],
+  "长离": [
+    {
+      "title": "隐我所思",
+      "desc": "施放<b class=\"term-skill\">共鸣技能</b>赫羽三相或<b class=\"term-heavy\">重击</b>焚身以火时，长离的抗打断能力提升，且造成的伤害提升<b class=\"term-num\">10%</b>。",
+      "summary": "施放<b class=\"term-skill\">共鸣技能</b>赫羽三相或<b class=\"term-heavy\">重击</b>焚身以火时，长离的抗打断能力提升，且造成的伤害提升<b class=\"term-num\">10%</b>"
+    },
+    {
+      "title": "循我所望",
+      "desc": "获得【离火】时，长离的暴击提升<b class=\"term-num\">25%</b>，持续<b class=\"term-num\">8秒</b>。",
+      "summary": "获得【离火】时，长离的暴击提升<b class=\"term-num\">25%</b>，持续<b class=\"term-num\">8秒</b>"
+    },
+    {
+      "title": "据我所闻",
+      "desc": "<b class=\"term-burst\">共鸣解放</b>离火照丹心造成的伤害提升<b class=\"term-num\">80%</b>。",
+      "summary": "<b class=\"term-burst\">共鸣解放</b>离火照丹心造成的伤害提升<b class=\"term-num\">80%</b>"
+    },
+    {
+      "title": "饰我所言",
+      "desc": "施放<b class=\"term-variation\">变奏技能</b>后，队伍中的角色攻击提升<b class=\"term-num\">20%</b>，持续<b class=\"term-num\">30秒</b>。",
+      "summary": "施放<b class=\"term-variation\">变奏技能</b>后，队伍中的角色攻击提升<b class=\"term-num\">20%</b>，持续<b class=\"term-num\">30秒</b>"
+    },
+    {
+      "title": "舍我所得",
+      "desc": "<b class=\"term-heavy\">重击</b>焚身以火倍率提升<b class=\"term-num\">50%</b>，造成的伤害提升<b class=\"term-num\">50%</b>。",
+      "summary": "<b class=\"term-heavy\">重击</b>焚身以火倍率提升<b class=\"term-num\">50%</b>，造成的伤害提升<b class=\"term-num\">50%</b>"
+    },
+    {
+      "title": "成我所谋",
+      "desc": "<b class=\"term-skill\">共鸣技能</b>赫羽三相、<b class=\"term-heavy\">重击</b>焚身以火和<b class=\"term-burst\">共鸣解放</b>离火照丹心攻击造成伤害时额外忽视目标<b class=\"term-num\">40%</b>防御。",
+      "summary": "<b class=\"term-skill\">共鸣技能</b>赫羽三相、<b class=\"term-heavy\">重击</b>焚身以火和<b class=\"term-burst\">共鸣解放</b>离火照丹心攻击造成伤害时额外忽视目标<b class=\"term-num\">40%</b>防御"
+    }
+  ],
+  "椿": [
+    {
+      "title": "在无人知晓的秘密小径",
+      "desc": "施放<b class=\"term-variation\">变奏技能</b>八千春秋时，暴击伤害提升<b class=\"term-num\">28%</b>，持续<b class=\"term-num\">18秒</b>，每<b class=\"term-num\">25秒</b>可触发<b class=\"term-num\">1次</b>。<b class=\"term-forte\">共鸣回路</b>一日花免疫打断。",
+      "summary": "施放<b class=\"term-variation\">变奏技能</b>八千春秋时，暴击伤害提升<b class=\"term-num\">28%</b>，持续<b class=\"term-num\">18秒</b>，每<b class=\"term-num\">25秒</b>可触发<b class=\"term-num\">1次</b>"
+    },
+    {
+      "title": "呼唤那沉默之花的芬芳",
+      "desc": "<b class=\"term-forte\">共鸣回路</b>一日花伤害倍率提升<b class=\"term-num\">120%</b>。",
+      "summary": "<b class=\"term-forte\">共鸣回路</b>一日花伤害倍率提升<b class=\"term-num\">120%</b>"
+    },
+    {
+      "title": "一根荆棘胜过千颗花种",
+      "desc": "<b class=\"term-burst\">共鸣解放</b>芳华绽烬伤害倍率提升<b class=\"term-num\">50%</b>；含苞状态期间，椿的攻击提升<b class=\"term-num\">58%</b>。",
+      "summary": "<b class=\"term-burst\">共鸣解放</b>芳华绽烬伤害倍率提升<b class=\"term-num\">50%</b>；含苞状态期间，椿的攻击提升<b class=\"term-num\">58%</b>"
+    },
+    {
+      "title": "它的根茎持续到永恒中",
+      "desc": "施放<b class=\"term-variation\">变奏技能</b>八千春秋后，队伍中的角色<b class=\"term-normal\">普攻</b>伤害加成提升<b class=\"term-num\">25%</b>，持续<b class=\"term-num\">30秒</b>。",
+      "summary": "施放<b class=\"term-variation\">变奏技能</b>八千春秋后，队伍中的角色<b class=\"term-normal\">普攻</b>伤害加成提升<b class=\"term-num\">25%</b>，持续<b class=\"term-num\">30秒</b>"
+    },
+    {
+      "title": "将那无限置于你的手掌",
+      "desc": "<b class=\"term-variation\">变奏技能</b>八千春秋伤害倍率提升<b class=\"term-num\">303%</b>。；<b class=\"term-outro\">延奏技能</b>缠绕伤害倍率提升<b class=\"term-num\">68%</b>。",
+      "summary": "<b class=\"term-variation\">变奏技能</b>八千春秋伤害倍率提升<b class=\"term-num\">303%</b>"
+    },
+    {
+      "title": "为你的千千万万次盛放",
+      "desc": "<b class=\"term-forte\">共鸣回路</b>酣梦的伤害倍率提升效果额外提升<b class=\"term-num\">150%</b>；；<b class=\"term-forte\">共鸣回路</b>永生花：施放<b class=\"term-forte\">共鸣回路</b>一日花后<b class=\"term-num\">15秒</b>内，协奏能量充满时，若永生花不处于冷却状态，<b class=\"term-skill\">共鸣技能</b>替换为永生花。；施放永生花时，消耗<b class=\"term-num\">50点</b>协奏值，回复<b class=\"term-num\">50点</b>【红椿·蕊】，造成<b class=\"term-forte\">共鸣回路</b>一日花<b class=\"term-num\">100%</b>的湮灭伤害，此次伤害为<b class=\"term-normal\">普攻</b>伤害，每<b class=\"term-num\">25秒</b>可施放<b class=\"term-num\">1次</b>。；施放永生花后，进入含苞状态，清除所有红椿·蕾，并将<b class=\"term-forte\">共鸣回路</b>酣梦的伤害倍率提升效果提升至<b class=\"term-num\">250%</b>。；<b class=\"term-forte\">共鸣回路</b>永生花免疫打断。",
+      "summary": "<b class=\"term-forte\">共鸣回路</b>酣梦的伤害倍率提升效果额外提升<b class=\"term-num\">150%</b>；"
+    }
+  ],
+  "卡提希娅": [
+    {
+      "title": "因命运戴上冠冕",
+      "desc": "【卡提希娅】、【芙露德莉斯】自身技能直接造成的伤害击败被附加【风蚀效应】状态的目标后，获得【集意】状态，持续<b class=\"term-num\">10秒</b>。；【集意】状态下保留击败目标被附加【风蚀效应】的最高层数，自身下一次技能直接造成的伤害立即为命中目标附加该层数，最高可叠加至当前目标的【风蚀效应】层数上限，同时清除【集意】状态，清除【集意】状态后进入冷却时间<b class=\"term-num\">1秒</b>。；【芙露德莉斯】每积攒【决意】达到30、60、90、120时，【芙露德莉斯】的暴击伤害提升<b class=\"term-num\">25%</b>，持续<b class=\"term-num\">15秒</b>，最多可叠加<b class=\"term-num\">4层</b>，每次叠加时不刷新持续时间，施放<b class=\"term-burst\">共鸣解放</b>·看潮怒风哮之刃后会清除该暴击伤害提升效果。",
+      "summary": "【卡提希娅】、【芙露德莉斯】自身技能直接造成的伤害击败被附加【风蚀效应】状态的目标后，获得【集意】状态，持续<b class=\"term-num\">10秒</b>"
+    },
+    {
+      "title": "听风潮斩断利刃",
+      "desc": "施放<b class=\"term-burst\">共鸣解放</b>·听骑士从心祈愿后，使自身一定范围内的目标【风蚀效应】层数上限提升<b class=\"term-num\">3层</b>，自身技能下一次直接造成伤害后，对自身一定范围内的目标附加<b class=\"term-num\">3层</b>【风蚀效应】，并立刻结算<b class=\"term-num\">1次</b>目标身上的【风蚀效应】效果，此次结算不消耗【风蚀效应】层数。；【卡提希娅】<b class=\"term-normal\">普攻</b>、<b class=\"term-heavy\">重击</b>、<b class=\"term-normal\">闪避反击</b>、<b class=\"term-variation\">变奏技能</b>倍率提升<b class=\"term-num\">50%</b>，<b class=\"term-heavy\">空中攻击</b>倍率提升<b class=\"term-num\">200%</b>。；施放<b class=\"term-heavy\">空中攻击</b>·卡提希娅后，每回收1种【剑之影】使<b class=\"term-skill\">共鸣技能</b>·卡提希娅的冷却时间减少<b class=\"term-num\">1秒</b>。",
+      "summary": "施放<b class=\"term-burst\">共鸣解放</b>·听骑士从心祈愿后，使自身一定范围内的目标【风蚀效应】层数上限提升<b class=\"term-num\">3层</b>，自身技能下一次直接造成伤害后，对自身一定范围内的目标附加<b class=\"term-num\">3层</b>【风蚀效应】，并立刻结算<b class=\"term-num\">1次</b>目标身上的【风蚀效应】效果，此次结算不消耗【风蚀…"
+    },
+    {
+      "title": "以自身束悬高塔",
+      "desc": "【芙露德莉斯】的<b class=\"term-normal\">普攻</b>·芙露德莉斯第<b class=\"term-num\">5段</b>，<b class=\"term-heavy\">空中攻击</b>·芙露德莉斯第<b class=\"term-num\">2段</b>，强化<b class=\"term-heavy\">重击</b>·芙露德莉斯，<b class=\"term-skill\">共鸣技能</b>·凭风斩浪破敌会为命中目标附加<b class=\"term-num\">2层</b>【风蚀效应】。；<b class=\"term-burst\">共鸣解放</b>·看潮怒风哮之刃的伤害倍率提升<b class=\"term-num\">100%</b>。",
+      "summary": "【芙露德莉斯】的<b class=\"term-normal\">普攻</b>·芙露德莉斯第<b class=\"term-num\">5段</b>，<b class=\"term-heavy\">空中攻击</b>·芙露德莉斯第<b class=\"term-num\">2段</b>，强化<b class=\"term-heavy\">重击</b>·芙露德莉斯，<b class=\"term-skill\">共鸣技能</b>·凭风斩浪破敌会为命中目标附加<b class=\"term-num\">2层</b>【风蚀效应】"
+    },
+    {
+      "title": "为拯救舍弃其身",
+      "desc": "队伍中的角色为目标附加【虚湮效应】、【聚爆效应】、【光噪效应】、【电磁效应】、【霜渐效应】、【风蚀效应】时，使队伍中所有角色全属性伤害加成提升<b class=\"term-num\">20%</b>，持续<b class=\"term-num\">20秒</b>。",
+      "summary": "队伍中的角色为目标附加【虚湮效应】、【聚爆效应】、【光噪效应】、【电磁效应】、【霜渐效应】、【风蚀效应】时，使队伍中所有角色全属性伤害加成提升<b class=\"term-num\">20%</b>，持续<b class=\"term-num\">20秒</b>"
+    },
+    {
+      "title": "将烈风重塑希望",
+      "desc": "【卡提希娅】或【芙露德莉斯】受到致命伤害时，此次伤害不会使【卡提希娅】或【芙露德莉斯】倒下，并获得【卡提希娅】<b class=\"term-num\">20%</b>生命上限的护盾，持续<b class=\"term-num\">10秒</b>，该效果每<b class=\"term-num\">10分钟</b>可触发<b class=\"term-num\">1次</b>。；施放<b class=\"term-burst\">共鸣解放</b>·听骑士从心祈愿消耗的自身生命值降至生命上限的<b class=\"term-num\">25%</b>。",
+      "summary": "【卡提希娅】或【芙露德莉斯】受到致命伤害时，此次伤害不会使【卡提希娅】或【芙露德莉斯】倒下，并获得【卡提希娅】<b class=\"term-num\">20%</b>生命上限的护盾，持续<b class=\"term-num\">10秒</b>，该效果每<b class=\"term-num\">10分钟</b>可触发<b class=\"term-num\">1次</b>"
+    },
+    {
+      "title": "尽一线挣扎自由",
+      "desc": "施放<b class=\"term-burst\">共鸣解放</b>·看潮怒风哮之刃对命中的目标附加【风蚀效应】至层数上限，且施放<b class=\"term-burst\">共鸣解放</b>·看潮怒风哮之刃命中目标后，不再清空目标拥有的【风蚀效应】。；施放<b class=\"term-variation\">变奏技能</b>·此剑，为潮水的过去、<b class=\"term-variation\">变奏技能</b>·此剑，为自由的未来、<b class=\"term-burst\">共鸣解放</b>·听骑士从心祈愿、<b class=\"term-burst\">共鸣解放</b>·看潮怒风哮之刃后，<b class=\"term-num\">30秒</b>内，队伍中的角色对【风蚀效应】层数到达上限的目标再次附加【风蚀效应】时，立即结算一次【风蚀效应】。；目标受到【芙露德莉斯】的伤害提升<b class=\"term-num\">40%</b>。",
+      "summary": "施放<b class=\"term-burst\">共鸣解放</b>·看潮怒风哮之刃对命中的目标附加【风蚀效应】至层数上限，且施放<b class=\"term-burst\">共鸣解放</b>·看潮怒风哮之刃命中目标后，不再清空目标拥有的【风蚀效应】"
+    }
+  ],
+  "菲比": [
+    {
+      "title": "暖灯与枕边的祝愿",
+      "desc": "赦罪状态下<b class=\"term-burst\">共鸣解放</b>启明之誓愿伤害倍率提升效果从<b class=\"term-num\">255%</b>变为<b class=\"term-num\">480%</b>。；告解状态下<b class=\"term-burst\">共鸣解放</b>启明之誓愿伤害倍率提升<b class=\"term-num\">90%</b>，并且附加【光噪效应】层数提升至目标可附加层数的上限。",
+      "summary": "赦罪状态下<b class=\"term-burst\">共鸣解放</b>启明之誓愿伤害倍率提升效果从<b class=\"term-num\">255%</b>变为<b class=\"term-num\">480%</b>"
+    },
+    {
+      "title": "泪水中飘摇的孤船",
+      "desc": "赦罪状态下，<b class=\"term-outro\">延奏技能</b>对拥有【光噪效应】的目标伤害加深<b class=\"term-num\">120%</b>。；告解状态下，默祷的【光噪效应】伤害加深效果额外提升<b class=\"term-num\">120%</b>。",
+      "summary": "赦罪状态下，<b class=\"term-outro\">延奏技能</b>对拥有【光噪效应】的目标伤害加深<b class=\"term-num\">120%</b>"
+    },
+    {
+      "title": "雏菊编织花环与梦",
+      "desc": "赦罪状态下，<b class=\"term-heavy\">重击</b>星辉伤害倍率提升<b class=\"term-num\">91%</b>。；告解状态下，<b class=\"term-heavy\">重击</b>星辉伤害倍率提升<b class=\"term-num\">249%</b>。",
+      "summary": "赦罪状态下，<b class=\"term-heavy\">重击</b>星辉伤害倍率提升<b class=\"term-num\">91%</b>"
+    },
+    {
+      "title": "再次敲响振翅的钟声",
+      "desc": "<b class=\"term-normal\">普攻</b>、<b class=\"term-normal\">普攻</b>夏弥尔之星、<b class=\"term-normal\">闪避反击</b>、夏弥尔之星·<b class=\"term-normal\">闪避反击</b>命中目标时，目标衍射伤害抗性降低<b class=\"term-num\">10%</b>，持续<b class=\"term-num\">30秒</b>。",
+      "summary": "<b class=\"term-normal\">普攻</b>、<b class=\"term-normal\">普攻</b>夏弥尔之星、<b class=\"term-normal\">闪避反击</b>、夏弥尔之星·<b class=\"term-normal\">闪避反击</b>命中目标时，目标衍射伤害抗性降低<b class=\"term-num\">10%</b>，持续<b class=\"term-num\">30秒</b>"
+    },
+    {
+      "title": "向遥远光辉虔声祈祷",
+      "desc": "施放<b class=\"term-variation\">变奏技能</b>金色恩典时，菲比的衍射伤害加成提升<b class=\"term-num\">12%</b>，持续<b class=\"term-num\">15秒</b>。",
+      "summary": "施放<b class=\"term-variation\">变奏技能</b>金色恩典时，菲比的衍射伤害加成提升<b class=\"term-num\">12%</b>，持续<b class=\"term-num\">15秒</b>"
+    },
+    {
+      "title": "于静寂窗边啁啾歌唱",
+      "desc": "【镜之环】的停滞效果增加<b class=\"term-num\">2秒</b>。【镜之环】持续期间，对每个进入【镜之环】的目标施加停滞效果；同一个【镜之环】最多可对12个目标施加停滞效果，且对每个目标只能施加一次。；赦罪状态、告解状态下，菲比施放<b class=\"term-skill\">共鸣技能</b>召唤【镜之环】时，攻击提升<b class=\"term-num\">10%</b>，持续<b class=\"term-num\">20秒</b>，同时向【镜之环】位置附带一次<b class=\"term-heavy\">重击</b>星辉。此次<b class=\"term-heavy\">重击</b>星辉不消耗【福音】，不视为施放<b class=\"term-heavy\">重击</b>。",
+      "summary": "【镜之环】的停滞效果增加<b class=\"term-num\">2秒</b>"
+    }
+  ],
+  "嘉贝莉娜": [
+    {
+      "title": "不熄抵牾抗争之心",
+      "desc": "嘉贝莉娜施放<b class=\"term-skill\">共鸣技能</b>·恶翼扬升时，每点【余火】额外为<b class=\"term-normal\">普攻</b>·炽天猎杀、<b class=\"term-heavy\">重击</b>·炼羽裁决、<b class=\"term-heavy\">空中攻击</b>·火狱暴雨、<b class=\"term-skill\">共鸣技能</b>·掠袭、<b class=\"term-normal\">闪避反击</b>·罪业当涤提升<b class=\"term-num\">2%</b>暴击伤害，至多提升<b class=\"term-num\">80%</b>暴击伤害，退出恶魔位格时移除。；恶魔位格期间，<b class=\"term-normal\">普攻</b>·炽天猎杀第<b class=\"term-num\">5段</b>、<b class=\"term-heavy\">重击</b>·炼羽裁决第<b class=\"term-num\">3段</b>、<b class=\"term-heavy\">空中攻击</b>·火狱暴雨免疫打断。",
+      "summary": "嘉贝莉娜施放<b class=\"term-skill\">共鸣技能</b>·恶翼扬升时，每点【余火】额外为<b class=\"term-normal\">普攻</b>·炽天猎杀、<b class=\"term-heavy\">重击</b>·炼羽裁决、<b class=\"term-heavy\">空中攻击</b>·火狱暴雨、<b class=\"term-skill\">共鸣技能</b>·掠袭、<b class=\"term-normal\">闪避反击</b>·罪业当涤提升<b class=\"term-num\">2%</b>暴击伤害，至多提升<b class=\"term-num\">80%</b>暴击伤害，退出恶魔位格时移除"
+    },
+    {
+      "title": "行过烈狱与幽暗冥途",
+      "desc": "内燃烧提供的攻击加成提升<b class=\"term-num\">350%</b>。",
+      "summary": "内燃烧提供的攻击加成提升<b class=\"term-num\">350%</b>"
+    },
+    {
+      "title": "再燃血狩死猎之誓",
+      "desc": "<b class=\"term-burst\">共鸣解放</b>的伤害倍率提升<b class=\"term-num\">130%</b>。",
+      "summary": "<b class=\"term-burst\">共鸣解放</b>的伤害倍率提升<b class=\"term-num\">130%</b>"
+    },
+    {
+      "title": "承负无薪孤惧苦火",
+      "desc": "队伍中的角色施放声骸技能时，使队伍中所有角色全属性伤害加成提升<b class=\"term-num\">20%</b>，持续<b class=\"term-num\">20秒</b>。",
+      "summary": "队伍中的角色施放声骸技能时，使队伍中所有角色全属性伤害加成提升<b class=\"term-num\">20%</b>，持续<b class=\"term-num\">20秒</b>"
+    },
+    {
+      "title": "纵使光明远去，厄难焚身",
+      "desc": "<b class=\"term-skill\">共鸣技能</b>·迫近，<b class=\"term-skill\">共鸣技能</b>·恶翼扬升，<b class=\"term-skill\">共鸣技能</b>·掠袭的伤害倍率提升<b class=\"term-num\">150%</b>。",
+      "summary": "<b class=\"term-skill\">共鸣技能</b>·迫近，<b class=\"term-skill\">共鸣技能</b>·恶翼扬升，<b class=\"term-skill\">共鸣技能</b>·掠袭的伤害倍率提升<b class=\"term-num\">150%</b>"
+    },
+    {
+      "title": "我仍炽耀不移，自有永有",
+      "desc": "恶魔位格升级为永恒位格，永恒位格保留恶魔位格全部原有效果。；永恒位格期间<b class=\"term-normal\">普攻</b>·炽天猎杀、<b class=\"term-heavy\">重击</b>·炼羽裁决、<b class=\"term-heavy\">空中攻击</b>·火狱暴雨、<b class=\"term-normal\">闪避反击</b>·罪业当涤的伤害倍率提升<b class=\"term-num\">60%</b>。 嘉贝莉娜施放<b class=\"term-skill\">共鸣技能</b>·恶翼扬升时，每点【余火】额外为<b class=\"term-normal\">普攻</b>·炽天猎杀、<b class=\"term-heavy\">重击</b>·炼羽裁决、<b class=\"term-heavy\">空中攻击</b>·火狱暴雨、<b class=\"term-skill\">共鸣技能</b>·掠袭、<b class=\"term-normal\">闪避反击</b>·罪业当涤提升<b class=\"term-num\">0.875%</b>热熔伤害加深，至多提升<b class=\"term-num\">35%</b>热熔伤害加深，退出永恒位格时移除",
+      "summary": "恶魔位格升级为永恒位格，永恒位格保留恶魔位格全部原有效果"
+    }
+  ],
+  "卡卡罗": [
+    {
+      "title": "隐秘谈判",
+      "desc": "<b class=\"term-skill\">共鸣技能</b>灭杀指令命中目标时，额外回复<b class=\"term-num\">10点</b>共鸣能量，每<b class=\"term-num\">20秒</b>可触发<b class=\"term-num\">1次</b>。",
+      "summary": "<b class=\"term-skill\">共鸣技能</b>灭杀指令命中目标时，额外回复<b class=\"term-num\">10点</b>共鸣能量，每<b class=\"term-num\">20秒</b>可触发<b class=\"term-num\">1次</b>"
+    },
+    {
+      "title": "零和博弈",
+      "desc": "施放<b class=\"term-variation\">变奏技能</b>全境通缉或<b class=\"term-variation\">变奏技能</b>「必要的手段」后，<b class=\"term-skill\">共鸣技能</b>伤害加成提升<b class=\"term-num\">30%</b>，持续<b class=\"term-num\">15秒</b>。",
+      "summary": "施放<b class=\"term-variation\">变奏技能</b>全境通缉或<b class=\"term-variation\">变奏技能</b>「必要的手段」后，<b class=\"term-skill\">共鸣技能</b>伤害加成提升<b class=\"term-num\">30%</b>，持续<b class=\"term-num\">15秒</b>"
+    },
+    {
+      "title": "铁腕外交",
+      "desc": "<b class=\"term-burst\">共鸣解放</b>杀戮武装状态持续期间，卡卡罗的导电伤害加成提升<b class=\"term-num\">25%</b>。",
+      "summary": "<b class=\"term-burst\">共鸣解放</b>杀戮武装状态持续期间，卡卡罗的导电伤害加成提升<b class=\"term-num\">25%</b>"
+    },
+    {
+      "title": "集群威胁",
+      "desc": "施放<b class=\"term-outro\">延奏技能</b>掠影奇袭时，队伍中的角色导电伤害加成提升<b class=\"term-num\">20%</b>，持续<b class=\"term-num\">30秒</b>。",
+      "summary": "施放<b class=\"term-outro\">延奏技能</b>掠影奇袭时，队伍中的角色导电伤害加成提升<b class=\"term-num\">20%</b>，持续<b class=\"term-num\">30秒</b>"
+    },
+    {
+      "title": "替代协议",
+      "desc": "<b class=\"term-variation\">变奏技能</b>全境通缉及<b class=\"term-variation\">变奏技能</b>「必要的手段」的伤害提升<b class=\"term-num\">50%</b>。",
+      "summary": "<b class=\"term-variation\">变奏技能</b>全境通缉及<b class=\"term-variation\">变奏技能</b>「必要的手段」的伤害提升<b class=\"term-num\">50%</b>"
+    },
+    {
+      "title": "最后通牒",
+      "desc": "施放<b class=\"term-heavy\">重击</b>「死告」时，卡卡罗将会召唤2个猎杀影进行协同攻击，每个猎杀影可造成卡卡罗<b class=\"term-num\">100.00%</b>攻击的导电伤害，此次伤害为<b class=\"term-burst\">共鸣解放</b>伤害。",
+      "summary": "施放<b class=\"term-heavy\">重击</b>「死告」时，卡卡罗将会召唤2个猎杀影进行协同攻击，每个猎杀影可造成卡卡罗<b class=\"term-num\">100.00%</b>攻击的导电伤害，此次伤害为<b class=\"term-burst\">共鸣解放</b>伤害"
+    }
+  ],
+  "珂莱塔": [
+    {
+      "title": "美或死，璀璨即凋零",
+      "desc": "珂莱塔对拥有解离效果的目标攻击造成伤害时，该次伤害的暴击提升<b class=\"term-num\">12.5%</b>。对处于变彩状态下的目标施放<b class=\"term-skill\">共鸣技能</b>示我璀璨并命中时，额外回复<b class=\"term-num\">30点</b>【灵萃】。",
+      "summary": "珂莱塔对拥有解离效果的目标攻击造成伤害时，该次伤害的暴击提升<b class=\"term-num\">12.5%</b>"
+    },
+    {
+      "title": "寂与亡，衰败亦新生",
+      "desc": "<b class=\"term-burst\">共鸣解放</b>致死以终的伤害倍率提升<b class=\"term-num\">126%</b>。",
+      "summary": "<b class=\"term-burst\">共鸣解放</b>致死以终的伤害倍率提升<b class=\"term-num\">126%</b>"
+    },
+    {
+      "title": "切步、向前，此为优雅的进行式",
+      "desc": "<b class=\"term-outro\">延奏技能</b>碎璃镜花：施放<b class=\"term-outro\">延奏技能</b>致辞后，额外进行一次攻击，造成珂莱塔<b class=\"term-num\">1032.18%</b>攻击的冷凝伤害。；<b class=\"term-skill\">共鸣技能</b>暴力美学、<b class=\"term-skill\">共鸣技能</b>示我璀璨的伤害倍率提升<b class=\"term-num\">93%</b>。",
+      "summary": "<b class=\"term-outro\">延奏技能</b>碎璃镜花：施放<b class=\"term-outro\">延奏技能</b>致辞后，额外进行一次攻击，造成珂莱塔<b class=\"term-num\">1032.18%</b>攻击的冷凝伤害"
+    },
+    {
+      "title": "以旧雨，为颂赞的苦酒",
+      "desc": "珂莱塔施放<b class=\"term-heavy\">重击</b>、<b class=\"term-heavy\">重击</b>限制性策略、<b class=\"term-heavy\">重击</b>末路见行时，队伍中的角色<b class=\"term-skill\">共鸣技能</b>伤害加成提升<b class=\"term-num\">25%</b>，持续<b class=\"term-num\">30秒</b>。",
+      "summary": "珂莱塔施放<b class=\"term-heavy\">重击</b>、<b class=\"term-heavy\">重击</b>限制性策略、<b class=\"term-heavy\">重击</b>末路见行时，队伍中的角色<b class=\"term-skill\">共鸣技能</b>伤害加成提升<b class=\"term-num\">25%</b>，持续<b class=\"term-num\">30秒</b>"
+    },
+    {
+      "title": "敬昨夜、今日和彼时彼刻",
+      "desc": "<b class=\"term-heavy\">重击</b>末路见行的伤害倍率提升<b class=\"term-num\">47%</b>。",
+      "summary": "<b class=\"term-heavy\">重击</b>末路见行的伤害倍率提升<b class=\"term-num\">47%</b>"
+    },
+    {
+      "title": "我依然故我，于终幕之上",
+      "desc": "<b class=\"term-burst\">共鸣解放</b>死兆的射击造成更高的伤害，并且生成的晶体数量翻倍，二者总计使<b class=\"term-burst\">共鸣解放</b>死兆伤害倍率提升<b class=\"term-num\">186.6%</b>。；<b class=\"term-burst\">共鸣解放</b>死兆的射击命中目标时，对目标附加焕彩效果：持续时间内无法进行任何动作，受到伤害或持续<b class=\"term-num\">1.5秒</b>时清除效果。",
+      "summary": "<b class=\"term-burst\">共鸣解放</b>死兆的射击造成更高的伤害，并且生成的晶体数量翻倍，二者总计使<b class=\"term-burst\">共鸣解放</b>死兆伤害倍率提升<b class=\"term-num\">186.6%</b>"
+    }
+  ],
+  "守岸人": [
+    {
+      "title": "不语者假想",
+      "summary": "<b class=\"term-burst\">星域</b>持续时间延长，切换角色后不消散；星域内增益效果整体加强。",
+      "desc": "<b class=\"term-burst\">共鸣解放·终末回环</b>展开的<b class=\"term-resource\">星域</b>获得加强：<br>· 持续时间由 <b class=\"term-num\">3</b> 回合延长至 <b class=\"term-num\">5</b> 回合。<br>· 星域内所有增益效果（治疗、暴击率、暴击伤害、攻击力）强度提升至原本的 <b class=\"term-num\">2.5</b> 倍。<br>· 切换角色后，<b class=\"term-resource\">星域</b>不再立即消散，将持续生效至剩余时间归零。"
+    },
+    {
+      "title": "夜幕的赠予与拒绝",
+      "summary": "<b class=\"term-resource\">星域</b>内附近队伍中的角色获得攻击力加成。",
+      "desc": "<b class=\"term-resource\">星域</b>内附近队伍中的所有角色，攻击力额外提升 <b class=\"term-num\">40%</b>。"
+    },
+    {
+      "title": "无限正将我等待",
+      "summary": "<b class=\"term-burst\">共鸣解放·终末回环</b>施放后，守岸人额外回复共鸣能量。",
+      "desc": "施放<b class=\"term-burst\">共鸣解放·终末回环</b>时，守岸人额外回复 <b class=\"term-num\">20</b> 点共鸣能量。<br>该效果每 <b class=\"term-num\">2</b> 回合可触发 1 次。"
+    },
+    {
+      "title": "万物寂静满溢",
+      "summary": "<b class=\"term-skill\">共鸣技能·混沌理论</b>的治疗效果加成提升。",
+      "desc": "施放<b class=\"term-skill\">共鸣技能·混沌理论</b>时，对附近队伍中所有角色的治疗效果加成提升 <b class=\"term-num\">70%</b>。"
+    },
+    {
+      "title": "来自缄默的回声",
+      "summary": "<b class=\"term-normal\">普攻</b>追加对相邻敌人的攻击。",
+      "desc": "<b class=\"term-normal\">普攻 · 真源构演</b>命中目标后，守岸人将对一名相邻敌人造成等同于本次普攻的<b class=\"term-normal\">衍射伤害</b>。"
+    },
+    {
+      "title": "我所驶向的新世界",
+      "summary": "协奏值满时切换角色，入场角色的<b class=\"term-variation\">变奏伤害</b>大幅提升。",
+      "desc": "当守岸人协奏值达到 100 后切换角色时，入场角色的<b class=\"term-variation\">变奏技能·洞悉</b>伤害倍率提升至原本的 <b class=\"term-num\">6</b> 倍。"
+    }
+  ]
+}

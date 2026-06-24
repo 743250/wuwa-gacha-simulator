@@ -106,6 +106,15 @@ input,select{font:inherit;color:inherit}
 .banner-art .ba-banner{font-size:14px;color:var(--gold);margin-top:10px;letter-spacing:1px;font-weight:500}
 .banner-art .ba-fours{margin-top:10px;font-size:12px;color:var(--muted);letter-spacing:.5px}
 .banner-art .ba-fours b{color:var(--text);font-weight:400;margin-right:2px}
+.pool-badge{display:inline-block;font-size:11px;letter-spacing:1.5px;padding:3px 10px;border-radius:999px;margin-top:8px;border:1px solid;background:rgba(0,0,0,.25)}
+.pool-badge.novice{border-color:rgba(141,230,166,.55);color:#8de6a6;background:rgba(141,230,166,.08)}
+.pool-badge.perm{border-color:rgba(245,207,107,.55);color:var(--gold);background:rgba(245,207,107,.08)}
+.pool-badge.collab{border-color:rgba(255,140,94,.55);color:#ff8c5e;background:rgba(255,140,94,.08)}
+.pool-badge.event{border-color:rgba(195,155,255,.55);color:#c39bff;background:rgba(195,155,255,.08)}
+.ba-standard-list{margin-top:9px;padding:7px 9px;border:1px dashed rgba(255,255,255,.12);border-radius:8px;background:rgba(255,255,255,.02)}
+.ba-standard-list .bsl-title{font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:4px}
+.ba-standard-list .bsl-row{display:flex;gap:5px;flex-wrap:wrap}
+.ba-standard-list .bsl-chip{font-size:11px;color:var(--gold);background:rgba(245,207,107,.06);border:1px solid rgba(245,207,107,.3);padding:2px 7px;border-radius:4px;letter-spacing:.5px}
 .banner-art .ba-meta{z-index:1;display:flex;flex-direction:column;align-items:flex-end;justify-content:center;text-align:right;flex-shrink:0}
 .banner-art .ba-up{font-size:11px;letter-spacing:3px;padding:6px 14px;border-radius:999px;
   background:var(--gold);color:#1a1208;font-weight:700;}
@@ -329,36 +338,95 @@ input,select{font:inherit;color:inherit}
 .seq-detail{display:flex;flex-direction:column;gap:8px;margin-top:4px}
 .seq-line{font-size:11px;line-height:1.7;letter-spacing:.3px;border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:rgba(255,255,255,.02)}
 .seq-line.owned{border-color:rgba(245,207,107,.28);background:rgba(245,207,107,.04)}
-.seq-name{display:block;color:var(--muted);font-weight:600;margin-bottom:2px;letter-spacing:1px}
+.seq-name{display:block;color:var(--muted);font-weight:600;margin-bottom:4px;letter-spacing:1px}
 .seq-name.owned{color:var(--gold)}
-.seq-effect{margin:4px 0 5px;color:var(--accent);font-size:10px;line-height:1.5}
-.seq-desc{color:var(--dim);word-break:break-word;white-space:normal;line-height:1.7}
+.seq-desc{color:var(--muted);word-break:break-word;white-space:normal;line-height:1.75}
+.seq-sim{margin-top:6px;padding:5px 8px;border-left:2px solid rgba(123,214,255,.4);background:rgba(123,214,255,.04);color:var(--dim);font-size:10px;line-height:1.6;border-radius:0 4px 4px 0}
+.seq-sim b{color:#7bd6ff;font-weight:600}
+
+/* 数值/公式 tooltip：悬停时弹出，给关键数字带下划线 */
+.tip{
+  display:inline;
+  border-bottom:1px dashed rgba(245,207,107,.7);
+  color:var(--gold);
+  cursor:help;
+}
+/* 术语 tooltip：用于已染色的专有名词（锐意之势/破阵值/变奏 等），保留原色，仅加虚线提示 */
+.tip-term{
+  display:inline;
+  border-bottom:1px dotted currentColor;
+  cursor:help;
+  opacity:.95;
+}
+.tip-term:hover{opacity:1}
+.tip-pop{
+  position:fixed;
+  z-index:9999;
+  background:#1a1f2b;
+  border:1px solid var(--line2);
+  border-radius:6px;
+  padding:8px 12px;
+  color:var(--text);
+  font-size:11px;
+  line-height:1.7;
+  white-space:normal;
+  max-width:380px;
+  letter-spacing:.3px;
+  box-shadow:0 8px 24px rgba(0,0,0,.55);
+  pointer-events:none;
+}
 .chain{display:grid;grid-template-columns:repeat(6,1fr);gap:3px;margin:8px 0 10px}
 .chain i{display:block;height:18px;border-radius:3px;background:rgba(255,255,255,.05);
   font-size:9px;text-align:center;line-height:18px;color:var(--muted);font-style:normal}
 .chain i.on{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#1a1208;font-weight:700}
 
-/* 角色详情弹窗：左侧 tab */
-.role-modal{max-width:860px}
+/* 角色详情弹窗：左侧 tab · 整体高度固定，避免切 tab 时外框跳变 */
+.role-modal{max-width:860px;width:860px;max-width:96vw}
 .role-modal .desc{margin-bottom:10px}
-.role-modal-wrap{display:grid;grid-template-columns:170px minmax(0,1fr);gap:14px;align-items:start}
-.role-sidebar{display:flex;flex-direction:column;gap:7px;position:sticky;top:0}
+.role-modal-wrap{display:grid;grid-template-columns:170px minmax(0,1fr);gap:14px;align-items:stretch;height:62vh;min-height:480px}
+.role-sidebar{display:flex;flex-direction:column;gap:7px}
 .role-portrait{border:1px solid var(--line);border-radius:10px;padding:12px 10px;text-align:center;background:linear-gradient(180deg,rgba(245,207,107,.08),rgba(255,255,255,.02))}
 .role-tab{display:flex;align-items:center;gap:8px;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:rgba(255,255,255,.025);color:var(--muted);cursor:pointer;transition:.15s}
 .role-tab:hover{border-color:var(--line2);color:var(--text)}
 .role-tab.on{border-color:rgba(123,214,255,.55);background:rgba(123,214,255,.12);color:var(--text)}
 .role-tab .rt-icon{width:20px;text-align:center;font-size:13px}
 .role-tab .rt-lbl{font-size:12px;letter-spacing:1px}
-.role-content{min-width:0;max-height:62vh;overflow-y:auto;padding-right:4px}
+.role-content{min-width:0;height:100%;overflow-y:auto;padding-right:4px}
 .role-content::-webkit-scrollbar{width:4px}
 .role-content::-webkit-scrollbar-thumb{background:rgba(255,255,255,.14);border-radius:2px}
 @media(max-width:680px){
-  .role-modal-wrap{grid-template-columns:1fr}
-  .role-sidebar{position:static;display:grid;grid-template-columns:repeat(2,1fr)}
+  .role-modal{width:100%}
+  .role-modal-wrap{grid-template-columns:1fr;height:auto;min-height:0}
+  .role-sidebar{display:grid;grid-template-columns:repeat(2,1fr)}
   .role-portrait{grid-column:1/-1}
   .role-tab{justify-content:center}
-  .role-content{max-height:none;overflow:visible;padding-right:0}
+  .role-content{height:auto;max-height:none;overflow:visible;padding-right:0}
 }
+
+/* 共鸣链文案高亮：把关键术语做成可识别的小徽章 */
+.seq-desc b.term-skill,
+.seq-desc b.term-burst,
+.seq-desc b.term-heavy,
+.seq-desc b.term-normal,
+.seq-desc b.term-variation,
+.seq-desc b.term-outro,
+.seq-desc b.term-concerto,
+.seq-desc b.term-forte,
+.seq-desc b.term-resource,
+.seq-desc b.term-num{
+  font-weight:600;border-bottom:1px solid currentColor;padding:0 1px;letter-spacing:.3px;
+}
+.seq-desc b.term-skill   {color:#7bd6ff}   /* 共鸣技能 */
+.seq-desc b.term-burst   {color:#f5cf6b}   /* 共鸣解放 */
+.seq-desc b.term-heavy   {color:#ff8c5e}   /* 重击 */
+.seq-desc b.term-normal  {color:#c9d8e8}   /* 普攻 */
+.seq-desc b.term-variation{color:#c39bff}  /* 变奏 */
+.seq-desc b.term-outro   {color:#c39bff}   /* 延奏 */
+.seq-desc b.term-concerto{color:#8de6a6}   /* 协奏 */
+.seq-desc b.term-forte   {color:#ffd96b}   /* 共鸣回路 */
+.seq-desc b.term-resource{color:#ffd96b}   /* 资源条名（破阵值、星蝶、离火...） */
+.seq-desc b.term-num     {color:#fff;border-bottom-color:rgba(255,255,255,.4)} /* 数值百分比 */
+.seq-desc{color:var(--muted)}                /* 比原来的 var(--dim) 亮一点，更易读 */
 
 /* 记录 */
 .log{max-height:680px;overflow-y:auto;display:flex;flex-direction:column;gap:4px;padding-right:3px}
@@ -515,10 +583,189 @@ input,select{font:inherit;color:inherit}
 /* 战斗页按钮 */
 .bbtn{flex:1;padding:10px 8px;background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:8px;color:var(--text);font-size:12px;letter-spacing:1px;cursor:pointer;transition:.15s;min-width:60px}
 .bbtn:hover{border-color:var(--accent);color:var(--accent)}
-.bbtn:disabled{opacity:.35;cursor:not-allowed}
-.bbtn:disabled:hover{border-color:var(--line);color:var(--text)}
+/* :disabled 用 !important 压住按钮上的内联颜色（技能 accent、重击 #ff8c5e、解放 gold） */
+.bbtn:disabled{opacity:.32;cursor:not-allowed;color:var(--dim)!important;border-color:var(--line)!important;background:rgba(255,255,255,.02)!important;filter:saturate(.3)}
+.bbtn:disabled:hover{border-color:var(--line)!important;color:var(--dim)!important}
 
 /* 战斗中武器叠层 / buff 小标签 */
 .wstack{display:inline-block;font-size:8px;padding:1px 5px;border-radius:4px;
   background:rgba(245,207,107,.12);border:1px solid rgba(245,207,107,.3);
   color:var(--gold2);letter-spacing:.3px;line-height:1.4;white-space:nowrap}
+
+/* ===== 战斗 UI 局部刷新结构 + buff 突出显示 ===== */
+.battle-root{max-width:880px;width:100%;margin:0 auto;padding:24px;max-height:96vh;overflow-y:auto}
+.bf-buff-stripe{
+  display:flex;flex-wrap:wrap;gap:6px;
+  margin:8px 0 4px;
+  padding:8px 10px;
+  border:1px solid rgba(245,207,107,.25);
+  border-radius:10px;
+  background:linear-gradient(135deg,rgba(245,207,107,.06),rgba(195,155,255,.04));
+  min-height:36px;
+  align-items:center;
+}
+.bf-buff-stripe.empty{
+  background:rgba(255,255,255,.02);
+  border-color:var(--line);
+  color:var(--dim);
+  font-size:10px;
+  letter-spacing:1px;
+}
+.bf-buff{
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  padding:4px 10px;
+  border-radius:999px;
+  font-size:11px;
+  font-weight:600;
+  border:1px solid;
+  letter-spacing:.5px;
+  animation:bf-buff-in .25s ease-out;
+  position:relative;
+  overflow:hidden;
+}
+.bf-buff::before{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(135deg,currentColor 0%,transparent 60%);
+  opacity:.12;pointer-events:none;
+}
+.bf-buff.atk    {color:#ffb677;border-color:#ffb677;background:rgba(255,182,119,.08)}
+.bf-buff.def    {color:#69b8ff;border-color:#69b8ff;background:rgba(105,184,255,.08)}
+.bf-buff.heal   {color:#8de6a6;border-color:#8de6a6;background:rgba(141,230,166,.08)}
+.bf-buff.crit   {color:var(--gold);border-color:var(--gold);background:rgba(245,207,107,.10)}
+.bf-buff.burst  {color:#ffd96b;border-color:#ffd96b;background:rgba(255,217,107,.10)}
+.bf-buff.shield {color:#c39bff;border-color:#c39bff;background:rgba(195,155,255,.10)}
+.bf-buff.debuff {color:#ff8585;border-color:#ff8585;background:rgba(255,133,133,.08)}
+.bf-buff.field  {color:#7bd6ff;border-color:#7bd6ff;background:rgba(123,214,255,.08)}
+.bf-buff .bf-dur{
+  font-size:9px;
+  padding:1px 5px;
+  background:rgba(0,0,0,.25);
+  border-radius:8px;
+  margin-left:2px;
+  opacity:.85;
+}
+
+/* 入场闪光：每次重新出现时跑一次 */
+@keyframes bf-buff-in{
+  0%{transform:scale(.5) translateY(-4px);opacity:0;filter:blur(2px)}
+  100%{transform:scale(1) translateY(0);opacity:1;filter:blur(0)}
+}
+@keyframes bf-flash{
+  0%{box-shadow:0 0 0 0 currentColor}
+  50%{box-shadow:0 0 12px 2px currentColor}
+  100%{box-shadow:0 0 0 0 currentColor}
+}
+.bf-buff.flash{animation:bf-flash .6s ease-out 1, bf-buff-in .25s ease-out}
+
+/* 顶部 buff 滚动条 */
+.bf-toast-stack{
+  position:absolute;top:6px;left:50%;transform:translateX(-50%);
+  display:flex;flex-direction:column;gap:4px;z-index:5;pointer-events:none;
+}
+.bf-toast{
+  padding:5px 14px;border-radius:999px;font-size:11px;font-weight:600;
+  border:1px solid var(--gold);color:var(--gold);
+  background:rgba(20,16,8,.92);
+  animation:bf-toast .35s ease-out;
+  letter-spacing:1px;
+  white-space:nowrap;
+  box-shadow:0 4px 14px rgba(0,0,0,.5);
+}
+@keyframes bf-toast{
+  0%{transform:translateY(-12px);opacity:0}
+  100%{transform:translateY(0);opacity:1}
+}
+
+/* 帧标识：当前出手角色脉冲发光 */
+@keyframes bf-active-pulse{
+  0%,100%{box-shadow:0 0 0 0 rgba(245,207,107,.0)}
+  50%{box-shadow:0 0 16px 2px rgba(245,207,107,.45)}
+}
+.bf-unit.active{animation:bf-active-pulse 2.2s ease-in-out infinite}
+
+/* 战斗结构：上半 Header（顶部信息）→ 敌人区 → 我方区 → 日志区 → 动作区。各自 id 便于局部更新 */
+
+/* ============ 先约电台 BP 面板 ============ */
+.pc-head { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:12px; flex-wrap:wrap; }
+.pc-title { font-size:18px; font-weight:600; letter-spacing:2px; color:var(--text); }
+.pc-expire { display:inline-block; margin-left:10px; font-size:11px; letter-spacing:.5px; color:var(--muted); font-weight:400; padding:2px 8px; border:1px solid var(--line); border-radius:4px; background:rgba(255,255,255,.02); }
+.pc-expire b { color:var(--gold); font-weight:600; }
+.pc-purchase { display:flex; gap:6px; align-items:center; }
+.pc-purchase .tag-on { background:rgba(245,207,107,.15); color:var(--gold); padding:4px 10px; border-radius:6px; border:1px solid rgba(245,207,107,.4); font-size:11px; letter-spacing:1px; }
+
+.pc-progress { background:var(--panel2); border:1px solid var(--line); border-radius:10px; padding:12px 16px; margin-bottom:14px; }
+.pc-lv-big { font-size:14px; color:var(--muted); letter-spacing:1px; }
+.pc-lv-big b { font-size:24px; color:var(--gold); margin:0 4px; }
+.pc-exp-bar { background:rgba(0,0,0,.4); border-radius:4px; height:8px; margin:6px 0 4px; overflow:hidden; border:1px solid var(--line); }
+.pc-exp-fill { background:linear-gradient(90deg, var(--gold), var(--gold2)); height:100%; transition:width .3s; }
+.pc-exp-num { font-size:11px; color:var(--dim); text-align:right; letter-spacing:1px; }
+.pc-actions { margin-top:10px; display:flex; gap:6px; flex-wrap:wrap; }
+
+.pc-track-label { display:flex; justify-content:space-between; align-items:center; margin:4px 0; font-size:11px; color:var(--muted); letter-spacing:2px; padding:0 4px; }
+.pc-label-free { color:var(--accent); }
+.pc-label-paid { color:var(--gold); }
+
+.pc-track-scroll { overflow-x:auto; overflow-y:hidden; border:1px solid var(--line); border-radius:10px; background:var(--bg2); padding:10px 6px; }
+.pc-track-scroll::-webkit-scrollbar { height:8px; }
+.pc-track-scroll::-webkit-scrollbar-thumb { background:var(--line2); border-radius:4px; }
+.pc-track-inner { display:flex; gap:4px; align-items:center; }
+
+.pc-col { display:flex; flex-direction:column; align-items:stretch; min-width:64px; max-width:64px; }
+.pc-col.pc-cur .pc-lv { background:var(--gold); color:#000; font-weight:700; }
+.pc-col.pc-reached .pc-lv { color:var(--gold); }
+.pc-lv { text-align:center; font-size:11px; color:var(--dim); padding:3px 0; letter-spacing:1px; background:rgba(0,0,0,.3); border-radius:3px; margin:3px 0; }
+
+.pc-cell-free, .pc-cell-paid {
+  position:relative;
+  background:var(--panel2);
+  border:1px solid var(--line);
+  border-radius:6px;
+  padding:4px 3px;
+  min-height:48px;
+  font-size:10px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition: all .15s;
+}
+.pc-cell-free { border-top:2px solid rgba(123,214,255,.3); }
+.pc-cell-paid { border-bottom:2px solid rgba(245,207,107,.3); }
+.pc-cell-free.canclaim, .pc-cell-paid.canclaim {
+  background:rgba(245,207,107,.18);
+  border-color:var(--gold);
+  cursor:pointer;
+  box-shadow:0 0 8px rgba(245,207,107,.4);
+  animation: pc-glow 1.5s ease-in-out infinite alternate;
+}
+@keyframes pc-glow { from { box-shadow:0 0 4px rgba(245,207,107,.3); } to { box-shadow:0 0 12px rgba(245,207,107,.7); } }
+.pc-cell-free.canclaim:hover, .pc-cell-paid.canclaim:hover { transform:translateY(-1px); }
+.pc-cell-free.claimed, .pc-cell-paid.claimed { opacity:.4; background:rgba(0,0,0,.3); }
+.pc-cell-free.claimed::after, .pc-cell-paid.claimed::after { content:'✓'; position:absolute; right:3px; top:1px; color:var(--green); font-weight:bold; font-size:11px; }
+.pc-cell-paid.locked { opacity:.45; background:rgba(20,12,8,.5); }
+.lock-icon { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-size:14px; opacity:.7; }
+.rw { display:flex; flex-wrap:wrap; gap:2px; justify-content:center; align-content:center; line-height:1.2; }
+.rc { display:inline-block; background:rgba(255,255,255,.05); border-radius:3px; padding:1px 4px; font-size:10px; color:var(--text); white-space:nowrap; }
+.rc-astrite { color:var(--accent); }
+.rc-lunite { color:var(--purple); }
+.rc-radiant { color:var(--r-radiant); }
+.rc-forging { color:var(--r-forging); }
+.rc-lustrous { color:var(--r-lustrous); }
+.rc-super { color:var(--gold); }
+.rc-box { color:var(--gold); background:rgba(245,207,107,.18); border:1px solid rgba(245,207,107,.4); font-weight:bold; }
+.rc-cos { color:var(--purple); background:rgba(195,155,255,.12); }
+.dim { color:var(--dim); }
+
+/* 任务区 */
+.pc-tasks { margin-top:18px; display:flex; flex-direction:column; gap:14px; }
+.pct-bucket { background:var(--panel2); border:1px solid var(--line); border-radius:10px; padding:10px 14px; }
+.pct-bucket-head { font-size:13px; color:var(--gold); letter-spacing:1px; margin-bottom:8px; font-weight:600; }
+.pct-list { display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:8px; }
+.pct { background:rgba(0,0,0,.25); border:1px solid var(--line); border-radius:6px; padding:6px 10px; }
+.pct.pct-done { background:rgba(141,230,166,.08); border-color:rgba(141,230,166,.3); }
+.pct-name { font-size:12px; color:var(--text); margin-bottom:4px; }
+.pct-bar { background:rgba(0,0,0,.4); height:5px; border-radius:3px; overflow:hidden; margin-bottom:3px; }
+.pct-fill { background:linear-gradient(90deg, var(--accent), var(--gold)); height:100%; transition:width .3s; }
+.pct-info { font-size:10px; color:var(--dim); letter-spacing:.5px; }
+.pct.pct-done .pct-info { color:var(--green); }

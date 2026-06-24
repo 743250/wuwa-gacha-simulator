@@ -1,6 +1,8 @@
-// 背包面板：统一展示玩家所有持有物
+// 背包面板：统一展示玩家所有持有物（货币 / 抽卡资源 / 材料 / 药剂 / 武器 / 特殊道具）
 import { S, $, msg } from '../state.js';
-import { usePotion, useAllPotions, POTIONS } from '../daily/stamina.js';
+import { usePotion, useAllPotions, POTIONS, buyStaminaWithAstrite } from '../daily/stamina.js';
+import { WEAPON_BOX_OPTIONS } from '../data/podcast-rewards.js';
+import { openModal } from '../modal.js';
 
 export function renderBag() {
   const container = $('paneBag');
@@ -76,10 +78,11 @@ export function renderBag() {
   Object.values(POTIONS).forEach(p => {
     const have = S.materials[p.id] || 0;
     const canUse = have > 0 && S.stamina < 480;
+    const capTag = p.hardCap ? `<span style="font-size:9px;color:var(--muted);margin-left:4px">上限 ${p.hardCap}</span>` : '';
     html += `<div style="border:1px solid var(--line);border-radius:8px;padding:9px 11px;background:rgba(141,230,166,.04)">
       <div style="display:flex;justify-content:space-between;align-items:baseline">
-        <span style="font-size:12px;font-weight:600">${p.name}</span>
-        <span style="font-size:15px;font-weight:700;color:var(--green)">×${have}</span>
+        <span style="font-size:12px;font-weight:600">${p.name}${capTag}</span>
+        <span style="font-size:15px;font-weight:700;color:var(--green)">${p.hardCap ? `${have}/${p.hardCap}` : `×${have}`}</span>
       </div>
       <div style="font-size:9px;color:var(--dim);margin:3px 0 6px;letter-spacing:.3px">${p.desc}</div>
       <div style="display:flex;gap:4px">
@@ -98,30 +101,55 @@ export function renderBag() {
     </button>`;
   }
 
-  // 角色和武器数量统计
-  const roleTotal = Object.values(S.roles).filter(r => r.owned > 0).length;
-  const role5 = Object.values(S.roles).filter(r => r.owned > 0 && r.r === 5).length;
-  const role4 = Object.values(S.roles).filter(r => r.owned > 0 && r.r === 4).length;
-  const weaponTotal = Object.keys(S.weapons).length;
-  const weapon5 = Object.values(S.weapons).filter(w => w.r === 5).length;
-  const weapon4 = Object.values(S.weapons).filter(w => w.r === 4).length;
-  html += `<div style="font-size:10px;color:var(--muted);letter-spacing:2px;margin:14px 0 6px">收 藏</div>`;
-  html += `<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
-    <div style="border:1px solid var(--line);border-radius:8px;padding:9px 11px;background:rgba(255,255,255,.02)">
-      <div style="display:flex;justify-content:space-between;align-items:baseline">
-        <span style="font-size:12px;font-weight:600">已拥有角色</span>
-        <span style="font-size:15px;font-weight:700;color:var(--gold)">${roleTotal}</span>
-      </div>
-      <div style="font-size:9px;color:var(--dim);margin-top:3px">★5 × ${role5} · ★4 × ${role4}</div>
-    </div>
-    <div style="border:1px solid var(--line);border-radius:8px;padding:9px 11px;background:rgba(255,255,255,.02)">
-      <div style="display:flex;justify-content:space-between;align-items:baseline">
-        <span style="font-size:12px;font-weight:600">已拥有武器</span>
-        <span style="font-size:15px;font-weight:700;color:var(--accent)">${weaponTotal}</span>
-      </div>
-      <div style="font-size:9px;color:var(--dim);margin-top:3px">★5 × ${weapon5} · ★4 × ${weapon4}</div>
-    </div>
-  </div>`;
+  // 特殊道具（电台武器箱 / 烙金银杏）
+  const pendingBox = S.podcast?.pendingWeaponBox || 0;
+  const pendingRefine = S.podcast?.pendingRefine || 0;
+  if (pendingBox > 0 || pendingRefine > 0) {
+    html += `<div style="font-size:10px;color:var(--muted);letter-spacing:2px;margin:14px 0 6px">特 殊 道 具</div>`;
+    html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">';
+    if (pendingBox > 0) {
+      html += `<div style="border:1px solid rgba(245,207,107,.45);border-radius:8px;padding:9px 11px;background:rgba(245,207,107,.07)">
+        <div style="display:flex;justify-content:space-between;align-items:baseline">
+          <span style="font-size:12px;font-weight:600;color:var(--gold)">4★ 武器自选箱</span>
+          <span style="font-size:15px;font-weight:700;color:var(--gold)">×${pendingBox}</span>
+        </div>
+        <div style="font-size:9px;color:var(--dim);margin:3px 0 6px;letter-spacing:.3px">来自先约电台 · 5 选 1</div>
+        <button class="mbtn gold" style="width:100%;font-size:10px;padding:5px" onclick="window.__bagOpenWeaponBox()">开启</button>
+      </div>`;
+    }
+    if (pendingRefine > 0) {
+      html += `<div style="border:1px solid var(--line);border-radius:8px;padding:9px 11px;background:rgba(195,155,255,.05)">
+        <div style="display:flex;justify-content:space-between;align-items:baseline">
+          <span style="font-size:12px;font-weight:600;color:var(--purple)">烙金银杏（精炼石）</span>
+          <span style="font-size:15px;font-weight:700;color:var(--purple)">×${pendingRefine}</span>
+        </div>
+        <div style="font-size:9px;color:var(--dim);margin:3px 0 6px;letter-spacing:.3px">用于精炼 4★ 自选武器（需先领武器箱）</div>
+        <button class="mbtn" style="width:100%;font-size:10px;padding:5px" onclick="window.__bagUseRefineStone()" ${pendingBox > 0 ? '' : ''}>使用 1 块</button>
+      </div>`;
+    }
+    html += '</div>';
+  }
+
+  // 已拥有武器列表
+  const weapons = Object.entries(S.weapons || {});
+  if (weapons.length > 0) {
+    html += `<div style="font-size:10px;color:var(--muted);letter-spacing:2px;margin:14px 0 6px">已 拥 有 武 器 (${weapons.length})</div>`;
+    html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">';
+    weapons.sort((a, b) => (b[1].r || 0) - (a[1].r || 0))
+      .forEach(([name, w]) => {
+        const star = '★'.repeat(w.r || 0);
+        const starColor = w.r === 5 ? 'var(--gold)' : w.r === 4 ? 'var(--purple)' : 'var(--accent)';
+        const eqTag = w.equippedBy ? `<span style="font-size:9px;color:var(--green);margin-left:4px">装备中</span>` : '';
+        html += `<div style="border:1px solid var(--line);border-radius:8px;padding:8px 11px;background:rgba(255,255,255,.02)">
+          <div style="display:flex;justify-content:space-between;align-items:baseline">
+            <span style="font-size:12px;font-weight:600">${name}${eqTag}</span>
+            <span style="font-size:11px;color:${starColor}">${star}</span>
+          </div>
+          <div style="font-size:10px;color:var(--dim);margin-top:3px">Lv ${w.level || 1} · R${w.refine || 1}${w.equippedBy ? ` · ${w.equippedBy}` : ''}</div>
+        </div>`;
+      });
+    html += '</div>';
+  }
 
   container.innerHTML = html;
 }
@@ -139,6 +167,53 @@ window.__useAllPotions = () => {
   const gained = useAllPotions();
   if (gained === 0) { msg('没有药剂可用'); return; }
   msg(`回复 ${gained} 体力`, false);
+  renderBag();
+  window.__render();
+};
+
+window.__buyStamina = () => {
+  const r = buyStaminaWithAstrite();
+  if (!r.ok) { msg(r.err); return; }
+  msg(`60 星声 → +${r.gained} 波片`, false);
+  renderBag();
+  window.__render();
+};
+
+// 打开待领武器箱
+window.__bagOpenWeaponBox = () => {
+  if (!S.podcast?.pendingWeaponBox) return msg('没有待开的武器箱');
+  S.podcast.pendingWeaponBox--;
+  const buttons = WEAPON_BOX_OPTIONS.map(n =>
+    `<button class="mbtn" style="margin:4px;min-width:90px" onclick="window.__radioPickWeapon('${n}')">${n}</button>`
+  ).join('');
+  openModal({
+    title: '4★ 武器自选箱',
+    body: `<div style="color:var(--muted);font-size:12px;margin-bottom:10px">从下面 5 把 4 星武器中任选 1 把（已持有则精炼 +1）</div>
+<div style="text-align:center">${buttons}</div>`,
+    actions: [{ label: '稍后再选', cls: '', fn: () => {
+      S.podcast.pendingWeaponBox++; // 退回
+      renderBag();
+    }}]
+  });
+};
+
+window.__bagUseRefineStone = () => {
+  if (!S.podcast?.pendingRefine) return msg('没有精炼石');
+  const owned = WEAPON_BOX_OPTIONS.filter(n => S.weapons[n]);
+  if (owned.length === 0) {
+    msg('需先领取 4★ 自选武器才能使用精炼石');
+    return;
+  }
+  S.podcast.pendingRefine--;
+  const target = owned[0];
+  const w = S.weapons[target];
+  if ((w.refine || 1) < 5) {
+    w.refine = (w.refine || 1) + 1;
+    msg(`${target} 精炼 +1（现 R${w.refine}）`, false);
+  } else {
+    S.materials.exp_super = (S.materials.exp_super || 0) + 2;
+    msg(`${target} 已 5 精 · 补偿特级促剂 ×2`, false);
+  }
   renderBag();
   window.__render();
 };

@@ -1,7 +1,8 @@
 // 商店
 // 数据校准（2026-06）：按鸣潮真实商店档位实装
-import { S, msg } from '../state.js';
+import { S, msg, fmt } from '../state.js';
 import { openModal } from '../modal.js';
+import { unlockPaid, unlockPremium } from '../podcast/core.js';
 
 export const shopCatalog = {
   // ===== 月相充值（六档，鸣潮真实档位） =====
@@ -21,79 +22,92 @@ export const shopCatalog = {
   ],
 
   // ===== 月卡：月相观测卡（Lunite Subscription） =====
-  // 来源：https://wutheringwaves.fandom.com/wiki/Lunite_Subscription
+  // 上限 180 天：超出时不延长天数，而是补 +330 月相（一次性）
   monthly: [
     { id: 'monthly', name: '月相观测卡', price: 30,
       lunite: 300, days: 30, dailyAstrite: 90,
-      desc: '立即 300 月相 + 30 天每日 90 星声（合计 2700 星声）<br>可叠加延长，时长上限 180 天；超出上限购买改为 +330 月相，不延长天数' }
+      desc: '立即 300 月相 + 30 天每日 90 星声（合计 2700 星声）<br>可叠加延长，时长上限 180 天；超出上限购买改为 +330 月相，不延长天数<br><b style="color:var(--gold)">购买当天会立即领取一份每日星声</b>' }
   ],
 
-  // ===== 战令：先约电台（Pioneer Podcast） =====
-  // 联觉等级 9 解锁，70 级进度条，每级需 10000 Podcast Experience
-  // 来源：https://wutheringwaves.fandom.com/wiki/Pioneer_Podcast
+  // ===== 战令：先约电台（Pioneer Podcast）· 按 3.4 官方 =====
+  // 改为"解锁付费奖励轨"模型（70 级 BP），购买后已达成等级可追领
   pass: [
     { id: 'bp_basic', name: '先约电台 · 内幕频道', price: 68,
-      astrite: 680, radiant: 5, lustrous: 2, exp_high: 8, weapon_book: 12, crystal_solvent: 7,
-      desc: '680 星声 + 浮金 ×5 + 唤声 ×2 + 高级促剂 ×8 + 武器石 ×12<br>解锁 4 星 Golden Eternal 武器自选 · 7 结晶溶剂（一版本一次）' },
+      unlocksPodcast: true,
+      desc: '解锁本期付费奖励轨（70 级双线）<br>满级合计：680 星声 + 浮金 ×5 + 唤声 ×2 + 结晶溶剂 ×7 + 4★ 武器自选箱 + 大量养成料<br><b style="color:var(--gold)">需在本期满级才能取得全部</b>' },
     { id: 'bp_premium', name: '先约电台 · 寰宇频道', price: 128,
-      astrite: 1280, radiant: 6, forging: 6, lustrous: 6, exp_super: 6, weapon_book: 20,
-      desc: '1280 星声 + 三色波纹各 6 + 特级促剂 ×6 + 武器石 ×20（含内幕频道全部内容）' }
+      unlocksPodcast: true, premiumPodcast: true,
+      desc: '解锁付费轨 + 立即 +10 级<br>额外赠：浮金 ×8 / 唤声 ×4 / 特级促剂 ×4 / 头像挂件<br><span style="color:var(--muted);font-size:11px">含内幕频道全部内容（从内幕升级差价 ¥60）</span>' }
   ],
 
-  // ===== 礼包（鸣潮真实命名 · 内容为模拟器估算） =====
-  // ⚠ 礼包名取自国服 3.4 商店截图，内容为模拟器估算（待校准）
-  // 颜色：banner 卡片配色按 type 字段区分（gold/red/green）
+  // ===== 礼包（鸣潮 3.4 国服 · 按用户提供的官方口径）=====
   bundle: [
     // ---- 求索系列（角色/武器卡池资源，版本限购）----
-    { id: 'qsfj_1', name: '求索的浮金珍藏 I', price: 75, type: 'gold',
-      astrite: 680, radiant: 5,
-      desc: '680 星声 + 浮金波纹 ×5<br>角色卡池抽卡资源',
+    { id: 'qsfj_1', name: '求索的浮金珍藏 I', price: 68, type: 'gold',
+      astrite: 400, radiant: 5,
+      desc: '400 星声 + 浮金波纹 ×5<br>角色卡池抽卡资源 · 版本限购 1 次',
       limit: 1, period: 'version' },
-    { id: 'qsfj_2', name: '求索的浮金珍藏 II', price: 140, type: 'gold',
-      astrite: 1280, radiant: 10,
-      desc: '1280 星声 + 浮金波纹 ×10<br>角色卡池抽卡资源',
+    { id: 'qsfj_2', name: '求索的浮金珍藏 II', price: 198, type: 'gold',
+      astrite: 900, radiant: 15,
+      desc: '900 星声 + 浮金波纹 ×15<br>角色卡池抽卡资源 · 版本限购 1 次',
       limit: 1, period: 'version' },
-    { id: 'qscc_1', name: '求索的铸潮珍藏 I', price: 75, type: 'gold',
-      astrite: 680, forging: 5,
-      desc: '680 星声 + 铸潮波纹 ×5<br>武器卡池抽卡资源',
+    { id: 'qscc_1', name: '求索的铸潮珍藏 I', price: 68, type: 'gold',
+      astrite: 400, forging: 5,
+      desc: '400 星声 + 铸潮波纹 ×5<br>武器卡池抽卡资源 · 版本限购 1 次',
       limit: 1, period: 'version' },
-    { id: 'qscc_2', name: '求索的铸潮珍藏 II', price: 140, type: 'gold',
-      astrite: 1280, forging: 10,
-      desc: '1280 星声 + 铸潮波纹 ×10<br>武器卡池抽卡资源',
-      limit: 1, period: 'version' },
-
-    // ---- 叛客系列（联动卡池资源，版本限购）----
-    { id: 'pkbm_1', name: '叛客的捕梦珍藏', price: 140, type: 'red',
-      astrite: 1280, dream: 8,
-      desc: '1280 星声 + 捕梦波纹 ×8<br>联动角色卡池资源',
-      limit: 1, period: 'version' },
-    { id: 'pkmy_1', name: '叛客的铭影珍藏 I', price: 75, type: 'red',
-      astrite: 680, mirage: 5,
-      desc: '680 星声 + 铭影波纹 ×5<br>联动武器卡池资源',
-      limit: 1, period: 'version' },
-    { id: 'pkmy_2', name: '叛客的铭影珍藏 II', price: 140, type: 'red',
-      astrite: 1280, mirage: 10,
-      desc: '1280 星声 + 铭影波纹 ×10<br>联动武器卡池资源',
+    { id: 'qscc_2', name: '求索的铸潮珍藏 II', price: 198, type: 'gold',
+      astrite: 900, forging: 15,
+      desc: '900 星声 + 铸潮波纹 ×15<br>武器卡池抽卡资源 · 版本限购 1 次',
       limit: 1, period: 'version' },
 
-    // ---- 准时宝（月限）----
-    { id: 'zsb_monthly', name: '准时宝的月度驰援', price: 18, type: 'gold',
-      astrite: 280, exp_high: 10, weapon_book: 15,
-      desc: '280 星声 + 高级共鸣促剂 ×10 + 武器突破石 ×15<br>每月限购 1 次',
+    // ---- 叛客系列（联动卡池资源，仅联动版本可见）----
+    { id: 'pkbm_1', name: '叛客的捕梦珍藏', price: 98, type: 'red', collab: true,
+      astrite: 400, dream: 10,
+      desc: '400 星声 + 捕梦波纹 ×10<br>联动角色卡池资源 · 版本限购 1 次',
+      limit: 1, period: 'version' },
+    { id: 'pkmy_1', name: '叛客的铭影珍藏 I', price: 30, type: 'red', collab: true,
+      astrite: 0, mirage: 5,
+      desc: '铭影波纹 ×5<br>联动武器卡池资源 · 版本限购 1 次',
+      limit: 1, period: 'version' },
+    { id: 'pkmy_2', name: '叛客的铭影珍藏 II', price: 98, type: 'red', collab: true,
+      astrite: 400, mirage: 10,
+      desc: '400 星声 + 铭影波纹 ×10<br>联动武器卡池资源 · 版本限购 1 次',
+      limit: 1, period: 'version' },
+
+    // ---- 准时宝的月度驰援（¥128 月限）----
+    // ⚠ 官方定价：¥128 仅 500 星声 + 5 浮金 + 5 铸潮
+    //   性价比远低于 ¥30 月卡（30→3000）。模拟器忠实呈现，玩家自行判断
+    { id: 'zsb_monthly', name: '准时宝的月度驰援', price: 128, type: 'gold',
+      astrite: 500, radiant: 5, forging: 5,
+      desc: '500 星声 + 浮金波纹 ×5 + 铸潮波纹 ×5<br>每月限购 1 次',
       limit: 1, period: 'month' },
 
-    // ---- 新手成长礼包（常驻，一次性）----
+    // ---- 常驻养成礼包（每月刷新一次）----
+    { id: 'rg_exp_pack', name: '共鸣促剂 · 月度补给', price: 30, type: 'green', regular: true,
+      astrite: 0, exp_super: 8, exp_high: 20, weapon_book: 0,
+      desc: '特级促剂 ×8 + 高级促剂 ×20<br>常驻 · 每月可购买 1 次',
+      limit: 1 },
+    { id: 'rg_weapon_pack', name: '武器突破石 · 月度补给', price: 30, type: 'green', regular: true,
+      astrite: 0, weapon_book: 60,
+      desc: '武器突破石 ×60<br>常驻 · 每月可购买 1 次',
+      limit: 1 },
+    { id: 'rg_mix_pack', name: '养成大礼包 · 月度', price: 68, type: 'green', regular: true,
+      astrite: 380, exp_super: 12, weapon_book: 50, crystal_solvent: 4,
+      desc: '380 星声 + 特级促剂 ×12 + 武器石 ×50 + 结晶溶剂 ×4<br>常驻 · 每月可购买 1 次',
+      limit: 1 },
+
+    // ---- 新手成长礼包（真·永久限购一次）----
     { id: 'newbie_basic', name: '新旅启程礼包', price: 6, type: 'green',
-      astrite: 60, exp_mid: 5, weapon_book: 5, regular: true,
-      desc: '60 星声 + 中级促剂 ×5 + 武器石 ×5<br>新手专属 · 限购 1 次',
+      astrite: 60, exp_mid: 5, weapon_book: 5,
+      desc: '60 星声 + 中级促剂 ×5 + 武器石 ×5<br>新手专属 · 永久限购 1 次',
       limit: 1 },
     { id: 'newbie_growth', name: '新旅进阶礼包', price: 30, type: 'green',
-      astrite: 300, exp_high: 8, weapon_book: 15, radiant: 3, regular: true,
-      desc: '300 星声 + 高级促剂 ×8 + 武器石 ×15 + 浮金 ×3<br>新手专属 · 限购 1 次',
+      astrite: 300, exp_high: 8, weapon_book: 15, radiant: 3,
+      desc: '300 星声 + 高级促剂 ×8 + 武器石 ×15 + 浮金 ×3<br>新手专属 · 永久限购 1 次',
       limit: 1 },
     { id: 'newbie_pro', name: '新旅远征礼包', price: 98, type: 'green',
-      astrite: 980, exp_super: 10, weapon_book: 30, radiant: 8, regular: true,
-      desc: '980 星声 + 特级促剂 ×10 + 武器石 ×30 + 浮金 ×8<br>新手专属 · 限购 1 次',
+      astrite: 980, exp_super: 10, weapon_book: 30, radiant: 8,
+      desc: '980 星声 + 特级促剂 ×10 + 武器石 ×30 + 浮金 ×8<br>新手专属 · 永久限购 1 次',
       limit: 1 }
   ]
 };
@@ -129,7 +143,32 @@ export function applyShopItem(it) {
   if (it.lustrous) S.lustrous += it.lustrous;
   if (it.dream) S.dream = (S.dream || 0) + it.dream;
   if (it.mirage) S.mirage = (S.mirage || 0) + it.mirage;
-  if (it.days) S.days += it.days;
+  // 月卡天数：上限 180 天，超出部分按 1 天换 11 月相返还（≈330/30）
+  if (it.days) {
+    const beforeDays = S.days;
+    const wouldBe = beforeDays + it.days;
+    if (wouldBe <= 180) {
+      S.days = wouldBe;
+    } else if (beforeDays >= 180) {
+      // 已经满 180，全部转月相
+      S.lunite += 330;
+      msg(`月卡已达 180 天上限 · 补偿 330 月相`, false);
+    } else {
+      // 部分能延，部分转月相
+      const canExtend = 180 - beforeDays;
+      const overflow = it.days - canExtend;
+      S.days = 180;
+      S.lunite += Math.round(overflow * 11);
+      msg(`月卡延长至上限 180 天 · 超出 ${overflow} 天补偿 ${Math.round(overflow*11)} 月相`, false);
+    }
+    // ★ 月卡新需求 #15：购买当天也会自动领一份每日星声（如果今天还没领）
+    const today = fmt(S.today);
+    if (S.days > 0 && S.lastMonthlyClaim !== today) {
+      S.days--;
+      S.astrite += 90;
+      S.lastMonthlyClaim = today;
+    }
+  }
   // 养成材料
   if (it.exp_low) S.materials.exp_low = (S.materials.exp_low || 0) + it.exp_low;
   if (it.exp_mid) S.materials.exp_mid = (S.materials.exp_mid || 0) + it.exp_mid;
@@ -137,6 +176,9 @@ export function applyShopItem(it) {
   if (it.exp_super) S.materials.exp_super = (S.materials.exp_super || 0) + it.exp_super;
   if (it.weapon_book) S.materials.weapon_book = (S.materials.weapon_book || 0) + it.weapon_book;
   if (it.crystal_solvent) S.materials.crystal_solvent = (S.materials.crystal_solvent || 0) + it.crystal_solvent;
+  // 先约电台
+  if (it.unlocksPodcast) unlockPaid();
+  if (it.premiumPodcast) unlockPremium();
   recordPurchase(it);
 }
 

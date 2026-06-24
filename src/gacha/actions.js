@@ -3,6 +3,7 @@ import { S, msg, animating } from '../state.js';
 import { cur, getPool, tideKey, tideName, canAffordPulls, payBeginnerTen, pull } from './core.js';
 import { openModal } from '../modal.js';
 import { showResult } from './animation.js';
+import { progressTask } from '../podcast/core.js';
 
 export function doPullN(n, free = false) {
   if (animating) return;
@@ -18,6 +19,12 @@ export function doPullN(n, free = false) {
   for (let i = 0; i < n; i++) { const x = pull(pool, freePull); if (!x) break; arr.push(x); }
   if (arr.length) {
     S.log = arr.slice().reverse().concat(S.log).slice(0, 200);
+    // 电台任务：抽卡计数 + 五星
+    progressTask('d_pull', arr.length);
+    progressTask('p_pull50', arr.length);
+    progressTask('p_pull200', arr.length);
+    const fiveCount = arr.filter(x => x.r === 5).length;
+    if (fiveCount > 0) progressTask('p_five', fiveCount);
     showResult(arr);
   }
   window.__render();

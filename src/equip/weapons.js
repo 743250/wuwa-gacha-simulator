@@ -78,18 +78,24 @@ const W = {
     desc: '全属性+12%；技能命中后攻击+12%×2 层；后台时攻击+12%'
   },
 
-  // ✅ 守岸人专武：Stellar Symphony
+  // ✅ 守岸人专武：星序协响 Stellar Symphony
+  // 数据来源：库街区 + Fandom，已校准至库街区官方页面
+  // 注：原版"30 秒"折算为 2 回合；"每 12 秒可触发 1 次"折算为模拟器无内置 CD（回合制内回合自带节奏）
   '星序协响': {
-    r: 5, type: '音感仪', atk90: 412,
-    sub: { stat: 'resonance', value90: 0.770 },   // 共鸣效率 77%
+    r: 5, type: '音感仪', atk90: 500,
+    sub: { stat: 'resonance', value90: 0.518 },   // 共鸣效率 51.8%（90 级满精）
     passive: [
-      { type: 'hp', value: 0.12 }
+      { type: 'heal', value: 0.12 }                  // 治疗效果加成 +12%
     ],
     triggers: [
-      { on: 'burst_cast', effect: 'concerto_refund', value: 8, maxStacks: 1, duration: 1 },  // 解放回 8 协奏值
-      { on: 'heal_skill', effect: 'team_atk', value: 0.14, maxStacks: 1, duration: 15 }
+      // 解放释放回 8 点协奏能量
+      { on: 'burst_cast', effect: 'concerto_refund', value: 8, maxStacks: 1, duration: 1 },
+      // 治疗型技能 → 附近队友攻击 +14%，持续 30 秒（折算 2 回合）
+      { on: 'heal_skill', effect: 'team_atk', value: 0.14, maxStacks: 1, duration: 2 }
     ],
-    desc: '生命+12%；解放回 8 协奏；治疗型技能给附近队友攻击+14%'
+    passiveName: '星之吟咏',
+    descFull: '装备者治疗效果加成提升 <b class="term-num">12%</b>。<br>装备者施放<b class="term-burst">共鸣解放</b>时，回复 <b class="term-num">8</b> 点协奏能量。<br>装备者使附近队伍中的角色获得治疗效果时，自身及附近队伍中所有角色的攻击力提升 <b class="term-num">14%</b>，持续 2 回合。',
+    desc: '治疗加成 +12%；释放共鸣解放回复 8 协奏能量；治疗型技能命中后，附近队友攻击 +14%（2 回合）'
   },
 
   // ✅ 椿专武：Red Spring
@@ -610,9 +616,11 @@ Object.keys(W).forEach(k => { if (W[k] === null) delete W[k]; });
 
 export const WEAPON_DATA = W;
 
-// 90 级 → 当前等级缩放：等级 1 时 ~20% 数值，等级 90 时 100%
+// 90 级 → 当前等级缩放：等级 1 时 = 20%，等级 90 时 = 100%
+// 公式：0.20 + (level - 1) × 0.80/89
 function levelScale(level) {
-  return 0.20 + (level || 1) * 0.0089;
+  const lv = level || 1;
+  return 0.20 + (lv - 1) * (0.80 / 89);
 }
 
 // 计算武器在指定等级 + 精炼度下的输出

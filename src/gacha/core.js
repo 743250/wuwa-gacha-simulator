@@ -5,6 +5,25 @@ import { standard5, fourAll, threeWeapons, fourWeapons, weapons, bannerNames, st
 
 export function activePhase() { return phases.filter(p => S.today >= p.start && S.today < p.end); }
 export function isCollabRole(c) { return c === '露西' || c === '丽贝卡'; }
+// 当前是否处于联动版本（用来控制商店/海市的联动资源显示）
+export function isCollabActive() {
+  return activePhase().some(p => p.chars.some(isCollabRole));
+}
+
+// 新旅池：第一次抽取时启动 30 天倒计时，到期后两个池都隐藏
+// 30 天后过期 → 返回 true
+function noviceExpired() {
+  if (!S.noviceStarted) return false;
+  return (S.today - S.noviceStarted) >= 30 * DAY;
+}
+export function noviceRemainDays() {
+  if (!S.noviceStarted) return 30;
+  return Math.max(0, Math.ceil((S.noviceStarted + 30 * DAY - S.today) / DAY));
+}
+// 由 pull() 内部启动新旅倒计时
+function startNoviceIfNeeded() {
+  if (!S.noviceStarted) S.noviceStarted = S.today;
+}
 
 export function activeBanners() {
   const eventChars = [], eventWeapons = [], permanent = [];
@@ -18,7 +37,11 @@ export function activeBanners() {
   if (!S.beginnerDone) {
     permanent.push({ id: 'beginner', pool: 'beginner', start: date('2024-05-23'), end: Infinity, version: '新手', banner: '万象新声', char: null, weapon: null, fours: fourAll.slice(0, 3) });
   }
-  permanent.push({ id: 'novice-choice', pool: 'noviceChoice', start: date('2024-05-23'), end: Infinity, version: '新旅', banner: '新旅如约', char: S.noviceTarget, weapon: weapons[S.noviceTarget] || null, fours: fourAll.slice(0, 3) });
+  // ★ 新旅池：拆角色 / 武器；30 天有效期
+  if (!noviceExpired()) {
+    permanent.push({ id: 'novice-choice', pool: 'noviceChoice', start: date('2024-05-23'), end: Infinity, version: '新旅', banner: '新旅如约 · 角色', char: S.noviceTarget, weapon: null, fours: fourAll.slice(0, 3) });
+    permanent.push({ id: 'novice-weapon', pool: 'noviceWeapon', start: date('2024-05-23'), end: Infinity, version: '新旅', banner: '新旅如约 · 武器', char: null, weapon: S.noviceWeaponTarget, fours: fourWeapons.slice(0, 3) });
+  }
   permanent.push({ id: 'standard-char', pool: 'standardChar', start: date('2024-05-23'), end: Infinity, version: '常驻', banner: '海上共潮生', char: null, weapon: null, fours: fourAll.slice(0, 3) });
   const stdWeapon = standardWeapons.find(w => w.name === S.standardWeaponTarget) || standardWeapons[0];
   permanent.push({ id: 'standard-weapon', pool: 'standardWeapon', start: date('2024-05-23'), end: Infinity, version: '常驻', banner: '武器常驻唤取', char: null, weapon: stdWeapon.name, weaponBanner: stdWeapon.banner, fours: fourWeapons.slice(0, 3) });
@@ -43,7 +66,7 @@ export function rate(p) {
 
 export function poolTide(pool) {
   if (pool === 'eventChar' || pool === 'noviceChoice') return ['radiant', '浮金波纹', 'r'];
-  if (pool === 'eventWeapon') return ['forging', '铸潮波纹', 'f'];
+  if (pool === 'eventWeapon' || pool === 'noviceWeapon') return ['forging', '铸潮波纹', 'f'];
   if (pool === 'collabChar') return ['dream', '捕梦波纹', 'r'];
   if (pool === 'collabWeapon') return ['mirage', '铭影波纹', 'f'];
   return ['lustrous', '唤声涡纹', 'l'];
@@ -51,7 +74,9 @@ export function poolTide(pool) {
 export function tideKey(pool) { return poolTide(pool)[0]; }
 export function tideName(pool) { return poolTide(pool)[1]; }
 export function tideLetter(pool) { return poolTide(pool)[2]; }
-export function poolKind(pool) { return pool === 'eventWeapon' || pool === 'collabWeapon' || pool === 'standardWeapon' ? 'weapon' : 'char'; }
+export function poolKind(pool) {
+  return pool === 'eventWeapon' || pool === 'collabWeapon' || pool === 'standardWeapon' || pool === 'noviceWeapon' ? 'weapon' : 'char';
+}
 
 export function poolTitle(b) {
   if (!b) return '';
@@ -62,6 +87,7 @@ export function poolTitle(b) {
   if (b.pool === 'standardChar') return '角色常驻唤取';
   if (b.pool === 'standardWeapon') return '武器常驻唤取';
   if (b.pool === 'beginner') return '新手唤取';
+  if (b.pool === 'noviceWeapon') return '武器新旅唤取';
   return '角色新旅唤取';
 }
 
@@ -70,6 +96,11 @@ export function targetOptions(b) {
   let opts = [];
   if (b.pool === 'standardWeapon') opts = standardWeapons.map(w => ({ label: w.banner, target: w.name, active: w.name === S.standardWeaponTarget }));
   if (b.pool === 'noviceChoice') opts = newJourneyChars.map(c => ({ label: c, target: c, active: c === S.noviceTarget }));
+  if (b.pool === 'noviceWeapon') {
+    // 武器新旅：8 个目标 = 新旅 8 角色对应的武器
+    opts = newJourneyChars.map(c => ({ label: `${weapons[c]}（${c}）`, target: weapons[c], active: weapons[c] === S.noviceWeaponTarget }))
+      .filter(o => o.target);
+  }
   if (!opts.length) return '';
   return `<div class="ba-weapon" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px">
     ${opts.map(o => `<button class="mbtn ${o.active ? 'gold' : ''}" onclick="selectTarget('${b.pool}','${o.target}')">${o.label}</button>`).join('')}
@@ -79,6 +110,7 @@ export function targetOptions(b) {
 export function selectTarget(pool, target) {
   if (pool === 'standardWeapon') S.standardWeaponTarget = target;
   if (pool === 'noviceChoice') S.noviceTarget = target;
+  if (pool === 'noviceWeapon') S.noviceWeaponTarget = target;
   window.__render();
 }
 window.selectTarget = selectTarget;
@@ -104,8 +136,14 @@ export function payBeginnerTen() {
 export function pull(pool, free = false) {
   const b = cur(); if (!b) return null;
   if (!free && !payOne(pool)) return null;
+  // 新旅池：第一次抽就启动 30 天倒计时
+  if (pool === 'noviceChoice' || pool === 'noviceWeapon') startNoviceIfNeeded();
   S.total++; S.pity[pool]++; S.p4[pool]++;
-  if (pool === 'beginner') S.beginnerPulls++;
+  if (pool === 'beginner') {
+    S.beginnerPulls++;
+    // 累计 50 抽用完才永久关闭（官方机制：抽满 50 后池子才消失）
+    if (S.beginnerPulls >= 50) S.beginnerDone = true;
+  }
   const r = Math.random(), fr = pool === 'beginner' && S.beginnerPulls >= 50 ? 1 : rate(S.pity[pool]);
   if (r < fr) return five(pool, b);
   if (S.p4[pool] >= 10 || r < fr + .06) return four(pool, b);
@@ -127,17 +165,19 @@ function five(pool, b) {
     name = b.weapon; type = pool === 'standardWeapon' ? '定向常驻五星武器' : (pool === 'collabWeapon' ? '目标联动五星武器' : '目标五星武器'); up = true;
     addWeapon(name, 5);
     coral = 15;
+  } else if (pool === 'noviceWeapon') {
+    // ★ 新旅武器池：100% 出自选武器
+    up = true; name = b.weapon || S.noviceWeaponTarget; type = '新旅目标五星武器';
+    addWeapon(name, 5);
+    coral = 15;
   } else if (pool === 'noviceChoice') {
     up = true; name = b.char; type = '新旅目标五星角色';
     const r = addRole(name, 5);
     coral = charCoral(5, r.pulled);
-    // 新旅卡池：附送配套五星武器（模拟器福利，让玩家拿到角色就能用）
-    const matchedWeapon = weapons[b.char];
-    if (matchedWeapon && matchedWeapon !== '限定武器') {
-      addWeapon(matchedWeapon, 5);
-    }
+    // ★ 拆分后不再附送武器
   } else if (pool === 'beginner') {
-    name = pick(standard5); type = '新手五星角色'; up = false; S.beginnerDone = true;
+    name = pick(standard5); type = '新手五星角色'; up = false;
+    // 50 抽用完才永久关闭（不再因首五星就关池）
     const r = addRole(name, 5);
     coral = charCoral(5, r.pulled);
   } else if (pool === 'standardChar') {
