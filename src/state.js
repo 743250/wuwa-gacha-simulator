@@ -52,7 +52,9 @@ export const state0 = () => ({
     // 结晶溶剂（高级药剂，无上限）
     crystal_solvent: 3,
     // 凝缩波片（普通药剂，官方上限 5）
-    condensed_waveplate: 2
+    condensed_waveplate: 2,
+    // 索拉世界等级 1-3（越高敌人越强、掉落越多）
+    sol3Level: 1
   },
 
   // ===== P3 体力/日常/深渊（先埋字段） =====
@@ -63,6 +65,7 @@ export const state0 = () => ({
   lastDailyReset: '',
   abyss: { stars: {}, lastReset: '' },
   weeklyBoss: { used: {}, lastReset: '' },
+  bossLevels: {},               // 世界 BOSS 讨伐等级 { '燎照之骑': 50, ... }
 
   // ===== 先约电台（70 级 BP，双线，每版本重置）=====
   podcast: {
@@ -86,4 +89,4 @@ export function resetState() {
 }
 
 // 这些函数需要挂到 window 供 onclick 使用
-window.animating = animating;
+if (typeof window !== 'undefined') window.animating = animating;

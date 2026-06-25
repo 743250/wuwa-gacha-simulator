@@ -2,10 +2,12 @@
 // 重构：拆 4 个区独立刷新，避免每次行动整页 innerHTML 重绘导致的"UI 一直变"
 // 增强：buff 突出显示 + 入场动画 + 顶部 toast 队列
 import { S, $, msg } from '../state.js';
-import { createBattle, doAttack, doSkill, doHeavy, doBurst, doSwitch, endTurn, getCombatTeamNames } from '../battle/combat.js';
+import { createBattle, doAttack, doSkill, doHeavy, doBurst, doSwitch, doDebris, endTurn, getCombatTeamNames } from '../battle/combat.js';
+import { renderCharacterBattleStatus } from '../battle/characters/index.js';
 import { ELEMENT_COLOR } from '../battle/elements.js';
+import { BUFF_RENDERERS, TEAM_BUFF_TYPES } from './battleRenderers/buffRenderers.js';
 import { formatEnemyMechanic } from '../battle/enemies.js';
-import { flattenEnemies, DUNGEONS, canUseWeeklyBoss, consumeWeeklyBoss, getWeeklyBossUsed, WEEKLY_BOSS_LIMIT, getDungeonEncounter } from '../battle/dungeon.js';
+import { flattenEnemies, DUNGEONS, canUseWeeklyBoss, consumeWeeklyBoss, getWeeklyBossUsed, WEEKLY_BOSS_LIMIT, getDungeonEncounter, getSol3Level, getSol3Config, getWorldBossSpawnOpts, increaseBossLevel, decreaseBossLevel } from '../battle/dungeon.js';
 import { spendStamina } from '../daily/stamina.js';
 import { settleAbyss, ABYSS_ZONES, startAbyssFloor } from '../daily/abyss.js';
 import { settleWastes, startWastesStage, WASTES_STAGES } from '../daily/wastes.js';
@@ -31,12 +33,23 @@ export function startDungeonBattle(dungeonId) {
   }
   // 周本周限 3 次（共享）
   if (d.weeklyLimit && !canUseWeeklyBoss()) {
-    msg(`本周无音区奖励已领取 ${WEEKLY_BOSS_LIMIT} 次（共享）`);
+    msg(`本周战歌重奏已领取 ${WEEKLY_BOSS_LIMIT} 次（共享）`);
     return;
   }
   const encounter = getDungeonEncounter(d, S.today);
+  const sol3 = getSol3Config(getSol3Level());
   const enemyNames = flattenEnemies(encounter.enemies);
-  const battle = createBattle(names, enemyNames, { enemyScale: encounter.enemyScale || d.enemyScale || 1.0 });
+  // 世界 BOSS 使用讨伐等级系统
+  let battleOpts;
+  if (d.type === 'worldBoss') {
+    const bossName = enemyNames[0]; // 世界 BOSS 副本只有 1 个敌人
+    const spawnOpts = getWorldBossSpawnOpts(bossName);
+    battleOpts = { enemyStatScale: spawnOpts };
+  } else {
+    const finalScale = (encounter.enemyScale || d.enemyScale || 1.0);
+    battleOpts = { enemyScale: finalScale };
+  }
+  const battle = createBattle(names, enemyNames, battleOpts);
   if (!battle) {
     msg('战斗创建失败：队伍或敌人配置异常');
     return;
@@ -180,8 +193,6 @@ function renderBuffStripe() {
   const items = [];
 
   // "全队 buff" 去重：一份 buff 会同步存到每个队员身上，UI 只显示一次
-  // 用 src+type+value 当 key，team buff 类型在白名单内
-  const TEAM_BUFF_TYPES = new Set(['critUp', 'cdmgUp', 'atkUp']);
   const teamSeen = new Set();
   const isDup = (buf) => {
     if (!TEAM_BUFF_TYPES.has(buf.type)) return false;
@@ -195,33 +206,10 @@ function renderBuffStripe() {
     if (!t.alive) return;
     (t.buffs || []).forEach(buf => {
       if (isDup(buf)) return;
-      if (buf.type === 'burstWindow') items.push({
-        key: `bw-${t.name}`, cls: 'burst', icon: '🔥',
-        label: `${t.name} 强化形态 +${(buf.value*100).toFixed(0)}%`, dur: buf.duration
-      });
-      if (buf.type === 'defense') items.push({
-        key: `def-${t.name}`, cls: 'def', icon: '🛡',
-        label: `${t.name} 减伤 ${(buf.value*100).toFixed(0)}%`, dur: buf.duration
-      });
-      if (buf.type === 'healUp') items.push({
-        key: `hup-${t.name}`, cls: 'heal', icon: '💚',
-        label: `${t.name} 治疗效果 +${(buf.value*100).toFixed(0)}%`, dur: buf.duration
-      });
-      if (buf.type === 'critUp') items.push({
-        key: `cup-${t.name}`, cls: 'crit', icon: '✦',
-        label: `全队 暴击 +${(buf.value*100).toFixed(0)}%`, dur: buf.duration
-      });
-      if (buf.type === 'cdmgUp') items.push({
-        key: `cdup-${t.name}`, cls: 'crit', icon: '✦',
-        label: `全队 暴伤 +${(buf.value*100).toFixed(0)}%`, dur: buf.duration
-      });
-      if (buf.type === 'atkUp') items.push({
-        key: `aup-${t.name}`, cls: 'atk', icon: '⚔',
-        label: `全队 攻击 +${(buf.value*100).toFixed(0)}%`, dur: buf.duration
-      });
-      if (buf.type === 'field') items.push({
-        key: `fld-${t.name}`, cls: 'field', icon: '🌐',
-        label: `${t.name} ${buf.label || '领域'}`, dur: buf.duration
+      const renderer = BUFF_RENDERERS[buf.type];
+      if (renderer) items.push({
+        key: `${buf.type}-${t.name}`, cls: renderer.cls, icon: renderer.icon,
+        label: renderer.label(buf, t), dur: buf.duration
       });
     });
     if (t.shield > 0) items.push({
@@ -316,7 +304,19 @@ function renderEnemies() {
           <div style="height:100%;width:${(vibPct*100).toFixed(1)}%;background:${broken ? 'var(--gold)' : '#aaa'};border-radius:2px;transition:width .3s ease"></div>
         </div>
       </div>
-      ${e.shield > 0 ? `<div style="font-size:10px;color:var(--accent);margin-top:3px">🛡 护盾 ${e.shield}</div>` : ''}
+      ${e.shield > 0 ? `<div style="font-size:10px;color:var(--accent);margin-top:3px">🛡 护盾 ${e.shield}${e._iceShieldDmgReduc ? ' · 冰翼减伤 ' + (e._iceShieldDmgReduc*100).toFixed(0) + '%' : ''}</div>` : ''}
+      ${e._stunned > 0 ? `<div style="font-size:10px;color:var(--gold);margin-top:2px">💫 眩晕 ${e._stunned}回合${e._vulnerable ? ' · 易伤 +50%' : ''}</div>` : ''}
+      ${e._flightTurns >= 2 ? `<div style="font-size:10px;color:var(--accent);margin-top:2px">🕊 飞空无敌中</div>` : ''}
+      ${e._deflectActive ? `<div style="font-size:10px;color:var(--gold);margin-top:2px">🛡 反击姿态 · 反弹 ${((e.mechanic?.value||0.4)*100).toFixed(0)}%</div>` : ''}
+      ${e._bubbleHp > 0 ? `<div style="font-size:10px;color:var(--green);margin-top:2px">🫧 绿泡 HP ${e._bubbleHp} · 回合末回复 ${e._bubbleHealAmt||0}</div>` : ''}
+      ${e._debrisReady ? `<div style="font-size:10px;color:var(--gold);margin-top:2px">⚙ 残骸可投掷！点击"残骸"按钮眩晕 BOSS</div>` : ''}
+      ${e._windWallTurns > 0 ? `<div style="font-size:10px;color:var(--accent);margin-top:2px">🌪 风壁减伤 ${((e._windWallDmgReduc||0.4)*100).toFixed(0)}% · 剩余 ${e._windWallTurns}回合</div>` : ''}
+      ${e._overclockTurns > 0 ? `<div style="font-size:10px;color:var(--red);margin-top:2px">🔥 Overclock 双动 · 剩余 ${e._overclockTurns}回合</div>` : ''}
+      ${e._laserCharging ? `<div style="font-size:10px;color:var(--red);margin-top:2px">⚡ 蓄力激光中…下回合发射！</div>` : ''}
+      ${e._saws && e._saws.length > 0 ? `<div style="font-size:10px;color:var(--red);margin-top:2px">🪚 追踪电锯 ×${e._saws.length}</div>` : ''}
+      ${e.phase > 1 ? `<div style="font-size:10px;color:var(--gold);margin-top:2px">📌 阶段 ${e.phase}${e._airPhase ? ' · 空中（近战-30%）' : ''}</div>` : ''}
+      ${Object.keys(e.marks || {}).some(k => e.marks[k] > 0) ? `<div style="font-size:10px;color:var(--red);margin-top:2px">🔥 灼伤：${b.team.filter(t=>t.alive).map(t=>t.name+(e.marks[t.idx]||0)+'层').join(' · ')}</div>` : ''}
+      ${e._delayedBlast ? `<div style="font-size:10px;color:var(--red);margin-top:2px">💥 地面发光…下回合爆破！</div>` : ''}
       ${mechHint}
     </div>`;
   });
@@ -363,14 +363,7 @@ function renderTeam() {
         <div style="height:100%;width:${(fPct*100).toFixed(1)}%;background:${fReady ? 'var(--gold)' : '#c39bff'};transition:width .3s ease"></div>
       </div>
       <div style="font-size:9px;color:${fReady ? 'var(--gold)' : '#c39bff'};margin-top:1px">${f.resourceName} ${f.current}/${f.max}${fReady ? ' · 强化就绪!' : ''}</div>` : ''}
-      ${t.name === '忌炎' ? (() => {
-        const cap = t.jiyanRuiyiCap || 2;
-        const cur = t.ruiyi || 0;
-        const perStack = t.jiyanRuiyiPerStack || 1.0;
-        const nextMult = 1 + cur * perStack;
-        const color = cur >= cap ? 'var(--red)' : cur > 0 ? 'var(--gold)' : 'var(--muted)';
-        return `<div style="font-size:9px;color:${color};margin-top:2px;letter-spacing:.3px">锐意之势 ${'◆'.repeat(cur)}${'◇'.repeat(cap-cur)} ${cur}/${cap}${cur > 0 ? ` · 解放 ×${nextMult.toFixed(1)}` : ''}</div>`;
-      })() : ''}
+      ${renderCharacterBattleStatus(t)}
       <div style="height:2px;background:rgba(255,255,255,.06);border-radius:2px;margin-top:3px;overflow:hidden">
         <div style="height:100%;width:${(concertoPct*100).toFixed(1)}%;background:linear-gradient(90deg,#69b8ff,#c39bff);transition:width .3s ease"></div>
       </div>
@@ -378,7 +371,20 @@ function renderTeam() {
       ${renderWeaponStacks(t)}
       <div style="font-size:9px;color:${t.cd.skill > 0 ? 'var(--muted)' : 'var(--green)'};margin-top:2px">
         ${t.skillLockedTurns > 0 ? `技能封锁 ${t.skillLockedTurns}回` : (t.cd.skill > 0 ? `技能 CD ${t.cd.skill}回` : '技能就绪')}${(t.hasHeavy && t.cd.heavy > 0) ? ` · 重击 CD ${t.cd.heavy}回` : ''}
+        ${t._wallLocked > 0 ? ` · <span style="color:var(--accent)">⚡雷霆墙锁定</span>` : ''}
       </div>
+      ${(() => {
+        const debuffs = [];
+        (t.debuffs || []).forEach(d => {
+          if (d.type === 'havoc_erosion' && d.stacks > 0) debuffs.push(`<span style="color:#c39bff">湮灭之蚀 ×${d.stacks}</span>`);
+          if (d.type === 'defDown' && d.stacks > 0) debuffs.push(`<span style="color:var(--red)">防御 ↓${(d.stacks*d.value*100).toFixed(0)}%</span>`);
+        });
+        // 灼伤 marks (from enemy)
+        b.enemies.forEach(e => {
+          if (e.marks && e.marks[t.idx] > 0) debuffs.push(`<span style="color:var(--red)">🔥灼伤 ×${e.marks[t.idx]}</span>`);
+        });
+        return debuffs.length > 0 ? `<div style="font-size:9px;margin-top:2px">${debuffs.join(' · ')}</div>` : '';
+      })()}
     </div>`;
   });
   html += '</div>';
@@ -449,6 +455,12 @@ function renderActions() {
     }
     html += `<button class="bbtn" style="${litStyle(canBurst, 'var(--gold)')}" onclick="window.__bBurst()" ${!canBurst ? 'disabled' : ''} title="主目标 400% · 副目标 200% · AOE · 需能量满 · 削破韧 30">⚡ 解放<br><span style="font-size:9px;opacity:.7">3 AP · ${cur.energy}/${cur.energyMax}</span></button>`;
     html += '</div>';
+    // 残骸投掷按钮（聚械机偶特殊动作 · 0 AP）
+    const hasDebris = b.enemies.some(e => e.alive && e._debrisReady);
+    if (hasDebris) {
+      html += `<button style="width:100%;padding:11px;margin-bottom:6px;background:rgba(245,207,107,.12);border:1px solid var(--gold);border-radius:8px;color:var(--gold);font-size:12px;letter-spacing:2px;cursor:pointer"
+        onclick="window.__bDebris()">⚙ 投掷残骸（0 AP · 眩晕 BOSS 1 回合）</button>`;
+    }
     html += `<button style="width:100%;padding:11px;background:linear-gradient(180deg,#1a2436,#0e1626);border:1px solid var(--line2);border-radius:8px;color:var(--text);font-size:12px;letter-spacing:3px"
       onclick="window.__bEndTurn()">结 束 回 合 →</button>`;
   } else if (b.result === 'win') {
@@ -587,6 +599,11 @@ window.__bBurst = () => {
   if (!r.ok) msg(r.err);
   else refreshAll();
 };
+window.__bDebris = () => {
+  const r = doDebris(currentBattle);
+  if (!r.ok) msg(r.err);
+  else refreshAll();
+};
 window.__bSwitch = (i) => {
   const r = doSwitch(currentBattle, i);
   if (!r.ok) msg(r.err);
@@ -609,7 +626,14 @@ window.__bSettle = () => {
       if (pd.d.weeklyLimit) consumeWeeklyBoss();
       pd.paidCost = true;
     }
-    const drops = pd.d.drops || {};
+    const rawDrops = pd.d.drops || {};
+    const sol3 = getSol3Config(getSol3Level());
+    const dropMult = sol3.dropMult;
+    const drops = {};
+    Object.entries(rawDrops).forEach(([k, v]) => {
+      // 星声不收世界等级加成，其余材料按 SOL3 倍率缩放
+      drops[k] = k === 'astrite' ? v : Math.round(v * dropMult);
+    });
     const rewardText = [];
     if (drops.exp_super) { S.materials.exp_super += drops.exp_super; rewardText.push(`特级共鸣促剂 ×${drops.exp_super}`); }
     if (drops.exp_high) { S.materials.exp_high += drops.exp_high; rewardText.push(`高级共鸣促剂 ×${drops.exp_high}`); }
@@ -625,6 +649,17 @@ window.__bSettle = () => {
       progressTask('p_weeklyboss', 1);
     }
     msg('获得 ' + rewardText.join(' · '), false);
+    // 世界 BOSS：更新讨伐等级
+    if (pd.d.type === 'worldBoss' && currentBattle) {
+      const bossName = pd.d.enemies?.[0] || pd.d.name;
+      if (currentBattle.result === 'win') {
+        const newLv = increaseBossLevel(bossName);
+        msg(`🏆 ${bossName} 讨伐等级提升至 Lv${newLv}`, false);
+      } else if (currentBattle.result === 'lose') {
+        const newLv = decreaseBossLevel(bossName);
+        msg(`${bossName} 讨伐等级降至 Lv${newLv}`, false);
+      }
+    }
   } else if (pd.kind === 'abyss') {
     const r = settleAbyss(currentBattle);
     if (r) {
@@ -636,10 +671,10 @@ window.__bSettle = () => {
   } else if (pd.kind === 'wastes') {
     const r = settleWastes(currentBattle);
     if (r) {
-      if (r.repeated) msg(`${r.name} · 已通关，本次未更新评星`, false);
+      if (r.repeated) msg(`${r.name} · 本次未刷新最高分`, false);
       else {
-        const bonusTxt = r.bonus ? ` · 全清奖励 +${r.bonus}` : '';
-        msg(`${r.name} ★${r.stars} · +${r.reward} 星声${bonusTxt}`, false);
+        const tierTxt = r.tierReward > 0 ? ` · 🎁 积分档位 +${r.tierReward} 星声` : '';
+        msg(`${r.name} · ${r.score.toLocaleString()} 分（累计 ${r.cumulative.toLocaleString()}）${tierTxt}`, false);
       }
     }
   }

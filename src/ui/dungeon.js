@@ -1,17 +1,15 @@
-// 副本面板（含日常副本 + 周本）
+// 副本面板（左 Tab 切换五类副本）
 import { S, $ } from '../state.js';
-import { DUNGEONS, WEEKLY_BOSS, parseEnemyStr, getWeeklyBossUsed, WEEKLY_BOSS_LIMIT, canUseWeeklyBoss, getDungeonEncounter } from '../battle/dungeon.js';
+import { DUNGEONS, WEEKLY_BOSS, parseEnemyStr, getWeeklyBossUsed, WEEKLY_BOSS_LIMIT, canUseWeeklyBoss, getDungeonEncounter, getSol3Level, getSol3Config, setSol3Level, SOL3_LEVELS, getBossLevel, getWorldBossSpawnOpts } from '../battle/dungeon.js';
 import { getCombatTeamNames } from '../battle/combat.js';
 import { ENEMIES, formatEnemyMechanic } from '../battle/enemies.js';
 import { ELEMENT_COLOR } from '../battle/elements.js';
-import './battle.js';   // 副作用：注册 window.__startDungeon
+import './battle.js';
 
-// 把周本合并到查找池（battle.js 通过 DUNGEONS.find 来取配置）
 WEEKLY_BOSS.forEach(b => {
   if (!DUNGEONS.find(x => x.id === b.id)) DUNGEONS.push(b);
 });
 
-// 奖励字段 → 中文 + 颜色映射
 const DROP_LABEL = {
   exp_super: { name: '特级共鸣促剂', color: 'var(--gold)' },
   exp_high:  { name: '高级共鸣促剂', color: '#fff' },
@@ -54,82 +52,6 @@ function formatMechanics(enemyStrs) {
   return items.join(' · ');
 }
 
-export function renderDungeon() {
-  const container = $('paneDungeon');
-  if (!container) return;
-  const teamCount = getCombatTeamNames().length;
-  let html = '';
-
-  // 体力条 + 凝缩波片 + 结晶溶剂 + 星声补体力
-  const solvent = S.materials.crystal_solvent || 0;
-  const condensed = S.materials.condensed_waveplate || 0;
-  const POT_CAP = 480;
-  const versionInfo = getDungeonEncounter(DUNGEONS[0], S.today);
-  html += `<div class="dng-top">
-    <div class="dng-stamina">
-      <div class="dng-stamina-label">结晶波片</div>
-      <div class="dng-stamina-value">${S.stamina} / ${S.staminaMax}</div>
-      <div class="dng-stamina-bar"><i style="width:${(S.stamina/S.staminaMax*100).toFixed(1)}%"></i></div>
-      <div class="dng-stamina-note">推进到下一日补满 · 药剂超充上限 ${POT_CAP}</div>
-    </div>
-    <div class="dng-version">
-      <div class="dng-stamina-label">版本敌方成长</div>
-      <div class="dng-version-value">${versionInfo.version} · ×${versionInfo.versionScale.toFixed(2)}</div>
-      <div class="dng-version-note">按当前版本自动抬高副本与深塔敌方数值</div>
-    </div>
-    <div class="dng-actions">
-      <button class="mbtn" onclick="window.__usePotion('condensed_waveplate',1)" ${condensed <= 0 || S.stamina >= POT_CAP ? 'disabled' : ''} title="官方上限 5">凝缩 ${condensed}/5</button>
-      <button class="mbtn gold" onclick="window.__usePotion('crystal_solvent',1)" ${solvent <= 0 || S.stamina >= POT_CAP ? 'disabled' : ''}>溶剂 ×${solvent}</button>
-      <button class="mbtn" onclick="window.__buyStamina()" ${S.astrite < 60 || S.stamina >= POT_CAP ? 'disabled' : ''} title="紧急补救 · 60 星声换 60 波片">60⭐ 补体力</button>
-    </div>
-  </div>`;
-
-  const minCost = Math.min(...DUNGEONS.map(d => d.cost).filter(Boolean));
-  if (S.stamina < minCost) {
-    html += `<div class="dng-alert">
-      ⚠ 当前结晶波片不足，至少需要 ${minCost} 点。可先使用上方凝缩波片 / 结晶溶剂，或推进到下一日补满。
-    </div>`;
-  }
-
-  if (teamCount === 0) {
-    html += '<div class="dng-alert red">⚠ 编队为空或队员已失效，先去【编队】面板组队</div>';
-  }
-
-  const weeklyUsed = getWeeklyBossUsed();
-  const weeklyLeft = Math.max(0, WEEKLY_BOSS_LIMIT - weeklyUsed);
-  const groups = [
-    { type: 'exp', title: '模拟战训', desc: '共鸣经验 · 升级角色' },
-    { type: 'weapon', title: '凝素领域', desc: '武器/技能材料 · 升级武器' },
-    { type: 'echo', title: '无音清剿', desc: '声骸养成 · 促剂与武器石' },
-    { type: 'overlord', title: '讨伐强敌', desc: '大世界 Boss · 突破养成材料' },
-    { type: 'weekly', title: '战歌重奏', desc: weeklyLeft > 0 ? `高阶技能材料 · 本周剩余 ${weeklyLeft}/${WEEKLY_BOSS_LIMIT}` : `高阶技能材料 · 本周已用完 ${WEEKLY_BOSS_LIMIT}/${WEEKLY_BOSS_LIMIT}`, weekly: true }
-  ];
-
-  html += '<div class="dng-sections">';
-  groups.forEach(g => {
-    const list = DUNGEONS.filter(d => d.type === g.type);
-    if (!list.length) return;
-    html += `<section class="dng-section ${g.weekly ? 'weekly' : ''}">
-      <div class="dng-section-head">
-        <div>
-          <h2>${g.title}</h2>
-          <p>${g.desc}</p>
-        </div>
-        <span>${list.length} 项</span>
-      </div>
-      <div class="dng-grid">`;
-    list.forEach(d => {
-      const isWeekly = !!d.weeklyLimit;
-      const canAfford = S.stamina >= d.cost && teamCount > 0 && (!isWeekly || canUseWeeklyBoss());
-      html += renderDungeonCard(d, canAfford, isWeekly);
-    });
-    html += '</div></section>';
-  });
-  html += '</div>';
-
-  container.innerHTML = html;
-}
-
 function renderDungeonCard(d, canAfford, isWeekly = false) {
   const encounter = getDungeonEncounter(d, S.today);
   const minLv = d.minLevel ? `<span>推荐 ${d.minLevel}+</span>` : '';
@@ -137,6 +59,11 @@ function renderDungeonCard(d, canAfford, isWeekly = false) {
   const enemyHtml = formatEnemies(encounter.enemies);
   const mechanicHtml = formatMechanics(encounter.enemies);
   const dropHtml = formatDrops(d.drops);
+  const isWorldBoss = d.type === 'worldBoss';
+  const bossName = isWorldBoss ? (d.enemies?.[0] || d.name) : null;
+  const bossLv = bossName ? getBossLevel(bossName) : null;
+  const spawnOpts = bossName ? getWorldBossSpawnOpts(bossName) : null;
+  const costLine = d.cost > 0 ? `<b>${d.cost}</b> 波片` : '不耗波片';
   const disabledLabel = S.stamina < d.cost
     ? `缺 ${d.cost - S.stamina} 体力`
     : (isWeekly && !canUseWeeklyBoss() ? '本周已满' : '需编队');
@@ -145,7 +72,7 @@ function renderDungeonCard(d, canAfford, isWeekly = false) {
     <div class="dng-card-top">
       <div>
         <div class="dng-card-name">${d.name}</div>
-        <div class="dng-card-meta"><b>${d.cost}</b> 波片${minLv}</div>
+        <div class="dng-card-meta">${costLine}${minLv}</div>
       </div>
       <button class="mbtn gold" onclick="window.__startDungeon('${d.id}')" ${!canAfford ? 'disabled' : ''}>${canAfford ? '挑战' : disabledLabel}</button>
     </div>
@@ -153,7 +80,12 @@ function renderDungeonCard(d, canAfford, isWeekly = false) {
       <div class="dng-label">今日敌情</div>
       <div class="dng-enemies">${enemyHtml}</div>
       ${mechanicHtml ? `<div class="dng-mechanics">${mechanicHtml}</div>` : ''}
-      <div class="dng-pool">${encounter.tag} · 敌池 ${poolSize} 组 · ${encounter.version} 敌强 ×${encounter.versionScale.toFixed(2)} · 隔日刷新</div>
+      ${isWorldBoss && spawnOpts
+        ? `<div class="dng-pool">讨伐等级 <b style="color:var(--gold)">Lv${bossLv}</b> · ${SOL3_LEVELS[spawnOpts.worldTier]?.name || '索拉Ⅰ'} · 强度 ×${(spawnOpts.tierMult * bossLv / 90).toFixed(2)}（Lv90基准）</div>`
+        : (d.encounterPool && d.encounterPool.length
+          ? `<div class="dng-pool">${encounter.tag} · 敌池 ${poolSize} 组 · 敌强 ×${encounter.enemyScale.toFixed(2)} · 隔日刷新</div>`
+          : `<div class="dng-pool">固定敌情 · 敌强 ×${encounter.enemyScale.toFixed(2)}</div>`)
+      }
     </div>
     <div class="dng-drops">
       <div class="dng-label">奖励</div>
@@ -161,3 +93,108 @@ function renderDungeonCard(d, canAfford, isWeekly = false) {
     </div>
   </article>`;
 }
+
+// ===== 主渲染 =====
+const DUNGEON_GROUPS = [
+  { type: 'exp',       key: 'exp',     label: '模拟战训', sub: '角色经验' },
+  { type: 'weapon',    key: 'weapon',  label: '锻造挑战', sub: '武器材料' },
+  { type: 'echo',      key: 'echo',    label: '无音区',   sub: '声骸养成' },
+  { type: 'worldBoss', key: 'boss',    label: '世界BOSS', sub: '60波片/次' },
+  { type: 'weekly',    key: 'weekly',  label: '战歌重奏', sub: '周限3次' }
+];
+
+let _dungeonTab = 'exp';
+
+export function renderDungeon() {
+  const container = $('paneDungeon');
+  if (!container) return;
+  const teamCount = getCombatTeamNames().length;
+  let html = '';
+
+  // 体力条
+  const solvent = S.materials.crystal_solvent || 0;
+  const condensed = S.materials.condensed_waveplate || 0;
+  const POT_CAP = 480;
+  html += `<div class="dng-top">
+    <div class="dng-stamina">
+      <div class="dng-stamina-label">结晶波片</div>
+      <div class="dng-stamina-value">${S.stamina} / ${S.staminaMax}</div>
+      <div class="dng-stamina-bar"><i style="width:${(S.stamina/S.staminaMax*100).toFixed(1)}%"></i></div>
+      <div class="dng-stamina-note">推进到下一日补满 · 药剂超充上限 ${POT_CAP}</div>
+    </div>
+    <div class="dng-actions">
+      <button class="mbtn" onclick="window.__usePotion('condensed_waveplate',1)" ${condensed <= 0 || S.stamina >= POT_CAP ? 'disabled' : ''}>凝缩 ${condensed}/5</button>
+      <button class="mbtn gold" onclick="window.__usePotion('crystal_solvent',1)" ${solvent <= 0 || S.stamina >= POT_CAP ? 'disabled' : ''}>溶剂 ×${solvent}</button>
+      <button class="mbtn" onclick="window.__buyStamina()" ${S.astrite < 60 || S.stamina >= POT_CAP ? 'disabled' : ''}>60⭐ 补体力</button>
+    </div>
+  </div>`;
+
+  const paidDungeons = DUNGEONS.filter(d => d.cost > 0);
+  const minCost = paidDungeons.length ? Math.min(...paidDungeons.map(d => d.cost)) : 0;
+  if (minCost > 0 && S.stamina < minCost) {
+    html += `<div class="dng-alert">⚠ 当前结晶波片不足，至少需要 ${minCost} 点。可使用凝缩波片 / 结晶溶剂，或推进到下一日补满。</div>`;
+  }
+  if (teamCount === 0) {
+    html += '<div class="dng-alert red">⚠ 编队为空或队员已失效，先去【编队】面板组队</div>';
+  }
+
+  const weeklyUsed = getWeeklyBossUsed();
+  const weeklyLeft = Math.max(0, WEEKLY_BOSS_LIMIT - weeklyUsed);
+
+  // SOL3 世界等级选择器
+  const curSol3 = getSol3Level();
+  const curSol3Cfg = getSol3Config(curSol3);
+  html += '<div class="dng-sol3" style="display:flex;align-items:center;gap:8px;margin-bottom:8px">';
+  html += '<span style="font-size:11px;color:var(--muted);letter-spacing:1px">世界等级</span>';
+  Object.entries(SOL3_LEVELS).forEach(([lv, cfg]) => {
+    const active = Number(lv) === curSol3;
+    html += `<button class="mbtn ${active ? 'gold' : ''}" style="font-size:10px;padding:4px 10px" onclick="window.__setSol3(${lv})" ${active ? 'disabled' : ''}>${cfg.name}</button>`;
+  });
+  html += `<span style="font-size:10px;color:var(--muted)">BOSS取Lv90的 ×${((curSol3Cfg.worldTierMult||0.6)*100).toFixed(0)}% · 掉落 ×${curSol3Cfg.dropMult.toFixed(1)}</span>`;
+  html += '</div>';
+
+  // 左右布局：左侧 Tab + 右侧卡片
+  html += '<div style="display:flex;gap:12px">';
+
+  // 左侧 Tab 列
+  html += '<div style="display:flex;flex-direction:column;gap:5px;min-width:80px">';
+  DUNGEON_GROUPS.forEach(g => {
+    const active = _dungeonTab === g.key;
+    const color = g.key === 'weekly' ? 'var(--gold)' : g.key === 'boss' ? '#ff8c5e' : 'var(--accent)';
+    const count = DUNGEONS.filter(d => d.type === g.type).length;
+    html += `<div onclick="window.__dungeonSwitchTab('${g.key}')" style="cursor:pointer;border:2px solid ${active ? color : 'var(--line)'};border-radius:10px;padding:9px 6px;text-align:center;background:${active ? 'rgba(245,207,107,.06)' : 'rgba(255,255,255,.02)'};transition:.15s">
+      <div style="font-size:12px;font-weight:700;letter-spacing:2px;color:${active ? color : 'var(--text)'}">${g.label}</div>
+      <div style="font-size:9px;color:var(--muted);margin-top:2px">${g.key === 'weekly' ? `剩余 ${weeklyLeft}/${WEEKLY_BOSS_LIMIT}` : `${count} 个副本`}</div>
+    </div>`;
+  });
+  html += '</div>';
+
+  // 右侧内容
+  html += '<div style="flex:1;min-width:0;overflow-y:auto;max-height:55vh">';
+  const group = DUNGEON_GROUPS.find(g => g.key === _dungeonTab);
+  if (group) {
+    const list = DUNGEONS.filter(d => d.type === group.type);
+    if (list.length) {
+      list.forEach(d => {
+        const isWeekly = !!d.weeklyLimit;
+        const canAfford = S.stamina >= d.cost && teamCount > 0 && (!isWeekly || canUseWeeklyBoss());
+        html += renderDungeonCard(d, canAfford, isWeekly);
+      });
+    }
+  }
+  html += '</div>';
+
+  html += '</div>'; // 左右布局结束
+
+  container.innerHTML = html;
+}
+
+window.__dungeonSwitchTab = (key) => {
+  _dungeonTab = key;
+  renderDungeon();
+};
+
+window.__setSol3 = (lv) => {
+  setSol3Level(lv);
+  renderDungeon();
+};

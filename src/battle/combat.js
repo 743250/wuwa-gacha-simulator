@@ -15,20 +15,13 @@ import { spawnEnemy } from './enemies.js';
 import { resistMultiplier, vibrationMultiplier } from './elements.js';
 import { initForte, gainForte, consumeForte, forteEnhances } from './forte.js';
 import { fireTrigger, collectWeaponBonus, tickWeaponTriggers } from './weaponTriggers.js';
-
-// 有重击的角色（opt-in）：只有共鸣链/技能里明确提到重击的角色才启用
-// 默认所有角色都无重击 —— 战斗中按钮禁用，技能区不显示重击行
-const HAS_HEAVY_ROLES = new Set([
-  '忌炎',    // 重击积锐意
-  '长离',    // 重击焚身以火
-  '珂莱塔',  // 重击末路见行
-  '菲比',    // 重击星辉
-  '卡提希娅',// 重击 / 强化重击 (空中攻击)
-  '嘉贝莉娜',// 重击炼羽裁决
-  '卡卡罗',  // 重击死告
-  '安可'     // 白咩 / 黑咩重击
-  // 注：椿在原作核心是普攻派生（红椿蕊 → 含苞），模拟器里没有"重击型"，已移出
-]);
+import { applyEnemyPeriodicMechanic, applyEnemyThresholdMechanic, applyEnemyOnHitMechanic } from './enemyMechanics.js';
+import { hasHeavyAttack } from './characters/index.js';
+import { ACTION_COST, ACTION_MULTIPLIER, VIBRATION_DAMAGE } from './balance.js';
+import { jiyanGainRuiyi, jiyanGuanShiBuff, jiyanBurstRuiyi, jiyanQiZheng, jiyanSwitchIn } from './characters/jiyan.js';
+import { shorekeeperSkillHeal, shorekeeperStarfield, shorekeeperBurstRefund } from './characters/shorekeeper.js';
+import { yinlinGainVerdict, yinlinOnHit, yinlinBurst, yinlinTurnCleanup } from './characters/yinlin.js';
+import { encoreGainDisorder, encoreStartBlackSheep, encoreTurnCleanup } from './characters/encore.js';
 
 export function getCombatTeamNames(teamNames = S.team) {
   const seen = new Set();
@@ -51,6 +44,21 @@ export function createBattle(teamNames, enemyNames, opts = {}) {
   // 应用全队 buff（光环/守岸人之类）
   applyTeamAuras(team);
 
+  // 冥歌海墟：应用信物效果
+  if (opts.wastesTokens) {
+    const wt = opts.wastesTokens;
+    team.forEach(t => {
+      if (wt.atkMul) { t.atk = Math.round(t.atk * wt.atkMul); }
+      if (wt.hpMul) { t.hp = Math.round(t.hp * wt.hpMul); t.hpMax = Math.round(t.hpMax * wt.hpMul); }
+      if (wt.defMul) { t.def = Math.round(t.def * wt.defMul); }
+      if (wt.crate) { t.crate = Math.min(1, (t.crate || 0) + wt.crate); }
+      if (wt.cdmg) { t.cdmg = (t.cdmg || 0.5) + wt.cdmg; }
+      if (wt.healPerTurn) {
+        t.buffs.push({ type: 'wastes_heal', value: wt.healPerTurn, duration: 99, src: '愈合之印' });
+      }
+    });
+  }
+
   const expectedEnemies = (enemyNames || []).filter(Boolean);
   const enemies = expectedEnemies.map((n, idx) => {
     const e = spawnEnemy(n, opts.enemyStatScale || opts.enemyScale || 1.0);
@@ -62,7 +70,7 @@ export function createBattle(teamNames, enemyNames, opts = {}) {
   const battle = {
     turn: 1,
     ap: 4,
-    apMax: 4,
+    apMax: 4 + (opts.wastesTokens?.apBonus || 0),
     active: 0,                  // 当前出手队员 idx（0/1/2）
     team,
     enemies,
@@ -74,7 +82,9 @@ export function createBattle(teamNames, enemyNames, opts = {}) {
     switchUsedThisTurn: false,  // 本回合是否已切人（每回合限 1 次）
     // 评星辅助
     burnTimer: {},              // 持续效果累计
-    freezeOn: {}                // {teamIdx: turnsLeft}
+    freezeOn: {},                // {teamIdx: turnsLeft}
+    // 冥歌海墟 token 效果
+    wastesTokens: opts.wastesTokens || null
   };
   battle.log.push({ type: 'system', msg: `战斗开始！队伍 ${team.map(t=>t.name).join(' / ')} VS ${enemies.map(e=>e.name).join(' / ')}` });
   battle.log.push({ type: 'system', msg: `回合 1 · 当前出手：${team[0].name}` });
@@ -126,7 +136,7 @@ function createTeamUnit(roleName, idx) {
     ruiyi: 0,                               // 忌炎「锐意之势」当前层数（其他角色用不到）
     verdict: 0,                             // 吟霖「审判值」0-100（其他角色用不到）
     encoreDisorder: 0,                      // 安可「失序值」0-100（满后重击变白咩/黑咩特殊重击）
-    hasHeavy: HAS_HEAVY_ROLES.has(roleName) // 是否有重击（opt-in，默认无重击）
+    hasHeavy: hasHeavyAttack(roleName) // 是否有重击（opt-in，默认无重击）
   };
   initForte(unit);
   applyChainBonuses(unit);
@@ -214,11 +224,27 @@ function calcDamage(attacker, defender, multiplier, dmgType) {
   return { dmg, crit: isCrit, resistMult, vibrMult };
 }
 
-// 扣血（处理护盾、防御 buff、卡卡罗 burstWindow buff）
+// 扣血（处理护盾、防御 buff、敌方特殊减伤）
 function dealDamage(target, dmg) {
-  // 防御 buff
+  // 防御 buff（玩家角色）
   const defBuff = target.buffs?.find(b => b.type === 'defense');
   if (defBuff) dmg = Math.round(dmg * (1 - defBuff.value));
+  // 敌方特殊减伤（世界 BOSS 机制）
+  if (target._iceShieldDmgReduc && target.shield > 0) {
+    dmg = Math.round(dmg * (1 - target._iceShieldDmgReduc));
+  }
+  if (target._windWallDmgReduc && target._windWallTurns > 0) {
+    dmg = Math.round(dmg * (1 - target._windWallDmgReduc));
+  }
+  if (target._transition > 0) {
+    dmg = Math.round(dmg * 0.5);
+  }
+  // 飞空无敌：不受伤害
+  if (target._flightTurns >= 2) return 0;
+  // 眩晕易伤（弹反/残骸投掷 后 +50%）
+  if (target._stunned > 0 && target._vulnerable) {
+    dmg = Math.round(dmg * 1.5);
+  }
   // 护盾
   if (target.shield && target.shield > 0) {
     if (dmg <= target.shield) { target.shield -= dmg; return 0; }
@@ -311,6 +337,11 @@ function enemyAttack(battle, enemy, target, opts = {}) {
   if (!enemy?.alive || !target?.alive) return 0;
   const action = opts.action || '攻击';
   const mult = opts.mult || 1;
+  // 飞空无敌：不可被攻击
+  if (enemy._flightTurns >= 2) {
+    battle.log.push({ type: 'mechanic', src: enemy.name, msg: '飞空中，无法被攻击' });
+    return 0;
+  }
   if (Math.random() < (target.dodge || 0)) {
     battle.log.push({ type: 'dodge', src: enemy.name, tgt: target.name, action });
     return 0;
@@ -324,7 +355,15 @@ function enemyAttack(battle, enemy, target, opts = {}) {
   const isCrit = Math.random() < (opts.critRate ?? 0.05);
   const critMult = isCrit ? (opts.critMult || 1.5) : 1.0;
   let dmg = (enemy.atk + 30) * mult * resMult * debuffMult * critMult;
-  dmg = Math.max(30, dmg - target.def * 0.5);
+  // 降防 debuff 叠加（梦魇亚当）
+  const defDown = (target.debuffs || []).find(d => d.type === 'defDown');
+  const defDownMult = defDown ? (1 + (defDown.stacks || 0) * (defDown.value || 0.10)) : 1;
+  // 穿甲（朔雷之鳞 雷霆墙）
+  const wallPierce = (enemy.mechanic?.type === 'thunder_chain' && enemy.mechanic?.wallLock) ? 0.2 : 0;
+  const defEffective = target.def * 0.5 * (1 - wallPierce) * defDownMult;
+  dmg = Math.max(30, dmg - defEffective);
+  // 自旋疲惫（聚械机偶旋转后下回合攻击 -30%）
+  if (enemy._spinTired) dmg = Math.round(dmg * 0.7);
   const real = dealDamage(target, Math.round(dmg));
   battle.log.push({ type: 'enemy_attack', src: enemy.name, tgt: target.name, dmg: real, crit: isCrit, action });
   return real;
@@ -332,7 +371,17 @@ function enemyAttack(battle, enemy, target, opts = {}) {
 
 function applyReflect(battle, attacker, defender, realDamage) {
   const m = defender?.mechanic;
-  if (!attacker?.alive || !m || m.type !== 'reflect' || realDamage <= 0) return;
+  if (!attacker?.alive || !m || realDamage <= 0) return;
+  // turtle_reflect: 反击姿态中反弹
+  if (defender._deflectActive) {
+    const reflected = dealDamage(attacker, Math.round(realDamage * (m.value || 0.4)));
+    if (reflected > 0) {
+      battle.log.push({ type: 'mechanic', src: defender.name, msg: `反弹 ${attacker.name} ${reflected} 伤害` });
+    }
+    return;
+  }
+  // 旧 reflect
+  if (m.type !== 'reflect') return;
   if (m.cycle && battle.turn % m.cycle !== 0) return;
   const reflected = dealDamage(attacker, Math.round(realDamage * (m.value || 0.3)));
   if (reflected > 0) {
@@ -340,149 +389,125 @@ function applyReflect(battle, attacker, defender, realDamage) {
   }
 }
 
-function isMechanicTurn(m, turn) {
-  return !!(m?.cycle && turn % m.cycle === 0);
-}
+// ===== 世界 BOSS 辅助函数 =====
 
-function summonNameFor(enemy) {
-  if (enemy.name === '聚械机偶') return '机偶小弟';
-  if (enemy.name === '鸣式·利维亚坦') return '鸣式残响';
-  return '幻象';
-}
-
-// ===== 忌炎「锐意之势」状态机 =====
-// 创作者思路：忌炎是「攒势 → 解放终结」的爆发型主C
-//   每次 重击 / 共鸣技能 / 变奏(切入) 积 1 层【锐意之势】，上限默认 2，6 链 3
-//   释放共鸣解放时消耗全部锐意，每层放大解放伤害（默认 +100%，6 链 +120%）
-//   3 链 观势：任何技能动作后，自身暴击 +16% / 暴伤 +32% / 2 回合
-function jiyanGainRuiyi(self, source, battle) {
-  if (self.name !== '忌炎') return;
-  const cap = self.jiyanRuiyiCap || 2;
-  const before = self.ruiyi || 0;
-  self.ruiyi = Math.min(cap, before + 1);
-  if (self.ruiyi > before) {
-    battle.log.push({ type: 'mechanic', src: self.name, msg: `${source} → 锐意之势 ${self.ruiyi}/${cap}` });
+// 叹息古龙：召唤追踪电锯
+function spawnSaws(battle, enemy) {
+  const m = enemy.mechanic;
+  const count = m.sawCount || 3;
+  enemy._saws = enemy._saws || [];
+  for (let i = 0; i < count; i++) {
+    enemy._saws.push({ turnsLeft: m.sawDuration || 2, mult: m.sawMult || 0.5 });
   }
+  battle.log.push({ type: 'mechanic', src: enemy.name, msg: `召唤 ${count} 个追踪电锯（持续 ${m.sawDuration||2} 回合）` });
 }
 
-// 3 链 观势：自身暴击/暴伤 buff（任意技能/重击/变奏/解放后刷新）
-function jiyanGuanShiBuff(self, battle) {
-  if (self.name !== '忌炎' || !self.jiyanGuanShi) return;
-  const cfg = self.jiyanGuanShi;
-  self.buffs = (self.buffs || []).filter(b => b.src !== '观势');
-  self.buffs.push({ type: 'crateUp', value: cfg.crate, duration: cfg.dur + 1, src: '观势' });
-  self.buffs.push({ type: 'cdmgUp',  value: cfg.cdmg,  duration: cfg.dur + 1, src: '观势' });
-  battle.log.push({
-    type: 'mechanic', src: self.name,
-    msg: `观势 · 暴击 +${(cfg.crate*100).toFixed(0)}% / 暴伤 +${(cfg.cdmg*100).toFixed(0)}%（${cfg.dur} 回合）`
+function tickSaws(battle, enemy, helpers) {
+  if (!enemy._saws || !enemy._saws.length) return;
+  enemy._saws.forEach(saw => {
+    if (saw.turnsLeft <= 0) return;
+    const tgt = randomTeamTarget2(battle);
+    if (tgt) {
+      helpers.enemyAttack(battle, enemy, tgt, { mult: saw.mult, action: '追踪电锯' });
+    }
+    saw.turnsLeft--;
   });
+  enemy._saws = enemy._saws.filter(s => s.turnsLeft > 0);
 }
 
-// ===== 安可「失序值 / 黑咩大暴走」状态机 =====
-// 原版思路：安可不是单纯解放 AOE，而是「失序值满 → 特殊重击」+「解放进入黑咩强化形态」。
-// 模拟器抽象：
-//   · 失序值 0-100：普攻 +20 / 共鸣技能 +35 / 普通重击 +20 / 变奏 +30；黑咩窗口内命中额外 +10
-//   · 失序值满时施放重击：消耗 100 失序值，改为白咩·失控之炎 / 黑咩·暴走之炎（按共鸣解放伤害结算）
-//   · 共鸣解放·黑咩大暴走：进入黑咩窗口（释放当回合 + 后续 3 个完整我方回合），普攻/技能/重击强化
-function encoreGainDisorder(self, amount, source, battle) {
-  if (self.name !== '安可') return;
-  const extra = (self.encoreBlackTurns || 0) > 0 ? 10 : 0;
-  const gain = amount + extra;
-  const before = self.encoreDisorder || 0;
-  self.encoreDisorder = Math.min(100, before + gain);
-  if (self.forte?.resourceName === '失序值') {
-    self.forte.current = self.encoreDisorder;
-    self.forte.ready = self.encoreDisorder >= 100;
-  }
-  if (self.encoreDisorder > before) {
-    battle.log.push({
-      type: 'mechanic', src: self.name,
-      msg: `${source} → 失序值 ${self.encoreDisorder}/100${extra ? '（黑咩 +10）' : ''}`
-    });
-  }
+function randomTeamTarget2(battle) {
+  const alives = battle.team.filter(t => t.alive);
+  return alives.length ? alives[Math.floor(Math.random() * alives.length)] : null;
 }
 
-
-// 创作者思路：吟霖是「攒审判值 → 引爆印记」的标记型副C
-//   普攻 / 共鸣技能积"审判值"，满 100 自动触发"审判之雷" → 给当前主目标挂"审判印记"
-//   印记挂在敌人身上，所有攻击者命中印记目标时，按印记层数额外增伤（3 链 +15%/层）
-//   吟霖自己 1 链/5 链对印记目标技能/解放追加倍率
-//   2 链：吟霖命中印记目标 +5 审判 +5 能量；4 链：触发审判之雷时全队 atk +20%/2 回合
-//   6 链：解放后 2 回合，吟霖普攻命中印记目标额外触发疾霆昭彰（atk×100% 导电，每回合 1 次）
-const YINLIN_MARK_CAP = 3;
-const YINLIN_MARK_DURATION = 3;
-
-function yinlinGainVerdict(self, amount, source, battle) {
-  if (self.name !== '吟霖') return;
-  const before = self.verdict || 0;
-  self.verdict = Math.min(100, before + amount);
-  if (self.verdict >= 100) {
-    self.verdict = 0;
-    yinlinTriggerJudgment(self, battle, source);
-  } else if (self.verdict > before) {
-    battle.log.push({ type: 'mechanic', src: self.name, msg: `${source} → 审判值 ${self.verdict}/100` });
-  }
-}
-
-// 触发审判之雷：给当前主目标挂印记，全队 atk +20%（4 链）
-function yinlinTriggerJudgment(self, battle, source) {
-  const aliveEnemies = battle.enemies.filter(e => e.alive);
-  if (!aliveEnemies.length) return;
-  const targetIdx = (typeof battle.targetIdx === 'number') ? battle.targetIdx : -1;
-  const target = (battle.enemies[targetIdx] && battle.enemies[targetIdx].alive) ? battle.enemies[targetIdx] : aliveEnemies[0];
-  yinlinAddMark(target, 1);
-  battle.log.push({
-    type: 'mechanic', src: self.name,
-    msg: `审判之雷！${source} 满审判值 → ${target.name} 获得审判印记`
-  });
-  // 4 链：触发审判之雷时全队攻击 +20% / 2 回合
-  if (self.yinlinJudgmentTeamAtk) {
-    const cfg = self.yinlinJudgmentTeamAtk;
+// 无归的谬误：延迟爆破
+function handleDelayedBlast(battle, enemy, helpers) {
+  const m = enemy.mechanic;
+  // 上回合设置的爆破，本回合触发
+  if (enemy._delayedBlast) {
+    battle.log.push({ type: 'mechanic', src: enemy.name, msg: '💥 延迟爆破！全队 AOE' });
     battle.team.forEach(t => {
       if (!t.alive) return;
-      t.buffs = (t.buffs || []).filter(b => b.src !== '前行的鼓舞');
-      t.buffs.push({ type: 'atkUp', value: cfg.value, duration: cfg.dur + 1, src: '前行的鼓舞' });
+      helpers.enemyAttack(battle, enemy, t, { mult: m.delayedBlastMult || 1.3, action: '延迟爆破' });
     });
-    battle.log.push({
-      type: 'mechanic', src: self.name,
-      msg: `前行的鼓舞 · 全队攻击 +${(cfg.value*100).toFixed(0)}%（${cfg.dur} 回合）`
-    });
+    enemy._delayedBlast = false;
+  }
+  // 本回合设置下回合爆破
+  if (battle.turn % (m.delayedBlastCycle || 3) === 0) {
+    enemy._delayedBlast = true;
+    battle.log.push({ type: 'mechanic', src: enemy.name, msg: '地面发光…下回合全队爆破！' });
   }
 }
 
-// 给敌人加 N 层印记（上限 3，回合数会延续）
-function yinlinAddMark(target, layers) {
-  const before = target.judgeMark;
-  if (before) {
-    target.judgeMark = {
-      layers: Math.min(YINLIN_MARK_CAP, before.layers + layers),
-      remaining: YINLIN_MARK_DURATION
-    };
-  } else {
-    target.judgeMark = { layers: Math.min(YINLIN_MARK_CAP, layers), remaining: YINLIN_MARK_DURATION };
+// 无归的谬误：Overclock 过载
+function handleOverclock(battle, enemy) {
+  const m = enemy.mechanic;
+  if (!enemy._overclocked && enemy.hp / enemy.hpMax <= (m.overclockThreshold || 0.3)) {
+    enemy._overclocked = true;
+    enemy._overclockTurns = m.overclockDuration || 3;
+    enemy.atk = Math.round(enemy.atk * (1 + (m.overclockAtkBonus || 0.5)));
+    battle.log.push({ type: 'mechanic', src: enemy.name, msg: `Overclock 过载！攻击 +${((m.overclockAtkBonus||0.5)*100).toFixed(0)}%，双动 ${m.overclockDuration||3} 回合` });
   }
 }
 
-// 吟霖普攻/技能命中后：若目标有印记，2 链给吟霖 +5 审判 +5 能量；命中本身也叠 1 层
-function yinlinOnHit(self, target, dmgType, battle) {
-  if (self.name !== '吟霖') return;
-  if (!target || !target.judgeMark) return;
-  // 2 链：命中印记目标 +5 审判 +5 能量
-  if (self.yinlinMarkRefund) {
-    self.verdict = Math.min(100, (self.verdict || 0) + self.yinlinMarkRefund.verdict);
-    self.energy = Math.min(self.energyMax, self.energy + self.yinlinMarkRefund.energy);
+// 飞廉之猩：抓投（periodic 中触发）
+function handleBaringalGrab(battle, enemy, helpers) {
+  const m = enemy.mechanic;
+  const cycle = enemy.enraged && enemy._enrageGrabFast ? 2 : (m.grabCycle || 4);
+  if (battle.turn % cycle !== 0) return;
+  if (battle._heavyUsedThisTurn) {
+    battle.log.push({ type: 'mechanic', src: enemy.name, msg: `抓投被 ${battle.team[battle.active]?.name} 弹反！` });
+    return;
   }
-  // 命中再叠 1 层印记（普攻/技能/解放都算）
-  yinlinAddMark(target, 1);
-  // 6 链：解放后 2 回合内，吟霖普攻命中印记目标额外触发疾霆昭彰（每回合 1 次）
-  if (dmgType === 'normal' && self.yinlinJiTingActive && !self._jiTingFiredThisTurn && self.yinlinJiTing) {
-    self._jiTingFiredThisTurn = true;
-    const { dmg, crit } = calcDamage(self, target, self.yinlinJiTing.value, 'skill');
-    const real = dealDamage(target, dmg);
-    battle.log.push({
-      type: 'attack', src: self.name, tgt: target.name, dmg: real, crit,
-      action: '疾霆昭彰（6 链）'
-    });
+  const tgt = helpers.pickTeamTarget(battle);
+  if (!tgt) return;
+  // 无视闪避
+  const dmg = Math.round((enemy.atk + 30) * (m.grabMult || 2.5) * 0.8);
+  const real = helpers.dealDamage(tgt, dmg);
+  battle.log.push({ type: 'mechanic', src: enemy.name, tgt: tgt.name, dmg: real, msg: '抓投（不可闪避）！' });
+  // 狂暴后抓投加速
+  if (enemy.enraged && !enemy._enrageGrabFast) {
+    enemy._enrageGrabFast = true;
+    battle.log.push({ type: 'mechanic', src: enemy.name, msg: '狂暴：抓投频率翻倍！' });
+  }
+}
+
+// 云闪之鳞：蓄力激光
+function handleLaser(battle, enemy, helpers) {
+  const m = enemy.mechanic;
+  if (m.type !== 'thunder_chain' || !m.laserCycle) return;
+  if (battle.turn % m.laserCycle !== 0) return;
+  if (m.laserWarn) {
+    battle.log.push({ type: 'mechanic', src: enemy.name, msg: '⚡ 正在蓄力激光…（下回合可切高防角色）' });
+    enemy._laserCharging = true;
+  }
+}
+
+function fireLaser(battle, enemy, helpers) {
+  if (!enemy._laserCharging) return;
+  const m = enemy.mechanic;
+  const tgt = helpers.pickTeamTarget(battle);
+  if (!tgt) return;
+  let mult = m.laserMult || 2.8;
+  if (tgt.def > enemy.atk * 0.8) {
+    mult *= 0.5;
+    battle.log.push({ type: 'mechanic', src: enemy.name, tgt: tgt.name, msg: '重甲扛住激光！伤害减半' });
+  }
+  helpers.enemyAttack(battle, enemy, tgt, { mult, action: '红色激光' });
+  enemy._laserCharging = false;
+}
+
+// 异构武装：空中弹幕
+function handleAirStars(battle, enemy, helpers) {
+  const m = enemy.mechanic;
+  if (!m.airPhase || !enemy._airPhase) return;
+  if (!m.airStarCycle || battle.turn % m.airStarCycle !== 0) return;
+  const count = m.airStarCount || 6;
+  battle.log.push({ type: 'mechanic', src: enemy.name, msg: `空中弹幕 ×${count}` });
+  for (let i = 0; i < count; i++) {
+    const tgt = randomTeamTarget2(battle);
+    if (!tgt) break;
+    helpers.enemyAttack(battle, enemy, tgt, { mult: m.airStarMult || 0.4, action: '星光追踪弹' });
   }
 }
 
@@ -491,18 +516,37 @@ function yinlinOnHit(self, target, dmgType, battle) {
 // 普攻：1 AP，单体，100% atk
 // 守岸人 5 链：normalSplit = 2，会额外打一个相邻敌人
 export function doAttack(battle, targetIdx) {
-  if (battle.finished || battle.ap < 1) return { ok: false, err: 'AP 不足' };
+  if (battle.finished || battle.ap < ACTION_COST.normal) return { ok: false, err: 'AP 不足' };
   const self = battle.team[battle.active];
   if (!self || !self.alive) return { ok: false, err: '当前角色不可行动' };
   if (self.frozenTurns > 0) return { ok: false, err: `当前角色被冻结（${self.frozenTurns} 回合）` };
   const target = battle.enemies[targetIdx];
   if (!target || !target.alive) return { ok: false, err: '目标无效' };
   const fEnh = forteEnhances(self, 'normal');
-  const mult = fEnh ? 1.0 * fEnh.effectMult : 1.0;
+  const mult = fEnh ? ACTION_MULTIPLIER.normal * fEnh.effectMult : ACTION_MULTIPLIER.normal;
   const { dmg, crit } = calcDamage(self, target, mult, 'normal');
   const real = dealDamage(target, dmg);
-  reduceVibration(target, 8 + (fEnh ? 12 : 0), battle);
+  reduceVibration(target, VIBRATION_DAMAGE.normal + (fEnh ? VIBRATION_DAMAGE.normalForteBonus : 0), battle);
   applyReflect(battle, self, target, real);
+  // 攻击绿泡（罗蕾莱）
+  if (target._bubbleHp > 0) {
+    target._bubbleHp -= real;
+    if (target._bubbleHp <= 0) {
+      const healAmt = target._bubbleHealAmt || 0;
+      if (healAmt > 0) {
+        battle.team.forEach(t => {
+          if (t.alive) {
+            const healed = Math.min(t.hpMax - t.hp, healAmt);
+            t.hp += healed;
+            if (healed > 0) battle.log.push({ type: 'heal', src: self.name, tgt: t.name, dmg: healed, msg: '抢到绿泡治疗！' });
+          }
+        });
+      }
+      target._bubbleHp = 0;
+      target._bubbleHealAmt = 0;
+      battle.log.push({ type: 'mechanic', src: self.name, msg: '击破绿泡！全队获得治疗' });
+    }
+  }
   battle.log.push({
     type: 'attack', src: self.name, tgt: target.name, dmg: real, crit,
     action: fEnh ? `${fEnh.resourceName}强化普攻` : '普攻'
@@ -514,7 +558,7 @@ export function doAttack(battle, targetIdx) {
       const extra = aliveOthers[Math.floor(Math.random() * aliveOthers.length)];
       const { dmg: dmg2, crit: crit2 } = calcDamage(self, extra, mult, 'normal');
       const real2 = dealDamage(extra, dmg2);
-      reduceVibration(extra, 6, battle);
+      reduceVibration(extra, VIBRATION_DAMAGE.normalSplit, battle);
       applyReflect(battle, self, extra, real2);
       battle.log.push({
         type: 'attack', src: self.name, tgt: extra.name, dmg: real2, crit: crit2,
@@ -522,8 +566,7 @@ export function doAttack(battle, targetIdx) {
       });
     }
   }
-  battle.ap -= 1;
-  // 共鸣效率：影响共鸣解放充能（能量值）回复速度
+  battle.ap -= ACTION_COST.normal;
   self.energy = Math.min(self.energyMax, self.energy + 12 * (1 + self.resonanceBonus));
   gainConcerto(self, 8);
   gainForte(self, 'normal');
@@ -541,7 +584,7 @@ export function doAttack(battle, targetIdx) {
 
 // 共鸣技能：1 AP，CD 3 回合，单体 180% atk
 export function doSkill(battle, targetIdx) {
-  if (battle.finished || battle.ap < 1) return { ok: false, err: 'AP 不足' };
+  if (battle.finished || battle.ap < ACTION_COST.skill) return { ok: false, err: 'AP 不足' };
   const self = battle.team[battle.active];
   if (!self || !self.alive) return { ok: false, err: '当前角色不可行动' };
   if (self.frozenTurns > 0) return { ok: false, err: `当前角色被冻结（${self.frozenTurns} 回合）` };
@@ -550,32 +593,18 @@ export function doSkill(battle, targetIdx) {
   const target = battle.enemies[targetIdx];
   if (!target || !target.alive) return { ok: false, err: '目标无效' };
   const fEnh = forteEnhances(self, 'skill');
-  const mult = fEnh && fEnh.effectMult ? 1.8 * fEnh.effectMult : 1.8;
+  const mult = fEnh && fEnh.effectMult ? ACTION_MULTIPLIER.skill * fEnh.effectMult : ACTION_MULTIPLIER.skill;
   const { dmg, crit } = calcDamage(self, target, mult, 'skill');
   const real = dealDamage(target, dmg);
-  reduceVibration(target, 20 + (fEnh ? 20 : 0), battle);
+  reduceVibration(target, VIBRATION_DAMAGE.skill + (fEnh ? VIBRATION_DAMAGE.skillForteBonus : 0), battle);
   applyReflect(battle, self, target, real);
-  battle.ap -= 1;
+  battle.ap -= ACTION_COST.skill;
   self.cd.skill = Math.max(1, 3 - (self.skillCdReduce || 0));
   self.energy = Math.min(self.energyMax, self.energy + (22 + self.energyRefund) * (1 + self.resonanceBonus));
   gainConcerto(self, 18);
   gainForte(self, 'skill');
 
-  // ★ 守岸人共鸣技能 · 混沌理论：附带全队治疗（治疗 = HP 上限 × 6% + ATK × 0.5）
-  //   贴近原版"治疗按 HP 上限算 + 小幅攻击加成"的公式，治疗位面板再低也能稳定奶量
-  if (self.name === '守岸人') {
-    const fourChain = self.healBuff4Chain || 0;       // 4 链：治疗 +70%
-    const healUp4 = 1 + (self.healBonus || 0) + fourChain;
-    battle.team.forEach(t => {
-      if (!t.alive) return;
-      const baseHeal = Math.round(t.hpMax * 0.06 + self.atk * 0.5);
-      const healUp = (t.buffs || []).reduce((a, b) => b.type === 'healUp' ? a + b.value : a, 0);
-      const finalHeal = Math.round(baseHeal * healUp4 * (1 + healUp));
-      const healed = Math.min(t.hpMax - t.hp, finalHeal);
-      t.hp += healed;
-      if (healed > 0) battle.log.push({ type: 'heal', src: self.name, tgt: t.name, dmg: healed });
-    });
-  }
+  shorekeeperSkillHeal(self, battle);
 
   if (fEnh) consumeForte(self);
 
@@ -608,7 +637,7 @@ export function doSkill(battle, targetIdx) {
 
 // 共鸣解放：3 AP，能量满，AOE，主目标 400% / 副目标 200%
 export function doBurst(battle) {
-  if (battle.finished || battle.ap < 3) return { ok: false, err: 'AP 不足（需 3）' };
+  if (battle.finished || battle.ap < ACTION_COST.burst) return { ok: false, err: `AP 不足（需 ${ACTION_COST.burst}）` };
   const self = battle.team[battle.active];
   if (!self || !self.alive) return { ok: false, err: '当前角色不可行动' };
   if (self.frozenTurns > 0) return { ok: false, err: `当前角色被冻结（${self.frozenTurns} 回合）` };
@@ -620,33 +649,19 @@ export function doBurst(battle) {
   const primary = (battle.enemies[targetIdx] && battle.enemies[targetIdx].alive) ? battle.enemies[targetIdx] : aliveEnemies[0];
   const fEnh = forteEnhances(self, 'burst');
   // ★ 忌炎「锐意之势」：消耗所有锐意，每层 +100%（6 链 +120%）解放伤害
-  //   2 层 = 解放 ×3（默认）；6 链 3 层 = 解放 ×4.6（默认）/ ×4.6（默认 +120%）
-  let ruiyiMult = 1.0;
-  let ruiyiUsed = 0;
-  if (self.name === '忌炎' && self.ruiyi > 0) {
-    ruiyiUsed = self.ruiyi;
-    const perStack = self.jiyanRuiyiPerStack || 1.0;
-    ruiyiMult = 1.0 + ruiyiUsed * perStack;
-    self.ruiyi = 0;
-  }
+  const { ruiyiMult } = jiyanBurstRuiyi(self, battle);
   // 主目标 400%、副目标 200%（命中前结算）。fEnh 的 effectMult 直接乘在双倍率上
-  const baseMain = 4.0 * (fEnh ? fEnh.effectMult : 1.0) * ruiyiMult;
-  const baseSide = 2.0 * (fEnh ? fEnh.effectMult : 1.0) * ruiyiMult;
-  if (ruiyiUsed > 0) {
-    battle.log.push({
-      type: 'mechanic', src: self.name,
-      msg: `消耗锐意之势 ${ruiyiUsed} 层 → 解放伤害 ×${ruiyiMult.toFixed(1)}`
-    });
-  }
+  const baseMain = ACTION_MULTIPLIER.burstMain * (fEnh ? fEnh.effectMult : 1.0) * ruiyiMult;
+  const baseSide = ACTION_MULTIPLIER.burstSide * (fEnh ? fEnh.effectMult : 1.0) * ruiyiMult;
   const results = aliveEnemies.map(e => {
     const mult = (e === primary) ? baseMain : baseSide;
     const { dmg, crit } = calcDamage(self, e, mult, 'burst');
     const real = dealDamage(e, dmg);
-    reduceVibration(e, 30, battle);
+    reduceVibration(e, VIBRATION_DAMAGE.burst, battle);
     applyReflect(battle, self, e, real);
     return { tgt: e.name, dmg: real, crit, primary: e === primary };
   });
-  battle.ap -= 3;
+  battle.ap -= ACTION_COST.burst;
   self.energy = 0;
   gainConcerto(self, 30);
   gainForte(self, 'burst');
@@ -665,64 +680,13 @@ export function doBurst(battle) {
     battle.log.push({ type: 'mechanic', src: self.name, msg: `进入强化形态（攻击/技能 +${((fEnh.effectMult-1)*100).toFixed(0)}%，持续 2 回合）` });
   }
 
-  // ★ 安可：共鸣解放 · 黑咩大暴走 → 进入黑咩形态（释放当回合 + 后续 3 个完整我方回合）
-  if (self.name === '安可') {
-    self.encoreBlackTurns = 4; // endTurn 会立刻 -1；设 4 = 释放当回合 + 后续 3 个完整我方回合
-    battle.log.push({
-      type: 'mechanic', src: self.name,
-      msg: '黑咩大暴走 · 进入黑咩形态（后续 3 回合），普攻/技能/重击获得强化'
-    });
-  }
+  encoreStartBlackSheep(self, battle);
 
-  // ★★★ 守岸人核心：共鸣解放 · 终末回环 → 展开「星域」
-  //   作者意图：领域是守岸人的全部价值。一按解放 = 全队进入"持续治疗 + 暴击 buff"状态。
-  //   普攻、技能、变奏都不抢戏，所有共鸣链都改这个领域的参数。
-  if (self.name === '守岸人') {
-    // 基础参数：3 回合 / 全队每回合回 ATK×0.8 治疗 / 暴击 +20% / 暴伤 +30%
-    // 1 链 → 持续延长 2 回合 + 切人不消散；治疗与增益强度 ×2.5
-    // 2 链 → 附带攻击 +25%（与暴击 buff 同源）
-    // 4 链 → 持续治疗 ×1.7
-    // 其他链不进领域 buff，按各自机制处理
-    const dur1Chain = self.fieldExtendDur || 0;
-    const baseDur = 3 + dur1Chain;
-    const heal4chain = 1 + (self.healBuff4Chain || 0);
-    const heal1chain = self.fieldPersistOnSwitch ? 2.5 : 1.0;     // 1 链：增益强度 ×2.5
-    const hot = Math.round(self.atk * 0.8 * heal4chain * heal1chain);
-    const fieldCrate = (0.20 + (self.fieldExtraCrate || 0)) * heal1chain;
-    const fieldCdmg = 0.30 * heal1chain;
-    const fieldAtk = (self.fieldExtraAtk || 0) * heal1chain;     // 2 链：+40% × heal1chain
-
-    battle.team.forEach(t => {
-      if (!t.alive) return;
-      t.buffs = (t.buffs || []).filter(b => b.src !== '星域');
-      t.buffs.push({ type: 'healOverTime', value: hot, duration: baseDur, src: '星域', persistent: !!self.fieldPersistOnSwitch });
-      t.buffs.push({ type: 'crateUp', value: fieldCrate, duration: baseDur, src: '星域', persistent: !!self.fieldPersistOnSwitch });
-      t.buffs.push({ type: 'cdmgUp', value: fieldCdmg, duration: baseDur, src: '星域', persistent: !!self.fieldPersistOnSwitch });
-      if (fieldAtk > 0) {
-        t.buffs.push({ type: 'atkUp', value: fieldAtk, duration: baseDur, src: '星域', persistent: !!self.fieldPersistOnSwitch });
-      }
-    });
-    battle.log.push({
-      type: 'mechanic', src: self.name,
-      msg: `「星域 · 终末回环」展开 · 全队每回合回血 ${hot} · 暴击 +${(fieldCrate*100).toFixed(0)}% · 暴伤 +${(fieldCdmg*100).toFixed(0)}%${fieldAtk>0?` · 攻击 +${(fieldAtk*100).toFixed(0)}%`:''}（${baseDur} 回合${self.fieldPersistOnSwitch?' · 切人不结束':''}）`
-    });
-  }
+  shorekeeperStarfield(self, battle);
 
   // ★ 忌炎 3 链 观势：解放后自身暴击/暴伤 buff
   jiyanGuanShiBuff(self, battle);
-  // ★ 忌炎 4 链 奇正：解放后全队重击伤害 +25% / 2 回合
-  if (self.name === '忌炎' && self.jiyanQiZheng) {
-    const cfg = self.jiyanQiZheng;
-    battle.team.forEach(t => {
-      if (!t.alive) return;
-      t.buffs = (t.buffs || []).filter(b => b.src !== '奇正');
-      t.buffs.push({ type: 'heavyDmgUp', value: cfg.value, duration: cfg.dur + 1, src: '奇正' });
-    });
-    battle.log.push({
-      type: 'mechanic', src: self.name,
-      msg: `奇正 · 全队重击伤害 +${(cfg.value*100).toFixed(0)}%（${cfg.dur} 回合）`
-    });
-  }
+  jiyanQiZheng(self, battle);
 
   // 触发武器被动：解放释放
   fireTrigger(self, 'burst_cast', { battle });
@@ -730,42 +694,8 @@ export function doBurst(battle) {
   if (self.concerto >= 100) {
     consumeConcerto(self, battle);
   }
-  // ★ 守岸人 3 链：解放后额外回 20 能量（CD 2 回合）
-  if (self.burstEnergyRefund > 0) {
-    if (!self._burstRefundCdLeft || self._burstRefundCdLeft <= 0) {
-      const refund = self.burstEnergyRefund;
-      self.energy = Math.min(self.energyMax, self.energy + refund);
-      self._burstRefundCdLeft = self.burstEnergyRefundCd || 2;
-      battle.log.push({ type: 'mechanic', src: self.name, msg: `共鸣链 3 · 解放后额外回复 ${refund} 能量（CD ${self.burstEnergyRefundCd||2} 回合）` });
-    }
-  }
-  // ★ 吟霖：解放后主目标必挂审判印记 + 4 链全队 atk buff + 6 链开启疾霆窗口
-  if (self.name === '吟霖') {
-    yinlinAddMark(primary, 1);
-    battle.log.push({
-      type: 'mechanic', src: self.name,
-      msg: `破天雷灭击 → ${primary.name} 获得审判印记`
-    });
-    if (self.yinlinJudgmentTeamAtk) {
-      const cfg = self.yinlinJudgmentTeamAtk;
-      battle.team.forEach(t => {
-        if (!t.alive) return;
-        t.buffs = (t.buffs || []).filter(b => b.src !== '前行的鼓舞');
-        t.buffs.push({ type: 'atkUp', value: cfg.value, duration: cfg.dur + 1, src: '前行的鼓舞' });
-      });
-      battle.log.push({
-        type: 'mechanic', src: self.name,
-        msg: `前行的鼓舞 · 全队攻击 +${(cfg.value*100).toFixed(0)}%（${cfg.dur} 回合）`
-      });
-    }
-    if (self.yinlinJiTing) {
-      self.yinlinJiTingActive = self.yinlinJiTing.dur + 1;   // +1 因 endTurn 当前回合也会 -1
-      battle.log.push({
-        type: 'mechanic', src: self.name,
-        msg: `疾霆昭彰 · 普攻命中印记目标额外触发（持续 ${self.yinlinJiTing.dur} 回合）`
-      });
-    }
-  }
+  shorekeeperBurstRefund(self, battle);
+  yinlinBurst(self, primary, battle);
   battle.log.push({
     type: 'burst', src: self.name, results,
     action: fEnh ? `${fEnh.resourceName}强化解放` : '共鸣解放'
@@ -790,7 +720,7 @@ export function doBurst(battle) {
 
 // 重击：2 AP，CD 1，220% atk · 重击伤害类型 · 削破韧 25
 export function doHeavy(battle, targetIdx) {
-  if (battle.finished || battle.ap < 2) return { ok: false, err: 'AP 不足（需 2）' };
+  if (battle.finished || battle.ap < ACTION_COST.heavy) return { ok: false, err: `AP 不足（需 ${ACTION_COST.heavy}）` };
   const self = battle.team[battle.active];
   if (!self || !self.alive) return { ok: false, err: '当前角色不可行动' };
   if (!self.hasHeavy) return { ok: false, err: `${self.name} 没有重击` };
@@ -805,14 +735,15 @@ export function doHeavy(battle, targetIdx) {
   const encoreSpecial = isEncore && (self.encoreDisorder || 0) >= 100;
   const heavyMult = encoreSpecial
     ? (encoreBlack ? 4.5 : 3.5) * (1 + (self.heavyBonus || 0))
-    : 2.2;
+    : ACTION_MULTIPLIER.heavy;
   const heavyType = encoreSpecial ? 'burst' : 'heavy';
   const { dmg, crit } = calcDamage(self, target, heavyMult, heavyType);
   const real = dealDamage(target, dmg);
-  reduceVibration(target, encoreSpecial ? 35 : 25, battle);
+  reduceVibration(target, encoreSpecial ? VIBRATION_DAMAGE.heavySpecial : VIBRATION_DAMAGE.heavy, battle);
   applyReflect(battle, self, target, real);
-  battle.ap -= 2;
+  battle.ap -= ACTION_COST.heavy;
   self.cd.heavy = 1;
+  battle._heavyUsedThisTurn = true;  // ★ 弹反判定：本回合使用了重击
   self.energy = Math.min(self.energyMax, self.energy + 15 * (1 + self.resonanceBonus));
   gainConcerto(self, 14);
   gainForte(self, 'heavy');
@@ -833,9 +764,44 @@ export function doHeavy(battle, targetIdx) {
     }
   }
   battle.log.push({ type: 'heavy', src: self.name, tgt: target.name, dmg: real, crit, action: heavyAction });
+  // 重击也能击破绿泡
+  if (target._bubbleHp > 0) {
+    target._bubbleHp -= real;
+    if (target._bubbleHp <= 0) {
+      const healAmt = target._bubbleHealAmt || 0;
+      if (healAmt > 0) {
+        battle.team.forEach(t => {
+          if (t.alive) {
+            const healed = Math.min(t.hpMax - t.hp, healAmt);
+            t.hp += healed;
+            if (healed > 0) battle.log.push({ type: 'heal', src: self.name, tgt: t.name, dmg: healed, msg: '抢到绿泡治疗！' });
+          }
+        });
+      }
+      target._bubbleHp = 0;
+      target._bubbleHealAmt = 0;
+      battle.log.push({ type: 'mechanic', src: self.name, msg: '击破绿泡！全队获得治疗' });
+    }
+  }
   // 忌炎：重击积锐意 + 3 链观势
   jiyanGainRuiyi(self, '重击', battle);
   jiyanGuanShiBuff(self, battle);
+  finishIfBattleEnded(battle, 'win');
+  return { ok: true };
+}
+
+// 投掷残骸（聚械机偶特殊动作 · 0 AP）
+// 仅当 BOSS 掉落残骸时可使用
+export function doDebris(battle) {
+  if (battle.finished) return { ok: false, err: '战斗已结束' };
+  const self = battle.team[battle.active];
+  if (!self || !self.alive || self.frozenTurns > 0) return { ok: false, err: '当前角色不可行动' };
+  const enemy = battle.enemies.find(e => e.alive && e._debrisReady);
+  if (!enemy) return { ok: false, err: '没有可投掷的残骸' };
+  enemy._stunned = 1;
+  enemy._vulnerable = 1; // 易伤 +50%
+  enemy._debrisReady = false;
+  battle.log.push({ type: 'mechanic', src: self.name, msg: `投掷残骸！${enemy.name} 被眩晕 1 回合（受伤 +50%）` });
   finishIfBattleEnded(battle, 'win');
   return { ok: true };
 }
@@ -850,7 +816,10 @@ export function doSwitch(battle, toIdx) {
   const target = battle.team[toIdx];
   if (!target || !target.alive) return { ok: false, err: '目标不可切换' };
   if (target.frozenTurns > 0) return { ok: false, err: '目标被冻结' };
-  const prev = battle.team[battle.active];
+  // 雷霆墙：锁定切换（朔雷之鳞）
+  const cur = battle.team[battle.active];
+  if (cur && (cur._wallLocked || 0) > 0) return { ok: false, err: `被雷霆墙锁定，不可切换` };
+  const prev = cur;
   const concertoFull = prev && (prev.concerto || 0) >= 100;
   battle.active = toIdx;
   battle.switchUsedThisTurn = true;
@@ -865,14 +834,14 @@ export function doSwitch(battle, toIdx) {
   if (aliveEnemies.length) {
     const tgt = aliveEnemies[0];
     // 变奏倍率：基础 80%，协奏满时 ×2 = 160%
-    let variMult = concertoFull ? 1.6 : 0.8;
+    let variMult = concertoFull ? ACTION_MULTIPLIER.concertoVariation : ACTION_MULTIPLIER.variation;
     // ★ 守岸人 6 链：变奏伤害 +500%（×6）
     if (target.variationBonus > 0) {
       variMult *= (1 + target.variationBonus);
     }
     const { dmg, crit } = calcDamage(target, tgt, variMult, 'normal');
     const real = dealDamage(tgt, dmg);
-    reduceVibration(tgt, concertoFull ? 25 : 10, battle);
+    reduceVibration(tgt, concertoFull ? VIBRATION_DAMAGE.concertoVariation : VIBRATION_DAMAGE.variation, battle);
     applyReflect(battle, target, tgt, real);
     battle.log.push({
       type: 'attack', src: target.name, tgt: tgt.name, dmg: real, crit,
@@ -886,39 +855,8 @@ export function doSwitch(battle, toIdx) {
     battle.log.push({ type: 'mechanic', src: prev.name, msg: `协奏满 · ${prev.name} 延奏 → ${target.name} 强化变奏` });
   }
   battle.log.push({ type: 'switch', src: target.name, action: '切换上场' });
-  // 安可：变奏·咩咩帮手命中回复失序值
-  if (target.name === '安可') {
-    encoreGainDisorder(target, 30, '变奏·咩咩帮手', battle);
-  }
-  // ★ 忌炎入场（变奏）：积锐意 + 2 链通变 + 5 链明断 + 3 链观势
-  if (target.name === '忌炎') {
-    jiyanGainRuiyi(target, '变奏入场', battle);
-    jiyanGuanShiBuff(target, battle);
-    // 2 链 通变：直接送破阵 + 攻击 buff
-    if (target.jiyanTongBian) {
-      const cfg = target.jiyanTongBian;
-      if (target.forte && cfg.forteGain > 0) {
-        target.forte.current = Math.min(target.forte.max, target.forte.current + cfg.forteGain);
-        if (target.forte.current >= target.forte.max) target.forte.ready = true;
-      }
-      target.buffs = (target.buffs || []).filter(b => b.src !== '通变');
-      target.buffs.push({ type: 'atkUp', value: cfg.atkUp, duration: cfg.dur + 1, src: '通变' });
-      battle.log.push({
-        type: 'mechanic', src: target.name,
-        msg: `通变 · 破阵值 +${cfg.forteGain} · 攻击 +${(cfg.atkUp*100).toFixed(0)}%（${cfg.dur} 回合）`
-      });
-    }
-    // 5 链 明断：攻击 +45%（与 2 链 atkUp 并存）
-    if (target.jiyanMingDuan) {
-      const cfg = target.jiyanMingDuan;
-      target.buffs = (target.buffs || []).filter(b => b.src !== '明断');
-      target.buffs.push({ type: 'atkUp', value: cfg.value, duration: cfg.dur + 1, src: '明断' });
-      battle.log.push({
-        type: 'mechanic', src: target.name,
-        msg: `明断 · 攻击 +${(cfg.value*100).toFixed(0)}%（${cfg.dur} 回合）`
-      });
-    }
-  }
+  encoreGainDisorder(target, 30, '变奏·咩咩帮手', battle);
+  jiyanSwitchIn(target, battle);
   finishIfBattleEnded(battle, 'win');
   return { ok: true };
 }
@@ -928,106 +866,143 @@ export function doSwitch(battle, toIdx) {
 // 我方结束回合，敌方出手
 export function endTurn(battle) {
   if (battle.finished) return;
-  // 敌方出招
+  const enemyHelpers = { dealDamage, enemyAttack, inflictFreeze, lockSkill, pickTeamTarget, spawnEnemy };
+
+  // ===== 敌方出招 =====
   battle.enemies.forEach(enemy => {
     if (!enemy.alive) return;
+
+    // 眩晕中跳过
+    if (enemy._stunned > 0) {
+      battle.log.push({ type: 'mechanic', src: enemy.name, msg: '眩晕中，跳过行动' });
+      return;
+    }
+
+    // 飞空无敌中跳过
+    if (enemy._flightTurns >= 2) {
+      battle.log.push({ type: 'mechanic', src: enemy.name, msg: '飞空中' });
+      return;
+    }
+
+    // 反击姿态中不主动攻击（鸣钟之龟）
+    if (enemy._deflectActive) {
+      battle.log.push({ type: 'mechanic', src: enemy.name, msg: '处于反击姿态' });
+      return;
+    }
+
+    // ---- 特殊 pre-attack 效果 ----
+
+    // 叹息古龙：电锯召唤 & 电锯攻击
+    if (enemy.mechanic?.type === 'burn_team' && enemy.mechanic?.sawCycle) {
+      if (battle.turn % enemy.mechanic.sawCycle === 0) spawnSaws(battle, enemy);
+      tickSaws(battle, enemy, enemyHelpers);
+    }
+
+    // 无归的谬误：延迟爆破 & Overclock
+    if (enemy.mechanic?.type === 'data_lock' && enemy.mechanic?.delayedBlastCycle) {
+      handleDelayedBlast(battle, enemy, enemyHelpers);
+      handleOverclock(battle, enemy);
+    }
+
+    // 云闪之鳞：激光（先蓄力再发射）
+    fireLaser(battle, enemy, enemyHelpers);
+
+    // 异构武装：空中弹幕
+    handleAirStars(battle, enemy, enemyHelpers);
+
+    // 阈值机制（阶段切换等，在攻击前检查——可能影响本回合攻击模式）
+    applyEnemyThresholdMechanic({ battle, enemy, helpers: enemyHelpers });
+
+    // ---- 普攻 ----
     const target = pickTeamTarget(battle);
     if (!target) return;
-    // 狂暴触发判定
-    if (enemy.mechanic.type === 'enrage' && !enemy.enraged && enemy.hp / enemy.hpMax <= enemy.mechanic.threshold) {
-      enemy.atk = Math.round(enemy.atk * (1 + enemy.mechanic.atkBonus));
-      enemy.enraged = true;
-      battle.log.push({ type: 'mechanic', src: enemy.name, msg: `狂暴！攻击 +${(enemy.mechanic.atkBonus*100).toFixed(0)}%` });
+
+    // 双段攻击（云闪之鳞）
+    const dualStrike = enemy.mechanic?.type === 'thunder_chain' && enemy.mechanic?.dualStrike;
+    // 过载/狂暴双动（无归的谬误 Overclock / 梦魇亚当 狂暴）
+    const frenzyDouble = (enemy._overclockTurns > 0 || enemy._frenzyDouble);
+    const totalStrikes = dualStrike ? 2 : (frenzyDouble ? 2 : 1);
+
+    for (let s = 0; s < totalStrikes; s++) {
+      const strikeTarget = (s > 0 && dualStrike && !frenzyDouble)
+        ? (randomTeamTarget2(battle) || target)
+        : target;
+      if (!strikeTarget?.alive) continue;
+
+      enemyAttack(battle, enemy, strikeTarget, { action: s > 0 ? (dualStrike ? '二段斩击' : '双动') : '攻击' });
+
+      // ★ On-hit mechanics（标记 / 侵蚀 / 溅射 / 降防 / 冰冻追踪）
+      applyEnemyOnHitMechanic({ battle, enemy, target: strikeTarget, helpers: enemyHelpers });
+
+      // 溅射（梦魇亚当）
+      if (enemy.mechanic?.splash && strikeTarget.alive) {
+        const splashPct = enemy.mechanic.splashPct || 0.5;
+        battle.team.forEach(tm => {
+          if (tm !== strikeTarget && tm.alive) {
+            const splashDmg = Math.round(enemy.atk * 0.5 * splashPct);
+            const real = dealDamage(tm, splashDmg);
+            if (real > 0) battle.log.push({ type: 'mechanic', src: enemy.name, tgt: tm.name, dmg: real, msg: '溅射' });
+          }
+        });
+      }
+
+      // 降防（梦魇亚当）
+      if (enemy.mechanic?.defDown && strikeTarget.alive) {
+        strikeTarget.debuffs = strikeTarget.debuffs || [];
+        let dd = strikeTarget.debuffs.find(d => d.type === 'defDown');
+        if (!dd) {
+          dd = { type: 'defDown', stacks: 0, value: enemy.mechanic.defDownPct || 0.10, duration: enemy.mechanic.defDownDuration || 2 };
+          strikeTarget.debuffs.push(dd);
+        } else {
+          dd.duration = Math.max(dd.duration, enemy.mechanic.defDownDuration || 2);
+        }
+        dd.stacks = Math.min((dd.stacks || 0) + 1, enemy.mechanic.defDownMax || 3);
+        if (dd.stacks > 1) battle.log.push({ type: 'mechanic', src: enemy.name, tgt: strikeTarget.name, msg: `防御 ↓ ${dd.stacks}层` });
+      }
+
+      // 冰冻累积追踪（辉萤军势 / 异构武装）
+      if ((enemy.mechanic?.type === 'aoe_freeze' || enemy.mechanic?.airPhase) && strikeTarget.alive) {
+        enemy._hitTracker = enemy._hitTracker || {};
+        enemy._hitTracker[strikeTarget.idx] = (enemy._hitTracker[strikeTarget.idx] || 0) + 1;
+        if (enemy._hitTracker[strikeTarget.idx] >= 3) {
+          enemyHelpers.inflictFreeze(strikeTarget, 1);
+          enemy._hitTracker[strikeTarget.idx] = 0;
+          battle.log.push({ type: 'freeze', src: enemy.name, tgt: strikeTarget.name, msg: '冰冻累积触发！' });
+        }
+      }
     }
-    // 护盾触发
-    if (enemy.mechanic.type === 'shield' && !enemy._shielded && enemy.hp / enemy.hpMax <= enemy.mechanic.threshold) {
-      enemy.shield = enemy.mechanic.value;
-      enemy._shielded = true;
-      battle.log.push({ type: 'mechanic', src: enemy.name, msg: `生成护盾 ${enemy.mechanic.value}！` });
+
+    // 云闪之鳞：本回合蓄力（下回合发射）
+    handleLaser(battle, enemy, enemyHelpers);
+
+    // 飞廉之猩：抓投（弹反判定）
+    if (enemy.mechanic?.grabCycle) {
+      handleBaringalGrab(battle, enemy, enemyHelpers);
     }
-    enemyAttack(battle, enemy, target);
   });
+
   if (finishIfBattleEnded(battle, 'lose')) return;
 
-  // 触发持续机制
+  // ===== 触发持续机制（periodic）=====
   battle.enemies.forEach(enemy => {
     if (!enemy.alive) return;
-    const m = enemy.mechanic;
-    if (m.type === 'burn_team' && isMechanicTurn(m, battle.turn)) {
-      battle.team.forEach(t => {
-        if (!t.alive) return;
-        const dmg = Math.round(t.hpMax * m.dmgPct);
-        const real = dealDamage(t, dmg);
-        battle.log.push({ type: 'burn', src: enemy.name, tgt: t.name, dmg: real });
-      });
-    } else if (m.type === 'freeze' && isMechanicTurn(m, battle.turn)) {
-      const alives = battle.team.filter(t => t.alive);
-      if (alives.length) {
-        const tgt = alives[Math.floor(Math.random() * alives.length)];
-        inflictFreeze(tgt, 1);
-        battle.log.push({ type: 'freeze', src: enemy.name, tgt: tgt.name });
-      }
-    } else if (m.type === 'minion' && isMechanicTurn(m, battle.turn)) {
-      const summonName = summonNameFor(enemy);
-      const minion = spawnEnemy(summonName, 1);
-      if (minion) {
-        minion.idx = 100 + battle.enemies.length;
-        minion.isMinion = true;
-        battle.enemies.push(minion);
-        battle.log.push({ type: 'summon', src: enemy.name, tgt: summonName });
-      }
-    } else if (m.type === 'thunder_chain' && isMechanicTurn(m, battle.turn)) {
-      battle.log.push({ type: 'mechanic', src: enemy.name, msg: '释放雷电连段' });
-      for (let i = 0; i < 3; i++) {
-        const tgt = pickTeamTarget(battle, i === 0);
-        if (!tgt) break;
-        enemyAttack(battle, enemy, tgt, { mult: m.mult || 0.6, action: '雷电连段' });
-      }
-    } else if (m.type === 'dive' && isMechanicTurn(m, battle.turn)) {
-      const tgt = pickTeamTarget(battle);
-      if (tgt) {
-        battle.log.push({ type: 'mechanic', src: enemy.name, msg: '俯冲压制' });
-        enemyAttack(battle, enemy, tgt, { mult: m.mult || 1.4, action: '俯冲' });
-      }
-    } else if (m.type === 'aoe_freeze' && isMechanicTurn(m, battle.turn)) {
-      battle.log.push({ type: 'mechanic', src: enemy.name, msg: '释放冰雾，全队受击并冻结当前角色' });
-      battle.team.forEach(t => {
-        if (!t.alive) return;
-        enemyAttack(battle, enemy, t, { mult: m.mult || 0.45, action: '冰雾' });
-      });
-      const tgt = pickTeamTarget(battle);
-      if (tgt) {
-        inflictFreeze(tgt, 1);
-        battle.log.push({ type: 'freeze', src: enemy.name, tgt: tgt.name });
-      }
-    } else if (m.type === 'data_lock' && isMechanicTurn(m, battle.turn)) {
-      const alives = battle.team.filter(t => t.alive);
-      if (alives.length) {
-        const tgt = alives[Math.floor(Math.random() * alives.length)];
-        lockSkill(tgt, 1);
-        battle.log.push({ type: 'mechanic', src: enemy.name, msg: `数据封锁 ${tgt.name} 的技能` });
-      }
-    } else if (m.type === 'aero_erosion' && isMechanicTurn(m, battle.turn)) {
-      const tgt = pickTeamTarget(battle);
-      if (tgt) {
-        tgt.debuffs = tgt.debuffs || [];
-        tgt.debuffs.push({ type: 'erosion', element: '气动', value: m.value || 0.15, duration: m.duration || 2 });
-        battle.log.push({ type: 'mechanic', src: enemy.name, msg: `${tgt.name} 受到气动侵蚀` });
-      }
-    }
+    applyEnemyPeriodicMechanic({ battle, enemy, helpers: enemyHelpers });
   });
+
   if (finishIfBattleEnded(battle, 'lose')) return;
 
-  // 清 buff/CD
+  // ===== 清理 buff/CD/状态 =====
   battle.team.forEach(t => {
-    // 浅析星域：healOverTime 持续治疗（每回合结束触发一次）
+    // 浅析星域：healOverTime 持续治疗
+    // 冥歌海墟：愈合之印 每回合恢复 HP
     (t.buffs || []).forEach(b => {
-      if (b.type === 'healOverTime' && t.alive && b.value > 0) {
+      if ((b.type === 'healOverTime' || b.type === 'wastes_heal') && t.alive && b.value > 0) {
         const healUp = (t.buffs || []).reduce((a, x) => x.type === 'healUp' ? a + x.value : a, 0);
-        const realHeal = Math.round(b.value * (1 + healUp));
+        const rawHeal = b.type === 'wastes_heal' ? b.value * t.hpMax : b.value;
+        const realHeal = Math.round(rawHeal * (1 + healUp));
         const healed = Math.min(t.hpMax - t.hp, realHeal);
         t.hp += healed;
-        if (healed > 0) battle.log.push({ type: 'heal', src: b.src || '星域', tgt: t.name, dmg: healed });
+        if (healed > 0) battle.log.push({ type: 'heal', src: b.src || '愈合', tgt: t.name, dmg: healed });
       }
     });
     t.buffs = (t.buffs || []).filter(b => --b.duration > 0);
@@ -1036,49 +1011,58 @@ export function endTurn(battle) {
     if (t.frozenTurns > 0) t.frozenTurns--;
     if (t.skillLockedTurns > 0) t.skillLockedTurns--;
     t.debuffs = (t.debuffs || []).filter(d => --d.duration > 0);
-    // 守岸人 3 链：burstRefund CD
     if (t._burstRefundCdLeft > 0) t._burstRefundCdLeft--;
-    // 吟霖：6 链疾霆窗口倒计时 + 清"本回合疾霆已触发"标记
-    if (t.name === '吟霖') {
-      if (t.yinlinJiTingActive > 0) {
-        t.yinlinJiTingActive--;
-        if (t.yinlinJiTingActive === 0) {
-          battle.log.push({ type: 'mechanic', src: t.name, msg: '疾霆昭彰 · 效果结束' });
-        }
-      }
-      t._jiTingFiredThisTurn = false;
-    }
-    // 安可：黑咩形态持续时间倒计时
-    if (t.name === '安可' && t.encoreBlackTurns > 0) {
-      t.encoreBlackTurns--;
-      if (t.encoreBlackTurns === 0) {
-        battle.log.push({ type: 'mechanic', src: t.name, msg: '黑咩大暴走结束 · 回到白咩形态' });
-      }
-    }
-    // 武器叠层持续时间衰减
+    // 雷霆墙锁定衰减
+    if (t._wallLocked > 0) t._wallLocked--;
+    yinlinTurnCleanup(t, battle);
+    encoreTurnCleanup(t, battle);
     tickWeaponTriggers(t);
   });
-  // 敌人易伤期 / debuff 减一回合
+
+  // 敌人易伤期 / debuff / 特殊状态衰减
   battle.enemies.forEach(e => {
-    // 刚破韧的本回合不减（让玩家下回合还能用），下个回合再减
     if (e._brokenFresh) { e._brokenFresh = false; }
     else if (e.vibrationBroken > 0) e.vibrationBroken--;
     e.debuffs = (e.debuffs || []).filter(d => --d.duration > 0);
-    // 吟霖审判印记倒计时
     if (e.judgeMark) {
       e.judgeMark.remaining--;
-      if (e.judgeMark.remaining <= 0) {
-        delete e.judgeMark;
-      }
+      if (e.judgeMark.remaining <= 0) delete e.judgeMark;
+    }
+    // Boss 状态衰减
+    if (e._stunned > 0) e._stunned--;
+    if (e._vulnerable > 0) e._vulnerable--;
+    if (e._flightTurns > 0) e._flightTurns--;
+    if (e._transition > 0) e._transition--;
+    if (e._overclockTurns > 0) e._overclockTurns--;
+    if (e._windWallTurns > 0) e._windWallTurns--;
+    if (e._spinTired) e._spinTired = false;
+    // 反击姿态衰减
+    if (e._deflectActive) e._deflectActive = false;
+    // 残骸过期
+    if (e._debrisReady && battle.turn % 5 === 0 && !e._debrisReady) { /* debris stays 1 turn */ }
+    // 绿泡回合末治疗（若未被击破）
+    if (e._bubbleHp > 0 && e._bubbleHealAmt > 0 && e.alive) {
+      e.hp = Math.min(e.hpMax, e.hp + e._bubbleHealAmt);
+      battle.log.push({ type: 'heal', src: e.name, tgt: e.name, dmg: e._bubbleHealAmt, msg: '绿泡自疗' });
+      e._bubbleHp = 0;
+      e._bubbleHealAmt = 0;
+    }
+    // 冰翼盾：若被击破则清除标记
+    if (e._iceShielded && e.shield <= 0) {
+      e._iceShielded = false;
+      e._iceShieldDmgReduc = 0;
+      e._hitTracker = {};
+      battle.log.push({ type: 'mechanic', src: e.name, msg: '冰翼盾被击破！减伤解除' });
     }
   });
 
-  // 下一回合，AP 重置，active 找到下一个活着的
+  // 下一回合
   battle.turn++;
   battle.ap = battle.apMax;
+  battle._heavyUsedThisTurn = false;
   battle.burstUsedThisTurn = false;
   battle.switchUsedThisTurn = false;
-  // active 指针：找到下一个活着且非冻结的
+  // active 指针
   let nextActive = battle.active;
   for (let i = 0; i < battle.team.length; i++) {
     const idx = (battle.active + i + 1) % battle.team.length;
@@ -1087,15 +1071,12 @@ export function endTurn(battle) {
       break;
     }
   }
-  // 如果当前 active 还活着且非冻结，保留
-  if (battle.team[battle.active].alive && battle.team[battle.active].frozenTurns === 0) {
-    // 保留
-  } else {
+  if (!(battle.team[battle.active].alive && battle.team[battle.active].frozenTurns === 0)) {
     battle.active = nextActive;
   }
   battle.log.push({ type: 'system', msg: `—— 回合 ${battle.turn} —— 当前出手：${battle.team[battle.active].name}` });
 
-  // 安全上限（25 回合 · 深塔 ★1 阈值 20 回合，留出容错）
+  // 安全上限
   if (battle.turn > 25) {
     battle.finished = true;
     battle.result = 'lose';
