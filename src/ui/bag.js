@@ -3,7 +3,6 @@ import { S, $, msg } from '../state.js';
 import { usePotion, useAllPotions, POTIONS, buyStaminaWithAstrite } from '../daily/stamina.js';
 import { WEAPON_BOX_OPTIONS } from '../data/podcast-rewards.js';
 import { openModal } from '../modal.js';
-import { levelUpWeapon, levelUpWeaponMax, refineWeapon } from '../equip/actions.js';
 
 export function renderBag() {
   const container = $('paneBag');
@@ -131,31 +130,35 @@ export function renderBag() {
     html += '</div>';
   }
 
-  // 已拥有武器列表
+  // 已拥有武器列表 — 小方块卡片（与角色卡片风格一致）
   const weapons = Object.entries(S.weapons || {});
   if (weapons.length > 0) {
     html += `<div style="font-size:10px;color:var(--muted);letter-spacing:2px;margin:14px 0 6px">已 拥 有 武 器 (${weapons.length})</div>`;
-    html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">';
-    weapons.sort((a, b) => (b[1].r || 0) - (a[1].r || 0))
-      .forEach(([name, w]) => {
-        const star = '★'.repeat(w.r || 0);
-        const starColor = w.r === 5 ? 'var(--gold)' : w.r === 4 ? 'var(--purple)' : 'var(--accent)';
-        const eqTag = w.equippedBy ? `<span style="font-size:9px;color:var(--green);margin-left:4px">装备中</span>` : '';
+    html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(85px,1fr));gap:6px">';
+    weapons.sort((a, b) => {
+      const ra = b[1].r || 0, rb = a[1].r || 0;
+      if (ra !== rb) return ra - rb;
+      const la = b[1].level || 0, lb = a[1].level || 0;
+      if (la !== lb) return la - lb;
+      return (b[1].refine || 1) - (a[1].refine || 1);
+    }).forEach(([name, w]) => {
+        const r = w.r || 0;
+        const stars = '★'.repeat(r);
+        const is5 = r === 5;
+        const is4 = r === 4;
+        const eqTag = w.equippedBy ? `<div style="position:absolute;top:4px;left:5px;font-size:8px;font-weight:700;padding:1px 5px;border-radius:5px;background:rgba(100,220,140,.18);color:var(--green);letter-spacing:.3px">装</div>` : '';
+        const refineBadge = (w.refine || 1) > 1
+          ? `<div style="position:absolute;bottom:4px;right:5px;font-size:8px;font-weight:700;padding:1px 4px;border-radius:5px;background:rgba(255,255,255,.08);color:var(--gold);border:1px solid rgba(245,207,107,.3)">R${w.refine}</div>`
+          : '';
         const spare = w.spareRefine || 0;
-        const canLevel = (w.level || 1) < 90;
-        const canRefine = spare > 0 && (w.refine || 1) < 5;
-        const refineText = spare > 0 ? ` · 可精炼 ×${spare}` : '';
-        html += `<div style="border:1px solid var(--line);border-radius:8px;padding:8px 11px;background:rgba(255,255,255,.02)">
-          <div style="display:flex;justify-content:space-between;align-items:baseline">
-            <span style="font-size:12px;font-weight:600">${name}${eqTag}</span>
-            <span style="font-size:11px;color:${starColor}">${star}</span>
-          </div>
-          <div style="font-size:10px;color:var(--dim);margin-top:3px">Lv ${w.level || 1} · R${w.refine || 1}${refineText}${w.equippedBy ? ` · ${w.equippedBy}` : ''}</div>
-          <div style="display:flex;gap:4px;margin-top:7px;flex-wrap:wrap">
-            <button class="mbtn" style="flex:1;font-size:10px;padding:5px" onclick="window.__bagLevelWeapon('${name.replace(/'/g, "\\'")}')" ${!canLevel ? 'disabled' : ''}>升级</button>
-            <button class="mbtn" style="flex:1;font-size:10px;padding:5px" onclick="window.__bagLevelWeaponMax('${name.replace(/'/g, "\\'")}')" ${!canLevel ? 'disabled' : ''}>升满</button>
-            <button class="mbtn gold" style="flex:1;font-size:10px;padding:5px" onclick="window.__bagRefineWeapon('${name.replace(/'/g, "\\'")}')" ${!canRefine ? 'disabled' : ''}>精炼</button>
-          </div>
+        const spareTag = spare > 0
+          ? `<div style="position:absolute;bottom:4px;left:5px;font-size:7px;color:var(--accent);font-weight:600">+${spare}</div>`
+          : '';
+        html += `<div class="role r${r}" onclick="window.__openWeaponModal('${name.replace(/'/g, "\\'")}')" style="cursor:pointer;position:relative;aspect-ratio:1;border:1px solid var(--line);border-radius:10px;padding:8px 5px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;${is5 ? 'border-color:rgba(245,207,107,.55);background:radial-gradient(circle at 50% 30%,rgba(245,207,107,.18),transparent 70%),rgba(74,54,20,.15);box-shadow:0 0 18px rgba(245,207,107,.18) inset,0 4px 14px rgba(245,207,107,.18)' : is4 ? 'border-color:rgba(195,155,255,.5);background:radial-gradient(circle at 50% 30%,rgba(195,155,255,.16),transparent 70%),rgba(51,35,90,.18);box-shadow:0 0 16px rgba(195,155,255,.16) inset,0 4px 12px rgba(195,155,255,.18)' : ''}">
+          ${eqTag}${refineBadge}${spareTag}
+          <div style="font-size:10px;letter-spacing:1px;text-align:center;line-height:1;${is5 ? 'color:var(--gold);text-shadow:0 0 6px rgba(245,207,107,.6)' : is4 ? 'color:var(--purple);text-shadow:0 0 6px rgba(195,155,255,.55)' : 'color:var(--accent)'}">${stars}</div>
+          <div style="font-size:10px;font-weight:600;text-align:center;letter-spacing:.3px;line-height:1.2;word-break:break-all;${is5 ? 'color:var(--gold)' : is4 ? 'color:#dbc6ff' : 'color:var(--text)'}">${name}</div>
+          <div style="font-size:8px;color:var(--muted);text-align:center;letter-spacing:.3px">Lv ${w.level || 1}</div>
         </div>`;
       });
     html += '</div>';
@@ -205,28 +208,6 @@ window.__bagOpenWeaponBox = () => {
       renderBag();
     }}]
   });
-};
-
-window.__bagLevelWeapon = (name) => {
-  if (levelUpWeapon(name)) msg(`${name} 升级成功`, false);
-  renderBag();
-  window.__render();
-};
-
-window.__bagLevelWeaponMax = (name) => {
-  const c = levelUpWeaponMax(name);
-  if (c > 0) msg(`${name} +${c} 级`, false);
-  else msg('武器突破石不足或已满级');
-  renderBag();
-  window.__render();
-};
-
-window.__bagRefineWeapon = (name) => {
-  const r = refineWeapon(name, 1);
-  if (!r.ok) { msg(r.err); return; }
-  msg(`${name} 精炼 +${r.used}（现 R${r.refine}）`, false);
-  renderBag();
-  window.__render();
 };
 
 window.__bagUseRefineStone = () => {

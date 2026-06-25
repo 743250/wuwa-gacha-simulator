@@ -18,7 +18,7 @@ describe('battle/chains', () => {
       roles: {
         '忌炎': { level: 90, chain: 6, equipWeapon: '苍鳞千嶂' },
         '守岸人': { level: 90, chain: 6, equipWeapon: '星序协响' },
-        '安可': { level: 90, chain: 6, equipWeapon: '焰光裁定' },
+        '安可': { level: 90, chain: 6, equipWeapon: '漪澜浮录' },
       },
     });
   });
@@ -100,7 +100,7 @@ describe('battle/chains', () => {
         roles: {
           '忌炎': { level: 90, chain: 6, equipWeapon: '苍鳞千嶂' },
           '守岸人': { level: 90, chain: 6, equipWeapon: '星序协响' },
-          '安可': { level: 90, chain: 6, equipWeapon: '焰光裁定' },
+          '安可': { level: 90, chain: 6, equipWeapon: '漪澜浮录' },
         },
       });
 

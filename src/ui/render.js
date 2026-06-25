@@ -10,7 +10,7 @@ import { saveState } from '../save.js';
 import { computeBattleStats, calcBP, expToNext, weaponToNext } from '../battle/stats.js';
 import { getMeta } from '../battle/template.js';
 import { WEAPON_DATA } from '../equip/weapons.js';
-import { levelUpRole, levelUpRoleMax, levelUpWeapon, levelUpWeaponMax, equipWeapon, unequipWeapon, getEquippableWeapons, totalExp } from '../equip/actions.js';
+import { levelUpRole, levelUpRoleMax, levelUpWeapon, levelUpWeaponMax, refineWeapon, equipWeapon, unequipWeapon, getEquippableWeapons, totalExp } from '../equip/actions.js';
 import { getForte } from '../battle/forte.js';
 import { getOverrideMeta, hasChainOverride } from '../battle/chains.js';
 import { attachTermTips } from './terms.js';
@@ -717,6 +717,68 @@ window.__pickWeapon = (roleName, weaponName) => {
   if (_currentRoleTab !== 'weapon') _currentRoleTab = 'weapon';
   renderRoleModal();
   render();
+};
+
+// 武器详情弹窗（背包点击武器卡片时打开）
+window.__openWeaponModal = (weaponName) => {
+  const w = S.weapons[weaponName];
+  if (!w) return;
+  const data = WEAPON_DATA[weaponName];
+  if (!data) return;
+  const r = w.r || data.r || 5;
+  const stars = '★'.repeat(r);
+  const starColor = r === 5 ? 'var(--gold)' : r === 4 ? 'var(--purple)' : 'var(--accent)';
+  const canLevel = (w.level || 1) < 90;
+  const canRefine = (w.spareRefine || 0) > 0 && (w.refine || 1) < 5;
+  const eqTag = w.equippedBy ? `<span style="color:var(--green)">装备于 ${w.equippedBy}</span>` : '<span style="color:var(--dim)">未装备</span>';
+
+  function buildBody() {
+    const body = `
+      <div style="text-align:center;margin-bottom:12px">
+        <div style="font-size:28px;font-weight:700;letter-spacing:1px;color:${starColor}">${weaponName}</div>
+        <div style="font-size:13px;color:${starColor};margin-top:2px">${stars}</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:4px">${data.type || '武器'} · Lv ${w.level || 1} / 90 · R${w.refine || 1}/5 · ${eqTag}</div>
+      </div>
+      ${renderWeaponDetail(weaponName, w)}
+      <div style="display:flex;gap:5px;margin-top:12px;flex-wrap:wrap">
+        <button class="mbtn" style="flex:1;font-size:11px;padding:6px" onclick="window.__weaponLevelUp('${weaponName.replace(/'/g, "\\'")}')" ${!canLevel ? 'disabled' : ''}>升级（${weaponToNext({level:w.level||1})} 石）</button>
+        <button class="mbtn" style="flex:1;font-size:11px;padding:6px" onclick="window.__weaponLevelMax('${weaponName.replace(/'/g, "\\'")}')" ${!canLevel ? 'disabled' : ''}>升满</button>
+        <button class="mbtn gold" style="flex:1;font-size:11px;padding:6px" onclick="window.__weaponRefine('${weaponName.replace(/'/g, "\\'")}')" ${!canRefine ? 'disabled' : ''}>精炼</button>
+      </div>
+      <div style="font-size:10px;color:var(--muted);text-align:center;margin-top:8px">武器突破石库存 <b style="color:var(--gold)">${S.materials.weapon_book}</b></div>`;
+    return body;
+  }
+
+  openModal({
+    title: `武器详情`,
+    body: buildBody(),
+    className: 'role-modal',
+    actions: [{ label: '关闭', cls: '', fn: () => {} }]
+  });
+};
+
+// 武器弹窗内升级/升满/精炼（刷新弹窗内容而非关闭）
+window.__weaponLevelUp = (name) => {
+  if (levelUpWeapon(name)) msg(`${name} 升级成功`, false);
+  else return;
+  window.__openWeaponModal(name);
+  window.__render();
+};
+
+window.__weaponLevelMax = (name) => {
+  const c = levelUpWeaponMax(name);
+  if (c > 0) msg(`${name} +${c} 级`, false);
+  else { msg('武器突破石不足或已满级'); return; }
+  window.__openWeaponModal(name);
+  window.__render();
+};
+
+window.__weaponRefine = (name) => {
+  const r = refineWeapon(name, 1);
+  if (!r.ok) { msg(r.err); return; }
+  msg(`${name} 精炼 +${r.used}（现 R${r.refine}）`, false);
+  window.__openWeaponModal(name);
+  window.__render();
 };
 // ===== 商店横幅式渲染（参考游戏内布局） =====
 // 凝刻月相 banner（直充档位）

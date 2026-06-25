@@ -26,6 +26,7 @@ export function encoreGainDisorder(self, amount, source, battle) {
 
 // 解放后进入黑咩形态
 export function encoreStartBlackSheep(self, battle) {
+  if (self.name !== '安可') return;
   self.encoreBlackTurns = 4;
   battle.log.push({
     type: 'mechanic', src: self.name,
@@ -35,11 +36,10 @@ export function encoreStartBlackSheep(self, battle) {
 
 // endTurn 清理
 export function encoreTurnCleanup(self, battle) {
-  if (self.encoreBlackTurns > 0) {
-    self.encoreBlackTurns--;
-    if (self.encoreBlackTurns === 0) {
-      battle.log.push({ type: 'mechanic', src: self.name, msg: '黑咩大暴走结束 · 回到白咩形态' });
-    }
+  if (self.name !== '安可' || !self.encoreBlackTurns) return;
+  self.encoreBlackTurns--;
+  if (self.encoreBlackTurns === 0) {
+    battle.log.push({ type: 'mechanic', src: self.name, msg: '黑咩大暴走结束 · 回到白咩形态' });
   }
 }
 

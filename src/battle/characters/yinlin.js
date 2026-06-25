@@ -79,6 +79,7 @@ export function yinlinOnHit(self, target, dmgType, battle, helpers) {
 
 // 解放后：主目标必挂印记 + 4 链全队 atk buff + 6 链开启疾霆窗口
 export function yinlinBurst(self, primary, battle) {
+  if (self.name !== '吟霖') return;
   yinlinAddMark(primary, 1);
   battle.log.push({ type: 'mechanic', src: self.name, msg: `破天雷灭击 → ${primary.name} 获得审判印记` });
   if (self.yinlinJudgmentTeamAtk) {
@@ -98,6 +99,7 @@ export function yinlinBurst(self, primary, battle) {
 
 // endTurn 清理
 export function yinlinTurnCleanup(self, battle) {
+  if (self.name !== '吟霖') return;
   if (self.yinlinJiTingActive > 0) {
     self.yinlinJiTingActive--;
     if (self.yinlinJiTingActive === 0) {

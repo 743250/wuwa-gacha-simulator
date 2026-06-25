@@ -31,6 +31,7 @@ export function jiyanGuanShiBuff(self, battle) {
 export function jiyanBurstRuiyi(self, battle) {
   let ruiyiMult = 1.0;
   let ruiyiUsed = 0;
+  if (self.name !== '忌炎') return { ruiyiMult, ruiyiUsed };
   if (self.ruiyi > 0) {
     ruiyiUsed = self.ruiyi;
     ruiyiMult = 1.0 + ruiyiUsed * (self.jiyanRuiyiPerStack || 1.0);
@@ -45,7 +46,7 @@ export function jiyanBurstRuiyi(self, battle) {
 
 // 解放后 4 链奇正
 export function jiyanQiZheng(self, battle) {
-  if (!self.jiyanQiZheng) return;
+  if (self.name !== '忌炎' || !self.jiyanQiZheng) return;
   const cfg = self.jiyanQiZheng;
   battle.team.forEach(t => {
     if (!t.alive) return;

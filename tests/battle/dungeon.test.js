@@ -222,8 +222,8 @@ describe('SOL3 world level', () => {
     const l1 = SOL3_LEVELS[1];
     const l2 = SOL3_LEVELS[2];
     const l3 = SOL3_LEVELS[3];
-    expect(l2.enemyScale).toBeGreaterThan(l1.enemyScale);
-    expect(l3.enemyScale).toBeGreaterThan(l2.enemyScale);
+    expect(l2.worldTierMult).toBeGreaterThan(l1.worldTierMult);
+    expect(l3.worldTierMult).toBeGreaterThan(l2.worldTierMult);
     expect(l2.dropMult).toBeGreaterThan(l1.dropMult);
     expect(l3.dropMult).toBeGreaterThan(l2.dropMult);
   });
@@ -238,26 +238,25 @@ describe('SOL3 world level', () => {
   it('getSol3Config with no arg uses current level', () => {
     setSol3Level(2);
     const cfg = getSol3Config();
-    expect(cfg.enemyScale).toBe(1.3);
-    expect(cfg.dropMult).toBe(1.3);
+    expect(cfg.worldTierMult).toBe(0.4);
+    expect(cfg.dropMult).toBe(2.0);
   });
 
   it('getSol3Config with explicit level overrides', () => {
     const cfg = getSol3Config(3);
-    expect(cfg.enemyScale).toBe(1.6);
+    expect(cfg.worldTierMult).toBe(0.5);
   });
 
   it('SOL3 multiplier applied correctly in drops', () => {
-    // 模拟 drop 乘算逻辑（与 battle.js settlement 一致）
     const rawDrops = { exp_high: 4, weapon_book: 10, astrite: 10 };
-    const sol3 = getSol3Config(2); // 1.3×
+    const sol3 = getSol3Config(2); // dropMult 2.0
     const drops = {};
     Object.entries(rawDrops).forEach(([k, v]) => {
       drops[k] = k === 'astrite' ? v : Math.round(v * sol3.dropMult);
     });
-    expect(drops.exp_high).toBe(5);  // 4 × 1.3 = 5.2 → 5
-    expect(drops.weapon_book).toBe(13); // 10 × 1.3 = 13
-    expect(drops.astrite).toBe(10);  // 星声不缩放
+    expect(drops.exp_high).toBe(8);     // 4 × 2.0 = 8
+    expect(drops.weapon_book).toBe(20); // 10 × 2.0 = 20
+    expect(drops.astrite).toBe(10);     // 星声不缩放
   });
 });
 

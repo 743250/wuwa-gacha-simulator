@@ -155,10 +155,10 @@ const W = {
     desc: '攻击+12%；变奏/解放后解放+24%；延长后全队热熔+24%'
   },
 
-  // ✅ 菲比专武：Luminous Hymn（"焰光裁定"国服需核验）
+  // ✅ 赞妮专武：Blazing Justice（库街区核验：臂铠 · atk90=587 · cdmg=48.6%）
   '焰光裁定': {
-    r: 5, type: '音感仪', atk90: 500,
-    sub: { stat: 'crate', value90: 0.360 },
+    r: 5, type: '臂铠', atk90: 587,
+    sub: { stat: 'cdmg', value90: 0.486 },
     passive: [
       { type: 'atk_pct', value: 0.12 }
     ],
@@ -167,10 +167,10 @@ const W = {
       { on: 'condition_attack', effect: 'heavy_pct', value: 0.14, maxStacks: 3, duration: 5, condition: 'enemy_has_spectro_frazzle' },
       { on: 'outro', effect: 'spectro_frazzle_dmg', value: 0.30, maxStacks: 1, duration: 15 }
     ],
-    desc: '攻击+12%；攻击衍射失序敌人时普攻/重击+14%×3 层；延奏后失序伤害+30%'
+    desc: '攻击+12%；普攻时无视目标部分防御；施放普攻时命中衍射失序目标普攻/重击+14%×3 层；延奏后失序伤害+30%'
   },
 
-  // 赞妮专武（衍射 + 长刃，AI 未给数据 — 按规律推断）
+  // 未知专武（原标记为"赞妮"但实际赞妮用臂铠·焰光裁定；此武器待确认归属）
   '黎明霜露': {
     r: 5, type: '长刃', atk90: 587,
     sub: { stat: 'crate', value90: 0.243 },
@@ -203,9 +203,9 @@ const W = {
     desc: '攻击+12%；技能后技能+12%×3 层；解放后解放+30%'
   },
 
-  // 折枝专武（迅刀）— Comet Flare
+  // 折枝专武（音感仪）— Comet Flare
   '琼枝冰绡': {
-    r: 5, type: '迅刀', atk90: 587,
+    r: 5, type: '音感仪', atk90: 500,
     sub: { stat: 'cdmg', value90: 0.486 },
     passive: [
       { type: 'atk_pct', value: 0.12 }
@@ -272,9 +272,9 @@ const W = {
   '驳问之刺_v_zani': null, // 占位 — 删除
   '驳问': null,             // 占位 — 删除
 
-  // 夏空专武（音感仪，辅助）
+  // 夏空专武（佩枪，辅助）
   '林间的咏叹调': {
-    r: 5, type: '音感仪', atk90: 412,
+    r: 5, type: '佩枪', atk90: 412,
     sub: { stat: 'hp', value90: 0.722 },
     passive: [
       { type: 'hp', value: 0.12 }
@@ -298,9 +298,9 @@ const W = {
     desc: '湮灭+20%；技能后湮灭+10%×2 层'
   },
 
-  // 奥古斯塔专武（臂铠）
+  // 奥古斯塔专武（长刃）
   '雷霆疆域': {
-    r: 5, type: '臂铠', atk90: 587,
+    r: 5, type: '长刃', atk90: 587,
     sub: { stat: 'cdmg', value90: 0.486 },
     passive: [
       { type: 'elem_dmg', element: '导电', value: 0.20 }
@@ -311,9 +311,9 @@ const W = {
     desc: '导电+20%；普攻后导电+10%×3 层'
   },
 
-  // 尤诺专武（佩枪）
+  // 尤诺专武（臂铠）
   '望月': {
-    r: 5, type: '佩枪', atk90: 587,
+    r: 5, type: '臂铠', atk90: 587,
     sub: { stat: 'atk_pct', value90: 0.364 },
     passive: [
       { type: 'elem_dmg', element: '冷凝', value: 0.20 }
@@ -337,9 +337,9 @@ const W = {
     desc: '热熔+20%；重击+15%×3 层'
   },
 
-  // 仇远专武（长刃）
+  // 仇远专武（迅刀）
   '秋水长天': {
-    r: 5, type: '长刃', atk90: 587,
+    r: 5, type: '迅刀', atk90: 587,
     sub: { stat: 'atk_pct', value90: 0.364 },
     passive: [
       { type: 'elem_dmg', element: '气动', value: 0.20 }
@@ -350,9 +350,9 @@ const W = {
     desc: '气动+20%；技能后气动+10%×2 层'
   },
 
-  // 千咲专武（臂铠）
+  // 千咲专武（长刃）
   '云雾切': {
-    r: 5, type: '臂铠', atk90: 587,
+    r: 5, type: '长刃', atk90: 587,
     sub: { stat: 'cdmg', value90: 0.486 },
     passive: [
       { type: 'elem_dmg', element: '湮灭', value: 0.20 }
@@ -443,16 +443,15 @@ const W = {
   '碎骨_old': null,
 
   // 菲比专武（音感仪 + 治疗向）
+  // ✅ 菲比专武：Luminous Hymn（库街区核验：音感仪 · atk90=500 · crate=36% · V2.1）
   '和光回唱': {
-    r: 5, type: '音感仪', atk90: 412,
-    sub: { stat: 'resonance', value90: 0.770 },
+    r: 5, type: '音感仪', atk90: 500,
+    sub: { stat: 'crate', value90: 0.360 },
     passive: [
-      { type: 'hp', value: 0.12 }
+      { type: 'atk_pct', value: 0.12 }
     ],
-    triggers: [
-      { on: 'heal_skill', effect: 'team_heal', value: 0.20, maxStacks: 1, duration: 15 }
-    ],
-    desc: '生命+12%；治疗技能后全队治疗+20%'
+    triggers: [],
+    desc: '攻击+12%；暴击率+36%（菲比 DPS 向专武）'
   },
 
   // 限定占位武器（type: null 表示任意角色可用）
