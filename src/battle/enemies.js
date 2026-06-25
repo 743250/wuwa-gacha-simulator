@@ -1,8 +1,10 @@
 // 敌人数据库 · 2026-06-25 世界 BOSS 移植
 //
-// 数值基准：官方 wuthering.wiki Lv90 数据 / 10（模拟器缩放）
-// 世界等级缩放：索拉Ⅰ ×0.60 / 索拉Ⅱ ×0.70 / 索拉Ⅲ ×0.80
-// BOSS 讨伐等级：初始 Lv40 → 击败 +10（封顶 90）→ 失败 -20（下限 40）
+// 数值基准：官方 wuthering.wiki Lv90 数据（原始值，未缩放）
+// 世界 BOSS 战斗：世界等级 × 讨伐等级 → 直接取官方数值
+//   索拉Ⅰ ×0.60 / 索拉Ⅱ ×0.70 / 索拉Ⅲ ×0.80
+//   讨伐等级：初始 Lv40 → 击败 +10（封顶 90）→ 失败 -20（下限 40）
+// 副本池（模拟战训等）：世界 BOSS 作为训练靶时自动 ×0.10
 //
 // mechanic.type 一览（含新增）：
 //   none, burn_team, freeze, shield, enrage, reflect, minion,
@@ -11,7 +13,8 @@
 //   debris_stun, bubble_heal, flight_tide, dreamless,          ← 新增
 //   blade_turrets                                              ← 新增
 
-export const SIM_SCALE = 0.1;  // Lv90 官方 → 模拟器缩放
+// 副本池中的世界 BOSS 缩放（模拟战训/无音区等，非正式讨伐）
+const POOL_BOSS_SCALE = 0.10;
 
 export function formatEnemyMechanic(mechanic, opts = {}) {
   const m = mechanic;
@@ -56,7 +59,7 @@ function res(selfElement) {
   return out;
 }
 
-// ===== 世界 BOSS 数据（Lv90 官方 / 10）=====
+// ===== 世界 BOSS 数据（Lv90 官方原始值）=====
 export const ENEMIES = {
   // ===== 小怪 =====
   '幼狼': {
@@ -81,7 +84,7 @@ export const ENEMIES = {
 
   // 01 燎照之骑 · 灼伤标记 + 双阶段
   '燎照之骑': {
-    hp: 46849, atk: 891, def: 1512, element: '热熔', class: 'Overlord',
+    hp: 468488, atk: 8912, def: 1512, element: '热熔', class: 'Overlord',
     resist: res('热熔'),
     mechanic: {
       type: 'inferno_mark',
@@ -96,7 +99,7 @@ export const ENEMIES = {
 
   // 02 飞廉之猩 · 抓投 + 冲击波 + 狂暴
   '飞廉之猩': {
-    hp: 45326, atk: 1159, def: 1512, element: '气动', class: 'Overlord',
+    hp: 453257, atk: 11592, def: 1512, element: '气动', class: 'Overlord',
     resist: res('气动'),
     mechanic: {
       type: 'enrage',
@@ -113,7 +116,7 @@ export const ENEMIES = {
 
   // 03 朔雷之鳞 · 雷霆墙（锁切换）+ 穿甲
   '朔雷之鳞': {
-    hp: 45930, atk: 1320, def: 1512, element: '导电', class: 'Overlord',
+    hp: 459297, atk: 13200, def: 1512, element: '导电', class: 'Overlord',
     resist: res('导电'),
     mechanic: {
       type: 'thunder_chain',
@@ -127,7 +130,7 @@ export const ENEMIES = {
 
   // 04 云闪之鳞 · 蓄力激光 + 双段攻击
   '云闪之鳞': {
-    hp: 36949, atk: 1005, def: 1512, element: '导电', class: 'Overlord',
+    hp: 369486, atk: 10051, def: 1512, element: '导电', class: 'Overlord',
     resist: res('导电'),
     mechanic: {
       type: 'thunder_chain',
@@ -144,7 +147,7 @@ export const ENEMIES = {
 
   // 05 哀声鸷 · 追踪弹 + 弹反俯冲
   '哀声鸷': {
-    hp: 43514, atk: 1039, def: 1512, element: '衍射', class: 'Overlord',
+    hp: 435137, atk: 10386, def: 1512, element: '衍射', class: 'Overlord',
     resist: res('衍射'),
     mechanic: {
       type: 'parry_dive',
@@ -159,7 +162,7 @@ export const ENEMIES = {
 
   // 06 无常凶鹭 · 湮灭之蚀 DoT + 弹反俯冲
   '无常凶鹭': {
-    hp: 41991, atk: 1072, def: 1512, element: '湮灭', class: 'Overlord',
+    hp: 419906, atk: 10721, def: 1512, element: '湮灭', class: 'Overlord',
     resist: res('湮灭'),
     mechanic: {
       type: 'havoc_erosion',
@@ -175,7 +178,7 @@ export const ENEMIES = {
 
   // 07 辉萤军势 · 冰翼盾（强制削韧破盾）+ 冻结累积
   '辉萤军势': {
-    hp: 46035, atk: 1367, def: 1512, element: '冷凝', class: 'Overlord',
+    hp: 460348, atk: 13669, def: 1512, element: '冷凝', class: 'Overlord',
     resist: res('冷凝'),
     mechanic: {
       type: 'aoe_freeze',
@@ -191,7 +194,7 @@ export const ENEMIES = {
 
   // 08 异构武装 · 双阶段（地/空）+ 冰翼盾
   '异构武装': {
-    hp: 58482, atk: 1340, def: 1512, element: '冷凝', class: 'Overlord',
+    hp: 584823, atk: 13401, def: 1512, element: '冷凝', class: 'Overlord',
     resist: res('冷凝'),
     mechanic: {
       type: 'shield',
@@ -210,7 +213,7 @@ export const ENEMIES = {
 
   // 09 无归的谬误 · 延迟爆破 + Overclock
   '无归的谬误': {
-    hp: 43514, atk: 838, def: 1512, element: '衍射', class: 'Overlord',
+    hp: 435137, atk: 8375, def: 1512, element: '衍射', class: 'Overlord',
     resist: res('衍射'),
     mechanic: {
       type: 'data_lock',
@@ -227,7 +230,7 @@ export const ENEMIES = {
 
   // 10 叹息古龙 · 多技能组合 + 电锯召唤
   '叹息古龙': {
-    hp: 53572, atk: 1173, def: 1512, element: '热熔', class: 'Overlord',
+    hp: 535716, atk: 11726, def: 1512, element: '热熔', class: 'Overlord',
     resist: res('热熔'),
     mechanic: {
       type: 'burn_team',
@@ -246,7 +249,7 @@ export const ENEMIES = {
 
   // 11 鸣钟之龟 · 反击姿态 + 高防
   '鸣钟之龟': {
-    hp: 42306, atk: 804, def: 2268, element: '冷凝', class: 'Calamity',
+    hp: 423058, atk: 8040, def: 2268, element: '冷凝', class: 'Calamity',
     resist: res('冷凝'),   // DEF ×1.5（高防）
     mechanic: {
       type: 'turtle_reflect',
@@ -262,7 +265,7 @@ export const ENEMIES = {
 
   // 12 聚械机偶 · 残骸眩晕 + 风壁
   '聚械机偶': {
-    hp: 46035, atk: 1300, def: 1512, element: '导电', class: 'Overlord',
+    hp: 460348, atk: 12999, def: 1512, element: '导电', class: 'Overlord',
     resist: res('导电'),
     mechanic: {
       type: 'debris_stun',
@@ -278,7 +281,7 @@ export const ENEMIES = {
 
   // 13 罗蕾莱 · 自疗绿泡 + 不可弹反
   '罗蕾莱': {
-    hp: 55856, atk: 1039, def: 1512, element: '湮灭', class: 'Overlord',
+    hp: 558562, atk: 10386, def: 1512, element: '湮灭', class: 'Overlord',
     resist: res('湮灭'),
     mechanic: {
       type: 'bubble_heal',
@@ -295,7 +298,7 @@ export const ENEMIES = {
 
   // 14 无妄者 · 三阶段 + 武器切换
   '无妄者': {
-    hp: 56460, atk: 1106, def: 1512, element: '湮灭', class: 'Calamity',
+    hp: 564602, atk: 11056, def: 1512, element: '湮灭', class: 'Calamity',
     resist: res('湮灭'),
     mechanic: {
       type: 'dreamless',
@@ -322,7 +325,7 @@ export const ENEMIES = {
 
   // 15 海之女 · 飞空无敌 + 延迟水洼
   '海之女': {
-    hp: 53572, atk: 1039, def: 1512, element: '气动', class: 'Calamity',
+    hp: 535716, atk: 10386, def: 1512, element: '气动', class: 'Calamity',
     resist: res('气动'),
     mechanic: {
       type: 'flight_tide',
@@ -339,7 +342,7 @@ export const ENEMIES = {
 
   // 16 荣耀狮像 · 浮空剑双伤害源 + 弹反推刺
   '荣耀狮像': {
-    hp: 53572, atk: 1173, def: 1512, element: '热熔', class: 'Calamity',
+    hp: 535716, atk: 11726, def: 1512, element: '热熔', class: 'Calamity',
     resist: res('热熔'),
     mechanic: {
       type: 'blade_turrets',
@@ -356,7 +359,7 @@ export const ENEMIES = {
 
   // 17 梦魇亚当·重锤 · 溅射 + 降防 + 狂暴
   '梦魇亚当·重锤': {
-    hp: 50000, atk: 1100, def: 1512, element: '物理', class: 'Overlord',
+    hp: 500000, atk: 11000, def: 1512, element: '物理', class: 'Overlord',
     resist: { 物理: 0.40, 热熔: 0.10, 湮灭: 0.10, 气动: 0.10, 冷凝: 0.10, 衍射: 0.10, 导电: 0.10 },
     mechanic: {
       type: 'enrage',
@@ -465,11 +468,13 @@ export function spawnEnemy(name, opts = 1.0) {
   const isWorldBoss = data.class === 'Overlord' || data.class === 'Calamity';
 
   if (typeof opts === 'number') {
-    // 旧版兼容：直接 scale
-    hpMult = opts;
-    atkMult = opts;
+    // 副本池（模拟战训等）：世界 BOSS 额外缩放到训练强度
+    const poolScale = isWorldBoss ? POOL_BOSS_SCALE : 1.0;
+    hpMult = opts * poolScale;
+    atkMult = opts * poolScale;
     defMult = opts;
   } else if (opts && (opts.worldTier || opts.bossLevel)) {
+    // ★ 世界 BOSS 讨伐战：直接取官方 Lv90 数值 × 世界等级 × 讨伐等级（不缩放）
     // 新版世界 BOSS 缩放
     const tier = opts.worldTier || 1;
     const level = opts.bossLevel || 40;
