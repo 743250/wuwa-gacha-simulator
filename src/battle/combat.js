@@ -567,7 +567,7 @@ export function doAttack(battle, targetIdx) {
     }
   }
   battle.ap -= ACTION_COST.normal;
-  self.energy = Math.min(self.energyMax, self.energy + 12 * (1 + self.resonanceBonus));
+  self.energy = Math.min(self.energyMax, Math.round(self.energy + 12 * (1 + self.resonanceBonus)));
   gainConcerto(self, 8);
   gainForte(self, 'normal');
   if (fEnh) consumeForte(self);
@@ -600,7 +600,7 @@ export function doSkill(battle, targetIdx) {
   applyReflect(battle, self, target, real);
   battle.ap -= ACTION_COST.skill;
   self.cd.skill = Math.max(1, 3 - (self.skillCdReduce || 0));
-  self.energy = Math.min(self.energyMax, self.energy + (22 + self.energyRefund) * (1 + self.resonanceBonus));
+  self.energy = Math.min(self.energyMax, Math.round(self.energy + (22 + self.energyRefund) * (1 + self.resonanceBonus)));
   gainConcerto(self, 18);
   gainForte(self, 'skill');
 
@@ -744,7 +744,7 @@ export function doHeavy(battle, targetIdx) {
   battle.ap -= ACTION_COST.heavy;
   self.cd.heavy = 1;
   battle._heavyUsedThisTurn = true;  // ★ 弹反判定：本回合使用了重击
-  self.energy = Math.min(self.energyMax, self.energy + 15 * (1 + self.resonanceBonus));
+  self.energy = Math.min(self.energyMax, Math.round(self.energy + 15 * (1 + self.resonanceBonus)));
   gainConcerto(self, 14);
   gainForte(self, 'heavy');
   fireTrigger(self, 'heavy_hit', { battle, target });

@@ -9,6 +9,9 @@
 > - 鸣潮**无通用元素克制环**，本模拟器仅保留"敌人弱点 ×1.5"机制
 > - 部分敌人/副本/深塔奖励数据为**模拟器自定义**，已尽量贴近游戏术语
 
+
+https://encore.moe/monster/340000291?lang=zh-Hans 敌人数据来源
+
 ## 核心玩法闭环
 
 ```
@@ -30,12 +33,12 @@ npm run dev
 ## 架构
 
 ```
-index.html     ← HTML 骨架（~130 行）
+index.html     ← HTML 骨架（~222 行）
 styles/
-  main.css     ← 全部样式（暗色鸣潮主题）
+  main.css     ← 全部样式（暗色鸣潮主题，~51KB）
 
 src/
-  main.js      ← 入口，事件绑定，所有面板联动
+  main.js      ← 入口，事件绑定，所有面板联动（218 行）
   state.js     ← 全局状态 S() + 工具函数（$ / msg / fmt / date / pick）
   save.js      ← localStorage 存档 + 导出/导入 JSON
   modal.js     ← 通用弹窗
@@ -44,28 +47,41 @@ src/
     chars.js    ← 角色/武器名、卡池名称
     phases.js   ← 卡池时间表 1.0–3.4
     seq.js      ← 共鸣链文案（40 角色）
+    chains-extracted.json ← 官方共鸣链原文（95KB）
 
   gacha/        ← 抽卡核心
     core.js     ← 概率曲线、保底、卡池/波纹解析、角色/武器初始化
     actions.js  ← 单抽/十连/抽到五星 + 资源补足弹窗
     animation.js← 抽卡翻牌动画
 
-  battle/       ← 战斗养成
+  battle/       ← 战斗系统
+    balance.js  ← 平衡常量中心（AP/倍率/削韧/星评/深塔水温）
+    stats.js    ← 面板计算（攻击/暴击/元素/生命）
     template.js ← 角色定位模板（4 类）+ 元素映射
-    elements.js ← 六元素克制环
-    chains.js   ← 共鸣链→战斗效果（数值版）
+    elements.js ← 六元素抗性 + 震动伤害
+    chains.js   ← 共鸣链→战斗效果（数值版，851 行）
+    forte.js    ← 奏回路（角色专属资源条）
+    weaponTriggers.js ← 武器被动触发
     enemies.js  ← 敌人数据库（含 BOSS 机制）
-    combat.js   ← AP 回合制战斗引擎
+    enemyMechanics.js ← 敌人机制注册表（周期/阈值触发）
+    combat.js   ← AP 回合制战斗引擎（731 行）
     dungeon.js  ← 副本配置
+    characters/ ← 角色专属机制（S 级角色）
+      index.js  ← 注册表/派发（getCharacterMechanic / hasHeavy / fireHook）
 
   equip/        ← 装备养成
-    weapons.js  ← 武器数据库（所有 3/4/5 星武器）
+    weapons.js  ← 武器数据库（所有 3/4/5 星武器，678 行）
     actions.js  ← 升级/装备/卸下武器
 
   daily/        ← 日常系统
     stamina.js  ← 体力（结晶波片）
     commission.js ← 每日委托（4 个）
-    abyss.js    ← 逆境深渊（10 层）
+    abyss.js    ← 逆境深塔（3 区 · 危险区三塔 12 层 + 28 天周期 + 活力系统）
+    wastes.js   ← 冥歌海墟（积分制 + 信物选择 + 焚潮）
+    weekly.js   ← 周本限制
+
+  podcast/      ← 电台（先约调频）
+    core.js     ← 电台逻辑
 
   shop/         ← 商店
     actions.js  ← 月相充值、礼包、月卡
@@ -74,15 +90,25 @@ src/
     coral.js    ← 余波/残振珊瑚、波段兑换、波纹购买
 
   time/         ← 时间推进
-    timeline.js ← +1日/下一期/下版本 + 体力补满/委托重置
+    timeline.js ← +1日/下一期/下版本 + 体力补满/委托重置 + 版本/日期跳转
 
   ui/           ← UI 渲染
-    render.js   ← 主渲染（顶栏/卡池/抽卡区/统计/海市/商店/记录/角色方块）
+    render.js   ← 主渲染入口（1086 行，待拆分见 Phase 2）
+    render/     ← 渲染子模块
+      skillHints.js  ← 角色技能 tooltip 定义（695 行）
+      skillLines.js  ← 共鸣链文案行渲染
+      utils.js       ← 工具函数
+    battleRenderers/
+      buffRenderers.js ← Buff 显示注册表
     teambuilder.js ← 编队面板（3 人）
     battle.js   ← 战斗全屏 UI（HP/AP/技能按钮/日志）
     dungeon.js  ← 副本选择面板
-    abyss.js    ← 深渊 10 层面板
+    abyss.js    ← 深塔面板（三塔分区 + 活力显示）
     daily.js    ← 日常委托面板
+    wastes.js   ← 冥歌海墟面板
+    bag.js      ← 仓库面板
+    podcast.js  ← 电台面板
+    terms.js    ← 术语词典（tooltip 悬停）
 ```
 
 ## 战斗系统
@@ -127,11 +153,26 @@ src/
 - 所有角色/武器/共鸣链数据来自鸣潮官方
 - 战斗系统为模拟器原创简化版，非官方
 
+## 文档分层（重要 · 不要混用事实来源）
+
+项目文档索引见 [docs/README.md](docs/README.md)。后续做角色/武器/敌人/副本时按以下来源优先级处理：
+
+1. **官方资料层**：[docs/official/](docs/official/) 记录库街区/游戏内/官方公告的原文要点。
+   - 角色官方资料：[docs/official/characters/](docs/official/characters/)
+   - 守岸人官方资料：[docs/official/characters/shorekeeper.md](docs/official/characters/shorekeeper.md)
+2. **强度榜层**：[docs/tier-list.md](docs/tier-list.md) 只用于数值天花板和 meta 强度，不替代官方技能文本。
+3. **设计层**：[docs/character-design.md](docs/character-design.md)、[docs/design/character-guide.md](docs/design/character-guide.md)、[docs/design/enemy-design.md](docs/design/enemy-design.md)、[docs/design/adventure-balance.md](docs/design/adventure-balance.md) 记录模拟器 AP 回合制抽象。
+4. **实现指南层**：本 CLAUDE.md 说明怎么工作、怎么改代码、tooltip 标准和移植路径。
+5. **优化计划层**：[docs/plans/phase-2-optimization.md](docs/plans/phase-2-optimization.md) 记录架构/性能/模块化优化计划（Phase 1 已完成，Phase 2 当前）。
+
+**硬规则**：
+- CLAUDE.md 不是官方事实来源；它可能过时。
+- 如果官方资料、当前实装、设计文档、CLAUDE.md 之间冲突，先查证并问用户，不要擅自改角色/武器/敌人机制和数值。
+- 架构优化不能顺手改角色强度；数值/机制变更必须单独提出。
+
 ## 角色移植思路（重要 · 制作单个角色时按这个走）
 
 > 守岸人是第一个**完整移植**的范例，忌炎是第二个。后续每个角色都按这个套路。
-
-### 设计原则
 
 1. **每个角色一个核心机制**，不要用通用模板，这个核心思路一般参照鸣潮原作者思路
    - 守岸人 → 「星域」展开（治疗 + 增益）
@@ -156,9 +197,10 @@ src/
    - 保留 6 个官方标题（"济世 / 通变 / 观势 …"），描述按模拟器实装写
    - 数值要和 chains.js 的 effect、combat.js 的实装**三处对齐**
 
-5. **数值要对照鸣潮原版，不要凭空发挥**
-   - 反例：曾经凭空给守岸人 1 链加了"增益强度 ×2.5"——是错的
-   - 1 链官方只是"时长延长 + 切人不消散"，**没有放大数值**
+5. **数值要先查官方和现有设计，不要凭空发挥**
+   - 先看 [docs/official/](docs/official/) 的官方资料，再看 [docs/character-design.md](docs/character-design.md) 的模拟器抽象。
+   - 官方文本、当前实装、角色界面文案三者不一致时，先记录差异并问用户采用哪一种，不要擅自改。
+   - 若为了模拟器强度做自定义折算，必须明确标注为“模拟器自定义”，不要写成官方效果。
    - 不确定的写法宁可保守，**不要瞎加倍率**
 
 6. **重击是 opt-in，不是 opt-out**

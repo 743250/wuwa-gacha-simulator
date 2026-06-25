@@ -78,6 +78,7 @@ function resetVersionShop() {
 
 function refreshVersion(toast) {
   S.oscBuy = { radiant: 0, forging: 0, lustrous: 0 };
+  S.waveBuy = {}; // 角色波段每版本限购 2 个，随版本重置
   resetVersionShop();
   resetWastesIfNeeded(); // 冥歌海墟随版本重置
   if (toast) msg('版本周期已刷新', false);
@@ -87,7 +88,7 @@ export function advanceTo(target) {
   const oldVersion = versionAt(S.today);
   const oldMonth = new Date(S.today).getUTCMonth();
   const oldYear = new Date(S.today).getUTCFullYear();
-  const daysPassed = Math.max(1, Math.floor((target - S.today) / DAY));
+  const daysPassed = Math.max(0, Math.floor((target - S.today) / DAY));
   const claimed = settleDays(target);
   if (claimed > 0) msg(`月卡自动领取 ${claimed} 天 · +${claimed * 90} 星声`, false);
   S.today = target;
@@ -117,7 +118,7 @@ export function advanceTo(target) {
     refreshVersion(false);
     if (newVersion) resetPodcastForVersion(newVersion);
   }
-  window.__render();
+  // 注意：不在内部调 __render，由 main.js 的各 caller 统一调 rerenderAll()
 }
 
 export function advanceDay() { advanceTo(S.today + DAY); }
@@ -144,11 +145,7 @@ export function jumpToVersion(versionId) {
 
 // 跳到任意日期
 export function jumpToDate(timestamp) {
-  if (timestamp <= S.today) {
-    // 不允许后退（防止月卡反复领等问题）
-    msg('不能回到过去');
-    return false;
-  }
+  if (!Number.isFinite(timestamp)) return false;
   advanceTo(timestamp);
   return true;
 }
@@ -156,5 +153,5 @@ export function jumpToDate(timestamp) {
 export function jumpToday() {
   S.today = date('2026-06-23');
   refreshVersion();
-  window.__render();
+  // 注意：不在内部调 __render，由 main.js caller 统一调 rerenderAll()
 }

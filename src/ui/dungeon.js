@@ -150,7 +150,7 @@ export function renderDungeon() {
     const active = Number(lv) === curSol3;
     html += `<button class="mbtn ${active ? 'gold' : ''}" style="font-size:10px;padding:4px 10px" onclick="window.__setSol3(${lv})" ${active ? 'disabled' : ''}>${cfg.name}</button>`;
   });
-  html += `<span style="font-size:10px;color:var(--muted)">BOSS取Lv90的 ×${((curSol3Cfg.worldTierMult||0.6)*100).toFixed(0)}% · 掉落 ×${curSol3Cfg.dropMult.toFixed(1)}</span>`;
+  html += `<span style="font-size:10px;color:var(--muted)">BOSS取Lv90的 ×${((curSol3Cfg.worldTierMult||0.3)*100).toFixed(0)}% · 掉落 ×${curSol3Cfg.dropMult.toFixed(1)}</span>`;
   html += '</div>';
 
   // 左右布局：左侧 Tab + 右侧卡片

@@ -20,24 +20,11 @@ import { resetDailyIfNeeded } from './daily/commission.js';
 import { noviceRemainDays } from './gacha/core.js';
 import { phases } from './data/phases.js';
 
-// 必要的全局桥接（onclick 调用）
-window.__render = render;
+// 必要的全局桥接（跨模块回调）
 window.__noviceRemainDays = noviceRemainDays;
-window.exportSave = exportSave;
-window.importSaveFile = () => {
-  const input = document.createElement('input');
-  input.type = 'file';
-  input.accept = '.json';
-  input.onchange = () => {
-    if (input.files[0]) importSave(input.files[0], (ok, err) => {
-      if (ok) { msg('导入成功', false); rerenderAll(); }
-      else msg('导入失败：' + err);
-    });
-  };
-  input.click();
-};
 
-// 全部面板重渲染
+// 全部面板重渲染（__render 和 __rerenderAll 都指向同一个全刷新函数，
+// 确保所有操作点——抽卡/商店/海市/电台/养成/委托——都会刷新全部面板）
 function rerenderAll() {
   render();
   renderTeamBuilder();
@@ -48,6 +35,7 @@ function rerenderAll() {
   renderWastes();
   renderPodcast();
 }
+window.__render = rerenderAll;
 window.__rerenderAll = rerenderAll;
 
 // 顶部时间线按钮
@@ -76,35 +64,41 @@ document.getElementById('pickVersion').onclick = () => {
   const fmtDate = t => new Date(t).toISOString().slice(0,10);
   // 用一个 modal 展示版本网格 + 日期 input
   const grid = allVersions.map(([v, t]) => {
-    const isPast = t < today;
     const isCur = t <= today && phases.some(p => p.v === v && today >= p.start && today < p.end);
     const cls = isCur ? 'gold' : '';
-    const disabled = isPast && !isCur;
-    return `<button class="mbtn ${cls}" style="margin:3px" ${disabled ? 'disabled title="不能回到过去"' : ''} onclick="window.__pickVer('${v}')">${v}<br><span style="font-size:9px;opacity:.7">${fmtDate(t)}</span></button>`;
+    return `<button class="mbtn pick-ver-btn ${cls}" style="margin:3px" data-ver="${v}">${v}<br><span style="font-size:9px;opacity:.7">${fmtDate(t)}</span></button>`;
   }).join('');
   openModal({
     title: '选择版本 / 日期',
     body: `<div style="font-size:11px;color:var(--muted);line-height:1.6;margin-bottom:8px">
       点击版本号跳到该版本起始日；或在下面输入具体日期跳转。<br>
-      <b style="color:var(--gold)">注意：仅能向后推进</b>，途中会自动结算月卡 / 体力 / 礼包刷新。
+      <b style="color:var(--gold)">可前后切换时间</b>；向后推进会自动结算月卡 / 体力 / 礼包刷新，向前切换只改变当前日期与版本环境。
     </div>
     <div style="display:flex;flex-wrap:wrap;justify-content:center;margin-bottom:10px">${grid}</div>
     <div style="text-align:center;font-size:11px;color:var(--muted)">
-      跳到日期：<input type="date" id="pvDate" value="${fmtDate(today)}" min="${fmtDate(today)}" style="background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--line2);border-radius:6px;padding:4px 8px;font:inherit"/>
-      <button class="mbtn gold" style="margin-left:6px" onclick="window.__pickDate()">跳转</button>
+      跳到日期：<input type="date" id="pvDate" value="${fmtDate(today)}" style="background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--line2);border-radius:6px;padding:4px 8px;font:inherit"/>
+      <button class="mbtn gold pick-date-btn" style="margin-left:6px">跳转</button>
     </div>`,
     actions: [{ label: '关闭', cls: '', fn: () => {} }]
   });
 };
-window.__pickVer = (v) => {
-  if (jumpToVersion(v)) { rerenderAll(); msg(`跳到版本 ${v}`, false); document.getElementById('modal').classList.remove('on'); }
-};
-window.__pickDate = () => {
-  const inp = document.getElementById('pvDate');
-  if (!inp || !inp.value) return;
-  const t = new Date(inp.value + 'T00:00:00Z').getTime();
-  if (jumpToDate(t)) { rerenderAll(); msg(`跳到 ${inp.value}`, false); document.getElementById('modal').classList.remove('on'); }
-};
+// 版本/日期选择：事件委托替代 window.__pickVer / __pickDate
+document.getElementById('modal').addEventListener('click', (e) => {
+  const pickVer = e.target.closest?.('.pick-ver-btn');
+  if (pickVer) {
+    const v = pickVer.dataset.ver;
+    if (jumpToVersion(v)) { rerenderAll(); msg(`跳到版本 ${v}`, false); document.getElementById('modal').classList.remove('on'); }
+    return;
+  }
+  const pickDate = e.target.closest?.('.pick-date-btn');
+  if (pickDate) {
+    const inp = document.getElementById('pvDate');
+    if (inp?.value) {
+      const t = new Date(inp.value + 'T00:00:00Z').getTime();
+      if (jumpToDate(t)) { rerenderAll(); msg(`跳到 ${inp.value}`, false); document.getElementById('modal').classList.remove('on'); }
+    }
+  }
+});
 
 // 抽卡按钮
 document.getElementById('pull1').onclick = () => tryPull(1);

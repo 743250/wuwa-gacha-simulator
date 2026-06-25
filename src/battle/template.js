@@ -1,11 +1,15 @@
 // 角色定位模板 + 元素映射 + 属性计算
-// 4 个定位的基础属性模板（满级 90 + 5 突破后的数值）
-// dodge 闪避率：模拟玩家操作躲避，主C 操作多闪避高，治疗站桩低
+// 按官方 Lv90 数据校准（2026-06-25 · B站 wiki + 库街区实测）
+//   5★ 主C：忌炎 437 / 今汐 412 / 安可 425 → ATK 平均 425
+//   5★ 副C：吟霖 400 / 相里要 425 / 坎特蕾拉 400 → ATK 平均 408 → 模板 410
+//   5★ 治疗：维里奈 337 → ATK 335
+//   DEF：忌炎 1185 / 今汐 1258 / 维里奈 1099 → 模板平均 ~1150
+//   4★ 角色约为 5★ 的 85% HP / 80% ATK
 export const TEMPLATES = {
-  '主C':  { hp: 8500,  atk: 380, def: 600,  crate: 0.05, cdmg: 1.50, energy: 100, dodge: 0.18 },
-  '副C':  { hp: 9500,  atk: 340, def: 700,  crate: 0.10, cdmg: 1.40, energy: 130, dodge: 0.14 },
-  '辅助': { hp: 11000, atk: 250, def: 850,  crate: 0.05, cdmg: 1.20, energy: 130, dodge: 0.10 },
-  '治疗': { hp: 13000, atk: 220, def: 950,  crate: 0.05, cdmg: 1.20, energy: 130, dodge: 0.08 }
+  '主C':  { hp: 10500, atk: 425, def: 1200, crate: 0.05, cdmg: 1.50, energy: 125, dodge: 0.18 },
+  '副C':  { hp: 10000, atk: 410, def: 1150, crate: 0.10, cdmg: 1.40, energy: 130, dodge: 0.14 },
+  '辅助': { hp: 11500, atk: 310, def: 1100, crate: 0.05, cdmg: 1.20, energy: 130, dodge: 0.10 },
+  '治疗': { hp: 13500, atk: 335, def: 1050, crate: 0.05, cdmg: 1.20, energy: 130, dodge: 0.08 }
 };
 
 // 每个角色的定位 + 元素 + 武器类型
@@ -71,13 +75,70 @@ export const ROLE_META = {
 // 后续角色按此格式继续补：
 //   stats:    90 级满突核心面板
 //   bonuses:  突破属性自带的伤害/治疗加成
+// 90 级真实面板（B站 wiki + 库街区 · 2026-06-25 批量抓取）
+// stats: 官方 Lv90 满突 HP/ATK/DEF/crate/cdmg/energy/dodge
+// 未列入的使用 TEMPLATES 默认值（已对齐官方平均）
 export const OVERRIDE_STATS = {
+  // ─── 1.0 限定 ───
+  '忌炎': {
+    stats: { hp: 10487, atk: 437, def: 1185, crate: 0.05, cdmg: 1.50, energy: 125, dodge: 0.18 }
+  },
+  '吟霖': {
+    stats: { hp: 11000, atk: 400, def: 1283, crate: 0.10, cdmg: 1.40, energy: 130, dodge: 0.14 }
+  },
+  // ─── 1.1 限定 ───
+  '今汐': {
+    stats: { hp: 10825, atk: 412, def: 1258, crate: 0.05, cdmg: 1.50, energy: 125, dodge: 0.18 }
+  },
+  '长离': {
+    stats: { hp: 10387, atk: 462, def: 1099, crate: 0.05, cdmg: 1.50, energy: 125, dodge: 0.18 }
+  },
+  // ─── 1.2 限定 ───
+  '相里要': {
+    stats: { hp: 10625, atk: 425, def: 1222, crate: 0.10, cdmg: 1.40, energy: 130, dodge: 0.14 }
+  },
+  // ─── 1.3 限定 ───
   '守岸人': {
-    // 库街区"守岸人"角色页 → 角色数据 → 90 级满突
     stats: { hp: 12508, atk: 309, def: 1180, crate: 0.05, cdmg: 1.50, energy: 125, dodge: 0.08 },
-    bonuses: { healBonus: 0.216 },        // 突破属性：治疗效果加成 +21.6%
-    forteStart: 0,                        // 协奏自然累积
-    notes: '辅助·衍射 · 队伍治疗 + 暴击 Buff 核心'
+    bonuses: { healBonus: 0.216 }
+  },
+  // ─── 1.4 限定 ───
+  '椿': {
+    stats: { hp: 10325, atk: 450, def: 1161, crate: 0.05, cdmg: 1.50, energy: 125, dodge: 0.18 }
+  },
+  // ─── 2.0 限定 ───
+  '珂莱塔': {
+    stats: { hp: 12450, atk: 462, def: 1197, crate: 0.05, cdmg: 1.50, energy: 125, dodge: 0.18 }
+  },
+  // ─── 2.1 限定 ───
+  '菲比': {
+    stats: { hp: 11075, atk: 412, def: 1258, crate: 0.05, cdmg: 1.50, energy: 125, dodge: 0.18 }
+  },
+  // ─── 2.2 限定 ───
+  '坎特蕾拉': {
+    stats: { hp: 11600, atk: 400, def: 1099, crate: 0.10, cdmg: 1.40, energy: 130, dodge: 0.14 }
+  },
+  // ─── 2.4 限定（HP 核·特殊模板）───
+  '卡提希娅': {
+    stats: { hp: 14800, atk: 312, def: 611, crate: 0.05, cdmg: 1.50, energy: 125, dodge: 0.18 },
+    bonuses: { hpScaling: true }  // 标记：伤害基于 HP 而非 ATK（combat.js 据此调整）
+  },
+  // ─── 常驻 5★ ───
+  '维里奈': {
+    stats: { hp: 14237, atk: 337, def: 1099, crate: 0.05, cdmg: 1.20, energy: 130, dodge: 0.08 },
+    bonuses: { healBonus: 0.216 }
+  },
+  '安可': {
+    stats: { hp: 10512, atk: 425, def: 1246, crate: 0.05, cdmg: 1.50, energy: 125, dodge: 0.18 }
+  },
+  '凌阳': {
+    stats: { hp: 10387, atk: 437, def: 1209, crate: 0.05, cdmg: 1.50, energy: 125, dodge: 0.18 }
+  },
+  '鉴心': {
+    stats: { hp: 14112, atk: 337, def: 1124, crate: 0.05, cdmg: 1.20, energy: 130, dodge: 0.10 }
+  },
+  '卡卡罗': {
+    stats: { hp: 10500, atk: 437, def: 1185, crate: 0.05, cdmg: 1.50, energy: 125, dodge: 0.18 }
   }
 };
 

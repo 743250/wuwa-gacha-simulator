@@ -86,8 +86,6 @@ function applyBonus(stats, b) {
     case 'team_atk':      stats.teamAtkBonus += b.value; break;
     case 'resonance':     stats.resonanceBonus += b.value; break;
     case 'def_pierce':    stats.defPierce += b.value; break;
-    // 副词条用 stat 字段（兼容）：
-    case 'resonance':     stats.resonanceBonus += b.value; break;
   }
 }
 
@@ -113,14 +111,14 @@ export function calcBP(roleName) {
   );
 }
 
-// 角色升到下一级所需的经验数（按官方真实数值）
-// 累加 1→90 总约 170 万经验，对应官方
-// 公式拟合：lv² × 7 + 300 → 累加约 171 万
-//   1→2: 307     · 42→43: 12,648  · 70→71: 34,600  · 89→90: 55,747
+// 角色升到下一级所需的经验数（模拟器自定义 · 快速养成节奏）
+// 累加 1→90 总约 42.5 万经验
+// 公式拟合：lv² × 1.75 + 75 → 累加约 42.5 万
+//   1→2: 77      · 42→43: 3,162   · 70→71: 8,650   · 89→90: 13,947
 export function expToNext(role) {
   const lv = role.level || 1;
   if (lv >= 90) return Infinity;
-  return lv * lv * 7 + 300;
+  return lv * lv * 1.75 + 75;
 }
 
 // 武器升到下一级所需武器突破石（按官方真实数值）

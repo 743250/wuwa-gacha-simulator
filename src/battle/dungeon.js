@@ -334,9 +334,9 @@ export function resetWeeklyBossIfNeeded(today) {
 // 模拟器抽象：官方 SOL3 Phase 1-8 → 模拟器 1-3 档
 // 世界等级决定 BOSS 取 Lv90 基准的百分比
 export const SOL3_LEVELS = {
-  1: { name: '索拉Ⅰ', worldTierMult: 0.60, dropMult: 1.0 },
-  2: { name: '索拉Ⅱ', worldTierMult: 0.70, dropMult: 1.3 },
-  3: { name: '索拉Ⅲ', worldTierMult: 0.80, dropMult: 1.6 }
+  1: { name: '索拉Ⅰ', worldTierMult: 0.30, dropMult: 1.0 },
+  2: { name: '索拉Ⅱ', worldTierMult: 0.40, dropMult: 2.0 },
+  3: { name: '索拉Ⅲ', worldTierMult: 0.50, dropMult: 3.0 }
 };
 
 export function getSol3Level() {
@@ -378,6 +378,6 @@ export function decreaseBossLevel(bossName) {
 export function getWorldBossSpawnOpts(bossName) {
   const tier = getSol3Level();
   const level = getBossLevel(bossName);
-  const tierMult = SOL3_LEVELS[tier]?.worldTierMult || 0.60;
+  const tierMult = SOL3_LEVELS[tier]?.worldTierMult || 0.30;
   return { worldTier: tier, bossLevel: level, tierMult };
 }

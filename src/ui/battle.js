@@ -614,6 +614,13 @@ window.__bEndTurn = () => {
   refreshAll();
 };
 window.__bClose = () => {
+  // 世界 BOSS：失败时降低讨伐等级
+  const pd = pendingDungeon;
+  if (pd && pd.kind === 'dungeon' && pd.d.type === 'worldBoss' && currentBattle && currentBattle.result === 'lose') {
+    const bossName = pd.d.enemies?.[0] || pd.d.name;
+    const newLv = decreaseBossLevel(bossName);
+    msg(`${bossName} 讨伐等级降至 Lv${newLv}`, false);
+  }
   hideBattleScreen();
   rerenderAfterBattle();
 };
