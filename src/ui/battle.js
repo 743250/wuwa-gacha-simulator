@@ -4,7 +4,8 @@
 import { S, $, msg } from '../state.js';
 import { createBattle, doAttack, doSkill, doHeavy, doBurst, doSwitch, endTurn, getCombatTeamNames } from '../battle/combat.js';
 import { ELEMENT_COLOR } from '../battle/elements.js';
-import { flattenEnemies, DUNGEONS, canUseWeeklyBoss, consumeWeeklyBoss, getWeeklyBossUsed, WEEKLY_BOSS_LIMIT } from '../battle/dungeon.js';
+import { formatEnemyMechanic } from '../battle/enemies.js';
+import { flattenEnemies, DUNGEONS, canUseWeeklyBoss, consumeWeeklyBoss, getWeeklyBossUsed, WEEKLY_BOSS_LIMIT, getDungeonEncounter } from '../battle/dungeon.js';
 import { spendStamina } from '../daily/stamina.js';
 import { settleAbyss, ABYSS_ZONES, startAbyssFloor } from '../daily/abyss.js';
 import { settleWastes, startWastesStage, WASTES_STAGES } from '../daily/wastes.js';
@@ -33,14 +34,15 @@ export function startDungeonBattle(dungeonId) {
     msg(`本周无音区奖励已领取 ${WEEKLY_BOSS_LIMIT} 次（共享）`);
     return;
   }
-  const enemyNames = flattenEnemies(d.enemies);
-  const battle = createBattle(names, enemyNames, { enemyScale: d.enemyScale || 1.0 });
+  const encounter = getDungeonEncounter(d, S.today);
+  const enemyNames = flattenEnemies(encounter.enemies);
+  const battle = createBattle(names, enemyNames, { enemyScale: encounter.enemyScale || d.enemyScale || 1.0 });
   if (!battle) {
     msg('战斗创建失败：队伍或敌人配置异常');
     return;
   }
   currentBattle = battle;
-  pendingDungeon = { kind: 'dungeon', d, paidCost: false };
+  pendingDungeon = { kind: 'dungeon', d, encounter, paidCost: false };
   showBattleScreen();
 }
 
@@ -151,16 +153,20 @@ function renderHeader() {
   const titleTxt = pendingDungeon?.kind === 'abyss'
     ? `逆境深塔 · 第 ${pendingDungeon.floor} 层`
     : (pendingDungeon?.d?.name || '战斗');
+  const subTitle = pendingDungeon?.kind === 'dungeon' && pendingDungeon.encounter
+    ? `今日敌情：${pendingDungeon.encounter.tag} · ${pendingDungeon.encounter.enemies.join(' / ')}`
+    : '';
   const switchTag = b.switchUsedThisTurn
     ? '<span style="color:var(--red)">切人已用</span>'
     : '<span style="color:var(--green)">可切人 1 次</span>';
   root.innerHTML = `<div style="text-align:center;margin-bottom:12px">
     <div style="font-size:18px;font-weight:700;letter-spacing:3px;color:var(--gold)">${titleTxt}</div>
+    ${subTitle ? `<div style="font-size:11px;color:var(--accent);letter-spacing:1px;margin-top:4px">${subTitle}</div>` : ''}
     <div style="font-size:11px;color:var(--muted);letter-spacing:2px;margin-top:4px">
       回合 <b style="color:var(--text)">${b.turn}</b> · AP <b style="color:var(--gold)">${b.ap}/${b.apMax}</b> · ${switchTag} · 当前 <b style="color:var(--accent)">${b.team[b.active]?.name}</b>
     </div>
     <div style="font-size:9px;color:var(--dim);letter-spacing:.5px;margin-top:4px;line-height:1.5">
-      每回合 4 AP · 普攻 1AP · 技能 1AP/CD3 · 重击 2AP/CD1 · 解放 3AP · 切人 0AP（限 1 次）
+      每回合 4 AP · 普攻 1AP · 技能 1AP/CD3${b.team[b.active]?.hasHeavy ? ' · 重击 2AP/CD1' : ''} · 解放 3AP · 切人 0AP（限 1 次）
     </div>
   </div>`;
 }
@@ -290,22 +296,8 @@ function renderEnemies() {
     const broken = e.vibrationBroken > 0;
     const m = e.mechanic;
     let mechHint = '';
-    if (m && m.type !== 'none') {
-      const turnsToNext = m.cycle ? (m.cycle - (b.turn % m.cycle)) : 0;
-      const desc = {
-        burn_team: `🔥 每${m.cycle}回合点燃全队 ${(m.dmgPct*100).toFixed(0)}% HP`,
-        freeze: `❄ 每${m.cycle}回合冻结 1 人`,
-        shield: `🛡 HP ≤ ${(m.threshold*100).toFixed(0)}% 时生成 ${m.value} 护盾`,
-        enrage: `⚡ HP ≤ ${(m.threshold*100).toFixed(0)}% 时狂暴 +${(m.atkBonus*100).toFixed(0)}%`,
-        reflect: `↩ 每${m.cycle}回合反弹 ${(m.value*100).toFixed(0)}% 受伤`,
-        minion: `🐺 每${m.cycle}回合召唤小弟`,
-        thunder_chain: `⚡ 每${m.cycle}回合雷电连段`,
-        dive: `🦅 每${m.cycle}回合俯冲`,
-        aoe_freeze: `❄ 每${m.cycle}回合冰雾减速`,
-        data_lock: `🔒 每${m.cycle}回合封锁 1 名技能`
-      }[m.type] || '';
-      mechHint = desc ? `<div style="font-size:9px;color:var(--muted);margin-top:3px;letter-spacing:.3px">${desc}${m.cycle && turnsToNext < m.cycle ? ' · 下次：' + turnsToNext + '回合后' : ''}</div>` : '';
-    }
+    const mechanicText = formatEnemyMechanic(m, { includeNext: true, turn: b.turn });
+    if (mechanicText) mechHint = `<div style="font-size:9px;color:var(--muted);margin-top:3px;letter-spacing:.3px">机制：${mechanicText}</div>`;
     html += `<div onclick="window.__bTarget(${realIdx})" style="border:1px solid ${isTarget ? 'var(--red)' : 'var(--line)'};border-radius:10px;padding:11px;margin-bottom:6px;background:${isTarget ? 'rgba(255,80,80,.10)' : 'rgba(255,80,80,.04)'};cursor:pointer;transition:.15s">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
         <span style="font-weight:600;font-size:14px">${isTarget ? '🎯 ' : ''}${e.name}${e.class ? ` <span style="font-size:9px;color:var(--muted);letter-spacing:1px">[${e.class}]</span>` : ''}</span>
@@ -442,15 +434,20 @@ function renderActions() {
     if (blocker) {
       html += `<div style="margin-bottom:8px;padding:8px 12px;border-radius:8px;background:rgba(255,133,133,.08);border-left:3px solid var(--red);color:#ffaaaa;font-size:11px;letter-spacing:.5px">⚠ ${blocker}</div>`;
     }
-    html += '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px">';
+    // 无重击的角色（如守岸人、吟霖）：按钮整列移除，网格变 3 列
+    const showHeavy = !!cur.hasHeavy;
+    const cols = showHeavy ? 4 : 3;
+    html += `<div style="display:grid;grid-template-columns:repeat(${cols},1fr);gap:6px;margin-bottom:8px">`;
     // 动态样式：按钮亮色仅在 can=true 时生效，否则强制灰化
     const litStyle = (can, color) => can
       ? `border-color:${color};color:${color}${color==='var(--gold)'?';background:rgba(245,207,107,.08)':''}`
       : `border-color:var(--line);color:var(--dim);background:rgba(255,255,255,.02);opacity:.4;cursor:not-allowed`;
     html += `<button class="bbtn" style="${litStyle(canAtk, 'var(--text)')}" onclick="window.__bAtk(${enemyIdx})" ${!canAtk ? 'disabled' : ''} title="100% 攻击 · +12 能量 · 削破韧 8">⚔ 普攻<br><span style="font-size:9px;opacity:.7">1 AP</span></button>`;
     html += `<button class="bbtn" style="${litStyle(canSkill, 'var(--accent)')}" onclick="window.__bSkill(${enemyIdx})" ${!canSkill ? 'disabled' : ''} title="180% 攻击 · CD 3 回合 · +22 能量 · 削破韧 20">✦ 技能<br><span style="font-size:9px;opacity:.7">1 AP${cur.cd.skill > 0 ? ' · CD'+cur.cd.skill : ''}</span></button>`;
-    html += `<button class="bbtn" style="${litStyle(canHeavy, '#ff8c5e')}" onclick="window.__bHeavy(${enemyIdx})" ${!canHeavy ? 'disabled' : ''} title="${!cur.hasHeavy ? cur.name+' 没有重击' : '220% 攻击 · 重击伤害类型 · CD 1 回合 · +15 能量 · 削破韧 25'}">💢 重击<br><span style="font-size:9px;opacity:.7">${!cur.hasHeavy ? '—' : `2 AP${cur.cd.heavy > 0 ? ' · CD'+cur.cd.heavy : ''}`}</span></button>`;
-    html += `<button class="bbtn" style="${litStyle(canBurst, 'var(--gold)')}" onclick="window.__bBurst()" ${!canBurst ? 'disabled' : ''} title="300% 攻击 · AOE · 需能量满 · 削破韧 30">⚡ 解放<br><span style="font-size:9px;opacity:.7">3 AP · ${cur.energy}/${cur.energyMax}</span></button>`;
+    if (showHeavy) {
+      html += `<button class="bbtn" style="${litStyle(canHeavy, '#ff8c5e')}" onclick="window.__bHeavy(${enemyIdx})" ${!canHeavy ? 'disabled' : ''} title="220% 攻击 · 重击伤害类型 · CD 1 回合 · +15 能量 · 削破韧 25">💢 重击<br><span style="font-size:9px;opacity:.7">2 AP${cur.cd.heavy > 0 ? ' · CD'+cur.cd.heavy : ''}</span></button>`;
+    }
+    html += `<button class="bbtn" style="${litStyle(canBurst, 'var(--gold)')}" onclick="window.__bBurst()" ${!canBurst ? 'disabled' : ''} title="主目标 400% · 副目标 200% · AOE · 需能量满 · 削破韧 30">⚡ 解放<br><span style="font-size:9px;opacity:.7">3 AP · ${cur.energy}/${cur.energyMax}</span></button>`;
     html += '</div>';
     html += `<button style="width:100%;padding:11px;background:linear-gradient(180deg,#1a2436,#0e1626);border:1px solid var(--line2);border-radius:8px;color:var(--text);font-size:12px;letter-spacing:3px"
       onclick="window.__bEndTurn()">结 束 回 合 →</button>`;
@@ -533,8 +530,8 @@ function effectLabel(effect, element) {
 function formatLogLine(l) {
   if (l.type === 'attack') return `${l.src} ${l.action || '普攻'} → ${l.tgt} <b style="color:var(--red)">${l.dmg}</b>${l.crit ? ' ⚡' : ''}`;
   if (l.type === 'skill') return `${l.src} 技能 → ${l.tgt} <b style="color:var(--accent)">${l.dmg}</b>${l.crit ? ' ⚡' : ''}`;
-  if (l.type === 'heavy') return `${l.src} 💢 重击 → ${l.tgt} <b style="color:#ff8c5e">${l.dmg}</b>${l.crit ? ' ⚡' : ''}`;
-  if (l.type === 'burst') return `${l.src} 解放 → ${l.results.map(r => `${r.tgt} <b style="color:var(--gold)">${r.dmg}</b>`).join(', ')}`;
+  if (l.type === 'heavy') return `${l.src} 💢 ${l.action || '重击'} → ${l.tgt} <b style="color:#ff8c5e">${l.dmg}</b>${l.crit ? ' ⚡' : ''}`;
+  if (l.type === 'burst') return `${l.src} 解放 → ${l.results.map(r => `${r.tgt}${r.primary ? '★' : ''} <b style="color:var(--gold)">${r.dmg}</b>`).join(', ')}`;
   if (l.type === 'switch') return `↑ ${l.src} 上场`;
   if (l.type === 'enemy_attack') return `<span style="color:var(--red)">${l.src}</span> 攻击 → ${l.tgt} <b>${l.dmg}</b>${l.crit ? ' ⚡' : ''}`;
   if (l.type === 'dodge') return `<span style="color:var(--accent)">${l.tgt} 闪避了 ${l.src} 的攻击！</span>`;

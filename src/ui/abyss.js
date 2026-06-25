@@ -1,6 +1,6 @@
 // 深塔面板（3 区结构：稳定 / 实验 / 危险）
 import { S, $, DAY, fmt } from '../state.js';
-import { ABYSS_ZONES, STAR_CRITERIA, getAbyssStars, getHazardProgress, nextHazardResetDate } from '../daily/abyss.js';
+import { ABYSS_ZONES, STAR_CRITERIA, getAbyssStars, getHazardProgress, nextHazardResetDate, getAbyssVersionInfo, getAbyssFloorScale } from '../daily/abyss.js';
 import { parseEnemyStr } from '../battle/dungeon.js';
 import { getCombatTeamNames } from '../battle/combat.js';
 import { ENEMIES } from '../battle/enemies.js';
@@ -27,6 +27,10 @@ function renderFloor(f, opts) {
   const isDone = isOneShotDone || isFullStarDone;
   const starHtml = '★'.repeat(earned) + '☆'.repeat(3 - earned);
   const teamCount = getCombatTeamNames().length;
+  const scale = getAbyssFloorScale(f, S.today);
+  const scaleLine = f.zone === 'hazard'
+    ? `水温 HP ×${scale.hp.toFixed(2)} / 攻 ×${scale.atk.toFixed(2)} / 防 ×${scale.def.toFixed(2)}`
+    : `敌方强度 ×${scale.hp.toFixed(2)}`;
 
   const oneShotTag = f.oneShot
     ? (isOneShotDone
@@ -55,6 +59,7 @@ function renderFloor(f, opts) {
     </div>
     <div style="font-size:10px;color:var(--muted);line-height:1.6;border-top:1px dashed var(--line);padding-top:5px">
       <div>⚔ <span style="color:var(--dim)">敌人：</span>${formatEnemies(f.enemies)}</div>
+      <div style="margin-top:2px;color:${f.zone === 'hazard' ? 'var(--accent)' : 'var(--muted)'}">🌡 <span style="color:var(--dim)">强度：</span>${scaleLine}</div>
       <div style="margin-top:2px">${rewardLine}</div>
     </div>
   </div>`;
@@ -98,6 +103,7 @@ export function renderAbyss() {
 
   const nextReset = nextHazardResetDate(S.today);
   const daysLeft = Math.max(0, Math.ceil((nextReset - S.today) / DAY));
+  const versionInfo = getAbyssVersionInfo(S.today);
 
   html += `<div style="text-align:center;margin-bottom:14px;padding:12px;border:1px solid rgba(245,207,107,.3);border-radius:10px;background:linear-gradient(135deg,rgba(245,207,107,.06),rgba(195,155,255,.03))">
     <div style="font-size:15px;letter-spacing:4px;color:var(--gold);font-weight:700">逆 境 深 塔</div>
@@ -111,7 +117,7 @@ export function renderAbyss() {
       <span>危险区 <b style="color:var(--gold)">★ ${hazardTotal}/${hazardMax}</b> · 满星 800 星声</span>
     </div>
     <div style="margin-top:6px;font-size:10px;color:var(--accent);letter-spacing:1px">
-      ⏳ 危险区下一次重置：${fmt(nextReset)}（剩余 ${daysLeft} 天）
+      ⏳ 危险区下一次重置：${fmt(nextReset)}（剩余 ${daysLeft} 天） · 水温 ${versionInfo.version}：HP ×${versionInfo.hp.toFixed(2)} / 攻 ×${versionInfo.atk.toFixed(2)} / 防 ×${versionInfo.def.toFixed(2)} · ${versionInfo.label}
     </div>
   </div>`;
 

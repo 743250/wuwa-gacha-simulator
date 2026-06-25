@@ -248,13 +248,15 @@ export function addWeapon(n, r) {
     n, r, pulled: 0,
     level: 1,
     refine: 1,
+    spareRefine: 0,
     equippedBy: null
   };
   o.pulled = (o.pulled || 0) + 1;
-  // 同武器精炼
-  if (o.pulled > 1 && o.refine < 5) o.refine++;
+  // 重复武器不再自动精炼，改为积攒待精炼素材，玩家在背包里手动使用。
+  if (o.pulled > 1) o.spareRefine = (o.spareRefine || 0) + 1;
   if (o.level === undefined) o.level = 1;
   if (o.refine === undefined) o.refine = 1;
+  if (o.spareRefine === undefined) o.spareRefine = Math.max(0, (o.pulled || 1) - (o.refine || 1));
   if (o.equippedBy === undefined) o.equippedBy = null;
   S.weapons[n] = o; return o;
 }

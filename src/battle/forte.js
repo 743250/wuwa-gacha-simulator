@@ -79,6 +79,14 @@ export const FORTE = {
     effectMult: 1.6,
     desc: '阈值满时共鸣解放伤害 ×1.6'
   },
+  '安可': {
+    kind: 'gauge', resourceName: '失序值', max: 100,
+    // 安可失序值由 combat.js 的 encoreGainDisorder 专门控制，避免 generic gainForte 双算
+    gainPerNormal: 0, gainPerSkill: 0, gainPerBurst: 0, gainPerHeavy: 0,
+    effectType: 'encoreDisorder',
+    effectMult: 1.0,
+    desc: '普攻/技能/变奏积攒失序值，满 100 时重击触发白咩·失控之炎；黑咩大暴走期间触发黑咩·暴走之炎'
+  },
   '卡卡罗': {
     kind: 'state', resourceName: '杀意', max: 100,
     gainPerNormal: 5, gainPerSkill: 15, gainPerBurst: 100,  // 解放期间杀意拉满

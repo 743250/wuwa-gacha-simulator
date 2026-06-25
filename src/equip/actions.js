@@ -111,7 +111,18 @@ export function levelUpWeaponMax(weaponName) {
   return count;
 }
 
-// 装备武器：如果该武器已装备给别人，先卸下；如果角色已有武器，也先卸下
+export function refineWeapon(weaponName, count = 1) {
+  const w = S.weapons[weaponName];
+  if (!w) return { ok: false, err: '没有这把武器' };
+  const spare = w.spareRefine || 0;
+  if (spare <= 0) return { ok: false, err: '暂无可精炼次数' };
+  if ((w.refine || 1) >= 5) return { ok: false, err: '已满精炼' };
+  const use = Math.min(count, spare, 5 - (w.refine || 1));
+  w.spareRefine = spare - use;
+  w.refine = (w.refine || 1) + use;
+  return { ok: true, used: use, refine: w.refine, spare: w.spareRefine };
+}
+
 export function equipWeapon(roleName, weaponName) {
   const role = S.roles[roleName];
   const weapon = S.weapons[weaponName];

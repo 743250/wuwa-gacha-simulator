@@ -257,12 +257,13 @@ function openWeaponBox() {
 window.__radioPickWeapon = (name) => {
   // 给一把该武器：若已有则精炼 +1，否则新建 lv1 r1
   if (!S.weapons[name]) {
-    S.weapons[name] = { level: 1, refine: 1, equipped: null };
+    S.weapons[name] = { n: name, r: 4, pulled: 1, level: 1, refine: 1, spareRefine: 0, equippedBy: null };
     msg(`获得 ${name} ×1`, false);
   } else {
-    if (S.weapons[name].refine < 5) {
-      S.weapons[name].refine++;
-      msg(`${name} 精炼 +1（现 R${S.weapons[name].refine}）`, false);
+    const w = S.weapons[name];
+    if ((w.refine || 1) < 5) {
+      w.spareRefine = (w.spareRefine || 0) + 1;
+      msg(`${name} 可精炼次数 +1（可在背包使用）`, false);
     } else {
       // 已 5 精，补偿 8 万经验等价物 → 2 个特级促剂
       S.materials.exp_super = (S.materials.exp_super || 0) + 2;
@@ -278,25 +279,10 @@ window.__radioPickWeapon = (name) => {
 // 用法：当玩家持有"先约电台 4★ 自选武器"中的某把时，可点击精炼石给那把武器 +1 精
 // 简化为：弹窗让玩家从已持有的自选武器中挑一把
 function openRefineStonePicker(count) {
-  const owned = WEAPON_BOX_OPTIONS.filter(n => S.weapons[n]);
-  if (owned.length === 0) {
-    // 还没买武器箱 → 暂存
-    if (!S.podcast.pendingRefine) S.podcast.pendingRefine = 0;
-    S.podcast.pendingRefine += count;
-    msg(`烙金银杏 +${count} 暂存（需先领 4★ 自选武器）`, false);
-    return;
-  }
-  // 默认直接给第一把武器精炼 +count（简化）
-  const target = owned[0];
-  const w = S.weapons[target];
-  const add = Math.min(count, 5 - (w.refine || 1));
-  if (add > 0) {
-    w.refine = (w.refine || 1) + add;
-    msg(`${target} 精炼 +${add}（现 R${w.refine}）`, false);
-  } else {
-    S.materials.exp_super = (S.materials.exp_super || 0) + count * 2;
-    msg(`${target} 已 5 精 · 补偿特级促剂 ×${count * 2}`, false);
-  }
+  // 弹窗让玩家从背包手动选择，这里只把银杏存成待使用道具。
+  if (!S.podcast.pendingRefine) S.podcast.pendingRefine = 0;
+  S.podcast.pendingRefine += count;
+  msg(`烙金银杏 +${count}，可在背包选择武器精炼`, false);
 }
 
 // 暴露到 window 供 onclick 使用

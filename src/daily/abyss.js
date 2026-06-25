@@ -12,7 +12,7 @@
 //   ★3：15 回合内 + 队伍均血 ≥ 70%
 import { S, DAY } from '../state.js';
 import { createBattle, getCombatTeamNames } from '../battle/combat.js';
-import { flattenEnemies } from '../battle/dungeon.js';
+import { flattenEnemies, currentVersion } from '../battle/dungeon.js';
 
 const STAR_CRITERIA = {
   oneStar:   { turn: 20, hp: 0    },
@@ -49,6 +49,31 @@ const HAZARD_FLOORS = [
   { id: 'h8',  floor: 8,  zone: 'hazard', name: '危险区·第 8 层',  enemies: ['无妄者', '飞廉之猩'],  baseReward: 80 },
   { id: 'h9',  floor: 9,  zone: 'hazard', name: '危险区·第 9 层',  enemies: ['赫卡忒', '燎照之骑'],  baseReward: 80 },
   { id: 'h10', floor: 10, zone: 'hazard', name: '危险区·第 10 层', enemies: ['赫卡忒', '无冠者'],   baseReward: 80 }
+];
+
+// 深塔"水温"：模拟版本推进后危险区血量、抗压和定向环境逐步抬高。
+// 参考口径：官方 2.6 后深境区增加第 3/4 层，社区长期用"水温"描述深塔血量与配队压力上涨。
+// 这里不把普通副本拉到同一强度，只让危险区承担星声压力。
+const ABYSS_TEMPERATURE_TABLE = [
+  { v: '1.0', hp: 1.00, atk: 1.00, def: 1.00, label: '开服基准' },
+  { v: '1.1', hp: 1.08, atk: 1.03, def: 1.02, label: '初次升温' },
+  { v: '1.2', hp: 1.16, atk: 1.06, def: 1.04, label: '练度筛选' },
+  { v: '1.3', hp: 1.25, atk: 1.09, def: 1.06, label: '环境定向' },
+  { v: '1.4', hp: 1.34, atk: 1.12, def: 1.08, label: '一代末期' },
+  { v: '2.0', hp: 1.50, atk: 1.18, def: 1.12, label: '大版本跃迁' },
+  { v: '2.1', hp: 1.62, atk: 1.22, def: 1.14, label: '新体系抬压' },
+  { v: '2.2', hp: 1.75, atk: 1.26, def: 1.16, label: '双队压力' },
+  { v: '2.3', hp: 1.90, atk: 1.30, def: 1.18, label: '中塔升温' },
+  { v: '2.4', hp: 2.06, atk: 1.34, def: 1.20, label: '输出门槛' },
+  { v: '2.5', hp: 2.23, atk: 1.38, def: 1.22, label: '末期膨胀' },
+  { v: '2.6', hp: 2.45, atk: 1.44, def: 1.25, label: '深境扩层' },
+  { v: '2.7', hp: 2.63, atk: 1.49, def: 1.28, label: '高层加压' },
+  { v: '2.8', hp: 2.82, atk: 1.54, def: 1.31, label: '二代末期' },
+  { v: '3.0', hp: 3.10, atk: 1.62, def: 1.36, label: '三代跃迁' },
+  { v: '3.1', hp: 3.32, atk: 1.68, def: 1.39, label: '环境筛卡' },
+  { v: '3.2', hp: 3.55, atk: 1.74, def: 1.42, label: '高压轮替' },
+  { v: '3.3', hp: 3.80, atk: 1.80, def: 1.45, label: '末端追赶' },
+  { v: '3.4', hp: 4.05, atk: 1.86, def: 1.48, label: '当前高水温' }
 ];
 
 // 注入评星条件，供 UI 显示
@@ -106,6 +131,44 @@ function findFloor(id) {
   return ALL_FLOORS.find(f => f.id === id);
 }
 
+function parseVersion(v) {
+  const [majorRaw, minorRaw] = String(v).split('.');
+  return { major: Number(majorRaw) || 1, minor: Number(minorRaw) || 0 };
+}
+
+function versionOrder(v) {
+  const x = parseVersion(v);
+  return x.major * 100 + x.minor;
+}
+
+export function getAbyssTemperature(today = S.today) {
+  const version = currentVersion(today);
+  const key = versionOrder(version);
+  const picked = ABYSS_TEMPERATURE_TABLE
+    .slice()
+    .reverse()
+    .find(x => versionOrder(x.v) <= key) || ABYSS_TEMPERATURE_TABLE[0];
+  return { version, ...picked };
+}
+
+export function getAbyssFloorScale(info, today = S.today) {
+  const base = info.zone === 'hazard' ? 1 + info.floor * 0.15
+    : info.zone === 'experiment' ? 1.6 : 1.2;
+  if (info.zone !== 'hazard') {
+    return { hp: base, atk: base, def: base, base, temp: null, topPressure: 1 };
+  }
+  const temp = getAbyssTemperature(today);
+  const topPressure = info.floor >= 9 ? 1.18 : info.floor >= 7 ? 1.10 : info.floor >= 5 ? 1.04 : 1;
+  return {
+    hp: +(base * temp.hp * topPressure).toFixed(3),
+    atk: +(base * temp.atk * (1 + (topPressure - 1) * 0.45)).toFixed(3),
+    def: +(base * temp.def * (1 + (topPressure - 1) * 0.35)).toFixed(3),
+    base,
+    temp,
+    topPressure
+  };
+}
+
 export function startAbyssFloor(idOrFloor) {
   let info;
   if (typeof idOrFloor === 'number') info = HAZARD_FLOORS[idOrFloor - 1];
@@ -116,9 +179,8 @@ export function startAbyssFloor(idOrFloor) {
   const names = getCombatTeamNames();
   if (names.length === 0) return null;
   const enemyNames = flattenEnemies(info.enemies);
-  const scale = info.zone === 'hazard' ? 1 + info.floor * 0.15
-              : info.zone === 'experiment' ? 1.6 : 1.2;
-  const battle = createBattle(names, enemyNames, { enemyScale: scale });
+  const scale = getAbyssFloorScale(info, S.today);
+  const battle = createBattle(names, enemyNames, { enemyStatScale: scale });
   if (battle) battle._abyssFloor = info.id;
   return battle;
 }
@@ -168,4 +230,8 @@ export function nextHazardResetDate(today) {
   const diff = today - ABYSS_EPOCH;
   const cycle = Math.floor(diff / (14 * DAY));
   return ABYSS_EPOCH + (cycle + 1) * 14 * DAY;
+}
+
+export function getAbyssVersionInfo(today = S.today) {
+  return getAbyssTemperature(today);
 }

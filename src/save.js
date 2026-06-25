@@ -69,6 +69,10 @@ function migrateLegacy(s) {
     delete s.materials.stamina_potion;
     delete s.materials.stamina_potion_big;
   }
+  // 移除曾短暂加入但没有消费链路的现实材料，避免背包出现死资源。
+  ['skill_mat', 'echo_tube', 'echo_tuner', 'boss_mat', 'weekly_skill_mat'].forEach(k => {
+    delete s.materials[k];
+  });
   // 角色元素修正：今汐 湮灭 → 衍射
   if (s.roles) {
     Object.values(s.roles).forEach(r => {

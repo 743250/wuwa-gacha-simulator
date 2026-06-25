@@ -3,6 +3,7 @@ import { S, $, msg } from '../state.js';
 import { usePotion, useAllPotions, POTIONS, buyStaminaWithAstrite } from '../daily/stamina.js';
 import { WEAPON_BOX_OPTIONS } from '../data/podcast-rewards.js';
 import { openModal } from '../modal.js';
+import { levelUpWeapon, levelUpWeaponMax, refineWeapon } from '../equip/actions.js';
 
 export function renderBag() {
   const container = $('paneBag');
@@ -123,8 +124,8 @@ export function renderBag() {
           <span style="font-size:12px;font-weight:600;color:var(--purple)">烙金银杏（精炼石）</span>
           <span style="font-size:15px;font-weight:700;color:var(--purple)">×${pendingRefine}</span>
         </div>
-        <div style="font-size:9px;color:var(--dim);margin:3px 0 6px;letter-spacing:.3px">用于精炼 4★ 自选武器（需先领武器箱）</div>
-        <button class="mbtn" style="width:100%;font-size:10px;padding:5px" onclick="window.__bagUseRefineStone()" ${pendingBox > 0 ? '' : ''}>使用 1 块</button>
+        <div style="font-size:9px;color:var(--dim);margin:3px 0 6px;letter-spacing:.3px">用于精炼 4★ 自选武器（从背包选择）</div>
+        <button class="mbtn" style="width:100%;font-size:10px;padding:5px" onclick="window.__bagUseRefineStone()">选择武器</button>
       </div>`;
     }
     html += '</div>';
@@ -140,12 +141,21 @@ export function renderBag() {
         const star = '★'.repeat(w.r || 0);
         const starColor = w.r === 5 ? 'var(--gold)' : w.r === 4 ? 'var(--purple)' : 'var(--accent)';
         const eqTag = w.equippedBy ? `<span style="font-size:9px;color:var(--green);margin-left:4px">装备中</span>` : '';
+        const spare = w.spareRefine || 0;
+        const canLevel = (w.level || 1) < 90;
+        const canRefine = spare > 0 && (w.refine || 1) < 5;
+        const refineText = spare > 0 ? ` · 可精炼 ×${spare}` : '';
         html += `<div style="border:1px solid var(--line);border-radius:8px;padding:8px 11px;background:rgba(255,255,255,.02)">
           <div style="display:flex;justify-content:space-between;align-items:baseline">
             <span style="font-size:12px;font-weight:600">${name}${eqTag}</span>
             <span style="font-size:11px;color:${starColor}">${star}</span>
           </div>
-          <div style="font-size:10px;color:var(--dim);margin-top:3px">Lv ${w.level || 1} · R${w.refine || 1}${w.equippedBy ? ` · ${w.equippedBy}` : ''}</div>
+          <div style="font-size:10px;color:var(--dim);margin-top:3px">Lv ${w.level || 1} · R${w.refine || 1}${refineText}${w.equippedBy ? ` · ${w.equippedBy}` : ''}</div>
+          <div style="display:flex;gap:4px;margin-top:7px;flex-wrap:wrap">
+            <button class="mbtn" style="flex:1;font-size:10px;padding:5px" onclick="window.__bagLevelWeapon('${name.replace(/'/g, "\\'")}')" ${!canLevel ? 'disabled' : ''}>升级</button>
+            <button class="mbtn" style="flex:1;font-size:10px;padding:5px" onclick="window.__bagLevelWeaponMax('${name.replace(/'/g, "\\'")}')" ${!canLevel ? 'disabled' : ''}>升满</button>
+            <button class="mbtn gold" style="flex:1;font-size:10px;padding:5px" onclick="window.__bagRefineWeapon('${name.replace(/'/g, "\\'")}')" ${!canRefine ? 'disabled' : ''}>精炼</button>
+          </div>
         </div>`;
       });
     html += '</div>';
@@ -188,13 +198,35 @@ window.__bagOpenWeaponBox = () => {
   ).join('');
   openModal({
     title: '4★ 武器自选箱',
-    body: `<div style="color:var(--muted);font-size:12px;margin-bottom:10px">从下面 5 把 4 星武器中任选 1 把（已持有则精炼 +1）</div>
+    body: `<div style="color:var(--muted);font-size:12px;margin-bottom:10px">从下面 5 把 4 星武器中任选 1 把；已持有的武器会转为可精炼次数。</div>
 <div style="text-align:center">${buttons}</div>`,
     actions: [{ label: '稍后再选', cls: '', fn: () => {
       S.podcast.pendingWeaponBox++; // 退回
       renderBag();
     }}]
   });
+};
+
+window.__bagLevelWeapon = (name) => {
+  if (levelUpWeapon(name)) msg(`${name} 升级成功`, false);
+  renderBag();
+  window.__render();
+};
+
+window.__bagLevelWeaponMax = (name) => {
+  const c = levelUpWeaponMax(name);
+  if (c > 0) msg(`${name} +${c} 级`, false);
+  else msg('武器突破石不足或已满级');
+  renderBag();
+  window.__render();
+};
+
+window.__bagRefineWeapon = (name) => {
+  const r = refineWeapon(name, 1);
+  if (!r.ok) { msg(r.err); return; }
+  msg(`${name} 精炼 +${r.used}（现 R${r.refine}）`, false);
+  renderBag();
+  window.__render();
 };
 
 window.__bagUseRefineStone = () => {
@@ -204,9 +236,23 @@ window.__bagUseRefineStone = () => {
     msg('需先领取 4★ 自选武器才能使用精炼石');
     return;
   }
-  S.podcast.pendingRefine--;
-  const target = owned[0];
+  const buttons = owned.map(n => {
+    const w = S.weapons[n];
+    const disabled = (w.refine || 1) >= 5;
+    return `<button class="mbtn ${disabled ? '' : 'gold'}" style="margin:4px;min-width:100px" onclick="window.__bagUseRefineStoneOn('${n.replace(/'/g, "\\'")}')" ${disabled ? 'disabled' : ''}>${n}<br><span style="font-size:9px;color:var(--muted)">R${w.refine || 1}/5</span></button>`;
+  }).join('');
+  openModal({
+    title: '选择精炼武器',
+    body: `<div style="color:var(--muted);font-size:12px;margin-bottom:10px">消耗 1 个烙金银杏，为一把电台 4★ 武器精炼 +1。</div><div style="text-align:center">${buttons}</div>`,
+    actions: [{ label: '取消', cls: '', fn: () => {} }]
+  });
+};
+
+window.__bagUseRefineStoneOn = (target) => {
+  if (!S.podcast?.pendingRefine) return msg('没有精炼石');
   const w = S.weapons[target];
+  if (!w) return msg('没有这把武器');
+  S.podcast.pendingRefine--;
   if ((w.refine || 1) < 5) {
     w.refine = (w.refine || 1) + 1;
     msg(`${target} 精炼 +1（现 R${w.refine}）`, false);

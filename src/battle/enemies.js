@@ -20,6 +20,29 @@
 //   - data_lock: 数据封锁，每 cycle 锁定 1 名角色技能
 //   - aero_erosion: 气动侵蚀（卡提希娅类敌人会用）
 
+export function formatEnemyMechanic(mechanic, opts = {}) {
+  const m = mechanic;
+  if (!m || m.type === 'none') return '';
+  const desc = {
+    burn_team: () => `每${m.cycle}回合点燃全队 ${(m.dmgPct * 100).toFixed(0)}% HP`,
+    freeze: () => `每${m.cycle}回合冻结 1 人`,
+    shield: () => `HP ≤ ${(m.threshold * 100).toFixed(0)}% 时生成 ${m.value} 护盾`,
+    enrage: () => `HP ≤ ${(m.threshold * 100).toFixed(0)}% 时狂暴 +${(m.atkBonus * 100).toFixed(0)}%`,
+    reflect: () => `每${m.cycle}回合反弹 ${(m.value * 100).toFixed(0)}% 受伤`,
+    minion: () => `每${m.cycle}回合召唤小怪`,
+    thunder_chain: () => `每${m.cycle}回合雷电连段`,
+    dive: () => `每${m.cycle}回合俯冲压制`,
+    aoe_freeze: () => `每${m.cycle}回合冰雾减速`,
+    data_lock: () => `每${m.cycle}回合封锁 1 名技能`,
+    aero_erosion: () => `每${m.cycle}回合施加气动侵蚀`
+  }[m.type];
+  if (!desc) return '';
+  const text = desc();
+  if (!opts.includeNext || !m.cycle || !opts.turn) return text;
+  const left = m.cycle - (opts.turn % m.cycle);
+  return `${text} · 下次：${left}回合后`;
+}
+
 // 抗性生成器：对自身属性 40% 抗性、对其他元素 10% 抗性
 function res(selfElement) {
   const out = {};
@@ -216,12 +239,19 @@ export const ENEMIES = {
 export function spawnEnemy(name, levelScale = 1.0) {
   const data = ENEMIES[name];
   if (!data) return null;
+  const scale = typeof levelScale === 'number'
+    ? { hp: levelScale, atk: levelScale, def: levelScale }
+    : {
+        hp: levelScale?.hp ?? levelScale?.all ?? 1,
+        atk: levelScale?.atk ?? levelScale?.all ?? 1,
+        def: levelScale?.def ?? levelScale?.all ?? 1
+      };
   return {
     name,
-    hp: Math.round(data.hp * levelScale),
-    hpMax: Math.round(data.hp * levelScale),
-    atk: Math.round(data.atk * levelScale),
-    def: Math.round(data.def * levelScale),
+    hp: Math.round(data.hp * scale.hp),
+    hpMax: Math.round(data.hp * scale.hp),
+    atk: Math.round(data.atk * scale.atk),
+    def: Math.round(data.def * scale.def),
     element: data.element,
     resist: { ...data.resist },
     mechanic: { ...data.mechanic },

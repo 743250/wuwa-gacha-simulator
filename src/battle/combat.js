@@ -21,12 +21,13 @@ import { fireTrigger, collectWeaponBonus, tickWeaponTriggers } from './weaponTri
 const HAS_HEAVY_ROLES = new Set([
   '忌炎',    // 重击积锐意
   '长离',    // 重击焚身以火
-  '椿',      // 重击连段
   '珂莱塔',  // 重击末路见行
   '菲比',    // 重击星辉
-  '卡提希娅',// 重击 / 强化重击
+  '卡提希娅',// 重击 / 强化重击 (空中攻击)
   '嘉贝莉娜',// 重击炼羽裁决
-  '卡卡罗'   // 重击死告
+  '卡卡罗',  // 重击死告
+  '安可'     // 白咩 / 黑咩重击
+  // 注：椿在原作核心是普攻派生（红椿蕊 → 含苞），模拟器里没有"重击型"，已移出
 ]);
 
 export function getCombatTeamNames(teamNames = S.team) {
@@ -52,7 +53,7 @@ export function createBattle(teamNames, enemyNames, opts = {}) {
 
   const expectedEnemies = (enemyNames || []).filter(Boolean);
   const enemies = expectedEnemies.map((n, idx) => {
-    const e = spawnEnemy(n, opts.enemyScale || 1.0);
+    const e = spawnEnemy(n, opts.enemyStatScale || opts.enemyScale || 1.0);
     if (e) e.idx = idx + 100;
     return e;
   }).filter(Boolean);
@@ -123,6 +124,8 @@ function createTeamUnit(roleName, idx) {
     concerto: 0,                            // 协奏值 0-100
     forteStart: s.forteStart || 0,          // 真实数值角色：开局自带 forte 值
     ruiyi: 0,                               // 忌炎「锐意之势」当前层数（其他角色用不到）
+    verdict: 0,                             // 吟霖「审判值」0-100（其他角色用不到）
+    encoreDisorder: 0,                      // 安可「失序值」0-100（满后重击变白咩/黑咩特殊重击）
     hasHeavy: HAS_HEAVY_ROLES.has(roleName) // 是否有重击（opt-in，默认无重击）
   };
   initForte(unit);
@@ -154,9 +157,17 @@ function calcDamage(attacker, defender, multiplier, dmgType) {
   const elemBase = (attacker.elemBonus?.[attacker.element] || 0) + (attacker.elemAllBonus || 0);
   const elemAdd = wb.elemBonus?.[attacker.element] || 0;
   const elemBonus = 1 + elemBase + elemAdd;
-  // 卡卡罗 burstWindow：普攻/技能 +50%
+  // 强化窗口：卡卡罗 burstWindow、安可黑咩形态等
   const burstWin = attacker.buffs?.find(b => b.type === 'burstWindow');
-  const windowBonus = burstWin && (dmgType === 'normal' || dmgType === 'skill') ? (1 + burstWin.value) : 1;
+  let windowBonus = burstWin && (dmgType === 'normal' || dmgType === 'skill') ? (1 + burstWin.value) : 1;
+  // 安可：共鸣解放·黑咩大暴走后进入黑咩形态
+  // 释放当回合已花 3 AP，所以窗口保留到后续 3 个完整我方回合结束
+  // · 普攻/技能 ×1.5
+  // · 重击（黑咩·暴走之炎）×1.8
+  if (attacker.name === '安可' && (attacker.encoreBlackTurns || 0) > 0) {
+    if (dmgType === 'normal' || dmgType === 'skill') windowBonus *= 1.5;
+    if (dmgType === 'heavy') windowBonus *= 1.8;
+  }
   // 卡提希娅气动侵蚀类 debuff
   let debuffBonus = 1;
   if (defender.debuffs) {
@@ -168,6 +179,22 @@ function calcDamage(attacker, defender, multiplier, dmgType) {
   }
   // 卡提希娅武器条件加成
   if (wb.condBonus) debuffBonus += wb.condBonus;
+  // ★ 吟霖审判印记：所有攻击者命中印记目标时，按印记层数额外增伤（3 链 +15%/层）
+  //   印记本身只是"标记"，倍率收益由攻击者的全队 yinlinMarkVulnPerStack 决定
+  //   吟霖自己额外加 1 链（技能/解放 ×1.7）和 5 链（解放 ×2.0）
+  const mark = defender.judgeMark;
+  if (mark && mark.layers > 0) {
+    const perStack = attacker.yinlinMarkVulnPerStack || 0;
+    if (perStack > 0) debuffBonus += perStack * mark.layers;
+    if (attacker.name === '吟霖') {
+      if ((dmgType === 'skill' || dmgType === 'burst') && attacker.yinlinMarkSkillBonus) {
+        debuffBonus *= (1 + attacker.yinlinMarkSkillBonus);  // 1 链：技能/解放 对印记目标 ×1.7
+      }
+      if (dmgType === 'burst' && attacker.yinlinMarkBurstBonus) {
+        debuffBonus *= (1 + attacker.yinlinMarkBurstBonus);  // 5 链：解放 对印记目标 ×2.0
+      }
+    }
+  }
   // 防御穿透
   const totalPierce = (attacker.pierceDef || 0) + wb.defPierce;
   const defEffective = defender.def * (1 - totalPierce);
@@ -351,6 +378,114 @@ function jiyanGuanShiBuff(self, battle) {
   });
 }
 
+// ===== 安可「失序值 / 黑咩大暴走」状态机 =====
+// 原版思路：安可不是单纯解放 AOE，而是「失序值满 → 特殊重击」+「解放进入黑咩强化形态」。
+// 模拟器抽象：
+//   · 失序值 0-100：普攻 +20 / 共鸣技能 +35 / 普通重击 +20 / 变奏 +30；黑咩窗口内命中额外 +10
+//   · 失序值满时施放重击：消耗 100 失序值，改为白咩·失控之炎 / 黑咩·暴走之炎（按共鸣解放伤害结算）
+//   · 共鸣解放·黑咩大暴走：进入黑咩窗口（释放当回合 + 后续 3 个完整我方回合），普攻/技能/重击强化
+function encoreGainDisorder(self, amount, source, battle) {
+  if (self.name !== '安可') return;
+  const extra = (self.encoreBlackTurns || 0) > 0 ? 10 : 0;
+  const gain = amount + extra;
+  const before = self.encoreDisorder || 0;
+  self.encoreDisorder = Math.min(100, before + gain);
+  if (self.forte?.resourceName === '失序值') {
+    self.forte.current = self.encoreDisorder;
+    self.forte.ready = self.encoreDisorder >= 100;
+  }
+  if (self.encoreDisorder > before) {
+    battle.log.push({
+      type: 'mechanic', src: self.name,
+      msg: `${source} → 失序值 ${self.encoreDisorder}/100${extra ? '（黑咩 +10）' : ''}`
+    });
+  }
+}
+
+
+// 创作者思路：吟霖是「攒审判值 → 引爆印记」的标记型副C
+//   普攻 / 共鸣技能积"审判值"，满 100 自动触发"审判之雷" → 给当前主目标挂"审判印记"
+//   印记挂在敌人身上，所有攻击者命中印记目标时，按印记层数额外增伤（3 链 +15%/层）
+//   吟霖自己 1 链/5 链对印记目标技能/解放追加倍率
+//   2 链：吟霖命中印记目标 +5 审判 +5 能量；4 链：触发审判之雷时全队 atk +20%/2 回合
+//   6 链：解放后 2 回合，吟霖普攻命中印记目标额外触发疾霆昭彰（atk×100% 导电，每回合 1 次）
+const YINLIN_MARK_CAP = 3;
+const YINLIN_MARK_DURATION = 3;
+
+function yinlinGainVerdict(self, amount, source, battle) {
+  if (self.name !== '吟霖') return;
+  const before = self.verdict || 0;
+  self.verdict = Math.min(100, before + amount);
+  if (self.verdict >= 100) {
+    self.verdict = 0;
+    yinlinTriggerJudgment(self, battle, source);
+  } else if (self.verdict > before) {
+    battle.log.push({ type: 'mechanic', src: self.name, msg: `${source} → 审判值 ${self.verdict}/100` });
+  }
+}
+
+// 触发审判之雷：给当前主目标挂印记，全队 atk +20%（4 链）
+function yinlinTriggerJudgment(self, battle, source) {
+  const aliveEnemies = battle.enemies.filter(e => e.alive);
+  if (!aliveEnemies.length) return;
+  const targetIdx = (typeof battle.targetIdx === 'number') ? battle.targetIdx : -1;
+  const target = (battle.enemies[targetIdx] && battle.enemies[targetIdx].alive) ? battle.enemies[targetIdx] : aliveEnemies[0];
+  yinlinAddMark(target, 1);
+  battle.log.push({
+    type: 'mechanic', src: self.name,
+    msg: `审判之雷！${source} 满审判值 → ${target.name} 获得审判印记`
+  });
+  // 4 链：触发审判之雷时全队攻击 +20% / 2 回合
+  if (self.yinlinJudgmentTeamAtk) {
+    const cfg = self.yinlinJudgmentTeamAtk;
+    battle.team.forEach(t => {
+      if (!t.alive) return;
+      t.buffs = (t.buffs || []).filter(b => b.src !== '前行的鼓舞');
+      t.buffs.push({ type: 'atkUp', value: cfg.value, duration: cfg.dur + 1, src: '前行的鼓舞' });
+    });
+    battle.log.push({
+      type: 'mechanic', src: self.name,
+      msg: `前行的鼓舞 · 全队攻击 +${(cfg.value*100).toFixed(0)}%（${cfg.dur} 回合）`
+    });
+  }
+}
+
+// 给敌人加 N 层印记（上限 3，回合数会延续）
+function yinlinAddMark(target, layers) {
+  const before = target.judgeMark;
+  if (before) {
+    target.judgeMark = {
+      layers: Math.min(YINLIN_MARK_CAP, before.layers + layers),
+      remaining: YINLIN_MARK_DURATION
+    };
+  } else {
+    target.judgeMark = { layers: Math.min(YINLIN_MARK_CAP, layers), remaining: YINLIN_MARK_DURATION };
+  }
+}
+
+// 吟霖普攻/技能命中后：若目标有印记，2 链给吟霖 +5 审判 +5 能量；命中本身也叠 1 层
+function yinlinOnHit(self, target, dmgType, battle) {
+  if (self.name !== '吟霖') return;
+  if (!target || !target.judgeMark) return;
+  // 2 链：命中印记目标 +5 审判 +5 能量
+  if (self.yinlinMarkRefund) {
+    self.verdict = Math.min(100, (self.verdict || 0) + self.yinlinMarkRefund.verdict);
+    self.energy = Math.min(self.energyMax, self.energy + self.yinlinMarkRefund.energy);
+  }
+  // 命中再叠 1 层印记（普攻/技能/解放都算）
+  yinlinAddMark(target, 1);
+  // 6 链：解放后 2 回合内，吟霖普攻命中印记目标额外触发疾霆昭彰（每回合 1 次）
+  if (dmgType === 'normal' && self.yinlinJiTingActive && !self._jiTingFiredThisTurn && self.yinlinJiTing) {
+    self._jiTingFiredThisTurn = true;
+    const { dmg, crit } = calcDamage(self, target, self.yinlinJiTing.value, 'skill');
+    const real = dealDamage(target, dmg);
+    battle.log.push({
+      type: 'attack', src: self.name, tgt: target.name, dmg: real, crit,
+      action: '疾霆昭彰（6 链）'
+    });
+  }
+}
+
 // ===== 玩家动作 =====
 
 // 普攻：1 AP，单体，100% atk
@@ -395,6 +530,11 @@ export function doAttack(battle, targetIdx) {
   if (fEnh) consumeForte(self);
   // 触发武器被动：普攻命中
   fireTrigger(self, 'normal_hit', { battle, target });
+  // 安可：普攻积失序；黑咩窗口内额外 +10
+  encoreGainDisorder(self, 20, (self.encoreBlackTurns || 0) > 0 ? '普攻·黑咩·胡闹' : '普攻·羊咩出击', battle);
+  // 吟霖：普攻 +15 审判 + 命中印记回调（2 链 / 6 链疾霆昭彰）
+  yinlinOnHit(self, target, 'normal', battle);
+  yinlinGainVerdict(self, 15, '普攻', battle);
   finishIfBattleEnded(battle, 'win');
   return { ok: true };
 }
@@ -457,11 +597,16 @@ export function doSkill(battle, targetIdx) {
   // 忌炎：共鸣技能积锐意 + 3 链观势
   jiyanGainRuiyi(self, '共鸣技能', battle);
   jiyanGuanShiBuff(self, battle);
+  // 安可：共鸣技能积失序；黑咩窗口内视为黑咩·狂热并额外 +10
+  encoreGainDisorder(self, 35, (self.encoreBlackTurns || 0) > 0 ? '共鸣技能·黑咩·狂热' : '共鸣技能·热力羊咩', battle);
+  // 吟霖：共鸣技能 +30 审判 + 命中印记回调
+  yinlinOnHit(self, target, 'skill', battle);
+  yinlinGainVerdict(self, 30, '共鸣技能', battle);
   finishIfBattleEnded(battle, 'win');
   return { ok: true };
 }
 
-// 共鸣解放：3 AP，能量满，AOE，300% atk
+// 共鸣解放：3 AP，能量满，AOE，主目标 400% / 副目标 200%
 export function doBurst(battle) {
   if (battle.finished || battle.ap < 3) return { ok: false, err: 'AP 不足（需 3）' };
   const self = battle.team[battle.active];
@@ -470,6 +615,9 @@ export function doBurst(battle) {
   if (self.energy < self.energyMax) return { ok: false, err: `能量不足（${self.energy}/${self.energyMax}）` };
   const aliveEnemies = battle.enemies.filter(e => e.alive);
   if (!aliveEnemies.length) return { ok: false, err: '没有目标' };
+  // 主目标 = 当前选中（targetIdx），若死/无效则取第一只活着的
+  const targetIdx = (typeof battle.targetIdx === 'number') ? battle.targetIdx : -1;
+  const primary = (battle.enemies[targetIdx] && battle.enemies[targetIdx].alive) ? battle.enemies[targetIdx] : aliveEnemies[0];
   const fEnh = forteEnhances(self, 'burst');
   // ★ 忌炎「锐意之势」：消耗所有锐意，每层 +100%（6 链 +120%）解放伤害
   //   2 层 = 解放 ×3（默认）；6 链 3 层 = 解放 ×4.6（默认）/ ×4.6（默认 +120%）
@@ -481,7 +629,9 @@ export function doBurst(battle) {
     ruiyiMult = 1.0 + ruiyiUsed * perStack;
     self.ruiyi = 0;
   }
-  const mult = (fEnh ? 3.0 * fEnh.effectMult : 3.0) * ruiyiMult;
+  // 主目标 400%、副目标 200%（命中前结算）。fEnh 的 effectMult 直接乘在双倍率上
+  const baseMain = 4.0 * (fEnh ? fEnh.effectMult : 1.0) * ruiyiMult;
+  const baseSide = 2.0 * (fEnh ? fEnh.effectMult : 1.0) * ruiyiMult;
   if (ruiyiUsed > 0) {
     battle.log.push({
       type: 'mechanic', src: self.name,
@@ -489,11 +639,12 @@ export function doBurst(battle) {
     });
   }
   const results = aliveEnemies.map(e => {
+    const mult = (e === primary) ? baseMain : baseSide;
     const { dmg, crit } = calcDamage(self, e, mult, 'burst');
     const real = dealDamage(e, dmg);
     reduceVibration(e, 30, battle);
     applyReflect(battle, self, e, real);
-    return { tgt: e.name, dmg: real, crit };
+    return { tgt: e.name, dmg: real, crit, primary: e === primary };
   });
   battle.ap -= 3;
   self.energy = 0;
@@ -512,6 +663,15 @@ export function doBurst(battle) {
   if (fEnh && fEnh.effectType === 'burstWindow') {
     self.buffs.push({ type: 'burstWindow', value: fEnh.effectMult - 1, duration: 2 });
     battle.log.push({ type: 'mechanic', src: self.name, msg: `进入强化形态（攻击/技能 +${((fEnh.effectMult-1)*100).toFixed(0)}%，持续 2 回合）` });
+  }
+
+  // ★ 安可：共鸣解放 · 黑咩大暴走 → 进入黑咩形态（释放当回合 + 后续 3 个完整我方回合）
+  if (self.name === '安可') {
+    self.encoreBlackTurns = 4; // endTurn 会立刻 -1；设 4 = 释放当回合 + 后续 3 个完整我方回合
+    battle.log.push({
+      type: 'mechanic', src: self.name,
+      msg: '黑咩大暴走 · 进入黑咩形态（后续 3 回合），普攻/技能/重击获得强化'
+    });
   }
 
   // ★★★ 守岸人核心：共鸣解放 · 终末回环 → 展开「星域」
@@ -579,6 +739,33 @@ export function doBurst(battle) {
       battle.log.push({ type: 'mechanic', src: self.name, msg: `共鸣链 3 · 解放后额外回复 ${refund} 能量（CD ${self.burstEnergyRefundCd||2} 回合）` });
     }
   }
+  // ★ 吟霖：解放后主目标必挂审判印记 + 4 链全队 atk buff + 6 链开启疾霆窗口
+  if (self.name === '吟霖') {
+    yinlinAddMark(primary, 1);
+    battle.log.push({
+      type: 'mechanic', src: self.name,
+      msg: `破天雷灭击 → ${primary.name} 获得审判印记`
+    });
+    if (self.yinlinJudgmentTeamAtk) {
+      const cfg = self.yinlinJudgmentTeamAtk;
+      battle.team.forEach(t => {
+        if (!t.alive) return;
+        t.buffs = (t.buffs || []).filter(b => b.src !== '前行的鼓舞');
+        t.buffs.push({ type: 'atkUp', value: cfg.value, duration: cfg.dur + 1, src: '前行的鼓舞' });
+      });
+      battle.log.push({
+        type: 'mechanic', src: self.name,
+        msg: `前行的鼓舞 · 全队攻击 +${(cfg.value*100).toFixed(0)}%（${cfg.dur} 回合）`
+      });
+    }
+    if (self.yinlinJiTing) {
+      self.yinlinJiTingActive = self.yinlinJiTing.dur + 1;   // +1 因 endTurn 当前回合也会 -1
+      battle.log.push({
+        type: 'mechanic', src: self.name,
+        msg: `疾霆昭彰 · 普攻命中印记目标额外触发（持续 ${self.yinlinJiTing.dur} 回合）`
+      });
+    }
+  }
   battle.log.push({
     type: 'burst', src: self.name, results,
     action: fEnh ? `${fEnh.resourceName}强化解放` : '共鸣解放'
@@ -611,9 +798,18 @@ export function doHeavy(battle, targetIdx) {
   if (self.cd.heavy > 0) return { ok: false, err: `重击冷却中（${self.cd.heavy} 回合）` };
   const target = battle.enemies[targetIdx];
   if (!target || !target.alive) return { ok: false, err: '目标无效' };
-  const { dmg, crit } = calcDamage(self, target, 2.2, 'heavy');
+  // 安可特殊重击：失序值满时，重击改为白咩·失控之炎 / 黑咩·暴走之炎
+  // 官方归类为共鸣解放伤害，因此这里用 dmgType='burst' 结算，但仍消耗 2 AP 和重击 CD。
+  const isEncore = self.name === '安可';
+  const encoreBlack = isEncore && (self.encoreBlackTurns || 0) > 0;
+  const encoreSpecial = isEncore && (self.encoreDisorder || 0) >= 100;
+  const heavyMult = encoreSpecial
+    ? (encoreBlack ? 4.5 : 3.5) * (1 + (self.heavyBonus || 0))
+    : 2.2;
+  const heavyType = encoreSpecial ? 'burst' : 'heavy';
+  const { dmg, crit } = calcDamage(self, target, heavyMult, heavyType);
   const real = dealDamage(target, dmg);
-  reduceVibration(target, 25, battle);
+  reduceVibration(target, encoreSpecial ? 35 : 25, battle);
   applyReflect(battle, self, target, real);
   battle.ap -= 2;
   self.cd.heavy = 1;
@@ -621,7 +817,22 @@ export function doHeavy(battle, targetIdx) {
   gainConcerto(self, 14);
   gainForte(self, 'heavy');
   fireTrigger(self, 'heavy_hit', { battle, target });
-  battle.log.push({ type: 'heavy', src: self.name, tgt: target.name, dmg: real, crit, action: '重击' });
+  let heavyAction = '重击';
+  if (isEncore) {
+    if (encoreSpecial) {
+      heavyAction = encoreBlack ? '黑咩·暴走之炎（失序满）' : '白咩·失控之炎（失序满）';
+      self.encoreDisorder = 0;
+      if (self.forte?.resourceName === '失序值') {
+        self.forte.current = 0;
+        self.forte.ready = false;
+      }
+      battle.log.push({ type: 'mechanic', src: self.name, msg: '消耗失序值 100 → 触发' + (encoreBlack ? '黑咩·暴走之炎' : '白咩·失控之炎') });
+    } else {
+      heavyAction = encoreBlack ? '黑咩·重击' : '重击';
+      encoreGainDisorder(self, 20, encoreBlack ? '黑咩·重击' : '重击', battle);
+    }
+  }
+  battle.log.push({ type: 'heavy', src: self.name, tgt: target.name, dmg: real, crit, action: heavyAction });
   // 忌炎：重击积锐意 + 3 链观势
   jiyanGainRuiyi(self, '重击', battle);
   jiyanGuanShiBuff(self, battle);
@@ -675,6 +886,10 @@ export function doSwitch(battle, toIdx) {
     battle.log.push({ type: 'mechanic', src: prev.name, msg: `协奏满 · ${prev.name} 延奏 → ${target.name} 强化变奏` });
   }
   battle.log.push({ type: 'switch', src: target.name, action: '切换上场' });
+  // 安可：变奏·咩咩帮手命中回复失序值
+  if (target.name === '安可') {
+    encoreGainDisorder(target, 30, '变奏·咩咩帮手', battle);
+  }
   // ★ 忌炎入场（变奏）：积锐意 + 2 链通变 + 5 链明断 + 3 链观势
   if (target.name === '忌炎') {
     jiyanGainRuiyi(target, '变奏入场', battle);
@@ -823,6 +1038,23 @@ export function endTurn(battle) {
     t.debuffs = (t.debuffs || []).filter(d => --d.duration > 0);
     // 守岸人 3 链：burstRefund CD
     if (t._burstRefundCdLeft > 0) t._burstRefundCdLeft--;
+    // 吟霖：6 链疾霆窗口倒计时 + 清"本回合疾霆已触发"标记
+    if (t.name === '吟霖') {
+      if (t.yinlinJiTingActive > 0) {
+        t.yinlinJiTingActive--;
+        if (t.yinlinJiTingActive === 0) {
+          battle.log.push({ type: 'mechanic', src: t.name, msg: '疾霆昭彰 · 效果结束' });
+        }
+      }
+      t._jiTingFiredThisTurn = false;
+    }
+    // 安可：黑咩形态持续时间倒计时
+    if (t.name === '安可' && t.encoreBlackTurns > 0) {
+      t.encoreBlackTurns--;
+      if (t.encoreBlackTurns === 0) {
+        battle.log.push({ type: 'mechanic', src: t.name, msg: '黑咩大暴走结束 · 回到白咩形态' });
+      }
+    }
     // 武器叠层持续时间衰减
     tickWeaponTriggers(t);
   });
@@ -832,6 +1064,13 @@ export function endTurn(battle) {
     if (e._brokenFresh) { e._brokenFresh = false; }
     else if (e.vibrationBroken > 0) e.vibrationBroken--;
     e.debuffs = (e.debuffs || []).filter(d => --d.duration > 0);
+    // 吟霖审判印记倒计时
+    if (e.judgeMark) {
+      e.judgeMark.remaining--;
+      if (e.judgeMark.remaining <= 0) {
+        delete e.judgeMark;
+      }
+    }
   });
 
   // 下一回合，AP 重置，active 找到下一个活着的
