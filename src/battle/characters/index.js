@@ -7,18 +7,18 @@ import jiyan from './jiyan.js';
 import shorekeeper from './shorekeeper.js';
 import yinlin from './yinlin.js';
 import encore from './encore.js';
+import cartethyia from './cartethyia.js';
 
 // 硬编码在此的角色元数据（未做成独立文件的轻量角色直接写在这里）
 const LIGHTWEIGHT = {
   '长离': { hasHeavy: true },
   '珂莱塔': { hasHeavy: true },
   '菲比': { hasHeavy: true },
-  '卡提希娅': { hasHeavy: true },
   '嘉贝莉娜': { hasHeavy: true },
   '卡卡罗': { hasHeavy: true }
 };
 
-const FULL = { '忌炎': jiyan, '守岸人': shorekeeper, '吟霖': yinlin, '安可': encore };
+const FULL = { '忌炎': jiyan, '守岸人': shorekeeper, '吟霖': yinlin, '安可': encore, '卡提希娅': cartethyia };
 
 const ALL = { ...LIGHTWEIGHT, ...FULL };
 

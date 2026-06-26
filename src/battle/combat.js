@@ -17,11 +17,13 @@ import { initForte, gainForte, consumeForte, forteEnhances } from './forte.js';
 import { fireTrigger, collectWeaponBonus, tickWeaponTriggers } from './weaponTriggers.js';
 import { applyEnemyPeriodicMechanic, applyEnemyThresholdMechanic, applyEnemyOnHitMechanic } from './enemyMechanics.js';
 import { hasHeavyAttack } from './characters/index.js';
+import { fireCharacterHook } from './characters/index.js';
 import { ACTION_COST, ACTION_MULTIPLIER, VIBRATION_DAMAGE } from './balance.js';
 import { jiyanGainRuiyi, jiyanGuanShiBuff, jiyanBurstRuiyi, jiyanQiZheng, jiyanSwitchIn } from './characters/jiyan.js';
 import { shorekeeperSkillHeal, shorekeeperStarfield, shorekeeperBurstRefund } from './characters/shorekeeper.js';
 import { yinlinGainVerdict, yinlinOnHit, yinlinBurst, yinlinTurnCleanup } from './characters/yinlin.js';
 import { encoreGainDisorder, encoreStartBlackSheep, encoreTurnCleanup } from './characters/encore.js';
+import { cartethyiaGainResolve, cartethyiaApplyErosion, cartethyiaEnterFurForm, cartethyiaBurstErosion, cartethyiaResolveMultiplier, cartethyiaErosionTick, cartethyiaTurnCleanup, cartethyiaErosionOnBreak, cartethyiaErosionOnSwitchIn, cartethyiaLethalShield } from './characters/cartethyia.js';
 
 export function getCombatTeamNames(teamNames = S.team) {
   const seen = new Set();
@@ -151,9 +153,20 @@ function calcDamage(attacker, defender, multiplier, dmgType) {
   const wb = collectWeaponBonus(attacker, dmgType, { target: defender });
   // buff 中的 atkUp（守岸人 2 链等）
   const buffAtkUp = (attacker.buffs || []).reduce((a, b) => b.type === 'atkUp' ? a + b.value : a, 0);
-  // 临时增强后的攻击
-  const atkWithBuff = attacker.atk * (1 + wb.atkBonus + buffAtkUp);
-  const atkRaw = atkWithBuff * multiplier;
+  // ★ 卡提希娅：HP 核 — 伤害基于生命值而非攻击力（倍率单独取，不复用 ACTION_MULTIPLIER）
+  // HP/ATK ≈ 8.7×，所以 12%HP ≈ 100%ATK，22%HP ≈ 190%ATK，26%HP ≈ 225%ATK
+  const CARTETHYIA_HP_MULT = { normal: 0.12, skill: 0.22, heavy: 0.26, burst: 0.462 };
+  let baseStat;
+  let hpMultOverride = null;
+  if (attacker.name === '卡提希娅') {
+    // 决意增伤
+    const resolveMult = cartethyiaResolveMultiplier(attacker);
+    baseStat = attacker.hp * resolveMult;
+    hpMultOverride = CARTETHYIA_HP_MULT[dmgType] ?? null;
+  } else {
+    baseStat = attacker.atk * (1 + wb.atkBonus + buffAtkUp);
+  }
+  const atkRaw = baseStat * (hpMultOverride !== null ? hpMultOverride : multiplier);
   // 类型加成
   let typeBonus = 1;
   if (dmgType === 'normal') typeBonus += (attacker.normalBonus || 0) + wb.normalBonus;
@@ -166,7 +179,9 @@ function calcDamage(attacker, defender, multiplier, dmgType) {
   // 元素加成
   const elemBase = (attacker.elemBonus?.[attacker.element] || 0) + (attacker.elemAllBonus || 0);
   const elemAdd = wb.elemBonus?.[attacker.element] || 0;
-  const elemBonus = 1 + elemBase + elemAdd;
+  // ★ 卡提希娅 4 链带来的全队 elemAllUp 运行时 buff
+  const elemAllUpBuff = (attacker.buffs || []).reduce((a, b) => b.type === 'elemAllUp' ? a + b.value : a, 0);
+  const elemBonus = 1 + elemBase + elemAdd + elemAllUpBuff;
   // 强化窗口：卡卡罗 burstWindow、安可黑咩形态等
   const burstWin = attacker.buffs?.find(b => b.type === 'burstWindow');
   let windowBonus = burstWin && (dmgType === 'normal' || dmgType === 'skill') ? (1 + burstWin.value) : 1;
@@ -224,6 +239,11 @@ function calcDamage(attacker, defender, multiplier, dmgType) {
   return { dmg, crit: isCrit, resistMult, vibrMult };
 }
 
+// 当前战斗上下文（dealDamage 内的 5 链致命伤等需要 access battle.log）
+let _currentBattle = null;
+export function setCurrentBattle(b) { _currentBattle = b; }
+export function getCurrentBattle() { return _currentBattle; }
+
 // 扣血（处理护盾、防御 buff、敌方特殊减伤）
 function dealDamage(target, dmg) {
   // 防御 buff（玩家角色）
@@ -250,6 +270,12 @@ function dealDamage(target, dmg) {
     if (dmg <= target.shield) { target.shield -= dmg; return 0; }
     else { dmg -= target.shield; target.shield = 0; }
   }
+  // ★ 卡提希娅 5 链 · 将烈风重塑希望：致命伤不倒 + 护盾（每场 1 次）
+  if (target.hp - dmg <= 0 && target.name === '卡提希娅' && target.cartethyiaLethalShield) {
+    if (cartethyiaLethalShield(target, dmg, _currentBattle)) {
+      return 0;
+    }
+  }
   target.hp = Math.max(0, target.hp - dmg);
   if (target.hp <= 0) target.alive = false;
   return dmg;
@@ -272,7 +298,8 @@ function consumeConcerto(unit, battle) {
 
 // 削减敌人破韧值，归零进入易伤 2 回合（破韧瞬间不算）
 // battle 传入用于：破韧瞬间 +2 AP（爆发窗口）
-function reduceVibration(enemy, amount, battle) {
+// attacker (可选)：造成本次破韧的角色；只用于卡提希娅 1 链"破韧瞬间 +1 风蚀"
+function reduceVibration(enemy, amount, battle, attacker) {
   if (!enemy || !enemy.alive) return;
   if (enemy.vibrationBroken > 0) return;   // 已经在易伤期，不再削
   enemy.vibration = Math.max(0, (enemy.vibration ?? 100) - amount);
@@ -284,6 +311,10 @@ function reduceVibration(enemy, amount, battle) {
     if (battle) {
       battle.ap = Math.min((battle.apMax || 4) + 2, battle.ap + 2);
       battle.log.push({ type: 'system', msg: `💥 ${enemy.name} 被击破！+2 AP 爆发窗口` });
+      // ★ 卡提希娅 1 链 · 因命运戴上冠冕：仅当破韧伤害由卡提希娅本人造成时 → 主目标 +1 层风蚀
+      if (attacker && attacker.name === '卡提希娅') {
+        cartethyiaErosionOnBreak(attacker, enemy, battle);
+      }
     }
   }
 }
@@ -516,6 +547,7 @@ function handleAirStars(battle, enemy, helpers) {
 // 普攻：1 AP，单体，100% atk
 // 守岸人 5 链：normalSplit = 2，会额外打一个相邻敌人
 export function doAttack(battle, targetIdx) {
+  _currentBattle = battle;
   if (battle.finished || battle.ap < ACTION_COST.normal) return { ok: false, err: 'AP 不足' };
   const self = battle.team[battle.active];
   if (!self || !self.alive) return { ok: false, err: '当前角色不可行动' };
@@ -526,7 +558,7 @@ export function doAttack(battle, targetIdx) {
   const mult = fEnh ? ACTION_MULTIPLIER.normal * fEnh.effectMult : ACTION_MULTIPLIER.normal;
   const { dmg, crit } = calcDamage(self, target, mult, 'normal');
   const real = dealDamage(target, dmg);
-  reduceVibration(target, VIBRATION_DAMAGE.normal + (fEnh ? VIBRATION_DAMAGE.normalForteBonus : 0), battle);
+  reduceVibration(target, VIBRATION_DAMAGE.normal + (fEnh ? VIBRATION_DAMAGE.normalForteBonus : 0), battle, self);
   applyReflect(battle, self, target, real);
   // 攻击绿泡（罗蕾莱）
   if (target._bubbleHp > 0) {
@@ -558,7 +590,7 @@ export function doAttack(battle, targetIdx) {
       const extra = aliveOthers[Math.floor(Math.random() * aliveOthers.length)];
       const { dmg: dmg2, crit: crit2 } = calcDamage(self, extra, mult, 'normal');
       const real2 = dealDamage(extra, dmg2);
-      reduceVibration(extra, VIBRATION_DAMAGE.normalSplit, battle);
+      reduceVibration(extra, VIBRATION_DAMAGE.normalSplit, battle, self);
       applyReflect(battle, self, extra, real2);
       battle.log.push({
         type: 'attack', src: self.name, tgt: extra.name, dmg: real2, crit: crit2,
@@ -571,6 +603,12 @@ export function doAttack(battle, targetIdx) {
   gainConcerto(self, 8);
   gainForte(self, 'normal');
   if (fEnh) consumeForte(self);
+  // 卡提希娅：普攻叠决意（卡提希娅形态）+ 芙露德莉斯形态下附加风蚀 + 额外能量
+  cartethyiaGainResolve(self, '普攻', battle);
+  cartethyiaApplyErosion(self, target, battle, false);
+  if ((self.cartethyiaFurTurns || 0) > 0) {
+    self.energy = Math.min(self.energyMax, self.energy + 8);
+  }
   // 触发武器被动：普攻命中
   fireTrigger(self, 'normal_hit', { battle, target });
   // 安可：普攻积失序；黑咩窗口内额外 +10
@@ -584,6 +622,7 @@ export function doAttack(battle, targetIdx) {
 
 // 共鸣技能：1 AP，CD 3 回合，单体 180% atk
 export function doSkill(battle, targetIdx) {
+  _currentBattle = battle;
   if (battle.finished || battle.ap < ACTION_COST.skill) return { ok: false, err: 'AP 不足' };
   const self = battle.team[battle.active];
   if (!self || !self.alive) return { ok: false, err: '当前角色不可行动' };
@@ -596,7 +635,7 @@ export function doSkill(battle, targetIdx) {
   const mult = fEnh && fEnh.effectMult ? ACTION_MULTIPLIER.skill * fEnh.effectMult : ACTION_MULTIPLIER.skill;
   const { dmg, crit } = calcDamage(self, target, mult, 'skill');
   const real = dealDamage(target, dmg);
-  reduceVibration(target, VIBRATION_DAMAGE.skill + (fEnh ? VIBRATION_DAMAGE.skillForteBonus : 0), battle);
+  reduceVibration(target, VIBRATION_DAMAGE.skill + (fEnh ? VIBRATION_DAMAGE.skillForteBonus : 0), battle, self);
   applyReflect(battle, self, target, real);
   battle.ap -= ACTION_COST.skill;
   self.cd.skill = Math.max(1, 3 - (self.skillCdReduce || 0));
@@ -607,6 +646,12 @@ export function doSkill(battle, targetIdx) {
   shorekeeperSkillHeal(self, battle);
 
   if (fEnh) consumeForte(self);
+  // 卡提希娅：共鸣技能叠决意 + 芙露德莉斯形态下附加风蚀 + 额外能量
+  cartethyiaGainResolve(self, '共鸣技能', battle);
+  cartethyiaApplyErosion(self, target, battle, false);
+  if ((self.cartethyiaFurTurns || 0) > 0) {
+    self.energy = Math.min(self.energyMax, self.energy + 8);
+  }
 
   if (fEnh && fEnh.effectType === 'erosion') {
     target.debuffs = target.debuffs || [];
@@ -637,6 +682,7 @@ export function doSkill(battle, targetIdx) {
 
 // 共鸣解放：3 AP，能量满，AOE，主目标 400% / 副目标 200%
 export function doBurst(battle) {
+  _currentBattle = battle;
   if (battle.finished || battle.ap < ACTION_COST.burst) return { ok: false, err: `AP 不足（需 ${ACTION_COST.burst}）` };
   const self = battle.team[battle.active];
   if (!self || !self.alive) return { ok: false, err: '当前角色不可行动' };
@@ -650,14 +696,76 @@ export function doBurst(battle) {
   const fEnh = forteEnhances(self, 'burst');
   // ★ 忌炎「锐意之势」：消耗所有锐意，每层 +100%（6 链 +120%）解放伤害
   const { ruiyiMult } = jiyanBurstRuiyi(self, battle);
-  // 主目标 400%、副目标 200%（命中前结算）。fEnh 的 effectMult 直接乘在双倍率上
+  // ===== 卡提希娅双阶段解放 =====
+  if (self.name === '卡提希娅') {
+    const inFurForm = (self.cartethyiaFurTurns || 0) > 0;
+
+    // ---- 第二次解放：芙露德莉斯形态下 · 看潮怒风哮之刃 ----
+    if (inFurForm) {
+      const { erosionMult, erosionConsumed } = cartethyiaBurstErosion(self, battle);
+      // 官方「看潮怒风哮之刃」倍率：6.60%×7 = 46.2% 最大生命（Lv1 简化值）
+      // 3 链 +60% 最大生命 / 6 链风蚀翻倍 + 立即结算 + 不清空（在 cartethyiaBurstErosion 内处理）
+      const chain3Bonus = self.cartethyiaBurstHpBonus || 0;
+      const baseMain = (0.462 + chain3Bonus) * erosionMult;
+      const baseSide = (0.462 + chain3Bonus) * erosionMult * 0.5;
+      const results = aliveEnemies.map(e => {
+        const mult = (e === primary) ? baseMain : baseSide;
+        const { dmg, crit } = calcDamage(self, e, mult, 'burst');
+        const real = dealDamage(e, dmg);
+        reduceVibration(e, VIBRATION_DAMAGE.burst, battle, self);
+        applyReflect(battle, self, e, real);
+        return { tgt: e.name, dmg: real, crit, primary: e === primary };
+      });
+      battle.ap -= ACTION_COST.burst;
+      self.energy = 0;
+      gainConcerto(self, 30);
+      gainForte(self, 'burst');
+      if (fEnh) consumeForte(self);
+      fireTrigger(self, 'burst_cast', { battle });
+      battle.log.push({
+        type: 'burst', src: self.name, results,
+        action: '共鸣解放 · 看潮怒风哮之刃（风蚀爆发）'
+      });
+      finishIfBattleEnded(battle, 'win');
+      return { ok: true };
+    }
+
+    // ---- 第一次解放：听骑士从心祈愿（卡提希娅形态 → 芙露德莉斯）----
+    // 官方此技能无伤害倍率，是纯化身技能
+    cartethyiaEnterFurForm(self, battle);
+    self.energy = 0;
+    battle.ap -= ACTION_COST.burst;
+    gainConcerto(self, 30);
+    gainForte(self, 'burst');
+    if (fEnh) consumeForte(self);
+    fireTrigger(self, 'burst_cast', { battle });
+    battle.log.push({
+      type: 'burst', src: self.name, results: [],
+      action: '共鸣解放 · 听骑士从心祈愿（进入芙露德莉斯形态）'
+    });
+    finishIfBattleEnded(battle, 'win');
+    return { ok: true };
+    battle.ap -= ACTION_COST.burst;
+    gainConcerto(self, 30);
+    gainForte(self, 'burst');
+    if (fEnh) consumeForte(self);
+    fireTrigger(self, 'burst_cast', { battle });
+    battle.log.push({
+      type: 'burst', src: self.name, results: fResults,
+      action: '共鸣解放 · 听骑士从心祈愿（进入芙露德莉斯形态）'
+    });
+    finishIfBattleEnded(battle, 'win');
+    return { ok: true };
+  }
+
+  // ===== 非卡提希娅·原逻辑 =====
   const baseMain = ACTION_MULTIPLIER.burstMain * (fEnh ? fEnh.effectMult : 1.0) * ruiyiMult;
   const baseSide = ACTION_MULTIPLIER.burstSide * (fEnh ? fEnh.effectMult : 1.0) * ruiyiMult;
   const results = aliveEnemies.map(e => {
     const mult = (e === primary) ? baseMain : baseSide;
     const { dmg, crit } = calcDamage(self, e, mult, 'burst');
     const real = dealDamage(e, dmg);
-    reduceVibration(e, VIBRATION_DAMAGE.burst, battle);
+    reduceVibration(e, VIBRATION_DAMAGE.burst, battle, self);
     applyReflect(battle, self, e, real);
     return { tgt: e.name, dmg: real, crit, primary: e === primary };
   });
@@ -720,6 +828,7 @@ export function doBurst(battle) {
 
 // 重击：2 AP，CD 1，220% atk · 重击伤害类型 · 削破韧 25
 export function doHeavy(battle, targetIdx) {
+  _currentBattle = battle;
   if (battle.finished || battle.ap < ACTION_COST.heavy) return { ok: false, err: `AP 不足（需 ${ACTION_COST.heavy}）` };
   const self = battle.team[battle.active];
   if (!self || !self.alive) return { ok: false, err: '当前角色不可行动' };
@@ -739,7 +848,7 @@ export function doHeavy(battle, targetIdx) {
   const heavyType = encoreSpecial ? 'burst' : 'heavy';
   const { dmg, crit } = calcDamage(self, target, heavyMult, heavyType);
   const real = dealDamage(target, dmg);
-  reduceVibration(target, encoreSpecial ? VIBRATION_DAMAGE.heavySpecial : VIBRATION_DAMAGE.heavy, battle);
+  reduceVibration(target, encoreSpecial ? VIBRATION_DAMAGE.heavySpecial : VIBRATION_DAMAGE.heavy, battle, self);
   applyReflect(battle, self, target, real);
   battle.ap -= ACTION_COST.heavy;
   self.cd.heavy = 1;
@@ -783,6 +892,12 @@ export function doHeavy(battle, targetIdx) {
       battle.log.push({ type: 'mechanic', src: self.name, msg: '击破绿泡！全队获得治疗' });
     }
   }
+  // 卡提希娅：重击叠决意 + 芙露德莉斯形态下附加风蚀 + 额外能量
+  cartethyiaGainResolve(self, '重击', battle);
+  cartethyiaApplyErosion(self, target, battle, false);
+  if ((self.cartethyiaFurTurns || 0) > 0) {
+    self.energy = Math.min(self.energyMax, self.energy + 8);
+  }
   // 忌炎：重击积锐意 + 3 链观势
   jiyanGainRuiyi(self, '重击', battle);
   jiyanGuanShiBuff(self, battle);
@@ -793,6 +908,7 @@ export function doHeavy(battle, targetIdx) {
 // 投掷残骸（聚械机偶特殊动作 · 0 AP）
 // 仅当 BOSS 掉落残骸时可使用
 export function doDebris(battle) {
+  _currentBattle = battle;
   if (battle.finished) return { ok: false, err: '战斗已结束' };
   const self = battle.team[battle.active];
   if (!self || !self.alive || self.frozenTurns > 0) return { ok: false, err: '当前角色不可行动' };
@@ -810,6 +926,7 @@ export function doDebris(battle) {
 // 每次切人触发简化版变奏（入场角色对敌方一击 + 削破韧）
 // 协奏满时强化：变奏伤害提升 + 武器 outro/variation 触发器激活
 export function doSwitch(battle, toIdx) {
+  _currentBattle = battle;
   if (battle.finished) return { ok: false, err: '战斗已结束' };
   if (toIdx === battle.active) return { ok: false, err: '已在该角色' };
   if (battle.switchUsedThisTurn) return { ok: false, err: '本回合已经切换过角色' };
@@ -841,12 +958,14 @@ export function doSwitch(battle, toIdx) {
     }
     const { dmg, crit } = calcDamage(target, tgt, variMult, 'normal');
     const real = dealDamage(tgt, dmg);
-    reduceVibration(tgt, concertoFull ? VIBRATION_DAMAGE.concertoVariation : VIBRATION_DAMAGE.variation, battle);
+    reduceVibration(tgt, concertoFull ? VIBRATION_DAMAGE.concertoVariation : VIBRATION_DAMAGE.variation, battle, target);
     applyReflect(battle, target, tgt, real);
     battle.log.push({
       type: 'attack', src: target.name, tgt: tgt.name, dmg: real, crit,
       action: target.variationBonus > 0 ? '强化变奏 · 6链' : (concertoFull ? '强化变奏' : '变奏')
     });
+    // ★ 卡提希娅 2 链 · 听风潮斩断利刃：变奏上场 → 主目标 +1 层风蚀
+    cartethyiaErosionOnSwitchIn(target, tgt, battle);
   }
   // 协奏值满时清空 + 触发 variation 武器被动
   if (concertoFull) {
@@ -865,6 +984,7 @@ export function doSwitch(battle, toIdx) {
 
 // 我方结束回合，敌方出手
 export function endTurn(battle) {
+  _currentBattle = battle;
   if (battle.finished) return;
   const enemyHelpers = { dealDamage, enemyAttack, inflictFreeze, lockSkill, pickTeamTarget, spawnEnemy };
 
@@ -891,6 +1011,9 @@ export function endTurn(battle) {
     }
 
     // ---- 特殊 pre-attack 效果 ----
+
+    // ★ 卡提希娅风蚀效应：敌人回合开始时受到伤害
+    cartethyiaErosionTick(enemy, battle);
 
     // 叹息古龙：电锯召唤 & 电锯攻击
     if (enemy.mechanic?.type === 'burn_team' && enemy.mechanic?.sawCycle) {
@@ -1016,6 +1139,7 @@ export function endTurn(battle) {
     if (t._wallLocked > 0) t._wallLocked--;
     yinlinTurnCleanup(t, battle);
     encoreTurnCleanup(t, battle);
+    cartethyiaTurnCleanup(t, battle);
     tickWeaponTriggers(t);
   });
 

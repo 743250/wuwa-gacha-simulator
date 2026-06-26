@@ -139,6 +139,76 @@ export const OVERRIDE_STATS = {
   },
   '卡卡罗': {
     stats: { hp: 10500, atk: 437, def: 1185, crate: 0.05, cdmg: 1.50, energy: 125, dodge: 0.18 }
+  },
+  // ─── 2.3 限定 ───
+  '赞妮': {
+    stats: { hp: 11075, atk: 425, def: 1222, crate: 0.05, cdmg: 1.50, energy: 125, dodge: 0.18 },
+    bonuses: { elemBonusFixed: 0.12 } // 固有技能：衍射伤害加成 +12%
+  },
+  '夏空': {
+    stats: { hp: 12000, atk: 337, def: 1150, crate: 0.05, cdmg: 1.50, energy: 125, dodge: 0.10 },
+    bonuses: { atkBonusFixed: 0.12 }
+  },
+  // ─── 2.4 限定 ───
+  '露帕': {
+    stats: { hp: 10850, atk: 425, def: 1200, crate: 0.10, cdmg: 1.40, energy: 130, dodge: 0.14 }
+  },
+  // ─── 2.5 限定 ───
+  '弗洛洛': {
+    stats: { hp: 10600, atk: 437, def: 1185, crate: 0.05, cdmg: 1.50, energy: 125, dodge: 0.18 }
+  },
+  // ─── 2.6 限定 ───
+  '奥古斯塔': {
+    stats: { hp: 10800, atk: 450, def: 1200, crate: 0.05, cdmg: 1.50, energy: 125, dodge: 0.18 }
+  },
+  '尤诺': {
+    stats: { hp: 11250, atk: 425, def: 1250, crate: 0.05, cdmg: 1.50, energy: 125, dodge: 0.18 }
+  },
+  // ─── 2.7 限定 ───
+  '嘉贝莉娜': {
+    stats: { hp: 10500, atk: 437, def: 1200, crate: 0.05, cdmg: 1.50, energy: 125, dodge: 0.18 }
+  },
+  '仇远': {
+    stats: { hp: 10500, atk: 450, def: 1120, crate: 0.05, cdmg: 1.50, energy: 125, dodge: 0.18 }
+  },
+  // ─── 2.8 限定 ───
+  '千咲': {
+    stats: { hp: 10750, atk: 450, def: 1200, crate: 0.05, cdmg: 1.50, energy: 125, dodge: 0.18 }
+  },
+  // ─── 3.0 限定 ───
+  '琳奈': {
+    stats: { hp: 11000, atk: 400, def: 1200, crate: 0.10, cdmg: 1.40, energy: 130, dodge: 0.14 }
+  },
+  '莫宁': {
+    stats: { hp: 10500, atk: 437, def: 1200, crate: 0.05, cdmg: 1.50, energy: 175, dodge: 0.18 }
+  },
+  // ─── 3.1 限定 ───
+  '爱弥斯': {
+    stats: { hp: 10850, atk: 440, def: 1200, crate: 0.05, cdmg: 1.50, energy: 125, dodge: 0.18 }
+  },
+  '陆·赫斯': {
+    stats: { hp: 12500, atk: 310, def: 1150, crate: 0.05, cdmg: 1.20, energy: 125, dodge: 0.10 }
+  },
+  // ─── 3.2 限定 ───
+  '西格莉卡': {
+    stats: { hp: 10600, atk: 425, def: 1200, crate: 0.05, cdmg: 1.50, energy: 125, dodge: 0.18 }
+  },
+  // ─── 3.3 限定 ───
+  '绯雪': {
+    stats: { hp: 10600, atk: 450, def: 1120, crate: 0.05, cdmg: 1.50, energy: 125, dodge: 0.18 }
+  },
+  '达妮娅': {
+    stats: { hp: 10800, atk: 437, def: 1200, crate: 0.05, cdmg: 1.50, energy: 125, dodge: 0.18 }
+  },
+  // ─── 3.4 限定 ───
+  '露西': {
+    stats: { hp: 10600, atk: 437, def: 1200, crate: 0.05, cdmg: 1.50, energy: 125, dodge: 0.18 }
+  },
+  '丽贝卡': {
+    stats: { hp: 11000, atk: 410, def: 1200, crate: 0.10, cdmg: 1.40, energy: 130, dodge: 0.14 }
+  },
+  '洛瑟菈': {
+    stats: { hp: 11000, atk: 400, def: 1200, crate: 0.10, cdmg: 1.40, energy: 130, dodge: 0.14 }
   }
 };
 
@@ -154,7 +224,7 @@ export function getMeta(roleName) {
 export function getStats(roleName, level = 1, chain = 0) {
   const meta = getMeta(roleName);
   const tpl = TEMPLATES[meta.type];
-  const scale = 0.20 + (level - 1) * (0.80 / 89);    // 1 级 = 20%, 90 级 = 100%
+  const scale = 0.08 + (level - 1) * (0.92 / 89);    // Lv1 ≈ 8%, Lv90 = 100%
 
   // 真实数值覆盖：等级 < 90 时按 scale 衰减
   const override = OVERRIDE_STATS[roleName];

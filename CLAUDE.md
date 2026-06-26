@@ -157,13 +157,16 @@ src/
 
 项目文档索引见 [docs/README.md](docs/README.md)。后续做角色/武器/敌人/副本时按以下来源优先级处理：
 
-1. **官方资料层**：[docs/official/](docs/official/) 记录库街区/游戏内/官方公告的原文要点。
-   - 角色官方资料：[docs/official/characters/](docs/official/characters/)
-   - 守岸人官方资料：[docs/official/characters/shorekeeper.md](docs/official/characters/shorekeeper.md)
-2. **强度榜层**：[docs/tier-list.md](docs/tier-list.md) 只用于数值天花板和 meta 强度，不替代官方技能文本。
-3. **设计层**：[docs/character-design.md](docs/character-design.md)、[docs/design/character-guide.md](docs/design/character-guide.md)、[docs/design/enemy-design.md](docs/design/enemy-design.md)、[docs/design/adventure-balance.md](docs/design/adventure-balance.md) 记录模拟器 AP 回合制抽象。
+1. **官方资料层**：[docs/sources/](docs/sources/) 记录库街区/游戏内/官方公告的原文要点。
+   - 角色官方资料：[docs/sources/characters/](docs/sources/characters/)
+   - 官方角色索引：[docs/sources/characters/README.md](docs/sources/characters/README.md)
+2. **强度榜层**：[docs/sources/tier-list.md](docs/sources/tier-list.md) 只用于数值天花板和 meta 强度，不替代官方技能文本。
+3. **设计层**：[docs/plans/](docs/plans/) 记录模拟器 AP 回合制抽象（角色/敌人/机制/架构实施方案）。
+   - 角色移植：[docs/plans/characters/](docs/plans/characters/)
+   - 敌人移植：[docs/plans/enemies/](docs/plans/enemies/)
+   - 游戏机制移植：[docs/plans/mechanisms/](docs/plans/mechanisms/)
 4. **实现指南层**：本 CLAUDE.md 说明怎么工作、怎么改代码、tooltip 标准和移植路径。
-5. **优化计划层**：[docs/plans/phase-2-optimization.md](docs/plans/phase-2-optimization.md) 记录架构/性能/模块化优化计划（Phase 1 已完成，Phase 2 当前）。
+5. **优化计划层**：[docs/plans/architecture/phase-2.md](docs/plans/architecture/phase-2.md) 记录架构/性能/模块化优化计划（Phase 1 已完成，Phase 2 当前）。
 
 **硬规则**：
 - CLAUDE.md 不是官方事实来源；它可能过时。
@@ -172,91 +175,16 @@ src/
 
 ## 角色移植思路（重要 · 制作单个角色时按这个走）
 
-> 守岸人是第一个**完整移植**的范例，忌炎是第二个。后续每个角色都按这个套路。
+详细的移植思路/研究流程/分级策略见 [docs/plans/README.md](docs/plans/README.md)（与用户讨论后定稿的实施计划）。此处只保留要点：
 
-1. **每个角色一个核心机制**，不要用通用模板，这个核心思路一般参照鸣潮原作者思路
-   - 守岸人 → 「星域」展开（治疗 + 增益）
-   - 忌炎 → 「锐意之势」攒势-解放终结
-   - 所有 6 条共鸣链都围绕**加强这一个核心机制**，不是堆数值
+- 每个角色一个核心机制，6 条共鸣链都围绕加强这一个核心
+- 文案 = 具体数值，tooltip = 计算公式（凡是出现数字的地方都要有 tooltip 公式）
+- 专有名词加术语 tooltip（[src/ui/terms.js](src/ui/terms.js) `TERM_DICT`）
+- 数值先查 [docs/sources/](docs/sources/) 官方资料，再看 [docs/plans/](docs/plans/) 模拟器抽象
+- 重击是 opt-in（[src/battle/characters/index.js](src/battle/characters/index.js) `HAS_HEAVY_ROLES`）
+- 官方/实装/文案冲突时先记录差异再问用户，不擅自改
 
-2. **文案 = 具体数值，tooltip = 计算公式**（铁律）
-   - ❌ 错："对目标造成 100% 攻击力的衍射伤害"
-   - ✅ 对："对目标造成 309 点衍射伤害"，悬停 309 看公式 `= 攻击 309 × 100%`
-   - 数值随角色面板 / 共鸣链动态计算，文案动态生成
-   - tooltip 用 `<span class="tip" data-tip='公式'>`（虚线下划线）
-   - **凡是出现数字的地方都要有 tooltip 公式**，否则会"露出来"显得没做完
-
-3. **专有名词加术语 tooltip**
-   - 「锐意之势」「破阵值」「星域」「协奏」「变奏」等
-   - 在 [src/ui/terms.js](src/ui/terms.js) `TERM_DICT` 加一条解释
-   - 文案用 `<b class="term-resource">锐意之势</b>` 染色后会**自动**被包成 `.tip-term` 触发悬停
-
-4. **共鸣链文案要重写**（chains-extracted.json）
-   - 库街区抓来的官方文案太长太啰嗦，且常引用模拟器没实装的复杂状态
-   - 仿守岸人 / 忌炎在 chains-extracted.json 里**用模拟器版本重写**
-   - 保留 6 个官方标题（"济世 / 通变 / 观势 …"），描述按模拟器实装写
-   - 数值要和 chains.js 的 effect、combat.js 的实装**三处对齐**
-
-5. **数值要先查官方和现有设计，不要凭空发挥**
-   - 先看 [docs/official/](docs/official/) 的官方资料，再看 [docs/character-design.md](docs/character-design.md) 的模拟器抽象。
-   - 官方文本、当前实装、角色界面文案三者不一致时，先记录差异并问用户采用哪一种，不要擅自改。
-   - 若为了模拟器强度做自定义折算，必须明确标注为“模拟器自定义”，不要写成官方效果。
-   - 不确定的写法宁可保守，**不要瞎加倍率**
-
-6. **重击是 opt-in，不是 opt-out**
-   - **需要重击的角色**才加 `hasHeavy: true` flag
-   - 默认所有角色都没有重击，避免误伤
-   - **战斗 UI 同步**：[src/ui/battle.js](src/ui/battle.js) 技能按钮区根据 `cur.hasHeavy` 动态布局 —— 有重击 4 列、无重击 3 列（重击按钮整列移除，**不留灰按钮**）；面板顶部 banner 的"重击 2AP/CD1"也按 hasHeavy 动态显隐
-
-### 移植前研究流程（重要 · 先理解再抽象）
-
-> 角色移植不是把每个技能逐字复刻。先理解原版设计意图，再决定模拟器保留哪一个核心。
-
-每个角色开工前按这个顺序查：
-
-1. **先看完整技能组**（不是只看共鸣链）
-   - 库街区 `getEntryDetail` 里 `modules[1].components[0]` 是技能介绍，`components[1]` 是共鸣链
-   - 必须确认：资源怎么攒、形态怎么进入、持续多久、怎么退出、哪些按钮会被替换
-   - 反例：安可不能只看 5/6 链；她的核心其实是「失序值 + 黑咩大暴走替换普攻/技能/重击」，不是单纯“解放 AOE”
-
-2. **再看 6 条共鸣链**
-   - 共鸣链标题和数值必须来自 `src/data/seq.js` 或库街区官方文案
-   - 禁止编标题、编倍率、编机制（曾经把安可 5/6 链写成不存在的“万圣？开 party！”/“约定？指头钩！”——这是错误）
-
-3. **最后看玩家评价 / 强度榜**
-   - 用 [docs/tier-list.md](docs/tier-list.md) 确定数值天花板
-   - 可参考玩家常见评价判断“这个角色最有记忆点的玩法是什么”（如安可是黑咩爆发窗口，莫特斐是协同，维里奈是后台治疗）
-   - 评价只用于理解手感，不可替代官方技能文本
-
-4. **决定模拟器抽象层级**
-   - 问题不是“原版有几个动作”，而是“模拟器要保留哪个核心决策”
-   - ACT 里的闪避、空中段、二段技能、0.5 秒窗口，通常要折成 AP 回合制里的 1 个资源 / 1 个状态 / 1 个按钮派生
-   - 不要为了“完整还原”给每个角色写专属状态机；游戏会撑不住
-
-### 移植分级策略（重要 · 不要所有角色都按守岸人级别做）
-
-> 38 个角色都按守岸人级别（5 文件 + customLines + CHAIN_BATTLE_EFFECTS）会有两个问题：
-> 1. 工作量爆炸（~8000 行新代码），错率高（凭空 ×2.5 那种）
-> 2. 我们对部分次要角色的机制不熟，硬写 customLines 就是瞎编
-
-按重要程度分三级，**逐级降级是诚实，不是偷懒**：
-
-| 级别 | 文件改动 | 完成度 | 适用角色 |
-|---|---|---|---|
-| **S 级**（守岸人 / 忌炎）| chains.js + combat.js + chains-extracted.json + render.js customLines + terms.js | 结构化战斗 effect + 公式 tooltip + 重写 6 链 + 专属 helper | 真 SS/S 级核心角色 / 独特机制不可用工厂表达者，≈ **8~10 人** |
-| **A 级**（工厂完整）| chains-extracted.json + chains.js 标准 effect + render.js `makeSkillLines` 配置 + terms.js | 公式 tooltip + 官方口吻链文案 + 标准 effect；不写专属 combat helper | 大多数限定 / 常驻强角 / 玩法能用通用 AP 模型表达者，≈ **20+ 人** |
-| **B 级**（最小化）| chains-extracted.json（官方标题 + 简洁染色）+ SKILL_HINTS 简单 intro/normal/skill/burst | 文案染色 + 术语 tooltip；技能区只有简介 | 4★边缘角色 / 不熟的新角色 / 3.x 后期暂不深入者 |
-| **C 级**（只收录）| 不新增机制，只保留 seq.js 原文或 fallback | 可以抽到和升级，但不承诺真实机制 | 明显低强度或资料不足角色 |
-
-**升降级原则**：
-- 先默认 A 级工厂完整，不要动不动升 S
-- A→S 是可以升级的：只有当“这个角色的核心决策无法用 makeSkillLines + 标准 effect 表达”时才升
-- S 级不是奖励强度，而是奖励“机制必要性”：守岸人星域、忌炎锐意这种才值得专属 helper
-- B 级**不是凑数**，是承认我们暂时不懂这个角色的真实玩法。瞎编 customLines 比"裸数文案+染色"更糟
-- 数值不熟就保守 → "宁可保守，不要瞎加倍率"
-
-详细的每个角色设计稿（核心机制 / 6 链作用 / 数值表）见 [docs/character-design.md](docs/character-design.md)。
-真实游戏强度榜（SS/S/A/B/C 分档 · 数值天花板对照表）见 [docs/tier-list.md](docs/tier-list.md) —— **每次设计新角色前先查这表**，不要凭印象排 tier（曾经把吟霖排 T1.5 实际只是 B-Tier）。
+每个角色的具体设计方案见 [docs/plans/characters/](docs/plans/characters/)。
 
 ### 技能/形态文案标准（别把核心机制藏进 tooltip）
 
@@ -319,7 +247,8 @@ src/
 - **守岸人** —「星域」展开（治疗 + 增益）· 无重击 · **S 级 / SS-Tier**
 - **忌炎** —「锐意之势」攒势解放 · 6 链锐意上限 2→3，每层 +120% · **S 级 / A-Tier**
 - **吟霖** —「审判印记」标记型副C · 全队蹭印记目标 · 无重击 · **S 级 / B-Tier**（按 2026.6.18 实际强度榜下调）
-- **2026-06-24 批量**：今汐 / 长离 / 折枝 / 相里要 / 椿 / 珂莱塔 / 洛可可 / 菲比 / 布兰特 / 坎特蕾拉 + 重做卡提希娅 / 嘉贝莉娜 / 卡卡罗 共 13 个限定角色 · A 级（工厂版 customLines）· 1.1 → 2.2 限定全部完成
+- **2026-06-24 批量**：今汐 / 长离 / 折枝 / 相里要 / 椿 / 珂莱塔 / 洛可可 / 菲比 / 布兰特 / 坎特蕾拉 + 嘉贝莉娜 / 卡卡罗 共 12 个限定角色 · A 级（工厂版 customLines）· 1.1 → 2.2 限定全部完成
+- **卡提希娅** —「标记 / 芙露德莉斯 / 风蚀」双形态主C · HP 核 · 双阶段解放 · **S 级 / SS-Tier** · 专属 237 行状态机
 - **2026-06-24 第二批**：常驻 5★ 维里奈 / 安可 / 凌阳 / 鉴心 + 12 个 4★ 角色（莫特斐/散华/卜灵/丹瑾/白芷/秋水/炽霞/秧秧/桃祈/渊武/釉瑚/灯灯）共 **16 个**角色 · 全部用工厂版 customLines + chains.js CHAIN_BATTLE_EFFECTS · **2.2 前所有角色完成**
 - **剩余**：2.3+ 角色（赞妮/夏空/露帕/弗洛洛/奥古斯塔/尤诺/仇远/千咲 等 8 个）+ 3.0+ 角色（琳奈/莫宁/爱弥斯/陆·赫斯/绯雪/达妮娅 等 12 个）
 

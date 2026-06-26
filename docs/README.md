@@ -1,95 +1,34 @@
-# 文档体系说明
+# 文档体系
 
-本项目文档按“事实来源 / 设计决策 / 实现指南 / 优化计划”分层，避免把官方原文、模拟器抽象、强度调参和 Claude 操作指南混在一起。
+四类文档:**官方资料 sources/、设计指导 plans/、**分开成角色 / 敌人 / 机制 / 架构四份。
 
-## 1. 官方资料层
+## 数据来源 sources/
 
-目录：[official/](official/)
+官方原文,不掺模拟器自定义。
 
-用途：记录官方/半官方资料原文要点，包括角色、武器、敌人、机制。
+| 目录/文件 | 内容 |
+|---|---|
+| [sources/characters/](sources/characters/) | 51 个角色官方技能/共鸣链原文([README](sources/characters/README.md)) |
+| [sources/enemies/](sources/enemies/) | 敌方数据(世界 BOSS 机制/完整数据库/[README](sources/enemies/README.md)) |
+| [sources/mechanisms/](sources/mechanisms/) | 副本/深塔/海墟/声骸官方数据([dungeons](sources/mechanisms/dungeons.md) · [tower](sources/mechanisms/tower-of-adversity.md) · [wastes](sources/mechanisms/whimpering-wastes.md) · [echo](sources/mechanisms/echo-system.md)) |
+| [sources/tier-list.md](sources/tier-list.md) | 强度榜(数值天花板对照) |
 
-建议结构：
+## 设计指导 plans/
 
-```text
-docs/official/
-  README.md
-  characters/
-    shorekeeper.md
-  weapons/
-  enemies/
-```
+与用户讨论后定稿,指导改代码。四类分开:
 
-规则：
+| 目录 | 内容 |
+|---|---|
+| [plans/characters/README.md](plans/characters/README.md) | **角色设计指导**(模拟器定位 / 移植力度 / 基本思路 / 战斗系数基线) |
+| [plans/enemies/README.md](plans/enemies/README.md) | 敌人设计指导(机制类型 / 数值系统 / 17 BOSS 索引) |
+| [plans/mechanisms/README.md](plans/mechanisms/README.md) | 机制设计指导(副本 / 深塔 / 海墟 / 声骸) |
+| [plans/architecture/README.md](plans/architecture/README.md) | 架构优化计划(与游戏机制无关) |
 
-- 只记录“官方文本 / API 来源 / 抓取日期 / 关键数值”。
-- 可以写“与当前模拟器抽象的关系”，但不要把模拟器自定义说成官方。
-- 修改角色/武器/敌人机制前，先查这里；没有资料就先补。
+单角色 / 单敌人 / 单机制计划分别在对应目录下。
 
-## 2. 强度榜层
+## 硬规则
 
-文件：[tier-list.md](tier-list.md)
-
-用途：决定模拟器数值天花板。
-
-规则：
-
-- 强度榜只决定“数值上限 / 资源投入回报 / 深塔适配强度”。
-- 不能替代官方技能文本。
-- 每次移植新角色前，需要重新确认榜单是否过时。
-
-## 3. 角色设计层
-
-文件：[character-design.md](character-design.md)
-
-用途：把官方技能组折算为模拟器 AP 回合制设计。
-
-规则：
-
-- 这里写“模拟器要怎么做”。
-- 必须引用或对应 [official/](official/) 的官方资料。
-- 明确区分：官方机制、模拟器保留、模拟器舍弃、自定义折算。
-- 不确定的数值要标注“待确认”，不能伪装成官方。
-
-## 4. 敌人与冒险设计层
-
-建议文件：
-
-- [design/enemy-design.md](design/enemy-design.md)
-- [design/adventure-balance.md](design/adventure-balance.md)
-
-用途：管理敌人、机制、副本、深塔、冥歌海墟、版本水温和强度膨胀。
-
-规则：
-
-- 敌人机制优先记录官方表现，再折算为 AP 回合制。
-- 普通副本、周本、深塔应有不同强度目标。
-- 深塔水温 / 副本版本缩放的配置入口是 [../src/battle/balance.js](../src/battle/balance.js)。
-
-## 5. Claude / 实现指南层
-
-文件：[../CLAUDE.md](../CLAUDE.md)
-
-用途：给 Claude Code 的执行规则、项目架构、移植流程、注意事项。
-
-规则：
-
-- CLAUDE.md 是“怎么工作”的指南，不应该单独作为角色官方事实来源。
-- 如果 CLAUDE.md 与 [official/](official/) 或代码实装冲突，先查证并询问用户，不要擅自改角色数值。
-- 角色机制/数值变更必须和用户确认，架构优化不应顺手改角色平衡。
-
-## 6. 优化计划层
-
-建议目录：[plans/](plans/)
-
-用途：记录架构优化、模块化、性能优化、验证脚本等计划。
-
-当前计划：
-
-- [plans/phase-1-optimization.md](plans/phase-1-optimization.md)：Phase 1（已完成 ✅）—— 注册表模式 + 平衡配置集中化
-- [plans/phase-2-optimization.md](plans/phase-2-optimization.md)：Phase 2（当前）—— 测试安全网 + 大文件拆分 + 解耦
-
-规则：
-
-- 优化计划只描述代码组织、性能、验证、边界拆分。
-- 不把角色数值改动混进“优化”。
-- 如果优化过程中发现角色数据疑似问题，先记录到对应官方资料或角色设计文档，再问用户。
+- **设计文档优先**:有角色设计方案时,以 plans/ 的设计文档为准,sources/ 仅作官方数据参考,不作为最终设计依据。
+- 改角色/敌人/机制前,先在 sources/ 查官方,再在 plans/ 写模拟器抽象。
+- 官方资料、当前实装、UI 文案三者冲突,先问用户,不擅自改。
+- 架构优化不顺手改强度。

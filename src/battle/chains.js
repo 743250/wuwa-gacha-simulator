@@ -303,6 +303,32 @@ export function applyChainBonuses(unit) {
         unit.skillTeamAtkBuffValue = (unit.skillTeamAtkBuffValue || 0) + e.value;
         unit.skillTeamAtkBuffDur = Math.max(unit.skillTeamAtkBuffDur || 0, e.duration || 2);
         break;
+      // ===== 卡提希娅·共鸣链（新方向，详见 chainEffects.js 与 cartethyia.js） =====
+      // 3 链 看潮怒风哮之刃倍率 +60% 最大生命（combat.js doBurst 内消费）
+      case 'cartethyiaBurstHpBonus':
+        unit.cartethyiaBurstHpBonus = (unit.cartethyiaBurstHpBonus || 0) + e.value;
+        break;
+      // 1 链 破韧瞬间 → 主目标 +1 层风蚀
+      case 'cartethyiaErosionOnBreak':
+        unit.cartethyiaErosionOnBreak = true;
+        break;
+      // 2 链 变奏上场 → 主目标 +1 层风蚀
+      case 'cartethyiaErosionOnSwitchIn':
+        unit.cartethyiaErosionOnSwitchIn = true;
+        break;
+      // 4 链 附加风蚀时全队元素伤害 +20%/2 回合
+      case 'cartethyiaErosionTeamBuff':
+        unit.cartethyiaErosionTeamBuff = e.value;
+        unit.cartethyiaErosionTeamBuffDur = Math.max(unit.cartethyiaErosionTeamBuffDur || 0, e.duration || 2);
+        break;
+      // 5 链 致命伤不倒 + 20% HP 护盾（每场 1 次）
+      case 'cartethyiaLethalShield':
+        unit.cartethyiaLethalShield = e.value;
+        break;
+      // 6 链 第二次解放：风蚀层数翻倍 + 立即结算 + 不清空
+      case 'cartethyiaBurst2DoubleErosion':
+        unit.cartethyiaBurst2DoubleErosion = true;
+        break;
       // ===== 守岸人 浅析星域 =====
       case 'fieldExtend':
         // 1 链：星域持续 +3 回合 + 切人不消散
