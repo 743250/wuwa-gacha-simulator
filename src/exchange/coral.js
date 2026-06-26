@@ -1,7 +1,6 @@
 // 海市兑换 + 顶部资源条 +号
 import { S, msg } from '../state.js';
-import { cur } from '../gacha/core.js';
-import { standard5 } from '../data/chars.js';
+import { standard5, fourAll, bannerNames } from '../data/chars.js';
 import { openModal } from '../modal.js';
 
 export function openExchangeModal(tideKeyArg, tideNameArg, coralType) {
@@ -40,60 +39,96 @@ ${coralType === 'oscillated' ? `本版本已兑换 <b>${S.oscBuy[tideKeyArg] || 
 window.openExchangeModal = openExchangeModal;
 
 export function openWaveModal() {
-  const b = cur(); if (!b) return msg('无卡池');
-  const n = b.char, std = standard5.some(x => x.startsWith(n)), cost = std ? 270 : 360;
+  const allFiveStars = [...standard5, ...Object.keys(bannerNames).filter(n => !standard5.includes(n) && !fourAll.includes(n))];
+  // 去重（bannerNames 和 standard5 可能重叠）
+  const fiveStars = [...new Set(allFiveStars)];
 
-  // ★ #10：角色波段按缺链上限兑换
-  // 规则：必须拥有该角色（否则去抽完整角色再说），且角色未满 6 链
-  // 缺的链数 = 6 - 当前链数
-  //   差 1 件（缺 1 链） → 只能换 1
-  //   差 2 件及以上 → 可以一次买到 2 个
-  // 同时保持版本期内 waveBuy[n] ≤ 2 的上限（鸣潮商店原始限制）
-  const realName = Object.keys(S.roles).find(x => x === n || x.includes(n)) || n;
-  const owned = S.roles[realName];
-  if (!owned || owned.owned <= 0) {
-    return msg(`没有 ${n}，无法兑换其回音频段`);
+  // 筛选已拥有且未满 6 链的五星角色
+  const candidates = [];
+  for (const name of fiveStars) {
+    const realName = Object.keys(S.roles).find(x => x === name || x.includes(name)) || name;
+    const owned = S.roles[realName];
+    if (!owned || owned.owned <= 0) continue;
+    if (owned.chain >= 6) continue;
+    const isStd = standard5.includes(name);
+    const cost = isStd ? 270 : 360;
+    const lackingChains = 6 - owned.chain;
+    const perVersionLeft = 2 - (S.waveBuy[name] || 0);
+    const lackingLimit = lackingChains >= 2 ? 2 : 1;
+    const maxByLogic = Math.min(perVersionLeft, lackingLimit);
+    const maxByCoral = Math.floor(S.afterglow / cost);
+    const maxN = Math.min(maxByCoral, maxByLogic);
+    candidates.push({ name, realName, owned, cost, lackingChains, maxN, perVersionLeft, isStd });
   }
-  if (owned.chain >= 6) return msg(`${n} 已满 6 链，无需兑换`);
 
-  const lackingChains = 6 - owned.chain;            // 还差几链
-  const perVersionLeft = 2 - (S.waveBuy[n] || 0);   // 本版本剩余 2/2 上限
-  // 按"差 1 → 1 次"、"差 2+ → 2 次"换算单次最多
-  const lackingLimit = lackingChains >= 2 ? 2 : 1;
-  const maxByLogic = Math.min(perVersionLeft, lackingLimit);
-  if (maxByLogic <= 0) {
-    if (perVersionLeft <= 0) return msg('本版本该角色波段已 2/2');
-    return msg('该角色已无可激活的共鸣链');
+  if (candidates.length === 0) {
+    return msg('没有可兑换回音频段的五星角色（已全部满链或尚未拥有）');
   }
-  const maxByCoral = Math.floor(S.afterglow / cost);
-  const maxN = Math.min(maxByCoral, maxByLogic);
-  if (maxN <= 0) return msg(`余波不足，每个回音频段需 ${cost}`);
+
+  // 如果只有一个候选，直接打开兑换
+  if (candidates.length === 1) {
+    openSingleWave(candidates[0]);
+    return;
+  }
+
+  // 多个候选：弹出选择界面
+  window.__waveCandidates = candidates;
+  const rows = candidates.map((c, i) => {
+    const canBuy = c.maxN > 0;
+    return `<div style="border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:6px;background:rgba(255,255,255,.02);display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <b style="font-size:13px">${c.name}</b>
+        <span style="font-size:10px;color:var(--muted);margin-left:6px">${c.isStd ? '常驻' : '限定'}五星</span>
+        <div style="font-size:10px;color:var(--dim);margin-top:2px">链 ${c.owned.chain}/6 · 余波 ${c.cost}/个 · 本版本 ${S.waveBuy[c.name] || 0}/2</div>
+      </div>
+      <button class="mbtn gold" style="font-size:11px;padding:5px 12px" onclick="window.__pickWave(${i})" ${canBuy ? '' : 'disabled'}>${canBuy ? '兑换' : (c.perVersionLeft <= 0 ? '已满' : '余波不足')}</button>
+    </div>`;
+  }).join('');
+
   openModal({
-    title: `兑换 ${n} 回音频段`,
+    title: '回音频段兑换',
+    body: `<div style="font-size:11px;color:var(--muted);margin-bottom:8px">选择要兑换的五星角色（仅显示已拥有且未满链）</div>${rows}`,
+    actions: [{ label: '取消', cls: '', fn: () => {} }]
+  });
+}
+
+// 单角色兑换（原逻辑，提取为独立函数）
+function openSingleWave(c) {
+  const maxByCoral = Math.floor(S.afterglow / c.cost);
+  const maxN = Math.min(maxByCoral, Math.min(c.perVersionLeft, c.lackingChains >= 2 ? 2 : 1));
+  if (maxN <= 0) {
+    if (c.perVersionLeft <= 0) return msg('本版本该角色波段已 2/2');
+    if (c.lackingChains <= 0) return msg('该角色已无可激活的共鸣链');
+    return msg('余波不足');
+  }
+  openModal({
+    title: `兑换 ${c.name} 回音频段`,
     body: `持有 <b class="a">${S.afterglow}</b> 余波珊瑚<br>
-单个回音频段消耗 <b>${cost}</b> 余波（${std ? '常驻' : '限定'} 五星）<br>
-${n} 当前链数 <b>${owned.chain}/6</b> · 还差 <b style="color:var(--gold)">${lackingChains}</b> 链<br>
-${lackingChains >= 2 ? '差 2 及以上链 → 本次最多可换 <b>2</b> 个' : '只差 1 链 → 本次最多可换 <b>1</b> 个'}<br>
-本版本累计已购 <b>${S.waveBuy[n] || 0}/2</b> · 综合可换 <b>${maxN}</b> 个`,
+单个回音频段消耗 <b>${c.cost}</b> 余波（${c.isStd ? '常驻' : '限定'} 五星）<br>
+${c.name} 当前链数 <b>${(S.roles[c.realName]||{}).chain||0}/6</b> · 还差 <b style="color:var(--gold)">${c.lackingChains}</b> 链<br>
+${c.lackingChains >= 2 ? '差 2 及以上链 → 本次最多可换 <b>2</b> 个' : '只差 1 链 → 本次最多可换 <b>1</b> 个'}<br>
+本版本累计已购 <b>${S.waveBuy[c.name] || 0}/2</b> · 综合可换 <b>${maxN}</b> 个`,
     qty: { min: 1, max: maxN, init: 1, presets: [1, 2].filter(v => v <= maxN) },
     actions: [
       { label: '取消', cls: '', fn: () => {} },
       { label: '确认兑换', cls: 'primary', fn: (num) => {
-          const total = num * cost;
+          const total = num * c.cost;
           if (S.afterglow < total) return msg('余波不足');
-          // 二次校验（防 modal 期间数据变化）
-          const o2 = S.roles[realName];
+          const o2 = S.roles[c.realName];
           if (!o2 || o2.chain >= 6) return msg('已满 6 链');
-          S.afterglow -= total; S.waveBuy[n] = (S.waveBuy[n] || 0) + num;
+          S.afterglow -= total; S.waveBuy[c.name] = (S.waveBuy[c.name] || 0) + num;
           o2.spare += num; o2.bought = (o2.bought || 0) + num;
-          S.roles[realName] = o2;
+          S.roles[c.realName] = o2;
           msg(`已获得 ${num} 个回音频段`, false); window.__render();
         }
       }
     ]
   });
 }
-window.openWaveModal = openWaveModal;
+window.__pickWave = (i) => {
+  const c = window.__waveCandidates?.[i];
+  if (c) openSingleWave(c);
+};
 
 const RES_META = {
   radiant: { n: '浮金波纹', from: '星声', rate: 160, desc: '1 个 = 160 星声' },

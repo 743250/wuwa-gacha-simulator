@@ -162,7 +162,9 @@ function calcDamage(attacker, defender, multiplier, dmgType) {
     // 决意增伤
     const resolveMult = cartethyiaResolveMultiplier(attacker);
     baseStat = attacker.hp * resolveMult;
-    hpMultOverride = CARTETHYIA_HP_MULT[dmgType] ?? null;
+    // burst 不走固定倍率覆写——第二次解放·看潮怒风哮之刃的倍率已在 doBurst 中
+    // 按风蚀层数动态计算好（baseMain），此处不应再用硬编码值覆盖
+    hpMultOverride = (dmgType === 'burst') ? null : (CARTETHYIA_HP_MULT[dmgType] ?? null);
   } else {
     baseStat = attacker.atk * (1 + wb.atkBonus + buffAtkUp);
   }

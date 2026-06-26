@@ -117,7 +117,6 @@ export function cartethyiaApplyErosion(self, target, battle, isBurst = false) {
 // 在 reduceVibration 内破韧事件触发时调用
 export function cartethyiaErosionOnBreak(self, target, battle) {
   if (!self || self.name !== '卡提希娅' || !self.cartethyiaErosionOnBreak) return;
-  if (!self.cartethyiaFurTurns) return; // 仅芙露形态下附加（官方设定为形态攻击触发的链效果）
   target.cartethyiaErosion = (target.cartethyiaErosion || 0) + 1;
   battle.log.push({
     type: 'mechanic', src: self.name,
@@ -129,7 +128,6 @@ export function cartethyiaErosionOnBreak(self, target, battle) {
 // 在 doSwitch 变奏命中后调用
 export function cartethyiaErosionOnSwitchIn(self, target, battle) {
   if (!self || self.name !== '卡提希娅' || !self.cartethyiaErosionOnSwitchIn) return;
-  if (!self.cartethyiaFurTurns) return; // 与 1 链一致，仅在芙露形态下触发
   target.cartethyiaErosion = (target.cartethyiaErosion || 0) + 1;
   battle.log.push({
     type: 'mechanic', src: self.name,

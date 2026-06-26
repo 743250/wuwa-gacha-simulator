@@ -1040,14 +1040,19 @@ const CHAIN_TERM_PATTERNS = [
   // 数值百分比 / 数值秒数（最先匹配，避免影响后续文本）
   { re: /(\d+(?:\.\d+)?%)/g,                                                  cls: 'term-num' },
   { re: /(\d+(?:\.\d+)?\s*(?:秒|回合|层|点|次))/g,                            cls: 'term-num' },
-  // 招式术语（长串优先）
+  // 招式术语（长串优先 — 角色专属技能名先匹配，防止贪心截断）
+  { re: /(看潮怒风哮之刃|听骑士从心祈愿)/g,                                    cls: 'term-burst' },
   { re: /(共鸣解放[··]终末回环|共鸣解放|终末回环)/g,                       cls: 'term-burst' },
   { re: /(共鸣技能[··][一-龥]{2,6}|共鸣技能)/g,                   cls: 'term-skill' },
   { re: /(共鸣回路|延奏技能|变奏技能|变奏|延奏|协奏)/g, replaceCls: dynamicTermCls },
   { re: /(重击)/g,                                                            cls: 'term-heavy' },
   { re: /(普攻)/g,                                                            cls: 'term-normal' },
   // 角色独有资源/状态名
-  { re: /(星蝶|星域|破阵值|破阵|离火|韶光|晶体|红椿|杀意|猎杀阈值|决意|气动侵蚀|衍射失序|心眼)/g, cls: 'term-resource' }
+  { re: /(星蝶|星域|破阵值|破阵|离火|韶光|晶体|红椿|杀意|猎杀阈值|决意|气动侵蚀|衍射失序|心眼)/g, cls: 'term-resource' },
+  // 卡提希娅 专属术语
+  { re: /(风蚀效应|芙露德莉斯)/g, cls: 'term-resource' },
+  { re: /(人权|神权|异权)/g, cls: 'term-resource' },
+  { re: /(形态之力)/g, cls: 'term-forte' }
 ];
 
 function dynamicTermCls(t) {

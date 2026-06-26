@@ -12,7 +12,8 @@
     "check:balance": "node scripts/check-balance.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
-    "push": "node scripts/push.mjs"
+    "push": "node scripts/push.mjs",
+    "preview:char": "node scripts/preview-char.mjs"
   },
   "devDependencies": {
     "vite": "^5.4.10",
