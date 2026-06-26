@@ -66,11 +66,11 @@ export const FORTE = {
     desc: '使用技能切换衍射形态，普攻附带衍射状态（×1.5 元素伤害）'
   },
   '卡提希娅': {
-    kind: 'stacks', resourceName: '标记', max: 3,
+    kind: 'stacks', resourceName: '决意', max: 3,
     gainPerNormal: 1, gainPerSkill: 1, gainPerBurst: 0,
-    effectType: 'markBuff',
+    effectType: 'resolveBuff',
     effectMult: 0.10,
-    desc: '普攻/重击/共鸣技能获得 1 层【标记】（上限 3 层），每层气动伤害 +10%，持续 2 回合。满标记时共鸣解放消耗全部标记获得形态之力进入芙露德莉斯形态。'
+    desc: '普攻/重击/共鸣技能获得 1 层【决意】（上限 3 层），每层气动伤害 +10%，持续 2 回合。满决意时共鸣解放消耗全部决意获得形态之力进入芙露德莉斯形态。'
   },
   '嘉贝莉娜': {
     kind: 'threshold', resourceName: '猎杀阈值', max: 100,

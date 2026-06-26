@@ -258,7 +258,7 @@ export const SKILL_HINTS = {
       ];
     },
     forteName: '协奏',
-    forteDesc: '守岸人不依赖专属资源，全部价值集中于<b class="term-burst">共鸣解放</b>展开的<b class="term-resource">星域</b>：每回合治疗、暴击/暴伤/攻击增益。所有共鸣链都用来加强星域。<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>普攻/技能积攒能量与协奏 → 解放展开星域 → 切到主 C → 主 C 在星域加成下输出。'
+    forteDesc: '<b class="term-burst">共鸣解放·终末回环</b>展开<b class="term-resource">星域</b>，为全队提供每回合治疗、暴击率 +20%、暴击伤害 +30%。<br>2 链追加全队攻击 +40%，1 链延长持续并切人不散。<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>普攻/技能积攒能量与协奏 → 解放展开星域 → 切换主力输出 → 在星域加成下输出。'
   },
   '椿': {
     intro: '湮灭 · 迅刀 · 主C · 「红椿蕊 → 含苞形态」',
@@ -341,153 +341,133 @@ export const SKILL_HINTS = {
     forteDesc: '<span style="color:var(--gold);font-size:11px">▸ 形态切换</span><br>· <b style="color:var(--gold)">赦罪</b>（默认）：强化<b class="term-burst">共鸣解放</b>（解放倍率 +225%）<br>· <b style="color:#a78bff">告解</b>：强化<b class="term-heavy">重击·星辉</b>（重击 +249%）+ FFF 镜之环叠满光噪<br>· 施放<b class="term-skill">共鸣技能·FFF</b>消耗 <b>1</b> 点<b class="term-resource">福音</b>切换形态；战斗开始默认赦罪<br><br><span style="color:var(--gold);font-size:11px">▸ 推荐战斗节奏</span><br>普攻铺<b class="term-resource">光噪效应</b> → FFF 召唤<b class="term-resource">镜之环</b> 切换告解 → 重击·星辉爆发 → 再 FFF 切回赦罪 → 共鸣解放·启明之誓愿清场。'
   },
   '卡提希娅': {
-    intro: '气动 · 迅刀 · 主C · 「标记叠层 → 双形态 · 风蚀爆发 · HP 核」',
+    intro: '气动 · 迅刀 · 主C · 「决意叠层 → 双形态 · 风蚀爆发」',
     hasHeavy: true,
     customLines: (stats, role) => {
       const tipAttr = s => s.replace(/&/g, '&amp;').replace(/'/g, '&#39;');
       const chain = role.chain || 0;
       const hp = stats.hp;
-      const atk = stats.atk;
 
-      // ===== 共鸣链参数 =====
-      const markCap = chain >= 4 ? 5 : chain >= 1 ? 4 : 3;        // 标记上限
-      const markDmgPct = chain >= 1 ? 15 : 10;                      // 每层气动伤害
-      const chain2TeamDmg = chain >= 2 ? 0.20 : 0;                  // 进芙露德莉斯时全队增伤
-      const chain3Cdmg = chain >= 3 ? 0.50 : 0;                     // 芙露德莉斯形态暴伤
-      const burstChain4 = chain >= 4 ? 2.0 : 1.0;                   // 芙露德莉斯第二次大招 +100%
-      const chain6Dmg = chain >= 6 ? 1.40 : 1.0;                    // 芙露德莉斯伤害 +40%
-      const chain6ExtraErosion = chain >= 6 ? 1 : 0;                // 额外附加 1 层风蚀
+      // ===== 决意系统（不变）=====
+      const resolveCap = 3;
+      const resolveDmgPct = 10;
+      const resolveBonus = 1 + (resolveCap * resolveDmgPct / 100); // 满决意 = 1.30
 
-      // HP 核倍率
-      const normalMult = 0.08;     // 普攻 HP×8%
-      const skillMult = 0.18;      // 技能 HP×18%
-      const heavyMult = 0.12;      // 重击 HP×12%
-      const burstBaseMult = 0.50;  // 解放 HP×50%（卡提希娅形态）
-      const burstFurMult = 0.60;   // 解放 HP×60%（芙露德莉斯形态，吃风蚀前基础）
+      // ===== HP 核倍率 =====
+      const normalMult = 0.12;
+      const skillMult  = 0.22;
+      const heavyMult  = 0.26;
+      const burstFurBase = 0.462;  // 第二次解放基础倍率
+      const chain3Bonus  = chain >= 3 ? 0.60 : 0;
 
-      // ===== 伤害计算 =====
-      const markBonus = 1 + (markCap * markDmgPct / 100);           // 满标记气动加成
-      const burstFurBase = Math.round(hp * burstFurMult * burstChain4 * chain6Dmg);
-
-      const normalDmg    = Math.round(hp * normalMult * markBonus);
-      const skillDmg     = Math.round(hp * skillMult * markBonus);
-      const heavyDmg     = Math.round(hp * heavyMult * markBonus);
-      const burstMain    = Math.round(hp * burstBaseMult * markBonus);
-      const burstSide    = Math.round(hp * burstBaseMult * 0.5 * markBonus);
-      const burstFurMain = Math.round(burstFurBase * 2.0);          // 显示假设 5 层风蚀时 ×2.0
-      const burstFurSide = Math.round(burstFurBase * 1.0);
-      const varDmg       = Math.round(hp * 0.10 * markBonus);
-      const varConcerto  = Math.round(hp * 0.20 * markBonus);
+      // ===== 伤害数字（满决意时）=====
+      const normalDmg   = Math.round(hp * normalMult * resolveBonus);
+      const skillDmg    = Math.round(hp * skillMult * resolveBonus);
+      const heavyDmg    = Math.round(hp * heavyMult * resolveBonus);
+      // 第二次解放：假设 5 层风蚀（×2.0）用于展示
+      const burstFurMain = Math.round(hp * (burstFurBase + chain3Bonus) * 2.0);
+      const burstFurSide = Math.round(hp * (burstFurBase + chain3Bonus));
+      const varDmg      = Math.round(hp * 0.10 * resolveBonus);
+      const varConcerto = Math.round(hp * 0.20 * resolveBonus);
 
       // ===== tooltips =====
       const normalTip = tipAttr(
-        `<b style="color:var(--gold)">普攻伤害公式（HP 核）</b><br>` +
-        `= 生命 <b>${hp}</b> × ${(normalMult*100).toFixed(0)}%（基础）${markBonus>1?`× 标记增伤 ${markBonus.toFixed(2)}`:''}= <b style="color:var(--text)">${normalDmg}</b><br>` +
-        `<span style="color:var(--muted);font-size:10px">卡提希娅伤害基于生命值，而非攻击力</span>`
+        `<b style="color:var(--gold)">普攻伤害公式</b><br>` +
+        `= 生命 <b>${hp}</b> × ${(normalMult*100).toFixed(0)}% × 满决意 ${resolveBonus.toFixed(2)} = <b style="color:var(--text)">${normalDmg}</b><br>` +
+        `<span style="color:var(--muted);font-size:10px">伤害基于生命值</span>`
       );
       const skillTip = tipAttr(
         `<b style="color:var(--gold)">共鸣技能伤害公式</b><br>` +
-        `= 生命 <b>${hp}</b> × ${(skillMult*100).toFixed(0)}% × 标记 ${markBonus.toFixed(2)} = <b style="color:var(--accent)">${skillDmg}</b>`
+        `= 生命 <b>${hp}</b> × ${(skillMult*100).toFixed(0)}% × 满决意 ${resolveBonus.toFixed(2)} = <b style="color:var(--accent)">${skillDmg}</b>`
       );
       const heavyTip = tipAttr(
         `<b style="color:var(--gold)">重击伤害公式</b><br>` +
-        `= 生命 <b>${hp}</b> × ${(heavyMult*100).toFixed(0)}% × 标记 ${markBonus.toFixed(2)} = <b style="color:#ff8c5e">${heavyDmg}</b>`
-      );
-      const burstTip = tipAttr(
-        `<b style="color:var(--gold)">解放·形态入场（卡提希娅形态）</b><br>` +
-        `· 主目标：生命 <b>${hp}</b> × ${(burstBaseMult*100).toFixed(0)}% × 标记 ${markBonus.toFixed(2)}= <b style="color:#ff8c5e">${burstMain}</b><br>` +
-        `· 副目标：生命 × ${(burstBaseMult*50).toFixed(0)}% × 标记 ${markBonus.toFixed(2)}= <b style="color:#ff8c5e">${burstSide}</b>`
+        `= 生命 <b>${hp}</b> × ${(heavyMult*100).toFixed(0)}% × 满决意 ${resolveBonus.toFixed(2)} = <b style="color:#ff8c5e">${heavyDmg}</b>`
       );
       const burstFurTip = tipAttr(
-        `<b style="color:var(--gold)">解放·风蚀爆发（芙露德莉斯形态）</b><br>` +
-        `· 主目标：生命 <b>${hp}</b> × ${(burstFurMult*100).toFixed(0)}%（基础）${burstChain4>1?`× 链 4 ×${burstChain4.toFixed(1)}`:''}${chain6Dmg>1?`× 链 6 ×${chain6Dmg.toFixed(2)}`:''}= ${burstFurBase}<br>` +
-        `· 风蚀增伤：每层 +20%（假设 5 层 = ×2.0）<br>` +
-        `· 最终主目标：<b style="color:#ff8c5e">${burstFurMain}</b> | 副目标：<b style="color:#ff8c5e">${burstFurSide}</b><br>` +
-        `· 施放后清空敌人所有风蚀层数`
+        `<b style="color:var(--gold)">解放·风蚀爆发伤害公式</b><br>` +
+        `· 基础 = 生命 <b>${hp}</b> × ${(burstFurBase*100).toFixed(1)}%` +
+        (chain3Bonus > 0 ? ` + <b style="color:var(--gold)">链3 ${(chain3Bonus*100).toFixed(0)}%</b>` : '') +
+        `<br>· 每层风蚀 +20%（假设 5 层 = ×2.0）<br>` +
+        `· 主目标：<b style="color:#ff8c5e">${burstFurMain}</b> | 副目标：<b style="color:#ff8c5e">${burstFurSide}</b>`
       );
       const varTip = tipAttr(
         `<b style="color:var(--gold)">变奏伤害公式</b><br>` +
-        `= 生命 <b>${hp}</b> × 10% × 标记 ${markBonus.toFixed(2)} = ${varDmg}<br>` +
-        `· 协奏满：× 20% × 标记 ${markBonus.toFixed(2)} = <b style="color:var(--accent)">${varConcerto}</b>`
+        `= 生命 <b>${hp}</b> × 10% × 满决意 ${resolveBonus.toFixed(2)} = ${varDmg}<br>` +
+        `· 协奏满：× 20% × 满决意 ${resolveBonus.toFixed(2)} = <b style="color:var(--accent)">${varConcerto}</b>`
       );
 
-      // 标记层数说明
-      const markTip = tipAttr(
-        `<b style="color:var(--gold)">【标记】机制</b><br>` +
-        `普攻 / 重击命中时获得 <b>1</b> 层【标记】（上限 ${markCap} 层，持续 2 回合）。<br>` +
-        `获得新标记时刷新全部标记的持续时间。<br>` +
-        `每层标记：气动伤害 +${markDmgPct}%（满 ${markCap} 层 = +${markCap * markDmgPct}%）`
+      // 决意工具提示
+      const resolveTip = tipAttr(
+        `<b style="color:var(--gold)">决意机制</b><br>` +
+        `普攻 / 重击 / 共鸣技能命中获得 <b>1</b> 层【决意】（上限 ${resolveCap} 层，持续 2 回合）。<br>` +
+        `获得新决意时刷新全部持续时间。<br>` +
+        `每层：气动伤害 +${resolveDmgPct}%（满 ${resolveCap} 层 = +${resolveCap * resolveDmgPct}%）`
       );
       const furTip = tipAttr(
         `<b style="color:var(--gold)">芙露德莉斯形态</b><br>` +
-        `持续 <b>3</b> 回合，获得下述强化：<br>` +
-        `· 每次攻击 / 技能对目标附加 <b>1</b> 层<b class="term-resource">风蚀效应</b><br>` +
-        `· 命中时额外回复 <b>+8</b> 共鸣能量` +
-        (chain>=3?`<br>· 暴击伤害 +${(chain3Cdmg*100).toFixed(0)}%（3 链）`:'') +
-        (chain>=2?`<br>· 入场合计：全队全属性伤害 +${(chain2TeamDmg*100).toFixed(0)}%（2 链）`:'') +
-        `<br><br>形态结束时清除【人权】/【神权】/【异权】状态。`
+        `持续 <b>3</b> 回合：<br>` +
+        `· 每次攻击 / 技能附加 <b>1</b> 层<b class="term-resource">风蚀效应</b><br>` +
+        `· 命中额外回复 <b>+8</b> 共鸣能量<br>` +
+        `· 形态结束时清除人权/神权/异权`
       );
 
-      // 共鸣链效果汇总
+      // ===== 共鸣链效果（匹配 chainEffects.js）=====
       let chainHints = '';
       const chainParts = [];
-      if (chain >= 1) chainParts.push(`<span style="color:var(--gold)">[1链]</span> 标记上限 +1（${markCap} 层），每层气动伤害 +${markDmgPct}%（满层 +${markCap*markDmgPct}%）`);
-      if (chain >= 2) chainParts.push(`<span style="color:var(--gold)">[2链]</span> 进入芙露德莉斯形态时，全队全属性伤害 +20%`);
-      if (chain >= 3) chainParts.push(`<span style="color:var(--gold)">[3链]</span> 芙露德莉斯形态下暴击伤害 +50%`);
-      if (chain >= 4) chainParts.push(`<span style="color:var(--gold)">[4链]</span> 标记上限 +1（${markCap} 层）；芙露德莉斯形态下第二次大招倍率 +100%`);
-      if (chain >= 5) chainParts.push(`<span style="color:var(--gold)">[5链]</span> 生命上限 +20%`);
-      if (chain >= 6) chainParts.push(`<span style="color:var(--gold)">[6链]</span> 芙露德莉斯形态下普攻/技能额外附加 1 层风蚀；大招伤害 ×1.4`);
+      if (chain >= 1) chainParts.push(`<span style="color:var(--gold)">[1链]</span> 破韧瞬间 → 主目标 +1 层风蚀效应`);
+      if (chain >= 2) chainParts.push(`<span style="color:var(--gold)">[2链]</span> 变奏上场 → 主目标 +1 层风蚀效应`);
+      if (chain >= 3) chainParts.push(`<span style="color:var(--gold)">[3链]</span> 看潮怒风哮之刃倍率 +60% 最大生命`);
+      if (chain >= 4) chainParts.push(`<span style="color:var(--gold)">[4链]</span> 附加属性效应时全队元素伤害 +20%（2 回合）`);
+      if (chain >= 5) chainParts.push(`<span style="color:var(--gold)">[5链]</span> 致命伤不倒 · 获 20% 生命护盾（每场 1 次）`);
+      if (chain >= 6) chainParts.push(`<span style="color:var(--gold)">[6链]</span> 第二次解放：风蚀翻倍 + 立即结算 + 不清空`);
       if (chainParts.length) chainHints = '<br><span style="color:var(--muted);font-size:10px">共鸣链激活：</span>' + chainParts.join(' · ');
 
       return [
         {
           icon: '⚔', name: '普攻 · 以剑奉读此身', cost: '1 AP',
           color: 'var(--text)',
-          desc: `对目标造成 <span class="tip" data-tip='${normalTip}'><b style="color:var(--text)">${normalDmg}</b> 点</span><b class="term-normal">气动伤害</b>，命中后回复 12 能量、+8 协奏。<br>获得 <b>1</b> 层<span class="tip" data-tip='${markTip}'><b class="term-resource">【标记】</b></span>（上限 ${markCap} 层，持续 2 回合，刷新机制）。`
+          desc: `对目标造成 <span class="tip" data-tip='${normalTip}'><b style="color:var(--text)">${normalDmg}</b> 点</span><b class="term-normal">气动伤害</b>，回复 12 能量、+8 协奏。<br>获得 <b>1</b> 层<span class="tip" data-tip='${resolveTip}'><b class="term-resource">【决意】</b></span>（上限 ${resolveCap} 层，持续 2 回合，刷新机制）。`
         },
         {
           icon: '✦', name: '共鸣技能 · 看潮怒风', cost: '1 AP · 冷却 3 回合',
           color: 'var(--accent)',
-          desc: `对目标造成 <span class="tip" data-tip='${skillTip}'><b style="color:var(--accent)">${skillDmg}</b> 点</span><b class="term-skill">气动伤害</b>，命中后回复 22 能量。<br>获得 <b>1</b> 层<span class="tip" data-tip='${markTip}'><b class="term-resource">【标记】</b></span>（上限 ${markCap} 层，持续 2 回合，刷新机制）。${chain>=6?`<span style="color:var(--gold)">[6链]</span> 芙露德莉斯形态下额外附加 1 层风蚀效应。`:''}`
+          desc: `对目标造成 <span class="tip" data-tip='${skillTip}'><b style="color:var(--accent)">${skillDmg}</b> 点</span><b class="term-skill">气动伤害</b>，回复 22 能量。<br>获得 <b>1</b> 层<span class="tip" data-tip='${resolveTip}'><b class="term-resource">【决意】</b></span>（上限 ${resolveCap} 层，持续 2 回合，刷新机制）。${chain>=6?`<span style="color:var(--gold)">[6链]</span> 芙露德莉斯形态下额外附加 1 层风蚀。`:''}`
         },
         {
-          icon: '💢', name: '重击 · 积攒标记', cost: '2 AP · 冷却 1 回合',
+          icon: '💢', name: '重击 · 积攒决意', cost: '2 AP · 冷却 1 回合',
           color: '#ff8c5e',
-          desc: `对目标造成 <span class="tip" data-tip='${heavyTip}'><b style="color:#ff8c5e">${heavyDmg}</b> 点</span><b class="term-heavy">气动伤害</b>，命中后回复 15 能量。<br>获得 <b>1</b> 层<span class="tip" data-tip='${markTip}'><b class="term-resource">【标记】</b></span>（上限 ${markCap} 层，持续 2 回合，刷新机制）。`
+          desc: `对目标造成 <span class="tip" data-tip='${heavyTip}'><b style="color:#ff8c5e">${heavyDmg}</b> 点</span><b class="term-heavy">气动伤害</b>，回复 15 能量。<br>获得 <b>1</b> 层<span class="tip" data-tip='${resolveTip}'><b class="term-resource">【决意】</b></span>（上限 ${resolveCap} 层，持续 2 回合，刷新机制）。`
         },
         {
-          icon: '⚡', name: '共鸣解放 · 听骑士从心祈愿', cost: `3 AP · 需共鸣能量满 ${stats.maxEnergy || 125}`,
+          icon: '⚡', name: '共鸣解放 · 听骑士从心祈愿', cost: `3 AP · 需能量满 ${stats.maxEnergy || 125}`,
           color: 'var(--gold)',
-          desc: `【卡提希娅形态】释放：对主目标造成 <span class="tip" data-tip='${burstTip}'><b style="color:#ff8c5e">${burstMain}</b> 点</span>、副目标 <span class="tip" data-tip='${burstTip}'><b style="color:#ff8c5e">${burstSide}</b> 点</span><b class="term-burst">气动伤害</b>。<br><br>` +
-                `<b style="color:#a78bff">消耗当前全部【标记】层数</b>，根据层数获得对应的<b class="term-resource">形态之力</b>：<br>` +
+          desc: `<b style="color:#a78bff">进入芙露德莉斯形态，无直接伤害。</b><br><br>` +
+                `<b>消耗当前全部【决意】层数</b>，根据层数获得形态之力：<br>` +
                 `<span style="color:var(--muted)">· 1 层 →</span> <b class="term-resource">人权</b> <span style="color:var(--muted)">· 2 层 →</span> <b class="term-resource">神权</b> <span style="color:var(--muted)">· 3 层 →</span> <b class="term-resource">异权</b><br><br>` +
-                `切换至<span class="tip" data-tip='${furTip}'><b style="color:#a78bff">芙露德莉斯形态</b></span>，持续 <b>3</b> 回合。形态结束时清除【人权】/【神权】/【异权】状态。${chain>=2?`<br><span style="color:var(--gold)">[2链]</span> 入场时全队全属性伤害 +20%`:''}`
+                `切换至<span class="tip" data-tip='${furTip}'><b style="color:#a78bff">芙露德莉斯形态</b></span>，持续 <b>3</b> 回合。${chain>=2?`<br><span style="color:var(--gold)">[2链]</span> 入场时全队全属性伤害 +20%。`:''}`
         },
         {
-          icon: '⚡', name: '共鸣解放 · 看潮怒风哮之刃（芙露德莉斯终结）', cost: `3 AP · 需芙露德莉斯形态中 + 能量满 ${stats.maxEnergy || 125}`,
+          icon: '⚡', name: '共鸣解放 · 看潮怒风哮之刃', cost: `3 AP · 需芙露德莉斯形态中 + 能量满 ${stats.maxEnergy || 125}`,
           color: '#ff6b9d',
           desc: `<span class="tip" data-tip='${burstFurTip}'><b style="color:#ff6b9d">风蚀爆发</b></span>：对主目标造成 <b style="color:#ff8c5e">${burstFurMain}</b> 点、副目标 <b>${burstFurSide}</b> 点<b class="term-burst">气动伤害</b>。<br><br>` +
-                `敌人身上<b>每层【风蚀效应】</b>使此技能伤害 <b>+20%</b>。<br>` +
-                `施放后<b>清空敌人全部风蚀层数</b>，退出芙露德莉斯形态。${chain>=4?`<br><span style="color:var(--gold)">[4链]</span> 芙露德莉斯形态第二次大招倍率 +100%。`:''}${chainHints}`
+                `敌人每层<b class="term-resource">【风蚀效应】</b>使伤害 <b>+20%</b>。<br>` +
+                `施放后清空全部风蚀层数，退出芙露德莉斯形态。${chain>=3?`<br><span style="color:var(--gold)">[3链]</span> 倍率 +60% 最大生命。`:''}${chain>=6?`<br><span style="color:var(--gold)">[6链]</span> 风蚀翻倍 + 立即结算 + 不清空。`:''}${chainHints}`
         },
         {
           icon: '🎵', name: '变奏技能 · 此剑，为自由的未来', cost: '切换上场时触发',
           color: '#c39bff',
-          desc: `切换上场时对主目标造成 <span class="tip" data-tip='${varTip}'><b style="color:var(--accent)">${varDmg}</b>（协奏满 <b>${varConcerto}</b>）点</span><b class="term-variation">气动伤害</b>。`
+          desc: `对主目标造成 <span class="tip" data-tip='${varTip}'><b style="color:var(--accent)">${varDmg}</b>（协奏满 <b>${varConcerto}</b>）点</span><b class="term-variation">气动伤害</b>。`
         }
       ];
     },
-    forteName: '标记 / 风蚀效应',
-    forteDesc: '<span style="color:var(--gold);font-size:11px">▸ HP 核</span><br>卡提希娅的伤害基于<b style="color:#ff8c5e">生命值</b>而非攻击力。<br><br>' +
+    forteName: '决意 / 风蚀效应',
+    forteDesc: '<span style="color:var(--gold);font-size:11px">▸ 决意</span><br>普攻/重击/共鸣技能积攒<b class="term-resource">【决意】</b>（上限 3 层），每层气动伤害 +10%，持续 2 回合。<br><br>' +
       '<span style="color:var(--gold);font-size:11px">▸ 双形态循环</span><br>' +
-      '<b style="color:var(--text)">卡提希娅形态</b>（常态）：普攻/重击/共鸣技能叠<b class="term-resource">【标记】</b>（上限 3 层，每层气动伤害 +10%，持续 2 回合，刷新机制）→ 能量满开解放<br>' +
-      '消耗全部标记进入<b style="color:#a78bff">芙露德莉斯形态</b>（3 回合），根据消耗层数获得人权/神权/异权之力。<br><br>' +
-      '<span style="color:var(--gold);font-size:11px">▸ 芙露德莉斯形态</span><br>' +
-      '· 每次攻击/技能给目标附加 <b>1</b> 层<b class="term-resource">风蚀效应</b><br>' +
-      '· 命中额外回复 <b>+8</b> 共鸣能量<br>' +
-      '· 再次释放解放 → <b class="term-burst">看潮怒风哮之刃</b>：每层风蚀 <b>+20%</b> 伤害，清空全部风蚀后退出形态<br><br>' +
+      '满决意后施放<b class="term-burst">共鸣解放·听骑士从心祈愿</b>进入<b style="color:#a78bff">芙露德莉斯形态</b>（3 回合）。<br>' +
+      '芙露德莉斯形态下：攻击附加<b class="term-resource">风蚀效应</b> · 命中额外回能 · 可施放终结解放。<br><br>' +
       '<span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>' +
-      '普攻/重击/共鸣技能叠满 3 层标记 → 共鸣解放·听骑士从心祈愿进芙露德莉斯形态 → 攻击/技能叠风蚀 + 回复额外能量 → 再次解放·看潮怒风哮之刃（风蚀层数 = 增伤倍率）→ 清空风蚀退出 → 回卡提希娅形态重新叠标记。'
+      '叠满 3 层决意 → 解放·听骑士从心祈愿进芙露德莉斯形态 → 攻击叠风蚀 → 解放·看潮怒风哮之刃爆发 → 回到常态重新循环。'
   },
   '嘉贝莉娜': {
     intro: '热熔 · 佩枪 · 主C · 「余火 + 永恒位格」',
