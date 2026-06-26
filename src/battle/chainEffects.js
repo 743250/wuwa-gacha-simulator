@@ -114,7 +114,7 @@ export const CHAIN_BATTLE_EFFECTS = {
     [{ effect: 'burstDmg', value: 1.00, label: '解放伤害 +100%' }]
   ],
 
-  // 1.2 · 折枝（副C 衍射 迅刀）— A 级
+  // 1.2 · 折枝（副C 冷凝 音感仪）— A 级
   '折枝': [
     [{ effect: 'crate', value: 0.10, label: '共鸣技能后暴击 +10%' }],
     [{ effect: 'burstDmg', value: 0.60, label: '解放伤害 +60%' }],

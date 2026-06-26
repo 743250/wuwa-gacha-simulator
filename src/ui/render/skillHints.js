@@ -148,11 +148,11 @@ export const SKILL_HINTS = {
 
       // ===== 共鸣链相关参数 =====
       const fieldDur   = chain >= 1 ? 5 : 3;
-      const fieldMult  = 1.0;                                // 1 链只延长持续并切人不消散，不放大数值
+      const fieldMult  = chain >= 1 ? 2.5 : 1.0;             // 1 链：增益强度 ×2.5
       const heal4Mult  = chain >= 4 ? 1.7 : 1.0;             // 4 链：持续治疗再 ×1.7
-      const fieldAtkPct  = chain >= 2 ? 40 : 0;
-      const fieldCratePct = 20;
-      const fieldCdmgPct  = 30;
+      const fieldAtkPct  = Math.round((chain >= 2 ? 40 : 0) * fieldMult);
+      const fieldCratePct = Math.round(20 * fieldMult);
+      const fieldCdmgPct  = Math.round(30 * fieldMult);
 
       // ===== 真实伤害/治疗数（命中前结算）=====
       const normalDmg = Math.round(atk * 1.0);
@@ -164,8 +164,8 @@ export const SKILL_HINTS = {
       const skillHealBase  = Math.round(hp * 0.06 + atk * 0.5);
       const skillHealTotal = Math.round(skillHealBase * (1 + healBonus) * heal4Mult);
 
-      // 星域每回合持续治疗（共鸣链 4 / 1 共同放大）
-      const hotTotal = Math.round(atk * 0.8 * heal4Mult * fieldMult);
+      // 星域每回合持续治疗（生命×8% + 攻击×80%）（共鸣链 4 / 1 共同放大）
+      const hotTotal = Math.round((hp * 0.08 + atk * 0.8) * (1 + healBonus) * heal4Mult * fieldMult);
 
       // 变奏伤害（守岸人 6 链：×6 倍率）
       const varDmg       = Math.round(atk * 0.8);
@@ -196,23 +196,28 @@ export const SKILL_HINTS = {
       );
       const hotTip = tipAttr(
         `<b style="color:var(--gold)">星域每回合治疗公式</b><br>` +
-        `= 攻击 <b>${atk}</b> × 80%` +
-        (chain >= 4 ? ` × <b style="color:var(--gold)">共鸣链 4 倍率 1.7</b>` : '') +
+        `= (生命 <b>${hp}</b> × 8% + 攻击 <b>${atk}</b> × 80%)<br>` +
+        `&nbsp;&nbsp;× (1 + 治疗加成 ${(healBonus*100).toFixed(1)}%)` +
+        (chain >= 4 ? `<br>&nbsp;&nbsp;× <b style="color:var(--gold)">共鸣链 4 倍率 1.7</b>` : '') +
+        (chain >= 1 ? `<br>&nbsp;&nbsp;× <b style="color:var(--gold)">共鸣链 1 增益 ×2.5</b>` : '') +
         `<br>= <b style="color:var(--green)">${hotTotal}</b>`
       );
       const crateTip = tipAttr(
         `<b style="color:var(--gold)">星域全队暴击公式</b><br>` +
         `= 基础 <b>20%</b>` +
+        (chain >= 1 ? ` × <b style="color:var(--gold)">共鸣链 1 增益 ×2.5</b>` : '') +
         `<br>= <b style="color:#ffd96b">+${fieldCratePct}%</b>`
       );
       const cdmgTip = tipAttr(
         `<b style="color:var(--gold)">星域全队暴伤公式</b><br>` +
         `= 基础 <b>30%</b>` +
+        (chain >= 1 ? ` × <b style="color:var(--gold)">共鸣链 1 增益 ×2.5</b>` : '') +
         `<br>= <b style="color:#ffd96b">+${fieldCdmgPct}%</b>`
       );
       const fieldAtkTip = chain >= 2 ? tipAttr(
         `<b style="color:var(--gold)">星域全队攻击公式</b>（共鸣链 2）<br>` +
         `= 基础 <b>40%</b>` +
+        (chain >= 1 ? ` × <b style="color:var(--gold)">共鸣链 1 增益 ×2.5</b>` : '') +
         `<br>= <b style="color:#ff8c5e">+${fieldAtkPct}%</b>`
       ) : '';
       const fieldDurTip = tipAttr(
@@ -222,7 +227,7 @@ export const SKILL_HINTS = {
       );
       const fieldTip = tipAttr(
         `<b style="color:var(--gold)">星域总览</b>（持续 <b>${fieldDur}</b> 回合${chain>=1?' · 切人不消散':''}）<br>` +
-        `· 每回合治疗：<b style="color:var(--green)">${hotTotal}</b>（攻击 × 80%${chain>=4?' × 1.7':''}）<br>` +
+        `· 每回合治疗：<b style="color:var(--green)">${hotTotal}</b>（生命×8% + 攻击×80%${chain>=4?' × 1.7':''}${chain>=1?' × 2.5':''}）<br>` +
         `· 全队暴击 +<b style="color:#ffd96b">${fieldCratePct}%</b><br>` +
         `· 全队暴伤 +<b style="color:#ffd96b">${fieldCdmgPct}%</b>` +
         (chain >= 2 ? `<br>· 全队攻击 +<b style="color:#ff8c5e">${fieldAtkPct}%</b>（共鸣链 2）` : '')
@@ -276,7 +281,7 @@ export const SKILL_HINTS = {
     forteDesc: '<span style="color:var(--gold);font-size:11px">▸ 形态切换</span><br>· <b style="color:var(--text)">常态</b>（默认）：普攻 +10 / 技能 +20 <b class="term-resource">红椿蕊</b>（0-100）<br>· <b style="color:var(--gold)">永生花触发</b>：红椿蕊满 <b>100</b> + 协奏值 ≥ <b>50</b> → 下次共鸣技能变为<b style="color:var(--gold)">永生花</b>，消耗资源后进入<b class="term-resource">含苞</b>状态<br>· <b style="color:#c39bff">含苞形态</b>：普攻/技能 ×<b>1.5</b>（6 链 ×<b>2.5</b>）+ 自身攻击 +58%（3 链），持续 <b>3</b> 回合后自动退出<br><br><span style="color:var(--gold);font-size:11px">▸ 推荐战斗节奏</span><br>变奏起手 → 普攻 + 共鸣技能积蕊 + 协奏 → 满 100 蕊后释放<b style="color:var(--gold)">永生花</b>进入含苞 → 含苞 3 回合全程爆发（普攻/技能 ×1.5/×2.5）→ 共鸣解放收尾。'
   },
   '折枝': {
-    intro: '衍射 · 迅刀 · 副C · 「墨鹤召唤协同」',
+    intro: '冷凝 · 音感仪 · 副C · 「墨鹤召唤协同」',
     customLines: makeSkillLines({
       element: '衍射',
       normalName: '挥毫', skillName: '神来之笔', burstName: '虚实境趣', varName: '展卷入场',
@@ -342,7 +347,6 @@ export const SKILL_HINTS = {
   },
   '卡提希娅': {
     intro: '气动 · 迅刀 · 主C · 「决意」与「芙露德莉斯」双形态',
-    hasHeavy: true,
     customLines: (stats, role) => {
       const tipAttr = s => s.replace(/&/g, '&amp;').replace(/'/g, '&#39;');
       const chain = role.chain || 0;
@@ -356,14 +360,12 @@ export const SKILL_HINTS = {
       // ===== HP 核倍率 =====
       const normalMult = 0.12;
       const skillMult  = 0.22;
-      const heavyMult  = 0.26;
       const burstFurBase = 0.462;  // 第二次解放基础倍率
       const chain3Bonus  = chain >= 3 ? 0.60 : 0;
 
       // ===== 伤害数字（满决意时）=====
       const normalDmg   = Math.round(hp * normalMult * resolveBonus);
       const skillDmg    = Math.round(hp * skillMult * resolveBonus);
-      const heavyDmg    = Math.round(hp * heavyMult * resolveBonus);
       // 第二次解放：显示风蚀 0 层基础值，每层 +20% 在 tooltip 中说明
       const burstFurBaseDmg = Math.round(hp * (burstFurBase + chain3Bonus));
       const burstFurMain = burstFurBaseDmg;
@@ -380,10 +382,6 @@ export const SKILL_HINTS = {
       const skillTip = tipAttr(
         `<b style="color:var(--gold)">共鸣技能伤害公式</b><br>` +
         `= 生命 <b>${hp}</b> × ${(skillMult*100).toFixed(0)}% × 满决意 ${resolveBonus.toFixed(2)} = <b style="color:var(--accent)">${skillDmg}</b>`
-      );
-      const heavyTip = tipAttr(
-        `<b style="color:var(--gold)">重击伤害公式</b><br>` +
-        `= 生命 <b>${hp}</b> × ${(heavyMult*100).toFixed(0)}% × 满决意 ${resolveBonus.toFixed(2)} = <b style="color:#ff8c5e">${heavyDmg}</b>`
       );
       const burstFurMainTip = tipAttr(
         `<b style="color:var(--gold)">解放·看潮怒风哮之刃（主目标 · 风蚀 0 层）</b><br>` +
@@ -416,7 +414,7 @@ export const SKILL_HINTS = {
       // 决意工具提示
       const resolveTip = tipAttr(
         `<b style="color:var(--gold)">决意机制</b><br>` +
-        `普攻 / 重击 / 共鸣技能命中获得 <b>1</b> 层【决意】（上限 ${resolveCap} 层，持续 2 回合）。<br>` +
+        `普攻 / 共鸣技能命中获得 <b>1</b> 层【决意】（上限 ${resolveCap} 层，持续 2 回合）。<br>` +
         `获得新决意时刷新全部持续时间。<br>` +
         `每层：气动伤害 +${resolveDmgPct}%（满 ${resolveCap} 层 = +${resolveCap * resolveDmgPct}%）`
       );
@@ -428,16 +426,7 @@ export const SKILL_HINTS = {
         `· 形态结束时清除人权/神权/异权`
       );
 
-      // ===== 共鸣链效果（匹配 chainEffects.js）=====
-      let chainHints = '';
-      const chainParts = [];
-      if (chain >= 1) chainParts.push(`<span style="color:var(--gold)">[1链]</span> 击破韧性时给敌人附加 1 层<b class="term-resource">风蚀效应</b>`);
-      if (chain >= 2) chainParts.push(`<span style="color:var(--gold)">[2链]</span> 变奏上场时给敌人附加 1 层<b class="term-resource">风蚀效应</b>`);
-      if (chain >= 3) chainParts.push(`<span style="color:var(--gold)">[3链]</span> 看潮怒风哮之刃额外附加 60% 最大生命伤害`);
-      if (chain >= 4) chainParts.push(`<span style="color:var(--gold)">[4链]</span> 附加<b class="term-resource">风蚀效应</b>时全队元素伤害 +20%（2 回合）`);
-      if (chain >= 5) chainParts.push(`<span style="color:var(--gold)">[5链]</span> 致命伤锁 1 血并获得 20% 生命护盾（每场 1 次）`);
-      if (chain >= 6) chainParts.push(`<span style="color:var(--gold)">[6链]</span> 解放时<b class="term-resource">风蚀效应</b>层数翻倍，立即触发一次伤害，不清空`);
-      if (chainParts.length) chainHints = '<br><span style="color:var(--muted);font-size:10px">共鸣链激活：</span>' + chainParts.join(' · ');
+      // ===== 共鸣链效果（仅用于对应技能行内，不集中 dump）=====
 
       return [
         {
@@ -451,34 +440,29 @@ export const SKILL_HINTS = {
           desc: `对目标造成 <span class="tip" data-tip='${skillTip}'><b style="color:var(--accent)">${skillDmg}</b> 点</span><b class="term-skill">气动伤害</b>，回复 22 能量。<br>获得 <b>1</b> 层<span class="tip" data-tip='${resolveTip}'><b class="term-resource">【决意】</b></span>（上限 ${resolveCap} 层，持续 2 回合，刷新机制）。`
         },
         {
-          icon: '💢', name: '重击 · 积攒决意', cost: '2 AP · 冷却 1 回合',
-          color: '#ff8c5e',
-          desc: `对目标造成 <span class="tip" data-tip='${heavyTip}'><b style="color:#ff8c5e">${heavyDmg}</b> 点</span><b class="term-heavy">气动伤害</b>，回复 15 能量。<br>获得 <b>1</b> 层<span class="tip" data-tip='${resolveTip}'><b class="term-resource">【决意】</b></span>（上限 ${resolveCap} 层，持续 2 回合，刷新机制）。`
-        },
-        {
           icon: '⚡', name: '共鸣解放 · 听骑士从心祈愿', cost: `3 AP · 需能量满 ${stats.maxEnergy || 125}`,
           color: 'var(--gold)',
           desc: `<b style="color:#a78bff">进入芙露德莉斯形态，无直接伤害。</b><br><br>` +
                 `<b>消耗当前全部【决意】层数</b>，根据层数获得形态之力：<br>` +
                 `<span style="color:var(--muted)">· 1 层 →</span> <b class="term-resource">人权</b> <span style="color:var(--muted)">· 2 层 →</span> <b class="term-resource">神权</b> <span style="color:var(--muted)">· 3 层 →</span> <b class="term-resource">异权</b><br><br>` +
-                `切换至<span class="tip" data-tip='${furTip}'><b style="color:#a78bff">芙露德莉斯形态</b></span>，持续 <b>3</b> 回合。${chain>=2?`<br><span style="color:var(--gold)">[2链]</span> 入场时全队全属性伤害 +20%。`:''}`
+                `切换至<span class="tip" data-tip='${furTip}'><b style="color:#a78bff">芙露德莉斯形态</b></span>，持续 <b>3</b> 回合。${chain>=4?`<br><span style="color:var(--gold)">[4链]</span> 附加风蚀时全队元素伤害 +20%（2 回合）。`:''}`
         },
         {
           icon: '⚡', name: '共鸣解放 · 看潮怒风哮之刃', cost: `3 AP · 需芙露德莉斯形态中 + 能量满 ${stats.maxEnergy || 125}`,
           color: '#ff6b9d',
           desc: `<span class="tip" data-tip='${burstFurTip}'><b style="color:#ff6b9d">风蚀爆发</b></span>：对主目标造成 <span class="tip" data-tip='${burstFurMainTip}'><b style="color:#ff8c5e">${burstFurMain}</b></span> 点、副目标 <span class="tip" data-tip='${burstFurSideTip}'><b>${burstFurSide}</b></span> 点<b class="term-burst">气动伤害</b>（风蚀 <b>0</b> 层时）。<br>` +
                 `敌人每层<b class="term-resource">【风蚀效应】</b>使此技能伤害 <b>+20%</b>（5 层时主目标 <b style="color:#ff8c5e">${Math.round(burstFurMain * 2.0)}</b>）。<br>` +
-                `施放后清空全部<b class="term-resource">风蚀效应</b>层数，退出<b class="term-resource">芙露德莉斯</b>形态。${chain>=3?`<br><span style="color:var(--gold)">[3链]</span> 倍率 +60% 最大生命。`:''}${chain>=6?`<br><span style="color:var(--gold)">[6链]</span> <b class="term-resource">风蚀效应</b>层数翻倍，立即触发一次伤害，不清空层数。`:''}${chainHints}`
+                `施放后清空全部<b class="term-resource">风蚀效应</b>层数，退出<b class="term-resource">芙露德莉斯</b>形态。${chain>=3?`<br><span style="color:var(--gold)">[3链]</span> 倍率 +60% 最大生命。`:''}${chain>=6?`<br><span style="color:var(--gold)">[6链]</span> <b class="term-resource">风蚀效应</b>层数翻倍，立即触发一次伤害，不清空层数。`:''}`
         },
         {
           icon: '🎵', name: '变奏技能 · 此剑，为自由的未来', cost: '切换上场时触发',
           color: '#c39bff',
-          desc: `对主目标造成 <span class="tip" data-tip='${varTip}'><b style="color:var(--accent)">${varDmg}</b>（协奏满 <b>${varConcerto}</b>）点</span><b class="term-variation">气动伤害</b>。`
+          desc: `对主目标造成 <span class="tip" data-tip='${varTip}'><b style="color:var(--accent)">${varDmg}</b>（协奏满 <b>${varConcerto}</b>）点</span><b class="term-variation">气动伤害</b>。${chain>=2?`<br><span style="color:var(--gold)">[2链]</span> 变奏上场时给主目标附加 1 层<b class="term-resource">风蚀效应</b>。`:''}`
         }
       ];
     },
     forteName: '决意 / 风蚀效应',
-    forteDesc: '<span style="color:var(--gold);font-size:11px">▸ 决意</span><br>普攻/重击/共鸣技能积攒<b class="term-resource">【决意】</b>（上限 3 层），每层气动伤害 +10%，持续 2 回合。<br><br>' +
+    forteDesc: '<span style="color:var(--gold);font-size:11px">▸ 决意</span><br>普攻/共鸣技能积攒<b class="term-resource">【决意】</b>（上限 3 层），每层气动伤害 +10%，持续 2 回合。<br><br>' +
       '<span style="color:var(--gold);font-size:11px">▸ 双形态循环</span><br>' +
       '满决意后施放<b class="term-burst">共鸣解放·听骑士从心祈愿</b>进入<b style="color:#a78bff">芙露德莉斯形态</b>（3 回合）。<br>' +
       '芙露德莉斯形态下：攻击附加<b class="term-resource">风蚀效应</b> · 命中额外回能 · 可施放终结解放。<br><br>' +

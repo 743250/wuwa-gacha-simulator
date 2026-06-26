@@ -263,9 +263,11 @@ src/
 - **2026-06-24 第二批**：常驻 5★ 维里奈 / 安可 / 凌阳 / 鉴心 + 12 个 4★ 角色（莫特斐/散华/卜灵/丹瑾/白芷/秋水/炽霞/秧秧/桃祈/渊武/釉瑚/灯灯）共 **16 个**角色 · 全部用工厂版 customLines + chains.js CHAIN_BATTLE_EFFECTS · **2.2 前所有角色完成**
 - **剩余**：2.3+ 角色（赞妮/夏空/露帕/弗洛洛/奥古斯塔/尤诺/仇远/千咲 等 8 个）+ 3.0+ 角色（琳奈/莫宁/爱弥斯/陆·赫斯/绯雪/达妮娅 等 12 个）
 
-## 数据采集：从库街区抓官方共鸣链 / 技能（重要工具说明）
+## 数据采集：三个可用的数据源（重要工具说明）
 
-**库街区** (`wiki.kurobbs.com`) 是国服官方共建 wiki，**所有角色技能、共鸣链文案都在这里**。但它是 SPA（前端 JS 渲染），直接 `curl` 拿到的只是空壳 HTML，必须打它的 API：
+### 1. 库街区官方 API（共鸣链原文）
+
+**库街区** (`wiki.kurobbs.com`) 是国服官方共建 wiki。但它是 SPA，直接 `curl` 拿到的只是空壳 HTML，必须打它的 API：
 
 ```
 POST https://api.kurobbs.com/wiki/core/catalogue/item/getEntryDetail
@@ -327,6 +329,41 @@ cp ~/char-data/chains-extracted.json src/data/chains-extracted.json
 - **文案显示**（角色界面 → 共鸣链 tab）：10 个角色都用官方原文（chains-extracted.json）
 - **战斗折算**（attack/skill/burst 真实加 buff）：目前只有**守岸人**做了结构化覆写（在 [src/battle/chains.js](src/battle/chains.js) 的 `CHAIN_BATTLE_EFFECTS`）；其他 9 个角色文案虽然是官方原文，但战斗中仍走文案正则的简化折算
 - 想给其他角色也做结构化战斗机制：参考守岸人的 `CHAIN_BATTLE_EFFECTS['守岸人']`，列出 6 条 `[{effect, value, ...}]` 即可，combat.js 会按 effect 类型读取
+- **库街区 API 当前状态（2026-06-26）**：`getEntryDetail` 返回"wiki库类型不能为空"，`getPage` 返回"访问令牌不能为空"。**库街区 API 已不可公开访问。**
+
+### 2. encore.moe API（完整面板 + 技能 + 共鸣链 · **首选数据源**）
+
+`encore.moe` 是第三方鸣潮数据库（Black Shores），提供完整角色/武器/声骸/敌人数据。**有公开 REST API，不需要认证**。
+
+```
+Base URL: https://api-v2.encore.moe/api/zh-Hans
+```
+
+**武器**：`GET /api/zh-Hans/weapon` 列表，`GET /api/zh-Hans/weapon/<ItemId>` 详情。Properties 含完整 GrowthValues（`Level`/`Value` 大写），`ResonName`/`Desc` 为技能名+描述。
+
+**角色**：`GET /api/zh-Hans/character` 列表，`GET /api/zh-Hans/character/<RoleId>` 详情。Properties 含 96 级 GrowthValues（**小写** `level`/`value`），`Skills[]` 和 `ResonantChain[]` 含原文。
+
+**关键踩坑**：
+- 根路径返回 Nuxt SPA 空 HTML（638B），必须加 `/api/` 前缀
+- 武器键名大写（`Level`/`Value`），角色键名小写（`level`/`value`）——不一致
+- 角色属性值可能带 `%` 后缀，解析时注意
+- 无认证，无特殊 headers，0.3s 间隔即可，不限速
+
+**已抓取存档**：`docs/sources/weapons/encore-full-data.json`（87 把/39KB）、`docs/sources/characters/encore-full-data.json`（53 人/313KB）
+
+### 3. B站 wiki API（MediaWiki · 限速严重）
+
+`https://wiki.biligame.com/wutheringwaves/api.php?action=parse&prop=wikitext&format=json&formatversion=2&page=武器/<名称>` 可获取结构化 wikitext 模板参数。但连续 2-3 次请求后 HTTP 567 封禁（持续数小时），仅适合单条查证。**武器索引页有约 20 把类型错误，不可作为校准源。**
+
+### 4. 数据源优先级
+
+| 源 | 可用性 | 用途 |
+|----|--------|------|
+| encore.moe API | ✅ | 首选·批量抓取 |
+| B站 wiki API | ⚠️ 限速 | 单条查证 |
+| B站 wiki 渲染页 | ⚠️ | 备选查证 |
+| 库街区 API | ❌ 需认证 | 不可用 |
+| Fandom wiki | ❌ 403 | 不可用 |
 
 ## 工作纪律（AI 必须遵守 · 2026-06-26 由用户立下）
 

@@ -1,11 +1,14 @@
 // 武器数据库 + 计算
-// 数据校准（2026-06，第四轮联网 AI）：13 件武器使用 Fandom 90/90 + R1 真实数据
-// 来源：https://wutheringwaves.fandom.com/wiki/Weapon
+// 数据校准（2026-06-26）：全量 encore.moe API 面板校准
+//   - 5★ 44 把：全部 atk90 / 副词条 / 技能名与 encore 对齐
+//   - 4★ 43 把：全部 atk90 / 副词条与 encore 对齐，被动简化映射
+//   - 3★ 10 把：估算值（encore 未收录 3 星）
+// 来源：docs/sources/weapons/encore-full-data.json
 //
 // 数据结构：
 //   r: 稀有度 3/4/5
 //   type: 武器类型（长刃/迅刀/佩枪/臂铠/音感仪）
-//   atk90: 90 级基础攻击（真实数据：5★大武器 587 / 音感仪 500 / 守岸人专武 412 / 4★ 412 / 3★ 246）
+//   atk90: 90 级基础攻击（encore.moe 官方数据）
 //   sub: 副词条 { stat, value90 }  - value90 是 90 级数值（百分比小数）
 //   passive: 静态被动（无条件生效，进入 stats 时一次性计算）
 //     [{ type, value, element? }]
@@ -19,17 +22,14 @@
 //     condition: 'enemy_has_erosion_aero' 类条件标签
 //   desc: 中文展示文案
 //
-// 数值规律（用于估算未查到的武器）：
-//   5★ 长刃/迅刀/臂铠/佩枪：atk90 = 587
-//   5★ 音感仪：atk90 = 500
-//   5★ 守岸人型副C武器：atk90 = 412（副词条偏 HP / 共鸣效率）
-//   主词条副词条搭配：
-//     主输出武器 = 暴击 24.3% / 暴伤 48.6% / 攻击 36.4%
-//     辅助武器   = 共鸣效率 77% / 生命 72.2%
-//     佩枪暴伤型 = 暴伤 72%
-//     音感仪攻击型 = 攻击 53.9%
-//   4★ 武器：atk90 估算 412 / 副词条按 5★ 的 ~50%
-//   3★ 武器：atk90 估算 246 / 副词条 ~30%
+// 面板规律（encore.moe 实际数据）：
+//   5★ 标准武器：atk90 = 587（长刃/迅刀/臂铠/佩枪）；500（音感仪/佩枪暴伤型/臂铠暴击型）
+//   5★ 辅助武器：atk90 = 412（低攻高副词条）
+//   5★ 特大武器：atk90 = 675（驭冕铸雷之权，牺牲副词条：暴击仅 12.15%）
+//   4★ 高攻型：atk90 = 462（副词条 ~18%）
+//   4★ 标准型：atk90 = 412（副词条 ~30%）
+//   4★ 技巧型：atk90 = 387~388（副词条 ~36%）
+//   4★ 辅助型：atk90 = 337~338（副词条 ~52%）
 
 const W = {
   // ============================================================
@@ -79,13 +79,12 @@ const W = {
   },
 
   // ✅ 守岸人专武：星序协响 Stellar Symphony
-  // 数据来源：库街区 + Fandom，已校准至库街区官方页面
-  // 注：原版"30 秒"折算为 2 回合；"每 12 秒可触发 1 次"折算为模拟器无内置 CD（回合制内回合自带节奏）
+  // 数据来源：encore.moe API 校准
   '星序协响': {
-    r: 5, type: '音感仪', atk90: 500,
-    sub: { stat: 'resonance', value90: 0.518 },   // 共鸣效率 51.8%（90 级满精）
+    r: 5, type: '音感仪', atk90: 412,
+    sub: { stat: 'resonance', value90: 0.7704 },  // 共鸣效率 77.04%
     passive: [
-      { type: 'heal', value: 0.12 }                  // 治疗效果加成 +12%
+      { type: 'hp', value: 0.12 }                   // 生命 +12%
     ],
     triggers: [
       // 解放释放回 8 点协奏能量
@@ -95,7 +94,7 @@ const W = {
     ],
     passiveName: '星之吟咏',
     descFull: '装备者治疗效果加成提升 <b class="term-num">12%</b>。<br>装备者施放<b class="term-burst">共鸣解放</b>时，回复 <b class="term-num">8</b> 点协奏能量。<br>装备者使附近队伍中的角色获得治疗效果时，自身及附近队伍中所有角色的攻击力提升 <b class="term-num">14%</b>，持续 2 回合。',
-    desc: '治疗加成 +12%；释放共鸣解放回复 8 协奏能量；治疗型技能命中后，附近队友攻击 +14%（2 回合）'
+    desc: '共鸣效率+77.04%；释放共鸣解放回复 8 协奏能量；治疗型技能命中后，附近队友攻击 +14%（2 回合）'
   },
 
   // ✅ 椿专武：Red Spring
@@ -192,7 +191,7 @@ const W = {
   // 长离专武（迅刀）— Blazing Brilliance
   '赫奕流明': {
     r: 5, type: '迅刀', atk90: 587,
-    sub: { stat: 'crate', value90: 0.243 },
+    sub: { stat: 'cdmg', value90: 0.486 },
     passive: [
       { type: 'atk_pct', value: 0.12 }
     ],
@@ -206,7 +205,7 @@ const W = {
   // 折枝专武（音感仪）— Comet Flare
   '琼枝冰绡': {
     r: 5, type: '音感仪', atk90: 500,
-    sub: { stat: 'cdmg', value90: 0.486 },
+    sub: { stat: 'cdmg', value90: 0.720 },
     passive: [
       { type: 'atk_pct', value: 0.12 }
     ],
@@ -219,7 +218,7 @@ const W = {
   // 相里要专武（臂铠）— Static Mist 同类
   '诸方玄枢': {
     r: 5, type: '臂铠', atk90: 587,
-    sub: { stat: 'atk_pct', value90: 0.364 },
+    sub: { stat: 'crate', value90: 0.243 },
     passive: [
       { type: 'elem_dmg', element: '导电', value: 0.20 }
     ],
@@ -245,20 +244,32 @@ const W = {
   // 布兰特专武（迅刀，辅助）
   '不灭航路': {
     r: 5, type: '迅刀', atk90: 412,
-    sub: { stat: 'hp', value90: 0.722 },
+    sub: { stat: 'resonance', value90: 0.7704 },
     passive: [
-      { type: 'hp', value: 0.12 }
+      { type: 'crate', value: 0.08 }
     ],
     triggers: [
-      { on: 'outro', effect: 'team_atk', value: 0.18, maxStacks: 1, duration: 12 }
+      { on: 'burst_cast', effect: 'normal_pct', value: 0.24, maxStacks: 1, duration: 5 },
+      { on: 'normal_hit', effect: 'normal_pct', value: 0.24, maxStacks: 1, duration: 4 }
     ],
-    desc: '生命+12%；延奏后全队攻击+18%'
+    desc: '共鸣效率+77.04%；暴击+8%；解放后普攻+24%；普攻后普攻+24%'
   },
 
-  // 坎特蕾拉专武（音感仪）
+  // 坎特蕾拉专武（音感仪）— encore 名为"海的呢喃"
+  '海的呢喃': {
+    r: 5, type: '音感仪', atk90: 500,
+    sub: { stat: 'cdmg', value90: 0.720 },
+    passive: [
+      { type: 'atk_pct', value: 0.12 }
+    ],
+    triggers: [
+      { on: 'skill_hit', effect: 'skill_pct', value: 0.15, maxStacks: 3, duration: 5 }
+    ],
+    desc: '攻击+12%；技能后技能+15%×3 层'
+  },
   '海妖低语': {
     r: 5, type: '音感仪', atk90: 500,
-    sub: { stat: 'cdmg', value90: 0.486 },
+    sub: { stat: 'cdmg', value90: 0.720 },
     passive: [
       { type: 'atk_pct', value: 0.12 }
     ],
@@ -274,15 +285,16 @@ const W = {
 
   // 夏空专武（佩枪，辅助）
   '林间的咏叹调': {
-    r: 5, type: '佩枪', atk90: 412,
-    sub: { stat: 'hp', value90: 0.722 },
+    r: 5, type: '佩枪', atk90: 500,
+    sub: { stat: 'crate', value90: 0.360 },
     passive: [
-      { type: 'hp', value: 0.12 }
+      { type: 'atk_pct', value: 0.12 }
     ],
     triggers: [
-      { on: 'outro', effect: 'team_atk', value: 0.20, maxStacks: 1, duration: 10 }
+      { on: 'skill_hit', effect: 'elem_dmg', value: 0.24, element: '气动', maxStacks: 1, duration: 5 },
+      { on: 'normal_hit', effect: 'elem_res_pen', value: 0.10, element: '气动', maxStacks: 1, duration: 10 }
     ],
-    desc: '生命+12%；延奏后全队攻击+20%'
+    desc: '暴击+36%；攻击+12%；附加风蚀后气动+24%；命中风蚀目标降低气动抗性10%'
   },
 
   // 弗洛洛专武（音感仪）
@@ -324,17 +336,23 @@ const W = {
     desc: '冷凝+20%；技能后冷凝+10%×2 层'
   },
 
-  // 嘉贝莉娜专武（佩枪）
-  '光与影': {
+  // 嘉贝莉娜专武（佩枪）— encore 名为"光影双生"
+  '光影双生': {
     r: 5, type: '佩枪', atk90: 587,
-    sub: { stat: 'crate', value90: 0.243 },
+    sub: { stat: 'cdmg', value90: 0.486 },
     passive: [
-      { type: 'elem_dmg', element: '热熔', value: 0.20 }
+      { type: 'atk_pct', value: 0.12 }
     ],
     triggers: [
       { on: 'heavy_hit', effect: 'heavy_pct', value: 0.15, maxStacks: 3, duration: 5 }
     ],
-    desc: '热熔+20%；重击+15%×3 层'
+    desc: '攻击+12%；暴伤+48.6%；重击+15%×3 层'
+  },
+  '光与影': { r: 5, type: '佩枪', atk90: 587,
+    sub: { stat: 'cdmg', value90: 0.486 },
+    passive: [{ type: 'atk_pct', value: 0.12 }],
+    triggers: [{ on: 'heavy_hit', effect: 'heavy_pct', value: 0.15, maxStacks: 3, duration: 5 }],
+    desc: '攻击+12%；暴伤+48.6%；重击+15%×3 层'
   },
 
   // 仇远专武（迅刀）
@@ -373,7 +391,7 @@ const W = {
     triggers: [
       { on: 'skill_hit', effect: 'elem_dmg', value: 0.10, element: '衍射', maxStacks: 2, duration: 5 }
     ],
-    desc: '衍射+20%；技能后衍射+10%×2 层'
+    desc: '攻击+36.4%；衍射+20%；技能后衍射+10%×2 层'
   },
 
   // 莫宁专武（迅刀）
@@ -392,40 +410,40 @@ const W = {
   // 露西专武（佩枪，3.4 联动）
   '蜃影': {
     r: 5, type: '佩枪', atk90: 587,
-    sub: { stat: 'atk_pct', value90: 0.364 },
+    sub: { stat: 'cdmg', value90: 0.486 },
     passive: [
       { type: 'elem_dmg', element: '衍射', value: 0.20 }
     ],
     triggers: [
       { on: 'normal_hit', effect: 'normal_pct', value: 0.10, maxStacks: 3, duration: 5 }
     ],
-    desc: '衍射+20%；普攻后普攻+10%×3 层'
+    desc: '暴伤+48.6%；衍射+20%；普攻后普攻+10%×3 层'
   },
 
   // 丽贝卡专武（佩枪，3.4 联动）
   '碎骨': {
-    r: 5, type: '佩枪', atk90: 587,
-    sub: { stat: 'atk_pct', value90: 0.364 },
+    r: 5, type: '佩枪', atk90: 500,
+    sub: { stat: 'cdmg', value90: 0.720 },
     passive: [
       { type: 'elem_dmg', element: '导电', value: 0.18 }
     ],
     triggers: [
       { on: 'concerto_consume', effect: 'normal_pct', value: 0.30, maxStacks: 1, duration: 5 }
     ],
-    desc: '导电+18%；消耗协奏后普攻+30%'
+    desc: '暴伤+72%；导电+18%；消耗协奏后普攻+30%'
   },
 
   // 洛瑟菈专武（音感仪）
   '存帧': {
-    r: 5, type: '音感仪', atk90: 500,
-    sub: { stat: 'cdmg', value90: 0.486 },
+    r: 5, type: '音感仪', atk90: 587,
+    sub: { stat: 'crate', value90: 0.243 },
     passive: [
       { type: 'elem_dmg', element: '湮灭', value: 0.20 }
     ],
     triggers: [
       { on: 'skill_hit', effect: 'elem_dmg', value: 0.10, element: '湮灭', maxStacks: 2, duration: 5 }
     ],
-    desc: '湮灭+20%；技能后湮灭+10%×2 层'
+    desc: '暴击+24.3%；湮灭+20%；技能后湮灭+10%×2 层'
   },
 
   '焚野': {
@@ -473,7 +491,7 @@ const W = {
     r: 5, type: '迅刀', atk90: 587,
     sub: { stat: 'crate', value90: 0.243 },
     passive: [
-      { type: 'resonance', value: 0.128 }   // 共鸣效率 +12.8%
+      { type: 'resonance', value: 0.128 }
     ],
     triggers: [
       { on: 'skill_hit', effect: 'atk_pct', value: 0.06, maxStacks: 2, duration: 5 }
@@ -483,7 +501,7 @@ const W = {
 
   '浩境粼光': {
     r: 5, type: '长刃', atk90: 587,
-    sub: { stat: 'atk_pct', value90: 0.364 },
+    sub: { stat: 'atk_pct', value90: 0.3645 },
     passive: [
       { type: 'resonance', value: 0.128 }
     ],
@@ -507,7 +525,7 @@ const W = {
 
   '擎渊怒涛': {
     r: 5, type: '臂铠', atk90: 587,
-    sub: { stat: 'atk_pct', value90: 0.364 },
+    sub: { stat: 'atk_pct', value90: 0.3645 },
     passive: [
       { type: 'resonance', value: 0.128 }
     ],
@@ -520,7 +538,7 @@ const W = {
 
   '漪澜浮录': {
     r: 5, type: '音感仪', atk90: 500,
-    sub: { stat: 'atk_pct', value90: 0.539 },
+    sub: { stat: 'atk_pct', value90: 0.540 },
     passive: [
       { type: 'resonance', value: 0.128 }
     ],
@@ -531,69 +549,229 @@ const W = {
   },
 
   // ============================================================
-  // 4★ 武器（atk90 = 412，sub 数值 ~50%）
+  // 4★ 武器（encore.moe 官方数据校准 · 2026-06-26 · 共 43 把）
   // ============================================================
 
-  '奇幻变奏': { r: 4, type: '音感仪', atk90: 412,
-    sub: { stat: 'crate', value90: 0.080 },
+  '不归孤军': { r: 4, type: '迅刀', atk90: 412,
+    sub: { stat: 'atk_pct', value90: 0.3038 },
+    passive: [{ type: 'atk_pct', value: 0.12 }],
+    triggers: [],
+    desc: '攻击+12%' },
+  '东落': { r: 4, type: '长刃', atk90: 412,
+    sub: { stat: 'atk_pct', value90: 0.3038 },
+    passive: [{ type: 'atk_pct', value: 0.10 }],
+    triggers: [],
+    desc: '攻击+10%' },
+  '今州守望': { r: 4, type: '音感仪', atk90: 388,
+    sub: { stat: 'atk_pct', value90: 0.3645 },
     passive: [{ type: 'atk_pct', value: 0.08 }],
     triggers: [],
-    desc: '暴击+8%, 攻击+8%' },
-  '骇行': { r: 4, type: '长刃', atk90: 412,
-    sub: { stat: 'atk_pct', value90: 0.180 },
+    desc: '攻击+8%' },
+  '凋亡频移': { r: 4, type: '长刃', atk90: 462,
+    sub: { stat: 'atk_pct', value90: 0.1823 },
+    passive: [{ type: 'atk_pct', value: 0.10 }],
+    triggers: [],
+    desc: '攻击+10%；技能获共鸣能量' },
+  '凌空': { r: 4, type: '臂铠', atk90: 412,
+    sub: { stat: 'cdmg', value90: 0.4050 },
     passive: [{ type: 'atk_pct', value: 0.08 }],
     triggers: [],
-    desc: '攻击+18%, 攻击+8%' },
-  '呼啸重音': { r: 4, type: '佩枪', atk90: 337,
-    sub: { stat: 'atk_pct', value90: 0.180 },
-    passive: [{ type: 'elem_dmg', element: '气动', value: 0.10 }],
+    desc: '攻击+8%；解放后攻击/伤害提升' },
+  '华彩乐段': { r: 4, type: '佩枪', atk90: 338,
+    sub: { stat: 'resonance', value90: 0.5184 },
+    passive: [{ type: 'resonance', value: 0.08 }],
     triggers: [],
-    desc: '攻击+18%, 气动+10%' },
-  '永夜长明': { r: 4, type: '臂铠', atk90: 412,
-    sub: { stat: 'crate', value90: 0.080 },
-    passive: [{ type: 'skill_pct', value: 0.15 }],
+    desc: '共鸣效率+8%；技能回复协奏能量' },
+  '叙别的罗曼史': { r: 4, type: '佩枪', atk90: 462,
+    sub: { stat: 'atk_pct', value90: 0.1823 },
+    passive: [{ type: 'atk_pct', value: 0.10 }],
     triggers: [],
-    desc: '暴击+8%, 技能伤害+15%' },
-  '异度': { r: 4, type: '迅刀', atk90: 412,
-    sub: { stat: 'atk_pct', value90: 0.180 },
-    passive: [{ type: 'elem_dmg', element: '湮灭', value: 0.10 }],
+    desc: '攻击+10%；对异常效应目标额外提升' },
+  '呼啸重音': { r: 4, type: '臂铠', atk90: 338,
+    sub: { stat: 'resonance', value90: 0.5184 },
+    passive: [{ type: 'resonance', value: 0.08 }],
     triggers: [],
-    desc: '攻击+18%, 湮灭+10%' },
-  '不归孤军': { r: 4, type: '音感仪', atk90: 412,
-    sub: { stat: 'atk_pct', value90: 0.180 },
-    passive: [{ type: 'elem_dmg', element: '热熔', value: 0.10 }],
+    desc: '共鸣效率+8%；技能回复协奏能量' },
+  '大海的馈赠': { r: 4, type: '音感仪', atk90: 462,
+    sub: { stat: 'atk_pct', value90: 0.1823 },
+    passive: [{ type: 'elem_dmg', value: 0.10 }],
     triggers: [],
-    desc: '攻击+18%, 热熔+10%' },
-  '钢影拳': { r: 4, type: '臂铠', atk90: 412,
-    sub: { stat: 'atk_pct', value90: 0.180 },
-    passive: [{ type: 'normal_pct', value: 0.15 }],
+    desc: '衍射+10%' },
+  '奇幻变奏': { r: 4, type: '音感仪', atk90: 338,
+    sub: { stat: 'resonance', value90: 0.5184 },
+    passive: [{ type: 'resonance', value: 0.08 }],
     triggers: [],
-    desc: '攻击+18%, 普攻+15%' },
-  '飞景': { r: 4, type: '迅刀', atk90: 387,
-    sub: { stat: 'crate', value90: 0.100 },
+    desc: '共鸣效率+8%；技能回复协奏能量' },
+  '奔雷': { r: 4, type: '佩枪', atk90: 388,
+    sub: { stat: 'atk_pct', value90: 0.3645 },
+    passive: [{ type: 'skill_pct', value: 0.10 }],
+    triggers: [],
+    desc: '技能伤害+10%' },
+  '容赦的沉思录': { r: 4, type: '长刃', atk90: 462,
+    sub: { stat: 'atk_pct', value90: 0.1823 },
+    passive: [{ type: 'atk_pct', value: 0.10 }],
+    triggers: [],
+    desc: '攻击+10%；对异常效应目标额外提升' },
+  '尘云旋臂': { r: 4, type: '臂铠', atk90: 462,
+    sub: { stat: 'atk_pct', value90: 0.1823 },
+    passive: [{ type: 'atk_pct', value: 0.10 }],
+    triggers: [],
+    desc: '攻击+10%；技能获共鸣能量' },
+  '异响空灵': { r: 4, type: '长刃', atk90: 338,
+    sub: { stat: 'resonance', value90: 0.5184 },
+    passive: [{ type: 'resonance', value: 0.08 }],
+    triggers: [],
+    desc: '共鸣效率+8%；技能回复协奏能量' },
+  '异度': { r: 4, type: '音感仪', atk90: 412,
+    sub: { stat: 'hp', value90: 0.3038 },
+    passive: [{ type: 'heal', value: 0.08 }],
+    triggers: [],
+    desc: '治疗加成+8%' },
+  '心之锚': { r: 4, type: '迅刀', atk90: 462,
+    sub: { stat: 'atk_pct', value90: 0.1823 },
+    passive: [{ type: 'atk_pct', value: 0.10 }],
+    triggers: [],
+    desc: '攻击+10%' },
+  '悖论喷流': { r: 4, type: '佩枪', atk90: 462,
+    sub: { stat: 'atk_pct', value90: 0.1823 },
+    passive: [{ type: 'atk_pct', value: 0.10 }],
+    triggers: [],
+    desc: '攻击+10%；技能获共鸣能量' },
+  '无眠烈火': { r: 4, type: '佩枪', atk90: 412,
+    sub: { stat: 'atk_pct', value90: 0.3038 },
+    passive: [{ type: 'skill_pct', value: 0.10 }],
+    triggers: [],
+    desc: '技能伤害+10%' },
+  '曜光': { r: 4, type: '音感仪', atk90: 412,
+    sub: { stat: 'cdmg', value90: 0.4050 },
     passive: [{ type: 'atk_pct', value: 0.08 }],
     triggers: [],
-    desc: '暴击+10%, 攻击+8%' },
-  '行进序曲': { r: 4, type: '长刃', atk90: 337,
-    sub: { stat: 'atk_pct', value90: 0.180 },
-    passive: [{ type: 'team_atk', value: 0.08 }],
+    desc: '攻击+8%；解放后攻击/伤害提升' },
+  '核熔星盘': { r: 4, type: '音感仪', atk90: 462,
+    sub: { stat: 'atk_pct', value90: 0.1823 },
+    passive: [{ type: 'atk_pct', value: 0.10 }],
     triggers: [],
-    desc: '攻击+18%, 全队+8%' },
-  '核熔星盘': { r: 4, type: '佩枪', atk90: 462,
-    sub: { stat: 'atk_pct', value90: 0.180 },
-    passive: [{ type: 'elem_dmg', element: '热熔', value: 0.12 }],
+    desc: '攻击+10%；技能获共鸣能量' },
+  '永夜长明': { r: 4, type: '长刃', atk90: 338,
+    sub: { stat: 'def_pct', value90: 0.6156 },
+    passive: [{ type: 'def_pct', value: 0.12 }],
     triggers: [],
-    desc: '攻击+18%, 热熔+12%' },
-  '华彩乐段': { r: 4, type: '臂铠', atk90: 412,
-    sub: { stat: 'cdmg', value90: 0.180 },
+    desc: '防御+12%；变奏后攻击/防御提升' },
+  '永续坍缩': { r: 4, type: '迅刀', atk90: 462,
+    sub: { stat: 'atk_pct', value90: 0.1823 },
+    passive: [{ type: 'atk_pct', value: 0.10 }],
+    triggers: [],
+    desc: '攻击+10%；技能获共鸣能量' },
+  '清音': { r: 4, type: '音感仪', atk90: 412,
+    sub: { stat: 'crate', value90: 0.2025 },
+    passive: [{ type: 'atk_pct', value: 0.10 }],
+    triggers: [],
+    desc: '攻击+10%' },
+  '渊海回声': { r: 4, type: '音感仪', atk90: 338,
+    sub: { stat: 'resonance', value90: 0.5184 },
+    passive: [{ type: 'heal', value: 0.10 }],
+    triggers: [],
+    desc: '治疗加成+10%' },
+  '瞬斩刀-18型': { r: 4, type: '迅刀', atk90: 388,
+    sub: { stat: 'atk_pct', value90: 0.3645 },
+    passive: [{ type: 'heavy_pct', value: 0.10 }],
+    triggers: [],
+    desc: '重击+10%' },
+  '穿击枪-26型': { r: 4, type: '佩枪', atk90: 388,
+    sub: { stat: 'atk_pct', value90: 0.3645 },
+    passive: [{ type: 'atk_pct', value: 0.08 }],
+    triggers: [],
+    desc: '攻击+8%' },
+  '纹秋': { r: 4, type: '长刃', atk90: 412,
+    sub: { stat: 'crate', value90: 0.2025 },
+    passive: [{ type: 'atk_pct', value: 0.10 }],
+    triggers: [],
+    desc: '攻击+10%' },
+  '翼锋': { r: 4, type: '迅刀', atk90: 412,
+    sub: { stat: 'crate', value90: 0.2025 },
+    passive: [{ type: 'atk_pct', value: 0.08 }],
+    triggers: [],
+    desc: '攻击+8%；解放后攻击/伤害提升' },
+  '虚饰的华尔兹': { r: 4, type: '音感仪', atk90: 462,
+    sub: { stat: 'atk_pct', value90: 0.1823 },
+    passive: [{ type: 'atk_pct', value: 0.10 }],
+    triggers: [],
+    desc: '攻击+10%；对异常效应目标额外提升' },
+  '行进序曲': { r: 4, type: '迅刀', atk90: 338,
+    sub: { stat: 'resonance', value90: 0.5184 },
+    passive: [{ type: 'resonance', value: 0.08 }],
+    triggers: [],
+    desc: '共鸣效率+8%；技能回复协奏能量' },
+  '袍泽之固': { r: 4, type: '臂铠', atk90: 338,
+    sub: { stat: 'def_pct', value90: 0.6156 },
     passive: [{ type: 'burst_pct', value: 0.10 }],
     triggers: [],
-    desc: '暴伤+18%, 解放+10%' },
-  '袍泽之固': { r: 4, type: '臂铠', atk90: 412,
-    sub: { stat: 'hp', value90: 0.180 },
-    passive: [{ type: 'def_pct', value: 0.10 }],
+    desc: '解放+10%' },
+  '西升': { r: 4, type: '迅刀', atk90: 412,
+    sub: { stat: 'atk_pct', value90: 0.3038 },
+    passive: [{ type: 'atk_pct', value: 0.10 }],
     triggers: [],
-    desc: '生命+18%, 防御+10%' },
+    desc: '攻击+10%' },
+  '酩酊的英雄志': { r: 4, type: '臂铠', atk90: 462,
+    sub: { stat: 'atk_pct', value90: 0.1823 },
+    passive: [{ type: 'atk_pct', value: 0.10 }],
+    triggers: [],
+    desc: '攻击+10%；对异常效应目标额外提升' },
+  '重破刃-41型': { r: 4, type: '长刃', atk90: 412,
+    sub: { stat: 'resonance', value90: 0.3240 },
+    passive: [{ type: 'atk_pct', value: 0.08 }],
+    triggers: [],
+    desc: '攻击+8%' },
+  '金掌': { r: 4, type: '臂铠', atk90: 412,
+    sub: { stat: 'crate', value90: 0.2025 },
+    passive: [{ type: 'burst_pct', value: 0.10 }],
+    triggers: [],
+    desc: '解放+10%' },
+  '金穹': { r: 4, type: '长刃', atk90: 412,
+    sub: { stat: 'cdmg', value90: 0.4050 },
+    passive: [{ type: 'atk_pct', value: 0.08 }],
+    triggers: [],
+    desc: '攻击+8%；解放后攻击/伤害提升' },
+  '钢影拳-21丁型': { r: 4, type: '臂铠', atk90: 388,
+    sub: { stat: 'resonance', value90: 0.3888 },
+    passive: [{ type: 'atk_pct', value: 0.10 }],
+    triggers: [],
+    desc: '攻击+10%' },
+  '钢影拳': { r: 4, type: '臂铠', atk90: 388,
+    sub: { stat: 'resonance', value90: 0.3888 },
+    passive: [{ type: 'atk_pct', value: 0.10 }],
+    triggers: [],
+    desc: '攻击+10%' },
+  '阳焰': { r: 4, type: '佩枪', atk90: 412,
+    sub: { stat: 'crate', value90: 0.2025 },
+    passive: [{ type: 'atk_pct', value: 0.08 }],
+    triggers: [],
+    desc: '攻击+8%；解放后攻击/伤害提升' },
+  '风流的寓言诗': { r: 4, type: '迅刀', atk90: 462,
+    sub: { stat: 'atk_pct', value90: 0.1823 },
+    passive: [{ type: 'atk_pct', value: 0.10 }],
+    triggers: [],
+    desc: '攻击+10%；对异常效应目标额外提升' },
+  '飞景': { r: 4, type: '迅刀', atk90: 388,
+    sub: { stat: 'atk_pct', value90: 0.3645 },
+    passive: [{ type: 'normal_pct', value: 0.12 }],
+    triggers: [],
+    desc: '普攻/重击+12%' },
+  '飞逝': { r: 4, type: '佩枪', atk90: 412,
+    sub: { stat: 'atk_pct', value90: 0.3038 },
+    passive: [{ type: 'atk_pct', value: 0.08 }],
+    triggers: [],
+    desc: '攻击+8%' },
+  '骇行': { r: 4, type: '臂铠', atk90: 412,
+    sub: { stat: 'atk_pct', value90: 0.3038 },
+    passive: [{ type: 'atk_pct', value: 0.10 }],
+    triggers: [],
+    desc: '攻击+10%' },
+  '鸣动仪-25型': { r: 4, type: '音感仪', atk90: 338,
+    sub: { stat: 'resonance', value90: 0.5184 },
+    passive: [{ type: 'atk_pct', value: 0.08 }],
+    triggers: [],
+    desc: '攻击+8%' },
 
   // ============================================================
   // 3★ 武器（atk90 = 246，sub ~6-8%）

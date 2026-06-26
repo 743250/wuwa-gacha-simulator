@@ -12,7 +12,7 @@ export function cartethyiaGainResolve(self, source, battle) {
   const cap = self.cartethyiaResolveCap || 3;
   const before = self.cartethyiaResolve || 0;
   self.cartethyiaResolve = Math.min(cap, before + 1);
-  self.cartethyiaResolveTimer = 2; // 刷新全部决意持续时间
+  self.cartethyiaResolveTimer = 1; // 刷新全部决意持续时间（1 回合衰退）
   if (self.cartethyiaResolve > before) {
     battle.log.push({
       type: 'mechanic', src: self.name,
@@ -230,14 +230,18 @@ export function cartethyiaErosionTick(enemy, battle) {
 export function cartethyiaTurnCleanup(self, battle) {
   if (self.name !== '卡提希娅') return;
 
-  // 决意计时
+  // 决意计时：逐层衰退，每层独立 2 回合
   if (self.cartethyiaResolveTimer > 0) {
     self.cartethyiaResolveTimer--;
     if (self.cartethyiaResolveTimer <= 0) {
       const before = self.cartethyiaResolve || 0;
-      self.cartethyiaResolve = 0;
-      if (before > 0) {
-        battle.log.push({ type: 'mechanic', src: self.name, msg: `【决意】持续时间结束，全部清除` });
+      if (before > 1) {
+        self.cartethyiaResolve = before - 1;
+        self.cartethyiaResolveTimer = 1;
+        battle.log.push({ type: 'mechanic', src: self.name, msg: `【决意】衰减 → ${self.cartethyiaResolve} 层` });
+      } else {
+        self.cartethyiaResolve = 0;
+        battle.log.push({ type: 'mechanic', src: self.name, msg: `【决意】全部消散` });
       }
     }
   }
@@ -283,7 +287,7 @@ export function renderCartethyiaStatus(unit) {
 
 export default {
   name: '卡提希娅',
-  hasHeavy: true,
+  hasHeavy: false,
   renderBattleStatus: renderCartethyiaStatus,
   gainResolve: cartethyiaGainResolve,
   applyErosion: cartethyiaApplyErosion,

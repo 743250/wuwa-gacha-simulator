@@ -95,9 +95,12 @@ export function targetOptions(b) {
   if (!b) return '';
   let opts = [];
   if (b.pool === 'standardWeapon') opts = standardWeapons.map(w => ({ label: w.banner, target: w.name, active: w.name === S.standardWeaponTarget }));
-  if (b.pool === 'noviceChoice') opts = newJourneyChars.map(c => ({ label: c, target: c, active: c === S.noviceTarget }));
+  if (b.pool === 'noviceChoice') {
+    if (S.noviceStarted) return `<div class="ba-weapon" style="margin-top:10px;font-size:12px;color:var(--gold);letter-spacing:1px">已选定：<b>${S.noviceTarget}</b>（开始抽取后不可更改）</div>`;
+    opts = newJourneyChars.map(c => ({ label: c, target: c, active: c === S.noviceTarget }));
+  }
   if (b.pool === 'noviceWeapon') {
-    // 武器新旅：8 个目标 = 新旅 8 角色对应的武器
+    if (S.noviceStarted) return `<div class="ba-weapon" style="margin-top:10px;font-size:12px;color:var(--gold);letter-spacing:1px">已选定：<b>${S.noviceWeaponTarget}</b>（开始抽取后不可更改）</div>`;
     opts = newJourneyChars.map(c => ({ label: `${weapons[c]}（${c}）`, target: weapons[c], active: weapons[c] === S.noviceWeaponTarget }))
       .filter(o => o.target);
   }
@@ -109,8 +112,8 @@ export function targetOptions(b) {
 
 export function selectTarget(pool, target) {
   if (pool === 'standardWeapon') S.standardWeaponTarget = target;
-  if (pool === 'noviceChoice') S.noviceTarget = target;
-  if (pool === 'noviceWeapon') S.noviceWeaponTarget = target;
+  if (pool === 'noviceChoice' && !S.noviceStarted) S.noviceTarget = target;
+  if (pool === 'noviceWeapon' && !S.noviceStarted) S.noviceWeaponTarget = target;
   window.__render();
 }
 window.selectTarget = selectTarget;

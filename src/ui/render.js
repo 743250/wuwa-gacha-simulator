@@ -250,17 +250,29 @@ export function render() {
     </div>`;
   }).join('');
 
-  if (b && b.char && (b.pool === 'eventChar' || b.pool === 'collabChar' || b.pool === 'noviceChoice')) {
-    const std = standard5.some(x => x.startsWith(b.char)), cost = std ? 270 : 360, used = S.waveBuy[b.char] || 0;
+  // 回音频段：展示所有已拥有且未满链的五星角色
+  const allFiveStars = [...new Set([...standard5, ...Object.keys(bannerNames).filter(n => !standard5.includes(n) && !fourAll.includes(n))])];
+  const waveCandidates = [];
+  for (const name of allFiveStars) {
+    const realName = Object.keys(S.roles).find(x => x === name || x.includes(name)) || name;
+    const owned = S.roles[realName];
+    if (!owned || owned.owned <= 0) continue;
+    if (owned.chain >= 6) continue;
+    const isStd = standard5.includes(name);
+    const cost = isStd ? 270 : 360;
+    const used = S.waveBuy[name] || 0;
     const can = Math.min(2 - used, Math.floor(S.afterglow / cost));
-    $('waveList').innerHTML = `<div class="exch">
-      <div class="n"><span>${b.char}的回音频段</span><span class="own">已购 <b>${used}</b> / 2</span></div>
+    waveCandidates.push({ name, realName, cost, used, can, isStd });
+  }
+  if (waveCandidates.length > 0) {
+    $('waveList').innerHTML = waveCandidates.map(c => `<div class="exch">
+      <div class="n"><span>${c.name}的回音频段</span><span class="own">已购 <b>${c.used}</b> / 2</span></div>
       <div class="btns">
-        <button class="mbtn gold" onclick="openWaveModal()" ${can <= 0 ? 'disabled' : ''}>余波 ${cost} / 个 · 可换 ${can}</button>
+        <button class="mbtn gold" onclick="openWaveModal()" ${c.can <= 0 ? 'disabled' : ''}>余波 ${c.cost} / 个 · 可换 ${c.can}</button>
       </div>
-    </div>`;
+    </div>`).join('');
   } else {
-    $('waveList').innerHTML = '<div style="color:var(--muted);font-size:12px;text-align:center;padding:12px;letter-spacing:1px">无可用卡池</div>';
+    $('waveList').innerHTML = '<div style="color:var(--muted);font-size:12px;text-align:center;padding:12px;letter-spacing:1px">无可兑换回音频段的五星角色（已满链或未拥有）</div>';
   }
 
   // 商店
