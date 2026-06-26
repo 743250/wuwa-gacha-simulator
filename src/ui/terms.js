@@ -158,20 +158,34 @@ function escAttr(s) {
 // 注意：本函数只处理 <b class="term-...">...</b>（避免对纯文本里同名词命中）
 export function attachTermTips(html) {
   if (!html) return '';
-  // 匹配单层 <b class="term-xxx">...</b>，内部不再含 <b>
-  return String(html).replace(/<b\s+class="(term-[\w-]+)"\s*>([^<]+)<\/b>/g, (full, cls, inner) => {
-    // 先 trim 再查表
+  // Step 1: 保护 data-tip 属性内容，防止 term 在 tooltip 内部被二次替换
+  const tipContents = [];
+  let tipIdx = 0;
+  let safe = String(html).replace(/ data-tip='([^']*)'/g, (full, content) => {
+    const idx = tipIdx++;
+    tipContents.push(content);
+    return ` data-tip='__TPROT_${idx}__'`;
+  });
+  safe = safe.replace(/ data-tip="([^"]*)"/g, (full, content) => {
+    const idx = tipIdx++;
+    tipContents.push(content);
+    return ` data-tip="__TPROT_${idx}__"`;
+  });
+  // Step 2: 在受保护区域外替换 term
+  const processed = safe.replace(/<b\s+class="(term-[\w-]+)"\s*>([^<]+)<\/b>/g, (full, cls, inner) => {
     const text = inner.trim();
-    // 完全匹配优先
     if (TERM_DICT[text]) {
       return `<span class="tip-term" data-tip='${escAttr(TERM_DICT[text])}'>${full}</span>`;
     }
-    // 子串匹配：查找文本里是否包含字典中某个 key（按长度优先）
     for (const key of TERM_KEYS_SORTED) {
       if (text.includes(key)) {
         return `<span class="tip-term" data-tip='${escAttr(TERM_DICT[key])}'>${full}</span>`;
       }
     }
     return full;
+  });
+  // Step 3: 还原 protected data-tip 内容
+  return processed.replace(/__TPROT_(\d+)__/g, (full, idx) => {
+    return tipContents[parseInt(idx)] || '';
   });
 }

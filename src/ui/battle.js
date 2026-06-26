@@ -316,6 +316,7 @@ function renderEnemies() {
       ${e._saws && e._saws.length > 0 ? `<div style="font-size:10px;color:var(--red);margin-top:2px">🪚 追踪电锯 ×${e._saws.length}</div>` : ''}
       ${e.phase > 1 ? `<div style="font-size:10px;color:var(--gold);margin-top:2px">📌 阶段 ${e.phase}${e._airPhase ? ' · 空中（近战-30%）' : ''}</div>` : ''}
       ${Object.keys(e.marks || {}).some(k => e.marks[k] > 0) ? `<div style="font-size:10px;color:var(--red);margin-top:2px">🔥 灼伤：${b.team.filter(t=>t.alive).map(t=>t.name+(e.marks[t.idx]||0)+'层').join(' · ')}</div>` : ''}
+      ${e.cartethyiaErosion > 0 ? `<div style="font-size:10px;color:var(--green);margin-top:2px">🌪 风蚀 ×${e.cartethyiaErosion} 层 · 回合末每层扣 ATK×0.3</div>` : ''}
       ${e._delayedBlast ? `<div style="font-size:10px;color:var(--red);margin-top:2px">💥 地面发光…下回合爆破！</div>` : ''}
       ${mechHint}
     </div>`;
