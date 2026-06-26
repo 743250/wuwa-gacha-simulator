@@ -24,9 +24,10 @@ export function shorekeeperStarfield(self, battle) {
   if (self.name !== '守岸人') return;
   const dur1Chain = self.fieldExtendDur || 0;
   const baseDur = 3 + dur1Chain;
-  const heal4chain = 1 + (self.healBuff4Chain || 0);
+  const fourChain = self.healBuff4Chain || 0;
+  const healUp = 1 + (self.healBonus || 0) + fourChain;
   const heal1chain = self.fieldPersistOnSwitch ? 2.5 : 1.0;
-  const hot = Math.round(self.atk * 0.8 * heal4chain * heal1chain);
+  let sampleHot = 0;
   const fieldCrate = (0.20 + (self.fieldExtraCrate || 0)) * heal1chain;
   const fieldCdmg = 0.30 * heal1chain;
   const fieldAtk = (self.fieldExtraAtk || 0) * heal1chain;
@@ -34,6 +35,8 @@ export function shorekeeperStarfield(self, battle) {
   battle.team.forEach(t => {
     if (!t.alive) return;
     t.buffs = (t.buffs || []).filter(b => b.src !== '星域');
+    const hot = Math.round((self.hp * 0.08 + self.atk * 0.8) * healUp * heal1chain);
+    if (!sampleHot) sampleHot = hot;
     t.buffs.push({ type: 'healOverTime', value: hot, duration: baseDur, src: '星域', persistent: !!self.fieldPersistOnSwitch });
     t.buffs.push({ type: 'crateUp', value: fieldCrate, duration: baseDur, src: '星域', persistent: !!self.fieldPersistOnSwitch });
     t.buffs.push({ type: 'cdmgUp', value: fieldCdmg, duration: baseDur, src: '星域', persistent: !!self.fieldPersistOnSwitch });
@@ -43,7 +46,7 @@ export function shorekeeperStarfield(self, battle) {
   });
   battle.log.push({
     type: 'mechanic', src: self.name,
-    msg: `「星域 · 终末回环」展开 · 全队每回合回血 ${hot} · 暴击 +${(fieldCrate*100).toFixed(0)}% · 暴伤 +${(fieldCdmg*100).toFixed(0)}%${fieldAtk > 0 ? ` · 攻击 +${(fieldAtk * 100).toFixed(0)}%` : ''}（${baseDur} 回合${self.fieldPersistOnSwitch ? ' · 切人不结束' : ''}）`
+    msg: `「星域 · 终末回环」展开 · 全队每回合回血 ~${sampleHot} · 暴击 +${(fieldCrate*100).toFixed(0)}% · 暴伤 +${(fieldCdmg*100).toFixed(0)}%${fieldAtk > 0 ? ` · 攻击 +${(fieldAtk * 100).toFixed(0)}%` : ''}（${baseDur} 回合${self.fieldPersistOnSwitch ? ' · 切人不结束' : ''}）`
   });
 }
 
