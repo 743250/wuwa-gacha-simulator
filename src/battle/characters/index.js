@@ -8,17 +8,28 @@ import shorekeeper from './shorekeeper.js';
 import yinlin from './yinlin.js';
 import encore from './encore.js';
 import cartethyia from './cartethyia.js';
+import jinhsi from './jinhsi.js';
+import changli from './changli.js';
+import camellia from './camellia.js';
+import carlotta from './carlotta.js';
+import phoebe from './phoebe.js';
+import brant from './brant.js';
+import cantarella from './cantarella.js';
+import kakaro from './kakaro.js';
+import zhezhi from './zhezhi.js';
 
-// 硬编码在此的角色元数据（未做成独立文件的轻量角色直接写在这里）
+// 轻量角色：仅标记 hasHeavy，无完整 mechanic 文件
 const LIGHTWEIGHT = {
-  '长离': { hasHeavy: true },
-  '珂莱塔': { hasHeavy: true },
-  '菲比': { hasHeavy: true },
   '嘉贝莉娜': { hasHeavy: true },
-  '卡卡罗': { hasHeavy: true }
+  '洛可可':   { hasHeavy: true },
+  '鉴心':     { hasHeavy: true }
 };
 
-const FULL = { '忌炎': jiyan, '守岸人': shorekeeper, '吟霖': yinlin, '安可': encore, '卡提希娅': cartethyia };
+const FULL = {
+  '忌炎': jiyan, '守岸人': shorekeeper, '吟霖': yinlin, '安可': encore, '卡提希娅': cartethyia,
+  '今汐': jinhsi, '长离': changli, '椿': camellia, '珂莱塔': carlotta, '菲比': phoebe,
+  '布兰特': brant, '坎特蕾拉': cantarella, '卡卡罗': kakaro, '折枝': zhezhi
+};
 
 const ALL = { ...LIGHTWEIGHT, ...FULL };
 

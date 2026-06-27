@@ -24,6 +24,12 @@ import { shorekeeperSkillHeal, shorekeeperStarfield, shorekeeperBurstRefund } fr
 import { yinlinGainVerdict, yinlinOnHit, yinlinBurst, yinlinTurnCleanup } from './characters/yinlin.js';
 import { encoreGainDisorder, encoreStartBlackSheep, encoreTurnCleanup } from './characters/encore.js';
 import { cartethyiaGainResolve, cartethyiaApplyErosion, cartethyiaEnterFurForm, cartethyiaBurstErosion, cartethyiaResolveMultiplier, cartethyiaErosionTick, cartethyiaTurnCleanup, cartethyiaErosionOnBreak, cartethyiaErosionOnSwitchIn, cartethyiaLethalShield } from './characters/cartethyia.js';
+import { jinhsiSwitchIn } from './characters/jinhsi.js';
+import { carlottaApplyDissociation } from './characters/carlotta.js';
+import { brantFlameDirge } from './characters/brant.js';
+import { cantarellaMarkDream } from './characters/cantarella.js';
+import { kakaroEnterDeathblade, kakaroTurnCleanup } from './characters/kakaro.js';
+import { zhezhiSummonField, zhezhiCraneAttack, zhezhiSkillSummon, zhezhiTurnCleanup } from './characters/zhezhi.js';
 
 export function getCombatTeamNames(teamNames = S.team) {
   const seen = new Set();
@@ -678,6 +684,8 @@ export function doSkill(battle, targetIdx) {
   // 吟霖：共鸣技能 +30 审判 + 命中印记回调
   yinlinOnHit(self, target, 'skill', battle);
   yinlinGainVerdict(self, 30, '共鸣技能', battle);
+  carlottaApplyDissociation(self, target, battle);
+  zhezhiSkillSummon(self, battle);
   finishIfBattleEnded(battle, 'win');
   return { ok: true };
 }
@@ -793,6 +801,9 @@ export function doBurst(battle) {
   encoreStartBlackSheep(self, battle);
 
   shorekeeperStarfield(self, battle);
+  kakaroEnterDeathblade(self, battle);
+  brantFlameDirge(self, battle);
+  zhezhiSummonField(self, battle);
 
   // ★ 忌炎 3 链 观势：解放后自身暴击/暴伤 buff
   jiyanGuanShiBuff(self, battle);
@@ -806,6 +817,7 @@ export function doBurst(battle) {
   }
   shorekeeperBurstRefund(self, battle);
   yinlinBurst(self, primary, battle);
+  cantarellaMarkDream(self, primary, battle);
   battle.log.push({
     type: 'burst', src: self.name, results,
     action: fEnh ? `${fEnh.resourceName}强化解放` : '共鸣解放'
@@ -978,6 +990,7 @@ export function doSwitch(battle, toIdx) {
   battle.log.push({ type: 'switch', src: target.name, action: '切换上场' });
   encoreGainDisorder(target, 30, '变奏·咩咩帮手', battle);
   jiyanSwitchIn(target, battle);
+  jinhsiSwitchIn(target, battle);
   finishIfBattleEnded(battle, 'win');
   return { ok: true };
 }
@@ -989,6 +1002,9 @@ export function endTurn(battle) {
   _currentBattle = battle;
   if (battle.finished) return;
   const enemyHelpers = { dealDamage, enemyAttack, inflictFreeze, lockSkill, pickTeamTarget, spawnEnemy };
+
+  // ===== 折枝墨鹤协同攻击（领域内每回合自动触发）=====
+  battle.team.forEach(t => { if (t.alive) zhezhiCraneAttack(t, battle); });
 
   // ===== 敌方出招 =====
   battle.enemies.forEach(enemy => {
@@ -1142,6 +1158,8 @@ export function endTurn(battle) {
     yinlinTurnCleanup(t, battle);
     encoreTurnCleanup(t, battle);
     cartethyiaTurnCleanup(t, battle);
+    kakaroTurnCleanup(t, battle);
+    zhezhiTurnCleanup(t, battle);
     tickWeaponTriggers(t);
   });
 

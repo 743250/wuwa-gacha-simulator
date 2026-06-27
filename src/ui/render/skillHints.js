@@ -75,7 +75,7 @@ export const SKILL_HINTS = {
 
       return [
         {
-          icon: '⚔', name: '普攻 · 长枪连段', cost: '1 AP',
+          icon: '⚔', name: '普攻 · 孤枪止戈', cost: '1 AP',
           color: 'var(--text)',
           desc: `对目标造成 <span class="tip" data-tip='${normalTip}'><b style="color:var(--text)">${normalDmg}</b> 点</span><b class="term-normal">气动伤害</b>，命中后回复 12 共鸣能量、积累 8 协奏值。<br>积满<b class="term-resource">破阵值</b>时，下次普攻进入<b style="color:var(--gold)">枪扫风定·强化连段</b>（伤害 ×2）。`
         },
@@ -90,7 +90,7 @@ export const SKILL_HINTS = {
           desc: `对目标造成 <span class="tip" data-tip='${heavyTip}'><b style="color:#ff8c5e">${heavyDmg}</b> 点</span><b class="term-heavy">气动伤害</b>，命中后回复 15 能量、+14 协奏。<br>获得 <b style="color:var(--gold)">1 层</b><b class="term-resource">锐意之势</b>。`
         },
         {
-          icon: '⚡', name: '共鸣解放 · 苍躣八荒', cost: `3 AP · 需共鸣能量满 ${stats.maxEnergy}`,
+          icon: '⚡', name: '共鸣解放 · 苍躣八荒·谋定', cost: `3 AP · 需共鸣能量满 ${stats.maxEnergy}`,
           color: 'var(--gold)',
           desc: `对主目标造成 <span class="tip" data-tip='${burstTip}'>基础 <b style="color:#ff8c5e">${burstZero}</b></span>、副目标 <span class="tip" data-tip='${burstTip}'>基础 <b style="color:#ff8c5e">${burstSide}</b></span> <b class="term-burst">气动伤害</b>，消耗全部<b class="term-resource">锐意之势</b>放大：<br>· 1 锐意 主 <b style="color:#ff8c5e">${burstOne}</b><br>· ${ruiyiCap} 锐意（满层）主 <b style="color:#ff8c5e">${burstFull}</b> / 副 <b style="color:#ff8c5e">${burstSideFull}</b>（<b>×${fullMult.toFixed(1)}</b>）${chain>=4?`<br>释放后 2 回合内，全队<b class="term-heavy">重击</b>伤害 +25%（共鸣链 4「奇正」）`:''}`
         },
@@ -108,7 +108,7 @@ export const SKILL_HINTS = {
     intro: '衍射 · 长刃 · 主C · 「韶光」',
     customLines: makeSkillLines({
       element: '衍射',
-      normalName: '凌霄', skillName: '逐天取月', burstName: '移岁诛邪', varName: '蟠龙清辉',
+      normalName: '浮光霁寒', skillName: '流光夕影', burstName: '移岁诛邪', varName: '蟠龙清辉',
       normalMech: '<span style="color:var(--muted)">资源积累：</span>普攻 +<b>10</b> <b class="term-resource">韶光</b>，并获得 <b>1</b> 层<b class="term-resource">惊蛰</b>（上限 4）。',
       skillMech: '<span style="color:var(--muted)">形态判定：</span><b class="term-resource">韶光</b>未满时为<b>逐天取月</b>（+20 韶光 / +1 惊蛰）；韶光满 <b>100</b> 时下次共鸣技能替换为<b style="color:var(--gold)">惊龙破空</b>，消耗全部韶光与惊蛰造成高额爆发。',
       burstMech: '<span style="color:var(--muted)">爆发窗口：</span>优先在<b class="term-resource">惊蛰</b>叠满 4 层后释放，用 4 层惊蛰放大解放/惊龙破空循环。',
@@ -122,7 +122,7 @@ export const SKILL_HINTS = {
     intro: '热熔 · 迅刀 · 主C · 「离火」',
     customLines: makeSkillLines({
       element: '热熔',
-      normalName: '赫羽连斩', skillName: '赫羽三相', heavyName: '焚身以火', burstName: '离火照丹心', varName: '焰离入场',
+      normalName: '衔火洞明', skillName: '赫羽三相', heavyName: '焚身以火', burstName: '离火照丹心', varName: '天道持枢',
       hasHeavy: true,
       normalMech: '<span style="color:var(--muted)">资源积累：</span>普攻每 <b>3</b> 段获得 <b>1</b> 层<b class="term-resource">离火</b>（上限 3）。',
       skillMech: '<span style="color:var(--muted)">资源积累：</span>共鸣技能命中获得 <b>1</b> 层<b class="term-resource">离火</b>。',
@@ -283,8 +283,8 @@ export const SKILL_HINTS = {
   '折枝': {
     intro: '冷凝 · 音感仪 · 副C · 「墨鹤召唤协同」',
     customLines: makeSkillLines({
-      element: '衍射',
-      normalName: '挥毫', skillName: '神来之笔', burstName: '虚实境趣', varName: '展卷入场',
+      element: '冷凝',
+      normalName: '轻云淡墨', skillName: '以形写神', burstName: '虚实境趣', varName: '柔翰生辉',
       skillFollowUp: '6 链：额外召唤 <b>1</b> 只<b class="term-resource">白鹤</b>（共鸣技能伤害 +120%）。',
       burstFollowUp: '召唤 <b>6</b> 只<b class="term-resource">墨鹤</b>持续协同，是折枝后台输出的核心。 2 链：墨鹤上限 +6 → 12 只。 4 链：解放时全队攻击 +20%。 5 链：协同墨鹤额外 +40% 伤害。'
     }),
@@ -295,7 +295,7 @@ export const SKILL_HINTS = {
     intro: '导电 · 臂铠 · 副C · 「邃古遗墟」',
     customLines: makeSkillLines({
       element: '导电',
-      normalName: '基本推衍', skillName: '万方法则', burstName: '思维矩阵', varName: '链式入场',
+      normalName: '问难', skillName: '基本推衍', burstName: '思维矩阵', varName: '正理',
       skillFollowUp: '<b class="term-resource">邃古遗墟</b>可用时，每次共鸣技能消耗 1 次伤害 +63%（最多 5 次）。 1 链：额外 6 个<b class="term-resource">衍构模体</b>（伤害 +48%）。 6 链：幻方强化共鸣技能 +76%。',
       burstFollowUp: '释放后获得 <b>5</b> 次<b class="term-resource">邃古遗墟</b>叠层。 4 链：解放时全队共鸣解放 +25%。 5 链：解放·思维矩阵倍率 +100%。'
     }),
@@ -489,7 +489,7 @@ export const SKILL_HINTS = {
     intro: '导电 · 长刃 · 主C · 「杀戮武装」',
     customLines: makeSkillLines({
       element: '导电',
-      normalName: '杀戮指令', skillName: '灭杀指令', heavyName: '死告', burstName: '杀戮武装', varName: '全境通缉',
+      normalName: '猎犬剑技·獠牙撕扯', skillName: '灭杀指令', heavyName: '死告', burstName: '幻影蚀刻', varName: '全境通缉',
       heavyMech: '<span style="color:var(--muted)">解放形态内：</span><b class="term-heavy">重击·死告</b>是 Deathblade 形态的终结段；6 链会召唤<b class="term-resource">猎杀影</b>协同。',
       burstMech: '<span style="color:var(--muted)">形态切换：</span>释放<b class="term-burst">共鸣解放·杀戮武装</b>后进入<b class="term-resource">Deathblade</b>形态 <b>2</b> 回合；期间普攻/技能 +50%，结束后自动退出。',
       hasHeavy: true,
@@ -530,7 +530,7 @@ export const SKILL_HINTS = {
     intro: '衍射 · 音感仪 · 治疗 · 「光合标记」',
     customLines: makeSkillLines({
       element: '衍射',
-      normalName: '星星花', skillName: '扩繁试验', burstName: '草木生长', varName: '盛放入场',
+      normalName: '育苗', skillName: '扩繁试验', burstName: '草木生长', varName: '蔓延',
       skillFollowUp: '回 <b class="term-resource">光合能量</b>。 2 链：技能额外回 1 光合 + 10 协奏。',
       burstFollowUp: '<b class="term-burst">解放</b>给全队挂<b class="term-resource">光合标记</b>（持续治疗）。 3 链：<b class="term-resource">光合标记</b>治疗加成 +12%。 4 链：重击/解放/延奏后全队衍射 +15%。 5 链：治疗低 HP 角色时治疗 +20%。 6 链：重击·星星花绽放 +20% + <b class="term-resource">协同攻击</b>。'
     }),
@@ -563,7 +563,7 @@ export const SKILL_HINTS = {
     intro: '冷凝 · 迅刀 · 主C · 「狮子奋迅」',
     customLines: makeSkillLines({
       element: '冷凝',
-      normalName: '挥斩', skillName: '飞身式·翻山越涧', burstName: '狮子奋迅', varName: '出洞·睡狮蛰醒',
+      normalName: '常态·凛凛威风拳', skillName: '冲掌·势式相承', burstName: '奋进·狮子奋迅，俱足万行', varName: '出洞·睡狮蛰醒',
       skillMech: '<span style="color:var(--muted)">行狮期间：</span>共鸣技能后下次普攻会获得 6 链强化（若已激活）。',
       burstMech: '<span style="color:var(--muted)">形态切换：</span>释放<b class="term-burst">共鸣解放·狮子奋迅</b>后进入<b class="term-resource">行狮</b>形态；期间普攻/技能获得强化，6 链时技能后下次普攻 +100%。',
       skillFollowUp: '6 链：行狮状态下，共鸣技能后下次普攻 +100%。',
@@ -576,7 +576,7 @@ export const SKILL_HINTS = {
     intro: '气动 · 臂铠 · 辅助 · 「涤净力场」',
     customLines: makeSkillLines({
       element: '气动',
-      normalName: '掌击', skillName: '静气循行', burstName: '涤净力场', varName: '掌息之要',
+      normalName: '风仪拳术', skillName: '静气循行', burstName: '涤净力场', varName: '掌息之要',
       burstMech: '<span style="color:var(--muted)">重击联动：</span>施放<b class="term-heavy">重击·混元气旋</b>后，4 链会让<b class="term-burst">涤净力场</b>伤害 +80%。',
       skillMech: '<span style="color:var(--muted)">派生条件：</span>施放<b class="term-skill">静气循行</b>进入<b class="term-resource">架势</b>，保持 <b>1</b> 回合后下次技能变为<b class="term-skill">行气反击</b>。',
       skillFollowUp: '进入<b class="term-resource">架势</b>。 2 链：使用次数 +1。 3 链：架势保持后可打出<b class="term-skill">行气反击</b>。',
@@ -591,7 +591,7 @@ export const SKILL_HINTS = {
     intro: '热熔 · 佩枪 · 副C · 「浮翼狂想协同」',
     customLines: makeSkillLines({
       element: '热熔',
-      normalName: '佩枪射击', skillName: '应援', burstName: '浮翼狂想', varName: '声骸入场',
+      normalName: '即兴发挥', skillName: '激昂变奏', burstName: '暴烈终曲', varName: '不协和音',
       skillFollowUp: '4 链：技能命中后全队热熔 +12%。',
       burstFollowUp: '<b class="term-burst">浮翼狂想</b>协同窗口：主 C 用技能时莫特斐补刀。 1 链：解放期间共鸣技能触发协同。 2 链：声骸后额外回 10 能量。 3 链：加强音暴伤 +30%。 4 链：解放时长 +7 秒。 5 链：共鸣技能命中触发协同。 6 链：解放·暴烈终曲时全队攻击 +20%。'
     }),
@@ -601,7 +601,7 @@ export const SKILL_HINTS = {
     intro: '冷凝 · 长刃 · 副C · 「霜色」',
     customLines: makeSkillLines({
       element: '冷凝',
-      normalName: '剑舞', skillName: '朔雪永冻', heavyName: '爆裂', burstName: '焦瞑冻土', varName: '剑修入场',
+      normalName: '寒光', skillName: '朔雪永冻', heavyName: '爆裂', burstName: '焦瞑冻土', varName: '凛刺',
       hasHeavy: true,
       skillFollowUp: '1 链：第 5 段普攻后暴击 +15%。',
       heavyFollowUp: '4 链：解放后下次重击·爆裂 +120%。 6 链：重击·爆裂倍率 +50%。',
@@ -623,7 +623,7 @@ export const SKILL_HINTS = {
     intro: '湮灭 · 长刃 · 副C · 「朱蚀之刻」',
     customLines: makeSkillLines({
       element: '湮灭',
-      normalName: '红枝挥斩', skillName: '朱蚀之刻', burstName: '湮灭爆发', varName: '红椿入场',
+      normalName: '执刃', skillName: '朱华残章', burstName: '绯红绽放', varName: '击雠',
       skillFollowUp: '给目标附加<b class="term-resource">朱蚀之刻</b>。 1 链：攻击带朱蚀目标 +5%/层（满 6 层 +30%）。 2 链：攻击带朱蚀目标伤害 +20%。',
       burstFollowUp: '3 链：共鸣解放伤害加成 +30%。 4 链：彤华 ≥ 60 时暴击 +15%。 5 链：湮灭伤害 +15%。 6 链：重击·缭乱后全队攻击 +20%。'
     }),
@@ -633,7 +633,7 @@ export const SKILL_HINTS = {
     intro: '冷凝 · 音感仪 · 治疗 · 「念意」',
     customLines: makeSkillLines({
       element: '冷凝',
-      normalName: '音感弹', skillName: '应急预案', burstName: '刹那合弥', varName: '覆雪流盈',
+      normalName: '应许', skillName: '应急预案', burstName: '刹那合弥', varName: '覆雪流盈',
       burstMech: '<span style="color:var(--muted)">治疗派生：</span>释放<b class="term-burst">刹那合弥</b>触发<b class="term-skill">频隙回响</b>多段治疗。',
       skillMech: '<span style="color:var(--muted)">资源消耗：</span>消耗<b class="term-resource">念意</b>治疗队友；满 4 点念意时治疗/冷凝加成更高。',
       skillFollowUp: '消耗<b class="term-resource">念意</b>给自身回能量。 1 链：每<b class="term-resource">念意</b>回 2.5 能量。 2 链：满<b class="term-resource">念意</b>时冷凝/治疗 +15%。',
@@ -646,7 +646,7 @@ export const SKILL_HINTS = {
     intro: '气动 · 佩枪 · 副C · 「雾化分身」',
     customLines: makeSkillLines({
       element: '气动',
-      normalName: '佩枪射击', skillName: '移位戏法', burstName: '虚幻迷雾', varName: '影舞入场',
+      normalName: '真假参半', skillName: '移位戏法', burstName: '雾里观花', varName: '虚晃一枪',
       burstMech: '<span style="color:var(--muted)">潜行窗口：</span>释放解放后进入<b class="term-resource">迷雾潜行</b>，期间减伤并获得气动增益（5 链）。',
       skillMech: '<span style="color:var(--muted)">召唤物：</span>施放共鸣技能召唤<b class="term-resource">雾化分身</b>并生成<b class="term-resource">虚实之门</b>；分身会<b class="term-resource">嘲讽</b>目标。',
       skillFollowUp: '生成<b class="term-resource">雾化分身</b><b class="term-resource">嘲讽</b>敌人。 1 链：技能冷却 -1 回合。 2 链：攻击被<b class="term-resource">嘲讽</b>目标时攻击 +15%。 3 链：穿<b class="term-resource">虚实之门</b>额外生成 2 颗子弹。 4 链：共鸣技能·雾化子弹 +30%。',
@@ -658,43 +658,44 @@ export const SKILL_HINTS = {
     intro: '热熔 · 佩枪 · 副C · 「炽烈焰火」',
     customLines: makeSkillLines({
       element: '热熔',
-      normalName: '咻咻射击', skillName: '咻咻斗意', burstName: '炽烈焰火', varName: '英雄入场',
+      normalName: '砰砰', skillName: '咻咻斗意', burstName: '炽烈焰火', varName: '堂堂登场',
       skillFollowUp: '1 链：共鸣技能·轰轰必定暴击。 6 链：触发技能·轰轰后全队普攻 +25%。',
       burstFollowUp: '<b class="term-resource">热压弹</b> 60 发持续输出。 2 链：解放期间击败目标回 5 能量。 3 链：解放对低 HP 目标 +40%。 4 链：获 60 弹 + 重置技能 CD。 5 链：<b class="term-resource">加麻加辣</b>满层时攻击 +30%。'
     }),
     forteDesc: '炽霞是<b style="color:#ff8c5e">热熔副C</b>，核心是<b class="term-burst">共鸣解放·炽烈焰火</b>的 60 发热压弹 + 重置技能 CD。<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>共鸣技能·轰轰 → 共鸣解放·炽烈焰火 → 60 弹高速输出 → 重置 CD 再放技能。'
   },
   '秧秧': {
-    intro: '气动 · 音感仪 · 副C · 「风场」',
+    intro: '气动 · 迅刀 · 副C · 「流息」与「空中释羽」',
     customLines: makeSkillLines({
       element: '气动',
-      normalName: '羽箭', skillName: '风场鸣声', heavyName: '空中释羽', burstName: '湛蓝礼赞', varName: '湛蓝入场',
+      normalName: '风羽为刃', skillName: '流风载域', heavyName: '空中释羽', burstName: '朔风旋涌', varName: '湛蓝礼赞',
       hasHeavy: true,
-      skillFollowUp: '<b class="term-skill">风场鸣声</b><b class="term-resource">牵引</b>敌人。 3 链：共鸣技能 +40%。',
+      skillFollowUp: '<b class="term-skill">流风载域</b><b class="term-resource">牵引</b>敌人。 3 链：共鸣技能 +40%。',
       heavyFollowUp: '<b class="term-heavy">空中释羽</b>是核心输出段。 4 链：<b class="term-heavy">空中释羽</b> +95%。',
       burstFollowUp: '1 链：变奏后气动 +15%。 2 链：重击命中回 10 能量。 5 链：解放·朔风旋涌 +85%。 6 链：<b class="term-heavy">空中释羽</b>后全队攻击 +20%。',
     }),
-    forteDesc: '秧秧是<b style="color:var(--green)">气动副C</b>：<b class="term-skill">风场鸣声</b>牵引敌人 + <b class="term-heavy">空中释羽</b>主输出。<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>共鸣技能铺风场 → 变奏入场叠气动 buff → 空中重击释羽爆发。'
+    forteDesc: '秧秧是<b style="color:var(--green)">气动副C</b>：<b class="term-skill">流风载域</b>牵引敌人 + <b class="term-heavy">空中释羽</b>主输出。<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>共鸣技能铺风场 → 变奏入场叠气动 buff → 空中重击释羽爆发。'
   },
   '桃祈': {
-    intro: '衍射 · 臂铠 · 辅助 · 「磐岩护壁」',
+    intro: '湮灭 · 长刃 · 辅助 · 「磐岩护壁」与「攻防转换」',
     customLines: makeSkillLines({
-      element: '衍射',
-      normalName: '岩拳', skillName: '磐岩护壁', burstName: '不动如山', varName: '盾守入场',
-      skillFollowUp: '<b class="term-skill">磐岩护壁</b>给全队护盾。 3 链：磐岩护壁持续延长。 6 链：磐岩护壁期间普攻/重击 +40%。',
+      element: '湮灭',
+      normalName: '重器藏锋', skillName: '固若金汤', heavyName: '发后制人', burstName: '不动如山', varName: '携攻守阵',
+      hasHeavy: true,
+      skillFollowUp: '<b class="term-skill">固若金汤</b>给全队护盾。 3 链：磐岩护壁持续延长。 6 链：磐岩护壁期间普攻/重击 +40%。',
       burstFollowUp: '<b class="term-burst">不动如山</b>反击爆发。 1 链：护盾量 +40%。 2 链：解放暴击/暴伤 +20%。 4 链：重击发后制人触发时回血 + 防御 +50%。 5 链：<b class="term-resource">攻防转换</b>命中回 20 能量。'
     }),
-    forteDesc: '桃祈是<b style="color:var(--accent)">衍射辅助</b>（护盾型）：<b class="term-skill">磐岩护壁</b>给全队护盾，<b class="term-burst">共鸣解放·不动如山</b>反击爆发。<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>共鸣技能上护盾 → 重击发后制人触发反击 → 共鸣解放收尾。'
+    forteDesc: '桃祈是<b style="color:#a78bff">湮灭辅助</b>（护盾型）：<b class="term-skill">固若金汤</b>给全队护盾，<b class="term-burst">共鸣解放·不动如山</b>反击爆发。<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>共鸣技能上护盾 → 重击发后制人触发反击 → 共鸣解放收尾。'
   },
   '渊武': {
     intro: '导电 · 臂铠 · 辅助 · 「雷之楔」',
     customLines: makeSkillLines({
       element: '导电',
-      normalName: '雷拳', skillName: '雷之楔', burstName: '寂土重明', varName: '轰雷入场',
-      skillFollowUp: '<b class="term-skill">雷之楔</b>召唤协同武器。 3 链：<b class="term-skill">雷之楔</b>命中按 20% 防御加伤。',
+      normalName: '雷煌拳', skillName: '拳震凌武', burstName: '寂土重明', varName: '轰雷',
+      skillFollowUp: '<b class="term-skill">拳震凌武</b>展开雷之楔。 3 链：<b class="term-skill">雷之楔</b>命中按 20% 防御加伤。',
       burstFollowUp: '<b class="term-burst">寂土重明</b>给全队护盾。 1 链：雷厉风行状态攻速 +20%。 2 链：变奏·轰雷回 15 能量。 5 链：<b class="term-skill">雷之楔</b>在场时解放 +50%。 6 链：<b class="term-skill">雷之楔</b>范围内全队防御 +32%。'
     }),
-    forteDesc: '渊武是<b style="color:#7bd6ff">导电辅助</b>：<b class="term-skill">雷之楔</b>召唤协同武器，<b class="term-burst">共鸣解放·寂土重明</b>给全队护盾。<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>变奏入场积能量 → 共鸣技能召楔 → 共鸣解放给全队护盾。'
+    forteDesc: '渊武是<b style="color:#7bd6ff">导电辅助</b>：<b class="term-skill">拳震凌武</b>展开雷之楔，<b class="term-burst">共鸣解放·寂土重明</b>给全队护盾。<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>变奏入场积能量 → 共鸣技能召楔 → 共鸣解放给全队护盾。'
   },
   '釉瑚': {
     intro: '冷凝 · 臂铠 · 副C · 「诗中物对偶/联珠」',

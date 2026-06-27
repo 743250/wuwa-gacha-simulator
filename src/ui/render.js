@@ -3,7 +3,7 @@ import { S, DAY, fmt, $ } from '../state.js';
 import { activePhase, activeBanners, cur, poolKind, poolTitle, tideKey, tideName, tideLetter, targetOptions, isCollabActive } from '../gacha/core.js';
 import { shopCatalog } from '../shop/actions.js';
 import { seqText } from '../data/seq.js';
-import { standard5, fourAll, weapons as characterWeapons } from '../data/chars.js';
+import { standard5, fourAll, weapons as characterWeapons, bannerNames } from '../data/chars.js';
 import { openModal } from '../modal.js';
 import { upgrade } from '../gacha/core.js';
 import { saveState } from '../save.js';
