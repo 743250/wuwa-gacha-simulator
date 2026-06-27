@@ -46,8 +46,8 @@ src/
   data/         ← 纯数据（无逻辑）
     chars.js    ← 角色/武器名、卡池名称
     phases.js   ← 卡池时间表 1.0–3.4
-    seq.js      ← 共鸣链文案（40 角色）
-    chains-extracted.json ← 官方共鸣链原文（95KB）
+    seq.js      ← 共鸣链文案（seqText，模拟器版）
+    chains-extracted.json ← 库街区抓到的 10 个核心角色官方原文备份（历史参考）
 
   gacha/        ← 抽卡核心
     core.js     ← 概率曲线、保底、卡池/波纹解析、角色/武器初始化
@@ -59,14 +59,15 @@ src/
     stats.js    ← 面板计算（攻击/暴击/元素/生命）
     template.js ← 角色定位模板（4 类）+ 元素映射
     elements.js ← 六元素抗性 + 震动伤害
-    chains.js   ← 共鸣链→战斗效果（数值版，851 行）
+    chains.js   ← 共鸣链→战斗效果（applyChainBonuses 等）
+    chainEffects.js ← CHAIN_BATTLE_EFFECTS 结构化 effect 表（角色专属数值覆写）
     forte.js    ← 奏回路（角色专属资源条）
     weaponTriggers.js ← 武器被动触发
     enemies.js  ← 敌人数据库（含 BOSS 机制）
     enemyMechanics.js ← 敌人机制注册表（周期/阈值触发）
     combat.js   ← AP 回合制战斗引擎（731 行）
     dungeon.js  ← 副本配置
-    characters/ ← 角色专属机制（S 级角色）
+    characters/ ← 角色专属机制文件（S 级专属，1 对 1 文件）
       index.js  ← 注册表/派发（getCharacterMechanic / hasHeavy / fireHook）
 
   equip/        ← 装备养成
@@ -95,8 +96,8 @@ src/
   ui/           ← UI 渲染
     render.js   ← 主渲染入口（1086 行，待拆分见 Phase 2）
     render/     ← 渲染子模块
-      skillHints.js  ← 角色技能 tooltip 定义（695 行）
-      skillLines.js  ← 共鸣链文案行渲染
+      skillHints.js  ← 角色技能 tooltip 定义（SKILL_HINTS）
+      skillLines.js  ← 共鸣链文案行渲染 + makeSkillLines 工厂
       utils.js       ← 工具函数
     battleRenderers/
       buffRenderers.js ← Buff 显示注册表
@@ -155,258 +156,86 @@ src/
 
 ## 文档分层（重要 · 不要混用事实来源）
 
-项目文档索引见 [docs/README.md](docs/README.md)。后续做角色/武器/敌人/副本时按以下来源优先级处理：
+四层文档，从上到下优先级递减。冲突时按这个顺序查证，**先查先问，不要擅自改**：
 
-1. **官方资料层**：[docs/sources/](docs/sources/) 记录库街区/游戏内/官方公告的原文要点。
-   - 角色官方资料：[docs/sources/characters/](docs/sources/characters/)
-   - 官方角色索引：[docs/sources/characters/README.md](docs/sources/characters/README.md)
-2. **强度榜层**：[docs/sources/tier-list.md](docs/sources/tier-list.md) 只用于数值天花板和 meta 强度，不替代官方技能文本。
-3. **设计层**：[docs/plans/](docs/plans/) 记录模拟器 AP 回合制抽象（角色/敌人/机制/架构实施方案）。
-   - 角色移植：[docs/plans/characters/](docs/plans/characters/)
-   - 敌人移植：[docs/plans/enemies/](docs/plans/enemies/)
-   - 游戏机制移植：[docs/plans/mechanisms/](docs/plans/mechanisms/)
-4. **实现指南层**：本 CLAUDE.md 说明怎么工作、怎么改代码、tooltip 标准和移植路径。
-5. **优化计划层**：[docs/plans/architecture/phase-2.md](docs/plans/architecture/phase-2.md) 记录架构/性能/模块化优化计划（Phase 1 已完成，Phase 2 当前）。
+1. **设计层** · [docs/plans/](docs/plans/) — 模拟器抽象方案，是改代码的最终依据。角色在 [docs/plans/characters/](docs/plans/characters/)，敌人/机制/架构同理。
+2. **官方资料层** · [docs/sources/](docs/sources/) — 角色面板/技能/共鸣链原文在 [docs/sources/characters/individual/](docs/sources/characters/individual/)。强度榜在 [docs/sources/tier-list.md](docs/sources/tier-list.md)。**这是输入，不是目标**。
+3. **当前实装** — 读了下面”代码地图”再改。看看现有 `src/battle/characters/*.js` 怎么做的，照着做。
+4. **本 CLAUDE.md** — 工程向导。可能过时，**不是事实来源**。如果它和上面三层冲突，先查证再问用户。
 
-**硬规则**：
-- CLAUDE.md 不是官方事实来源；它可能过时。
-- 如果官方资料、当前实装、设计文档、CLAUDE.md 之间冲突，先查证并问用户，不要擅自改角色/武器/敌人机制和数值。
-- 架构优化不能顺手改角色强度；数值/机制变更必须单独提出。
+总索引见 [docs/README.md](docs/README.md)。
 
-## 角色移植思路（重要 · 制作单个角色时按这个走）
+## 工作纪律（AI 必须遵守 · 优先级最高）
 
-详细的移植思路/研究流程/分级策略见 [docs/plans/README.md](docs/plans/README.md)（与用户讨论后定稿的实施计划）。此处只保留要点：
+违反任意一条都是严重错误，不是小疏漏。
 
-- 每个角色一个核心机制，6 条共鸣链都围绕加强这一个核心
-- 文案 = 具体数值，tooltip = 计算公式（凡是出现数字的地方都要有 tooltip 公式）
-- 专有名词加术语 tooltip（[src/ui/terms.js](src/ui/terms.js) `TERM_DICT`）
-- 数值先查 [docs/sources/](docs/sources/) 官方资料，再看 [docs/plans/](docs/plans/) 模拟器抽象
-- 重击是 opt-in（[src/battle/characters/index.js](src/battle/characters/index.js) `HAS_HEAVY_ROLES`）
-- 官方/实装/文案冲突时先记录差异再问用户，不擅自改
+1. **每次提交必须署名**：commit message 末尾必须含 `Co-Authored-By: Claude <noreply@anthropic.com>`。
 
-每个角色的具体设计方案见 [docs/plans/characters/](docs/plans/characters/)。
+2. **已实装角色的设计决策不可擅自修改**：角色机制/数值/公式/共鸣链效果一律不动，**无论看到什么官方数据**。看到官方数据和代码不一致时，**记录差异，报告用户**，等待决定。严禁因”贴近官方”擅自改数值公式；架构优化时严禁顺手改角色行为和数值。已发生过的越权：
+   - ❌ 看官方说 HP 公式就提议把 ATK 改成 HP
+   - ❌ 看官方说某链不加治疗倍率就提议删自定义系数
+   - ❌ 重构时顺手改角色数值
 
-### 技能/形态文案标准（别把核心机制藏进 tooltip）
+3. **设计文档 > 官方数据**：冲突时优先级是 ① 用户口头指示 → ② [docs/plans/](docs/plans/) 设计文档 → ③ 当前实装代码 → ④ [docs/sources/](docs/sources/) 官方数据。官方是”官方怎么做的”，设计文档是”模拟器决定怎么做”。
 
-1. **技能介绍本体必须说清核心机制**
-   - 形态怎么进入、持续多久、怎么退出，要写在 `forteDesc` 和对应技能行里
-   - tooltip 只做补充解释，不承担“唯一说明”
-   - 反例：只在 `terms.js` 里解释安可黑咩，技能行不写持续多久 → 玩家看不懂
+## 角色移植入口
 
-2. **共鸣链效果只在激活后显示**
-   - `makeSkillLines` 的 followUp 文案使用 `N 链：效果` 格式
-   - 未达到 N 链时隐藏；达到后显示金色 `[N链]`
-   - 不要把 1 链效果当基础技能说明写给 0 链玩家看（曾经安可共鸣技能错误显示“普攻命中热熔 +3%/层”）
+**做新角色前必读** [docs/plans/角色设计指南.md](docs/plans/角色设计指南.md)（覆盖五层移植流程 / 分级策略 / 前端文案规范 / 设计文档怎么写）。下面只留代码层索引，规范以指南为准。
 
-3. **时间统一用回合，不用秒**
-   - 原版“持续 6/10/20/30 秒”要转成回合制表达
-   - 大致映射：6-12 秒 ≈ 2 回合；14-24 秒 ≈ 3 回合；25-30 秒 ≈ 4 回合
-   - 特殊长 CD（如 10 分钟）写成“每场战斗 1 次”
+各角色的具体设计方案见 [docs/plans/characters/](docs/plans/characters/)，状态进度见 [docs/plans/characters/status.md](docs/plans/characters/status.md)。
 
-4. **术语必须可悬停**
-   - 资源 / 状态 / 召唤物 / debuff / 派生技能 都要进入 `TERM_DICT`
-   - 文案里必须用 `<b class="term-resource">术语</b>` 或同类 class 包起来，否则 `attachTermTips` 不会生效
-   - 例：牵引、停滞、嘲讽、协同攻击、空中攻击、闪避反击、焕彩、迷失羔羊、冰绽 等
+### 代码地图 · 一个角色要碰的文件
 
-5. **前端文案 ≠ 工作笔记（玩家空间的底线）**
-   - 后端注释可以随意写技术用语，因为玩家看不到。前端文案是**玩家的阅读空间**，不是开发者的记事本。
-   - **严禁**在玩家可见文案中出现开发者速记符号：`→` `+` `buff` `debuff` `核心` `叠层` `爆发解放机` 等。
-   - **严禁**把角色 intro 写成攻略提示。intro 只陈述角色身份（元素、武器、定位、核心机制名），不教玩家怎么循环。
-     - ❌ `「决意叠层 → 双形态 · 风蚀爆发」`
-     - ✅ `「决意」与「芙露德莉斯」双形态`
-   - **严禁**替玩家理解游戏——只陈述事实，不写"这是主输出窗口""全部价值集中于""不依赖专属资源"等分析性语句。
-   - 共鸣链文案必须对着 `chainEffects.js` 的实际效果逐字核对，写清楚触发条件、触发对象、效果数值。不编造任何代码中不存在的机制。
-   - 每个新术语要同时加入 `TERM_DICT` 和 `CHAIN_TERM_PATTERNS`（`render.js`），确保专有名词在共鸣链和技能描述中都有 tooltip。
-   - 通用游戏机制（如风蚀效应）不要标注为某个角色的专属效果。
+| 文件 | 用途 |
+|---|---|
+| [src/battle/characters/](src/battle/characters/) `<角色名>.js` | S 级专属机制（状态机/双形态）；A 级工厂一般不需要这个文件 |
+| [src/battle/characters/index.js](src/battle/characters/index.js) `getCharacterMechanic` / `HAS_HEAVY_ROLES` | 注册表 / 重击开关 |
+| [src/battle/chainEffects.js](src/battle/chainEffects.js) `CHAIN_BATTLE_EFFECTS[角色名]` | 6 链的结构化战斗 effect（数值版） |
+| [src/battle/chains.js](src/battle/chains.js) `applyChainBonuses` | 按 effect 类型分发到 unit；未列在 chainEffects 的角色走文案正则兜底 |
+| [src/battle/combat.js](src/battle/combat.js) | AP 回合制引擎，挂钩 doAttack/doSkill/doHeavy/doBurst/doSwitch |
+| [src/battle/forte.js](src/battle/forte.js) `FORTE[角色名]` | FORTE 资源条配置 |
+| [src/data/seq.js](src/data/seq.js) `seqText[角色名]` | 共鸣链 6 条文案（模拟器版） |
+| [src/ui/render/skillHints.js](src/ui/render/skillHints.js) `SKILL_HINTS[角色名]` | 技能 tab 文案（工厂版用 `makeSkillLines` 见 [src/ui/render/skillLines.js](src/ui/render/skillLines.js)） |
+| [src/ui/render.js](src/ui/render.js) `CHAIN_TERM_PATTERNS` | 让术语在共鸣链里也能悬停 |
+| [src/ui/terms.js](src/ui/terms.js) `TERM_DICT` | 术语词典（资源/状态/招式名） |
 
-### 实现路径（按这个顺序做）
+### 移植铁律（违反 = 严重错误）
 
-每个角色按 4-5 个文件改：
+下面是规范要点，完整版见上面”角色设计指南”第 4 节。
 
-1. **[src/battle/chains.js](src/battle/chains.js) `CHAIN_BATTLE_EFFECTS[角色名]`**
-   - 6 条链各一条 effect，effect 字段挂角色专属前缀（如 `jiyanXxx`）
-   - 在 `applyChainBonuses` 末尾加对应 case，把参数挂到 `unit` 上
+1. **核心一个**：每角色一个核心机制，6 链都围绕这一个核心。
+2. **文案 = 具体数值，tooltip = 公式**：凡是出现数字的地方都要有 tooltip 公式，没有”裸数”。例”对目标造成 309 点衍射伤害”，悬停 309 看 `= 攻击 309 × 100%`。
+3. **时间统一用回合**：6-12 秒 ≈ 2 回合 / 14-24 秒 ≈ 3 回合 / 25-30 秒 ≈ 4 回合 / 10 分钟 ≡ 每场战斗 1 次。
+4. **术语必须可悬停**：资源/状态/召唤物/debuff/派生技能都进 `TERM_DICT`，文案用 `<b class=”term-xxx”>术语</b>` 包起来；新术语同时进 `CHAIN_TERM_PATTERNS`。
+5. **不把核心机制藏进 tooltip**：技能介绍本体要说清形态怎么进/持续多久/怎么退出。
+6. **共鸣链只在激活后显示**：`makeSkillLines` 的 followUp 用 `N 链：效果` 格式，未达 N 链隐藏。
+7. **重击 opt-in**：缺省无重击，需要才加 `hasHeavy: true`，战斗 UI 按 `cur.hasHeavy` 动态布局。
+8. **玩家空间文案 ≠ 工作笔记**：禁用 `→` `+` `buff` `debuff` `core` `叠层` `爆发解放机` 等速记。intro 只写身份（`元素 · 武器 · 定位 · 「核心机制名」`），不替玩家分析强度。通用机制（如风蚀效应）不标角色专属。
+9. **HP 核倍率校准**（卡提希娅范式）：HP 核角色的普攻/技能/重击倍率必须按 HP/ATK 倍数比下调（基线 HP/ATK ≈ 8.7×），否则”普攻反超大招”。详见角色设计指南第 3 层。
+10. **共鸣链文案对着 chainEffects.js 实际效果逐字核对**，不编造代码中不存在的机制。
 
-2. **[src/battle/combat.js](src/battle/combat.js) 战斗循环里**
-   - 加角色专属 helper（如 `jiyanGainRuiyi`）和状态字段（如 `unit.ruiyi`）
-   - 在 doAttack / doSkill / doHeavy / doBurst / doSwitch 相应位置挂钩
-   - 如角色**有**重击，加进 `HAS_HEAVY_ROLES` 集合
+### 分级实装深度
 
-3. **[src/data/chains-extracted.json](src/data/chains-extracted.json) 6 条链文案**
-   - 保留官方 title，重写 summary + desc 为模拟器版本
-   - 全部用 `<b class="term-xxx">` 染色
+| 级别 | 文件改动 | 适用 |
+|---|---|---|
+| **S 级**（专属状态机）| characters/<角色>.js + combat.js + chainEffects.js 结构化 effect + customLines 手写 + 链文案 | 真正的 SS/S 级、独特机制无法用工厂表达者，≈ 8~10 人 |
+| **A 级**（工厂完整）| chainEffects.js 标准 effect + `makeSkillLines` 配置 + seq.js 链文案 | 默认级别，大多数限定/常驻强角 |
+| **B 级**（最小化）| 简化 customLines + 链染色 | 4★ 边缘 / 不熟 / 3.x 后期暂不深入 |
+| **C 级**（只收录）| 仅 seq.js fallback | 资料不足 / 明显低强度 |
 
-4. **[src/ui/render.js](src/ui/render.js) `SKILL_HINTS[角色名]`**
-   - 用 `customLines: (stats, role) => [...]` 函数式输出 4-5 段技能
-   - 文案直接写实际数值，tooltip 放公式
-   - 如有重击，`hasHeavy: true`
-   - `forteDesc` 写明角色循环节奏（"切人 → 技能 → 重击 → 满层解放"）
+**默认 A 级，不要动不动升 S**：A→S 仅在”核心决策无法用 makeSkillLines + 标准 effect 表达”时升。S 级奖励机制必要性，不奖励强度。B 级不是凑数，是承认暂时不懂这个角色 —— **瞎编 customLines 比裸数文案+染色更糟**。已实装角色见 [status.md](docs/plans/characters/status.md)。
 
-5. **[src/ui/terms.js](src/ui/terms.js) `TERM_DICT`**
-   - 给该角色的专有名词加解释（资源 / 状态 / 标志性招式）
-
-### 完成标准
-
-- 角色界面打开，技能 tab 显示真实伤害数字，悬停看公式
-- 共鸣链 tab 6 条文案都是模拟器版本，专有名词带虚线下划线
-- 战斗中按钮 / buff 显示符合该角色机制（如守岸人没有重击按钮）
-- 6 链满和 0 链时数值会变（动态算）
-- 文案里出现的所有数字都有公式 tooltip，**没有"裸数"**
-
-### 已完成
-
-- **守岸人** —「星域」展开（治疗 + 增益）· 无重击 · **S 级 / SS-Tier**
-- **忌炎** —「锐意之势」攒势解放 · 6 链锐意上限 2→3，每层 +120% · **S 级 / A-Tier**
-- **吟霖** —「审判印记」标记型副C · 全队蹭印记目标 · 无重击 · **S 级 / B-Tier**（按 2026.6.18 实际强度榜下调）
-- **2026-06-24 批量**：今汐 / 长离 / 折枝 / 相里要 / 椿 / 珂莱塔 / 洛可可 / 菲比 / 布兰特 / 坎特蕾拉 + 嘉贝莉娜 / 卡卡罗 共 12 个限定角色 · A 级（工厂版 customLines）· 1.1 → 2.2 限定全部完成
-- **卡提希娅** —「标记 / 芙露德莉斯 / 风蚀」双形态主C · HP 核 · 双阶段解放 · **S 级 / SS-Tier** · 专属 237 行状态机
-- **2026-06-24 第二批**：常驻 5★ 维里奈 / 安可 / 凌阳 / 鉴心 + 12 个 4★ 角色（莫特斐/散华/卜灵/丹瑾/白芷/秋水/炽霞/秧秧/桃祈/渊武/釉瑚/灯灯）共 **16 个**角色 · 全部用工厂版 customLines + chains.js CHAIN_BATTLE_EFFECTS · **2.2 前所有角色完成**
-- **剩余**：2.3+ 角色（赞妮/夏空/露帕/弗洛洛/奥古斯塔/尤诺/仇远/千咲 等 8 个）+ 3.0+ 角色（琳奈/莫宁/爱弥斯/陆·赫斯/绯雪/达妮娅 等 12 个）
-
-## 数据采集：三个可用的数据源（重要工具说明）
-
-### 1. 库街区官方 API（共鸣链原文）
-
-**库街区** (`wiki.kurobbs.com`) 是国服官方共建 wiki。但它是 SPA，直接 `curl` 拿到的只是空壳 HTML，必须打它的 API：
-
-```
-POST https://api.kurobbs.com/wiki/core/catalogue/item/getEntryDetail
-Headers:
-  Content-Type: application/x-www-form-urlencoded
-  wiki_type: 9            ← 鸣潮 wiki id（必填，不带它会 220 报错）
-Body:
-  id=<entryId>            ← 例如守岸人是 1286814658335739904
-```
-
-返回 JSON 里 `data.content.modules[1].components[0/1].content` 就是技能 / 共鸣链的官方 HTML（含 `<span class="Highlight">` 染色标记，可直接拿来做高亮）。
-
-### entryId 怎么找
-
-每个角色页 URL 形如 `wiki.kurobbs.com/mc/item/<entryId>`，直接抄即可。或批量拉列表：
-
-```bash
-curl -sL -X POST "https://api.kurobbs.com/wiki/core/catalogue/item/getPage" \
-  -H "Content-Type: application/x-www-form-urlencoded" \
-  -H "wiki_type: 9" \
-  -d "catalogueId=1105&page=1&limit=200"
-# catalogueId=1105 = 共鸣者目录
-# 每条记录的 content.linkId 就是 entryId（长整型字符串）
-```
-
-### 已抓到的 10 个核心角色（位于 [src/data/chains-extracted.json](src/data/chains-extracted.json)）
-
-| 角色 | entryId | 角色 | entryId |
-|---|---|---|---|
-| 忌炎 | 1240073643014045696 | 卡提希娅 | 1370471621924728832 |
-| 今汐 | 1249040336606580736 | 菲比 | 1309523456688947200 |
-| 长离 | 1262882649069621248 | 嘉贝莉娜 | 1415137052791296000 |
-| 椿 | 1302065018502307840 | 卡卡罗 | 1242295483584421888 |
-| 守岸人 | 1286814658335739904 | 珂莱塔 | 1321977849344999424 |
-
-### 重新批量抓取（如官方更新文案后）
-
-```bash
-mkdir -p ~/char-data
-# 对每个角色 entryId 做：
-curl -sL -X POST "https://api.kurobbs.com/wiki/core/catalogue/item/getEntryDetail" \
-  -H "Content-Type: application/x-www-form-urlencoded" \
-  -H "wiki_type: 9" \
-  -d "id=<entryId>" -o ~/char-data/<角色名>.json
-
-# 然后用提取脚本生成可直接被 chains.js import 的 JSON：
-node scripts/extract-chains.cjs ~/char-data
-cp ~/char-data/chains-extracted.json src/data/chains-extracted.json
-```
-
-`scripts/extract-chains.cjs` 会：
-1. 解析每个角色 JSON 的 `data.content.modules[1].components[1].content`（共鸣链表格 HTML）
-2. 按 `<tr>` 切分 6 链
-3. 把官方 `<span class="Highlight">` 标记转成模拟器自己的 `<b class="term-xxx">` 染色（共鸣技能/解放/变奏/重击/普攻/资源条名 各一色）
-4. 输出 `chains-extracted.json`：`{ "角色名": [{title, summary, desc}, ...] }`
-
-### 战斗折算 vs 文案显示
-
-- **文案显示**（角色界面 → 共鸣链 tab）：10 个角色都用官方原文（chains-extracted.json）
-- **战斗折算**（attack/skill/burst 真实加 buff）：目前只有**守岸人**做了结构化覆写（在 [src/battle/chains.js](src/battle/chains.js) 的 `CHAIN_BATTLE_EFFECTS`）；其他 9 个角色文案虽然是官方原文，但战斗中仍走文案正则的简化折算
-- 想给其他角色也做结构化战斗机制：参考守岸人的 `CHAIN_BATTLE_EFFECTS['守岸人']`，列出 6 条 `[{effect, value, ...}]` 即可，combat.js 会按 effect 类型读取
-- **库街区 API 当前状态（2026-06-26）**：`getEntryDetail` 返回"wiki库类型不能为空"，`getPage` 返回"访问令牌不能为空"。**库街区 API 已不可公开访问。**
-
-### 2. encore.moe API（完整面板 + 技能 + 共鸣链 · **首选数据源**）
-
-`encore.moe` 是第三方鸣潮数据库（Black Shores），提供完整角色/武器/声骸/敌人数据。**有公开 REST API，不需要认证**。
-
-```
-Base URL: https://api-v2.encore.moe/api/zh-Hans
-```
-
-**武器**：`GET /api/zh-Hans/weapon` 列表，`GET /api/zh-Hans/weapon/<ItemId>` 详情。Properties 含完整 GrowthValues（`Level`/`Value` 大写），`ResonName`/`Desc` 为技能名+描述。
-
-**角色**：`GET /api/zh-Hans/character` 列表，`GET /api/zh-Hans/character/<RoleId>` 详情。Properties 含 96 级 GrowthValues（**小写** `level`/`value`），`Skills[]` 和 `ResonantChain[]` 含原文。
-
-**关键踩坑**：
-- 根路径返回 Nuxt SPA 空 HTML（638B），必须加 `/api/` 前缀
-- 武器键名大写（`Level`/`Value`），角色键名小写（`level`/`value`）——不一致
-- 角色属性值可能带 `%` 后缀，解析时注意
-- 无认证，无特殊 headers，0.3s 间隔即可，不限速
-
-**已抓取存档**：`docs/sources/weapons/encore-full-data.json`（87 把/39KB）、`docs/sources/characters/encore-full-data.json`（53 人/313KB）
-
-### 3. B站 wiki API（MediaWiki · 限速严重）
-
-`https://wiki.biligame.com/wutheringwaves/api.php?action=parse&prop=wikitext&format=json&formatversion=2&page=武器/<名称>` 可获取结构化 wikitext 模板参数。但连续 2-3 次请求后 HTTP 567 封禁（持续数小时），仅适合单条查证。**武器索引页有约 20 把类型错误，不可作为校准源。**
-
-### 4. 数据源优先级
+## 数据采集源（拉官方面板/技能/共鸣链）
 
 | 源 | 可用性 | 用途 |
 |----|--------|------|
-| encore.moe API | ✅ | 首选·批量抓取 |
-| B站 wiki API | ⚠️ 限速 | 单条查证 |
-| B站 wiki 渲染页 | ⚠️ | 备选查证 |
-| 库街区 API | ❌ 需认证 | 不可用 |
-| Fandom wiki | ❌ 403 | 不可用 |
+| **encore.moe API** | ✅ 首选 | 完整角色/武器/敌人数据，无认证。`Base URL: https://api-v2.encore.moe/api/zh-Hans`。<br>踩坑：根路径返 Nuxt 空 HTML，必须加 `/api/`；武器键名大写 `Level/Value`、角色键名小写 `level/value`。已抓存档见 `docs/sources/characters/encore-full-data.json`、`docs/sources/weapons/encore-full-data.json` |
+| B站 wiki 渲染页 | ⚠️ 备选 | 单条查证 |
+| B站 wiki API | ⚠️ 限速 | 2-3 次后 HTTP 567 封禁数小时；武器索引页约 20 把类型错误，不可作校准源 |
+| 库街区 API | ❌ | 需认证，2026-06 起 `getEntryDetail`/`getPage` 都拒公开访问 |
+| Fandom wiki | ❌ | 403 |
 
-## 工作纪律（AI 必须遵守 · 2026-06-26 由用户立下）
-
-违反任意一条的都是严重错误，不是小疏漏。
-
-### 1. 每次提交必须署名
-
-每个 `git commit` 的 commit message 末尾必须包含以下行：
-
-```
-Co-Authored-By: Claude <noreply@anthropic.com>
-```
-
-这不仅是标注，也是问责。如果当前提交另有主人，则署实际作者名。
-
-### 2. 已实装角色的设计决策不可擅自修改
-
-**已实装的角色机制、数值、公式、共鸣链效果一律不可擅自改动，无论看到什么官方数据。**
-
-理由：角色是按设计文档实现的，设计文档里已经对官方数据做了取舍。官方数据只是参考输入，**设计文档才是标准**。
-
-具体：
-- 看到官方数据和代码不一致时，**记录差异，报告用户**，等待用户决定
-- **严禁**提议删除用户的设计决策（如某条共鸣链的倍率、某个自定义折算系数）
-- **严禁**因为"贴近官方"而擅自改数值或公式
-- 架构优化（重构、拆分文件）时**严禁顺手改角色行为和数值**——这是已经发生过的错误
-
-### 3. 设计文档 > 官方数据
-
-当设计文档、官方数据、当前代码三方冲突时，优先级是：
-1. 用户口头指示
-2. 设计文档 (`docs/plans/`)
-3. 当前实装代码
-4. 官方数据 (`docs/sources/`) — 最低优先级，仅供参考
-
-官方数据是"官方怎么做的"，设计文档是"模拟器决定怎么做"。两者不同很正常。
-
-### 4. 之前已经犯过的错误（禁止再犯）
-
-- ❌ 看到官方文档说 HP 公式，就提议把已实装的 ATK 公式改成 HP — **越权**
-- ❌ 看到官方文档说 1 链不加治疗倍率，就提议删掉 ×2.5 — **越权**
-- ❌ 重构代码时顺手改角色数值 — **违反架构纪律**
-- ❌ 写的设计文档（`docs/plans/characters/守岸人.md`）共鸣链和实装代码完全对不上 — **文档虚假**
+历史抓到的 10 个核心角色的官方共鸣链 HTML 备份在 [src/data/chains-extracted.json](src/data/chains-extracted.json)；提取脚本 [scripts/extract-chains.cjs](scripts/extract-chains.cjs) 用来解析库街区返回 HTML→染色 JSON。encore.moe 是新数据源首选；库街区脚本仅留作历史参考。
 
 ## 版本
 
