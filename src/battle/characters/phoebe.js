@@ -6,14 +6,31 @@
 //   告解状态：光噪效应加深 / FFF 诅咒增伤
 //   镜之环：6 链召唤镜之环，附停滞 + 额外星辉
 
+import { registerForm, enterForm, exitForm, hasForm } from '../forms.js';
+
+// 赦罪形态：默认形态（无 enterName，保持 unit.name 显示）
+// 形态切换 toggle：赦罪 ↔ 告解
+registerForm('phoebe_absolution', {
+  enterName: null, // 赦罪形态默认不改动 displayName（仍是菲比）
+  carryOnSwitch: true,
+  onEnter(unit, battle) {
+    unit.phoebeAbsolution = true;
+    unit.buffs = (unit.buffs || []).filter(b => b.src !== '衍射形态');
+  },
+  onExit(unit, battle) {
+    unit.phoebeAbsolution = false;
+  }
+});
+
 export function phoebeToggleForm(self, battle) {
   if (self.name !== '菲比') return;
-  // 切换赦罪 ↔ 告解
-  self.phoebeAbsolution = !self.phoebeAbsolution;
-  const form = self.phoebeAbsolution ? '赦罪' : '告解';
-  battle.log.push({ type: 'mechanic', src: self.name, msg: `衍射形态切换：${form}` });
-  // 清除旧 buff
-  self.buffs = (self.buffs || []).filter(b => b.src !== '衍射形态');
+  if (hasForm(self, 'phoebe_absolution')) {
+    exitForm(self, 'phoebe_absolution', battle);
+    battle.log.push({ type: 'mechanic', src: self.name, msg: '衍射形态切换：告解' });
+  } else {
+    enterForm(self, 'phoebe_absolution', battle);
+    battle.log.push({ type: 'mechanic', src: self.name, msg: '衍射形态切换：赦罪' });
+  }
 }
 
 // 当前形态下的伤害修正
@@ -31,6 +48,13 @@ export function phoebeFormBonus(self, dmgType) {
 export default {
   name: '菲比',
   hasHeavy: true,
+  // 初始进战斗默认就是赦罪形态（在 combat.js 初始化时通过此 hook 触发）
+  initForm(self) {
+    if (!hasForm(self, 'phoebe_absolution')) {
+      const battle = null;
+      enterForm(self, 'phoebe_absolution', battle);
+    }
+  },
   toggleForm: phoebeToggleForm,
   formBonus: phoebeFormBonus
 };

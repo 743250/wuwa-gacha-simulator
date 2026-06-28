@@ -6,6 +6,21 @@
 //   · 失序值满时施放重击：消耗 100 失序值，改为白咩·失控之炎 / 黑咩·暴走之炎（按共鸣解放伤害结算）
 //   · 共鸣解放·黑咩大暴走：进入黑咩窗口（释放当回合 + 后续 3 个完整我方回合），普攻/技能/重击强化
 
+import { registerForm, enterForm, exitForm, hasForm } from '../forms.js';
+import { registerSwitchHook } from '../switchHooks.js';
+
+// 黑咩形态：进入时 displayName → 黑咩，carryOnSwitch=true 场地态
+registerForm('encore_black', {
+  enterName: '黑咩',
+  carryOnSwitch: true,
+  onEnter(unit, battle) {
+    unit.encoreBlackTurns = 4;
+  },
+  onExit(unit, battle) {
+    unit.encoreBlackTurns = 0;
+  }
+});
+
 export function encoreGainDisorder(self, amount, source, battle) {
   if (self.name !== '安可') return;
   const extra = (self.encoreBlackTurns || 0) > 0 ? 10 : 0;
@@ -27,7 +42,7 @@ export function encoreGainDisorder(self, amount, source, battle) {
 // 解放后进入黑咩形态
 export function encoreStartBlackSheep(self, battle) {
   if (self.name !== '安可') return;
-  self.encoreBlackTurns = 4;
+  enterForm(self, 'encore_black', battle);
   battle.log.push({
     type: 'mechanic', src: self.name,
     msg: '黑咩大暴走 · 进入黑咩形态（后续 3 回合），普攻/技能/重击获得强化'
@@ -36,12 +51,16 @@ export function encoreStartBlackSheep(self, battle) {
 
 // endTurn 清理
 export function encoreTurnCleanup(self, battle) {
-  if (self.name !== '安可' || !self.encoreBlackTurns) return;
+  if (self.name !== '安可' || !hasForm(self, 'encore_black')) return;
   self.encoreBlackTurns--;
-  if (self.encoreBlackTurns === 0) {
+  if (self.encoreBlackTurns <= 0) {
+    exitForm(self, 'encore_black', battle);
     battle.log.push({ type: 'mechanic', src: self.name, msg: '黑咩大暴走结束 · 回到白咩形态' });
   }
 }
+
+// Step E：切人入场钩子（变奏·咩咩帮手 +30 失序）
+registerSwitchHook('安可', ({ to, battle }) => encoreGainDisorder(to, 30, '变奏·咩咩帮手', battle));
 
 export default {
   name: '安可',

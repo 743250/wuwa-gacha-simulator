@@ -1,43 +1,81 @@
+import { registerStack, gainStack, consumeStack, getStack, getStackCap, renderStacks } from '../stacks.js';
+import { registerForm, enterForm, exitForm, hasForm } from '../forms.js';
+import { registerSwitchHook } from '../switchHooks.js';
+
 // 卡提希娅「决意 / 芙露德莉斯形态 / 风蚀」状态机
 //
 // 双形态循环：
 //   卡提希娅形态（常态）：普攻/技能/重击叠【决意】→ 第一次解放消耗决意获得【人权/神权/异权】→ 进芙露德莉斯形态
 //   芙露德莉斯形态：攻击/技能叠【风蚀效应】→ 第二次解放每层风蚀 +20% → 清空风蚀退出形态
 //
-// 决意系统：上限 3 层，每层 +10% 气动伤害，持续 2 回合，刷新机制
+// 决意系统：上限 3 层，每层 +10% 气动伤害，每层独立 2 回合衰减（表现为全局 timer=1，到时减 1 层并刷新）
 // 仅作为 buff 名，不复刻官方原文的「每攒 30/60/90/120 决意暴伤 +25%」集意/决意真机制
+
+// 决意 Stack：每 2 回合减 1 层（实现为 decayCooldown=1，到时层-1 并重置 timer）
+registerStack('cartethyia_resolve', {
+  cap: (unit) => unit.cartethyiaResolveCap || 3,
+  decayCooldown: 1,
+  resetDecayOnGain: true,
+  onGain(unit, battle, after, _before, source) {
+    if (after <= _before) return;
+    const cap = getStackCap(unit, 'cartethyia_resolve');
+    battle.log.push({
+      type: 'mechanic', src: unit.name,
+      msg: `${source} → 【决意】 ${after}/${cap}（每层气动伤害 +${(unit.cartethyiaResolveDmgPct || 10)}%）`
+    });
+  },
+  onDecay(unit, battle) {
+    const cur = getStack(unit, 'cartethyia_resolve');
+    battle.log.push({ type: 'mechanic', src: unit.name, msg: `【决意】衰减 → ${cur} 层` });
+  },
+  onExhaust(unit, battle) {
+    battle.log.push({ type: 'mechanic', src: unit.name, msg: `【决意】全部消散` });
+  },
+  render(unit) {
+    const cur = getStack(unit, 'cartethyia_resolve');
+    const cap = unit.cartethyiaResolveCap || 3;
+    const pct = (unit.cartethyiaResolveDmgPct || 10) * cur;
+    if (cur <= 0) return '';
+    return `<div style="font-size:9px;color:var(--gold);margin-top:2px">决意 ${'◆'.repeat(cur)}${'◇'.repeat(cap - cur)} +${pct}%气动</div>`;
+  }
+});
+
+// 芙露德莉斯形态：进入时改 displayName + 改 right + 接管 cartethyiaFurTurns
+// carryOnSwitch=true —— 形态是场地态，切人不丢（与卡提希娅原本的"形态独立于切换"语义一致）
+registerForm('cartethyia_furu', {
+  enterName: '芙露德莉斯',
+  carryOnSwitch: true,
+  onEnter(unit, battle, opts = {}) {
+    unit.cartethyiaFurTurns = opts.turns ?? 4;
+    unit.cartethyiaRight = opts.right || null;
+  },
+  onExit(unit, battle) {
+    unit.cartethyiaFurTurns = 0;
+    unit.cartethyiaRight = null;
+    unit.buffs = (unit.buffs || []).filter(b =>
+      b.src !== '链3' && b.src !== '人权' && b.src !== '神权' && b.src !== '链2' && b.src !== '链4'
+    );
+  }
+});
 
 export function cartethyiaGainResolve(self, source, battle) {
   if (self.name !== '卡提希娅') return;
-  const cap = self.cartethyiaResolveCap || 3;
-  const before = self.cartethyiaResolve || 0;
-  self.cartethyiaResolve = Math.min(cap, before + 1);
-  self.cartethyiaResolveTimer = 1; // 刷新全部决意持续时间（1 回合衰退）
-  if (self.cartethyiaResolve > before) {
-    battle.log.push({
-      type: 'mechanic', src: self.name,
-      msg: `${source} → 【决意】 ${self.cartethyiaResolve}/${cap}（每层气动伤害 +${(self.cartethyiaResolveDmgPct || 10)}%）`
-    });
-  }
+  gainStack(self, 'cartethyia_resolve', source, battle);
 }
 
 // 获取决意带来的气动伤害加成倍率
 export function cartethyiaResolveMultiplier(self) {
   if (self.name !== '卡提希娅') return 1.0;
-  const stacks = self.cartethyiaResolve || 0;
+  const stacks = getStack(self, 'cartethyia_resolve');
   const pct = (self.cartethyiaResolveDmgPct || 10) * stacks;
   return 1 + pct / 100;
 }
 
 // 第一次解放：消耗决意 → 获得形态之力 → 进入芙露德莉斯形态
 export function cartethyiaEnterFurForm(self, battle) {
-  if (self.name !== '卡提希娅' || self.cartethyiaFurTurns > 0) return { right: null };
+  if (self.name !== '卡提希娅' || hasForm(self, 'cartethyia_furu')) return { right: null };
 
-  const resolve = self.cartethyiaResolve || 0;
-
-  // 消耗全部决意
-  self.cartethyiaResolve = 0;
-  self.cartethyiaResolveTimer = 0;
+  const resolve = consumeStack(self, 'cartethyia_resolve', battle);
 
   // 根据消耗层数获得对应的 right
   let right = null;
@@ -45,24 +83,21 @@ export function cartethyiaEnterFurForm(self, battle) {
   if (resolve >= 3) {
     right = 'alien';
     rightName = '异权';
-    self.cartethyiaRight = 'alien';
     battle.log.push({ type: 'mechanic', src: self.name, msg: `消耗 ${resolve} 层决意 → 获得【异权】（非大招技能叠加两层风蚀）` });
   } else if (resolve >= 2) {
     right = 'divine';
     rightName = '神权';
-    self.cartethyiaRight = 'divine';
     battle.log.push({ type: 'mechanic', src: self.name, msg: `消耗 ${resolve} 层决意 → 获得【神权】（暴击率提高）` });
   } else if (resolve >= 1) {
     right = 'human';
     rightName = '人权';
-    self.cartethyiaRight = 'human';
     battle.log.push({ type: 'mechanic', src: self.name, msg: `消耗 ${resolve} 层决意 → 获得【人权】（防御力增强）` });
   } else {
     battle.log.push({ type: 'mechanic', src: self.name, msg: '没有决意，进入芙露德莉斯形态但无形态之力' });
   }
 
   // 进入芙露德莉斯形态 4 回合（释放当回合 + 后续 3 个回合）
-  self.cartethyiaFurTurns = 4;
+  enterForm(self, 'cartethyia_furu', battle, { right, turns: 4 });
 
   // 人权：防御力增强
   if (right === 'human') {
@@ -200,12 +235,7 @@ export function cartethyiaBurstErosion(self, battle) {
   }
 
   // 退出芙露德莉斯形态
-  self.cartethyiaFurTurns = 0;
-  self.cartethyiaRight = null;
-  // 清除形态相关的 buff
-  self.buffs = (self.buffs || []).filter(b =>
-    b.src !== '链3' && b.src !== '人权' && b.src !== '神权' && b.src !== '链2' && b.src !== '链4'
-  );
+  exitForm(self, 'cartethyia_furu', battle);
   battle.log.push({ type: 'mechanic', src: self.name, msg: '芙露德莉斯形态结束 · 回到卡提希娅形态' });
 
   return { erosionMult, erosionConsumed: erosion };
@@ -226,34 +256,15 @@ export function cartethyiaErosionTick(enemy, battle) {
   });
 }
 
-// endTurn 清理：决意计时、芙露形态计时
+// endTurn 清理：决意计时移到 stacks.js tickStacks 统一管理，芙露形态计时仍在此处
 export function cartethyiaTurnCleanup(self, battle) {
   if (self.name !== '卡提希娅') return;
 
-  // 决意计时：逐层衰退，每层独立 2 回合
-  if (self.cartethyiaResolveTimer > 0) {
-    self.cartethyiaResolveTimer--;
-    if (self.cartethyiaResolveTimer <= 0) {
-      const before = self.cartethyiaResolve || 0;
-      if (before > 1) {
-        self.cartethyiaResolve = before - 1;
-        self.cartethyiaResolveTimer = 1;
-        battle.log.push({ type: 'mechanic', src: self.name, msg: `【决意】衰减 → ${self.cartethyiaResolve} 层` });
-      } else {
-        self.cartethyiaResolve = 0;
-        battle.log.push({ type: 'mechanic', src: self.name, msg: `【决意】全部消散` });
-      }
-    }
-  }
-
   // 芙露德莉斯形态计时
-  if (self.cartethyiaFurTurns > 0) {
+  if (self.cartethyiaFurTurns > 0 && hasForm(self, 'cartethyia_furu')) {
     self.cartethyiaFurTurns--;
     if (self.cartethyiaFurTurns === 0) {
-      self.cartethyiaRight = null;
-      self.buffs = (self.buffs || []).filter(b =>
-        b.src !== '链3' && b.src !== '人权' && b.src !== '神权' && b.src !== '链2' && b.src !== '链4'
-      );
+      exitForm(self, 'cartethyia_furu', battle);
       battle.log.push({ type: 'mechanic', src: self.name, msg: '芙露德莉斯形态结束 · 回到卡提希娅形态' });
     }
   }
@@ -264,10 +275,9 @@ export function renderCartethyiaStatus(unit) {
   if (unit.name !== '卡提希娅') return '';
   const parts = [];
 
-  // 决意
-  const resolve = unit.cartethyiaResolve || 0;
+  // 决意（走 Stack 注册器获取）
+  const resolve = getStack(unit, 'cartethyia_resolve');
   const resolveCap = unit.cartethyiaResolveCap || 3;
-  const resolveTimer = unit.cartethyiaResolveTimer || 0;
   if (resolve > 0) {
     const pct = (unit.cartethyiaResolveDmgPct || 10) * resolve;
     parts.push(`决意 ${'◆'.repeat(resolve)}${'◇'.repeat(resolveCap - resolve)} +${pct}%气动`);
@@ -284,6 +294,13 @@ export function renderCartethyiaStatus(unit) {
   if (!parts.length) return '';
   return `<div style="font-size:9px;color:var(--gold);margin-top:2px;letter-spacing:.3px">${parts.join(' | ')}</div>`;
 }
+
+// Step E：切人入场钩子（2 链 · 变奏上场主目标 +1 层风蚀）
+// 只在有变奏命中目标时触发；无变奏目标则跳过
+registerSwitchHook('卡提希娅', ({ to, battle, ctx }) => {
+  if (!ctx?.variationTarget) return;
+  cartethyiaErosionOnSwitchIn(to, ctx.variationTarget, battle);
+});
 
 export default {
   name: '卡提希娅',

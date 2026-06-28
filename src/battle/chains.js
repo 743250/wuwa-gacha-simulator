@@ -394,6 +394,23 @@ export function applyChainBonuses(unit) {
         // 6 链 正义的践行：解放后 N 回合内，普攻命中印记目标额外触发 疾霆昭彰
         unit.yinlinJiTing = { value: e.value || 1.0, dur: e.dur || 2 };
         break;
+      // ===== 折枝「墨鹤召唤」改造版 =====
+      case 'zhezhiCraneCapBonus':
+        // 2 链 气韵生动：墨鹤上限 +6（常驻，不吃领域消散）
+        unit.zhezhiCraneCapBonus = (unit.zhezhiCraneCapBonus || 0) + (e.value || 6);
+        break;
+      case 'zhezhiTeamAtk4Chain':
+        // 4 链 随类赋彩：解放时全队 +20%（与领域同寿，由 zhezhiSummonField 应用）
+        unit.zhezhiTeamAtk4Chain = true;
+        break;
+      case 'zhezhiExtraCrane':
+        // 5 链 经营位置：领域内累计召唤 3 只墨鹤 → +1 只 140% 协同
+        unit.zhezhiExtraCrane = true;
+        break;
+      case 'zhezhiWhiteCrane':
+        // 6 链 传移摹写：共鸣技能命中时额外白鹤 atk × 120%
+        unit.zhezhiWhiteCrane = true;
+        break;
     }
   });
 

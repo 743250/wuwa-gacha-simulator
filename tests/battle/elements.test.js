@@ -88,8 +88,9 @@ describe('battle/elements', () => {
       expect(elem.vibrationMultiplier({})).toBe(1.0);
     });
 
-    it('returns 1.3 when vibration is broken', () => {
-      expect(elem.vibrationMultiplier({ vibrationBroken: 1 })).toBeCloseTo(1.3);
+    it('returns 1.0 even when suppressed (vibration 易伤 moved into dealDamage dealDamage/suppressedVuln)', () => {
+      // 2026-06-27 破韧易伤收口进 dealDamage 内的 suppressedVuln，vibrationMultiplier 不再叠加，避免双重乘
+      expect(elem.vibrationMultiplier({ suppressed: 2, suppressedVuln: 0.3 })).toBe(1.0);
     });
   });
 

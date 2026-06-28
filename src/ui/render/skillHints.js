@@ -281,15 +281,18 @@ export const SKILL_HINTS = {
     forteDesc: '<span style="color:var(--gold);font-size:11px">▸ 形态切换</span><br>· <b style="color:var(--text)">常态</b>（默认）：普攻 +10 / 技能 +20 <b class="term-resource">红椿蕊</b>（0-100）<br>· <b style="color:var(--gold)">永生花触发</b>：红椿蕊满 <b>100</b> + 协奏值 ≥ <b>50</b> → 下次共鸣技能变为<b style="color:var(--gold)">永生花</b>，消耗资源后进入<b class="term-resource">含苞</b>状态<br>· <b style="color:#c39bff">含苞形态</b>：普攻/技能 ×<b>1.5</b>（6 链 ×<b>2.5</b>）+ 自身攻击 +58%（3 链），持续 <b>3</b> 回合后自动退出<br><br><span style="color:var(--gold);font-size:11px">▸ 推荐战斗节奏</span><br>变奏起手 → 普攻 + 共鸣技能积蕊 + 协奏 → 满 100 蕊后释放<b style="color:var(--gold)">永生花</b>进入含苞 → 含苞 3 回合全程爆发（普攻/技能 ×1.5/×2.5）→ 共鸣解放收尾。'
   },
   '折枝': {
-    intro: '冷凝 · 音感仪 · 副C · 「墨鹤召唤协同」',
+    intro: '冷凝 · 音感仪 · 限定副C · 「墨鹤召唤协同」',
+    hasHeavy: true,
     customLines: makeSkillLines({
       element: '冷凝',
       normalName: '轻云淡墨', skillName: '以形写神', burstName: '虚实境趣', varName: '柔翰生辉',
-      skillFollowUp: '6 链：额外召唤 <b>1</b> 只<b class="term-resource">白鹤</b>（共鸣技能伤害 +120%）。',
-      burstFollowUp: '召唤 <b>6</b> 只<b class="term-resource">墨鹤</b>持续协同，是折枝后台输出的核心。 2 链：墨鹤上限 +6 → 12 只。 4 链：解放时全队攻击 +20%。 5 链：协同墨鹤额外 +40% 伤害。'
+      skillFollowUp: '领域内命中补 <b>1</b> 只<b class="term-resource">墨鹤</b>（上限内）。 6 链：额外召唤 <b>1</b> 只<b class="term-resource">白鹤</b>（atk × 120% 共鸣技能伤害）。',
+      burstFollowUp: '展开墨鹤领域 <b>3</b> 回合并初召 <b>6</b> 只<b class="term-resource">墨鹤</b>。 2 链：上限 +6 → 12 只。 4 链：解放时全队攻击 +20%。 5 链：累计召唤 3 只 → 额外 +1 只 140% 伤害。',
+      heavyName: '点睛',
+      heavyFollowUp: '消耗 ⌊墨鹤/2⌋ 只（至少 1 只）转全队护盾，每只 atk × 50%。剩余墨鹤继续追击。CD 2 回合。'
     }),
     forteName: '墨鹤',
-    forteDesc: '折枝是召唤型副C：<b class="term-burst">共鸣解放·虚实境趣</b>召唤 6 只<b class="term-resource">墨鹤</b>，切下场后<b>每回合自动协同</b>攻击。<br>2 链上限 +6（12 只）、5 链协同伤害 +40%、6 链共鸣技能额外白鹤。<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>变奏起手 → 共鸣技能 + 普攻积能量 → 释放解放召唤墨鹤 → 切到主 C → 墨鹤后台跟手。'
+    forteDesc: '折枝是召唤型副C：<b class="term-burst">共鸣解放·虚实境趣</b>展开<b class="term-resource">墨鹤领域</b> 3 回合并初召 6 只<b class="term-resource">墨鹤</b>。<br>· <b>墨鹤追击</b>：领域内己方攻击命中主目标时消耗 1 只墨鹤，atk × 35% 冷凝追击。墨鹤耗尽则停止。<br>· <b>重击点睛</b>：消耗半数墨鹤转全队护盾，每只 atk × 50%。<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>共鸣技能 + 普攻积能量 → 释放解放召唤墨鹤 → 切到主 C → 墨鹤跟手追击 → 折枝回场点睛转护盾保命。'
   },
   '相里要': {
     intro: '导电 · 臂铠 · 副C · 「邃古遗墟」',

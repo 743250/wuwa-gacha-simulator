@@ -5,14 +5,31 @@
 //   释放共鸣解放时消耗全部锐意，每层放大解放伤害（默认 +100%，6 链 +120%）
 //   3 链 观势：任何技能动作后，自身暴击 +16% / 暴伤 +32% / 2 回合
 
+import { registerStack, gainStack, consumeStack, getStack, getStackCap, renderStacks } from '../stacks.js';
+import { registerSwitchHook } from '../switchHooks.js';
+
+// 锐意之势：无衰减（解放时全消耗）
+registerStack('jiyan_ruiyi', {
+  cap: (unit) => unit.jiyanRuiyiCap || 2,
+  onGain(unit, battle, after, _before, source) {
+    const cap = getStackCap(unit, 'jiyan_ruiyi');
+    battle.log.push({ type: 'mechanic', src: unit.name, msg: `${source} → 锐意之势 ${after}/${cap}` });
+  },
+  // 渲染：用于角色 file 的 renderBattleStatus
+  render(unit) {
+    const cap = unit.jiyanRuiyiCap || 2;
+    const cur = getStack(unit, 'jiyan_ruiyi');
+    const perStack = unit.jiyanRuiyiPerStack || 1.0;
+    const nextMult = 1 + cur * perStack;
+    const color = cur >= cap ? 'var(--red)' : cur > 0 ? 'var(--gold)' : 'var(--muted)';
+    return `<div style="font-size:9px;color:${color};margin-top:2px;letter-spacing:.3px">锐意之势 ${'◆'.repeat(cur)}${'◇'.repeat(cap - cur)} ${cur}/${cap}${cur > 0 ? ` · 解放 ×${nextMult.toFixed(1)}` : ''}</div>`;
+  }
+});
+
+// 向后兼容：旧调用方仍传 self/source/battle
 export function jiyanGainRuiyi(self, source, battle) {
   if (self.name !== '忌炎') return;
-  const cap = self.jiyanRuiyiCap || 2;
-  const before = self.ruiyi || 0;
-  self.ruiyi = Math.min(cap, before + 1);
-  if (self.ruiyi > before) {
-    battle.log.push({ type: 'mechanic', src: self.name, msg: `${source} → 锐意之势 ${self.ruiyi}/${cap}` });
-  }
+  gainStack(self, 'jiyan_ruiyi', source, battle);
 }
 
 export function jiyanGuanShiBuff(self, battle) {
@@ -32,10 +49,9 @@ export function jiyanBurstRuiyi(self, battle) {
   let ruiyiMult = 1.0;
   let ruiyiUsed = 0;
   if (self.name !== '忌炎') return { ruiyiMult, ruiyiUsed };
-  if (self.ruiyi > 0) {
-    ruiyiUsed = self.ruiyi;
+  ruiyiUsed = consumeStack(self, 'jiyan_ruiyi', battle);
+  if (ruiyiUsed > 0) {
     ruiyiMult = 1.0 + ruiyiUsed * (self.jiyanRuiyiPerStack || 1.0);
-    self.ruiyi = 0;
     battle.log.push({
       type: 'mechanic', src: self.name,
       msg: `消耗锐意之势 ${ruiyiUsed} 层 → 解放伤害 ×${ruiyiMult.toFixed(1)}`
@@ -87,16 +103,14 @@ export function jiyanSwitchIn(self, battle) {
   }
 }
 
+// Step E：切人入场钩子（锐意 + 通变 / 明断 / 观势）
+registerSwitchHook('忌炎', ({ to, battle }) => jiyanSwitchIn(to, battle));
+
 export default {
   name: '忌炎',
   hasHeavy: true,
   renderBattleStatus(unit) {
-    const cap = unit.jiyanRuiyiCap || 2;
-    const cur = unit.ruiyi || 0;
-    const perStack = unit.jiyanRuiyiPerStack || 1.0;
-    const nextMult = 1 + cur * perStack;
-    const color = cur >= cap ? 'var(--red)' : cur > 0 ? 'var(--gold)' : 'var(--muted)';
-    return `<div style="font-size:9px;color:${color};margin-top:2px;letter-spacing:.3px">锐意之势 ${'◆'.repeat(cur)}${'◇'.repeat(cap - cur)} ${cur}/${cap}${cur > 0 ? ` · 解放 ×${nextMult.toFixed(1)}` : ''}</div>`;
+    return renderStacks(unit);
   },
   gainRuiyi: jiyanGainRuiyi,
   guanShi: jiyanGuanShiBuff,

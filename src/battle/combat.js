@@ -15,21 +15,24 @@ import { spawnEnemy } from './enemies.js';
 import { resistMultiplier, vibrationMultiplier } from './elements.js';
 import { initForte, gainForte, consumeForte, forteEnhances } from './forte.js';
 import { fireTrigger, collectWeaponBonus, tickWeaponTriggers } from './weaponTriggers.js';
-import { applyEnemyPeriodicMechanic, applyEnemyThresholdMechanic, applyEnemyOnHitMechanic } from './enemyMechanics.js';
+import { tickStacks } from './stacks.js';
+import { applyTempStat, removeTempStat, computeStat, tickTempStats } from './tempStats.js';
+import { onUnitSwitchOut } from './forms.js';
+import { fireSwitchHook } from './switchHooks.js';
+import { applyEnemyPeriodicMechanic, applyEnemyThresholdMechanic, applyEnemyOnHitMechanic, applyEnemyDefendHook, canTargetEnemy } from './enemyMechanics.js';
 import { hasHeavyAttack } from './characters/index.js';
 import { fireCharacterHook } from './characters/index.js';
 import { ACTION_COST, ACTION_MULTIPLIER, VIBRATION_DAMAGE } from './balance.js';
-import { jiyanGainRuiyi, jiyanGuanShiBuff, jiyanBurstRuiyi, jiyanQiZheng, jiyanSwitchIn } from './characters/jiyan.js';
+import { jiyanGainRuiyi, jiyanGuanShiBuff, jiyanBurstRuiyi, jiyanQiZheng } from './characters/jiyan.js';
 import { shorekeeperSkillHeal, shorekeeperStarfield, shorekeeperBurstRefund } from './characters/shorekeeper.js';
 import { yinlinGainVerdict, yinlinOnHit, yinlinBurst, yinlinTurnCleanup } from './characters/yinlin.js';
 import { encoreGainDisorder, encoreStartBlackSheep, encoreTurnCleanup } from './characters/encore.js';
-import { cartethyiaGainResolve, cartethyiaApplyErosion, cartethyiaEnterFurForm, cartethyiaBurstErosion, cartethyiaResolveMultiplier, cartethyiaErosionTick, cartethyiaTurnCleanup, cartethyiaErosionOnBreak, cartethyiaErosionOnSwitchIn, cartethyiaLethalShield } from './characters/cartethyia.js';
-import { jinhsiSwitchIn } from './characters/jinhsi.js';
+import { cartethyiaGainResolve, cartethyiaApplyErosion, cartethyiaEnterFurForm, cartethyiaBurstErosion, cartethyiaResolveMultiplier, cartethyiaErosionTick, cartethyiaTurnCleanup, cartethyiaErosionOnBreak, cartethyiaLethalShield } from './characters/cartethyia.js';
 import { carlottaApplyDissociation } from './characters/carlotta.js';
 import { brantFlameDirge } from './characters/brant.js';
 import { cantarellaMarkDream } from './characters/cantarella.js';
 import { kakaroEnterDeathblade, kakaroTurnCleanup } from './characters/kakaro.js';
-import { zhezhiSummonField, zhezhiCraneAttack, zhezhiSkillSummon, zhezhiTurnCleanup } from './characters/zhezhi.js';
+import { zhezhiSummonField, zhezhiCraneAssist, zhezhiSkillSummon, zhezhiInkShield, zhezhiTurnCleanup } from './characters/zhezhi.js';
 
 export function getCombatTeamNames(teamNames = S.team) {
   const seen = new Set();
@@ -257,22 +260,10 @@ function dealDamage(target, dmg) {
   // 防御 buff（玩家角色）
   const defBuff = target.buffs?.find(b => b.type === 'defense');
   if (defBuff) dmg = Math.round(dmg * (1 - defBuff.value));
-  // 敌方特殊减伤（世界 BOSS 机制）
-  if (target._iceShieldDmgReduc && target.shield > 0) {
-    dmg = Math.round(dmg * (1 - target._iceShieldDmgReduc));
-  }
-  if (target._windWallDmgReduc && target._windWallTurns > 0) {
-    dmg = Math.round(dmg * (1 - target._windWallDmgReduc));
-  }
-  if (target._transition > 0) {
-    dmg = Math.round(dmg * 0.5);
-  }
-  // 飞空无敌：不受伤害
-  if (target._flightTurns >= 2) return 0;
-  // 眩晕易伤（弹反/残骸投掷 后 +50%）
-  if (target._stunned > 0 && target._vulnerable) {
-    dmg = Math.round(dmg * 1.5);
-  }
+  // 敌方特殊减伤/无敌/易伤：统一走 applyEnemyDefendHook（Step D）
+  // 涵盖冰翼盾 / 风壁 / 过渡减伤 / 飞空无敌 / suppressed 易伤
+  dmg = applyEnemyDefendHook(target, dmg);
+  if (dmg <= 0) return 0;
   // 护盾
   if (target.shield && target.shield > 0) {
     if (dmg <= target.shield) { target.shield -= dmg; return 0; }
@@ -309,16 +300,18 @@ function consumeConcerto(unit, battle) {
 // attacker (可选)：造成本次破韧的角色；只用于卡提希娅 1 链"破韧瞬间 +1 风蚀"
 function reduceVibration(enemy, amount, battle, attacker) {
   if (!enemy || !enemy.alive) return;
-  if (enemy.vibrationBroken > 0) return;   // 已经在易伤期，不再削
+  if (enemy.suppressed > 0) return;   // 已经在破韧中断窗口，不再削
   enemy.vibration = Math.max(0, (enemy.vibration ?? 100) - amount);
   if (enemy.vibration <= 0) {
-    enemy.vibrationBroken = 2;             // 持续到下次自己回合开始
-    enemy._brokenFresh = true;             // 标记本回合刚破韧，end-of-turn 不减
+    // 破韧 → 进入 suppressed 中断窗口（2 回合），附带易伤 +30%（×1.3）
+    enemy.suppressed = 2;
+    enemy.suppressedVuln = 0.3;
+    enemy._suppressedFresh = true;       // 本回合刚破韧，end-of-turn 不递减
     enemy.vibration = enemy.vibrationMax || 100;
     // ★ 破韧瞬间：当前回合 +2 AP（爆发窗口，模拟手游打硬直可快速连招）
     if (battle) {
       battle.ap = Math.min((battle.apMax || 4) + 2, battle.ap + 2);
-      battle.log.push({ type: 'system', msg: `💥 ${enemy.name} 被击破！+2 AP 爆发窗口` });
+      battle.log.push({ type: 'system', msg: `💥 ${enemy.name} 被击破！+2 AP 爆发窗口 · 中断 2 回合` });
       // ★ 卡提希娅 1 链 · 因命运戴上冠冕：仅当破韧伤害由卡提希娅本人造成时 → 主目标 +1 层风蚀
       if (attacker && attacker.name === '卡提希娅') {
         cartethyiaErosionOnBreak(attacker, enemy, battle);
@@ -484,8 +477,16 @@ function handleOverclock(battle, enemy) {
   if (!enemy._overclocked && enemy.hp / enemy.hpMax <= (m.overclockThreshold || 0.3)) {
     enemy._overclocked = true;
     enemy._overclockTurns = m.overclockDuration || 3;
-    enemy.atk = Math.round(enemy.atk * (1 + (m.overclockAtkBonus || 0.5)));
+    // Step D：atk 加成走 TempStat（永久型，由 _overclockTurns 单独跟踪双动持续回合）
+    applyTempStat(enemy, 'atk', 1 + (m.overclockAtkBonus || 0.5), Infinity, 'overclock');
+    enemy.atk = computeStat(enemy, 'atk', enemy.baseAtk);
     battle.log.push({ type: 'mechanic', src: enemy.name, msg: `Overclock 过载！攻击 +${((m.overclockAtkBonus||0.5)*100).toFixed(0)}%，双动 ${m.overclockDuration||3} 回合` });
+  }
+  // 过载结束：清掉 atk 加成
+  if (enemy._overclocked && enemy._overclockTurns <= 0) {
+    removeTempStat(enemy, 'overclock');
+    enemy.atk = computeStat(enemy, 'atk', enemy.baseAtk);
+    enemy._overclocked = false;
   }
 }
 
@@ -611,6 +612,8 @@ export function doAttack(battle, targetIdx) {
   gainConcerto(self, 8);
   gainForte(self, 'normal');
   if (fEnh) consumeForte(self);
+  // 折枝墨鹤追击：己方普攻命中主目标时消耗 1 只墨鹤（不递归）
+  zhezhiCraneAssist(battle, target);
   // 卡提希娅：普攻叠决意（卡提希娅形态）+ 芙露德莉斯形态下附加风蚀 + 额外能量
   cartethyiaGainResolve(self, '普攻', battle);
   cartethyiaApplyErosion(self, target, battle, false);
@@ -654,6 +657,11 @@ export function doSkill(battle, targetIdx) {
   shorekeeperSkillHeal(self, battle);
 
   if (fEnh) consumeForte(self);
+  // Step D：菲比 toggleForm dispatch —— 使用技能后 forte 满自动切换形态（史遗留未接）
+  if (!fEnh && self.forte?.ready && self.forte?.effectType === 'toggleForm') {
+    fireCharacterHook(self, 'toggleForm', battle);
+    consumeForte(self);
+  }
   // 卡提希娅：共鸣技能叠决意 + 芙露德莉斯形态下附加风蚀 + 额外能量
   cartethyiaGainResolve(self, '共鸣技能', battle);
   cartethyiaApplyErosion(self, target, battle, false);
@@ -686,6 +694,8 @@ export function doSkill(battle, targetIdx) {
   yinlinGainVerdict(self, 30, '共鸣技能', battle);
   carlottaApplyDissociation(self, target, battle);
   zhezhiSkillSummon(self, battle);
+  // 折枝墨鹤追击：共鸣技能命中主目标时消耗 1 只墨鹤（追击在补货之后，逻辑上仍是技能命中触发）
+  zhezhiCraneAssist(battle, target);
   finishIfBattleEnded(battle, 'win');
   return { ok: true };
 }
@@ -818,6 +828,8 @@ export function doBurst(battle) {
   shorekeeperBurstRefund(self, battle);
   yinlinBurst(self, primary, battle);
   cantarellaMarkDream(self, primary, battle);
+  // 折枝墨鹤追击：解放 AOE 只对主目标触发一次（不因 AOE 多次消耗）
+  if (self.name !== '折枝') zhezhiCraneAssist(battle, primary);
   battle.log.push({
     type: 'burst', src: self.name, results,
     action: fEnh ? `${fEnh.resourceName}强化解放` : '共鸣解放'
@@ -849,6 +861,24 @@ export function doHeavy(battle, targetIdx) {
   if (!self.hasHeavy) return { ok: false, err: `${self.name} 没有重击` };
   if (self.frozenTurns > 0) return { ok: false, err: `当前角色被冻结（${self.frozenTurns} 回合）` };
   if (self.cd.heavy > 0) return { ok: false, err: `重击冷却中（${self.cd.heavy} 回合）` };
+
+  // 折枝重击「点睛」：消耗半数墨鹤转全队护盾，不造成伤害、不触发墨鹤追击
+  if (self.name === '折枝') {
+    if (!self.zhezhiFieldTurns || self.zhezhiFieldTurns <= 0) return { ok: false, err: '墨鹤领域未展开' };
+    if (!self.zhezhiCranes || self.zhezhiCranes <= 0) return { ok: false, err: '无墨鹤可消耗' };
+    const handled = zhezhiInkShield(self, battle);
+    if (handled) {
+      battle.ap -= ACTION_COST.heavy;
+      self.cd.heavy = 2;
+      gainConcerto(self, 14);
+      gainForte(self, 'heavy');
+      fireTrigger(self, 'heavy_hit', { battle });
+      finishIfBattleEnded(battle, 'win');
+      return { ok: true };
+    }
+    return { ok: false, err: '点睛无法释放' };
+  }
+
   const target = battle.enemies[targetIdx];
   if (!target || !target.alive) return { ok: false, err: '目标无效' };
   // 安可特殊重击：失序值满时，重击改为白咩·失控之炎 / 黑咩·暴走之炎
@@ -928,10 +958,10 @@ export function doDebris(battle) {
   if (!self || !self.alive || self.frozenTurns > 0) return { ok: false, err: '当前角色不可行动' };
   const enemy = battle.enemies.find(e => e.alive && e._debrisReady);
   if (!enemy) return { ok: false, err: '没有可投掷的残骸' };
-  enemy._stunned = 1;
-  enemy._vulnerable = 1; // 易伤 +50%
+  enemy.suppressed = Math.max(enemy.suppressed || 0, 1);
+  enemy.suppressedVuln = 0.5; // 残骸眩晕易伤 +50%（覆盖破韧的 0.3）
   enemy._debrisReady = false;
-  battle.log.push({ type: 'mechanic', src: self.name, msg: `投掷残骸！${enemy.name} 被眩晕 1 回合（受伤 +50%）` });
+  battle.log.push({ type: 'mechanic', src: self.name, msg: `投掷残骸！${enemy.name} 被中断 1 回合（受伤 +50%）` });
   finishIfBattleEnded(battle, 'win');
   return { ok: true };
 }
@@ -957,13 +987,17 @@ export function doSwitch(battle, toIdx) {
 
   // 离场角色延奏 → 给入场角色一个"上场增益"
   if (prev && prev.alive) {
+    // Step E 预备：carryOnSwitch=false 的形态（角色态）切人时退出
+    onUnitSwitchOut(prev, battle);
     // 离场角色的 outro 武器被动（如停驻之烟：延奏后下场角色攻击+10%）
     fireTrigger(prev, 'outro', { battle });
   }
   // 入场角色变奏：对当前主目标造成一段伤害
   const aliveEnemies = battle.enemies.filter(e => e.alive);
+  let variationTarget = null;
   if (aliveEnemies.length) {
     const tgt = aliveEnemies[0];
+    variationTarget = tgt;
     // 变奏倍率：基础 80%，协奏满时 ×2 = 160%
     let variMult = concertoFull ? ACTION_MULTIPLIER.concertoVariation : ACTION_MULTIPLIER.variation;
     // ★ 守岸人 6 链：变奏伤害 +500%（×6）
@@ -978,8 +1012,6 @@ export function doSwitch(battle, toIdx) {
       type: 'attack', src: target.name, tgt: tgt.name, dmg: real, crit,
       action: target.variationBonus > 0 ? '强化变奏 · 6链' : (concertoFull ? '强化变奏' : '变奏')
     });
-    // ★ 卡提希娅 2 链 · 听风潮斩断利刃：变奏上场 → 主目标 +1 层风蚀
-    cartethyiaErosionOnSwitchIn(target, tgt, battle);
   }
   // 协奏值满时清空 + 触发 variation 武器被动
   if (concertoFull) {
@@ -988,9 +1020,8 @@ export function doSwitch(battle, toIdx) {
     battle.log.push({ type: 'mechanic', src: prev.name, msg: `协奏满 · ${prev.name} 延奏 → ${target.name} 强化变奏` });
   }
   battle.log.push({ type: 'switch', src: target.name, action: '切换上场' });
-  encoreGainDisorder(target, 30, '变奏·咩咩帮手', battle);
-  jiyanSwitchIn(target, battle);
-  jinhsiSwitchIn(target, battle);
+  // Step E：统一切人入场钩子（忌炎锐意/通变、今汐谪仙/韶光、卡提希娅 2 链风蚀、安可变奏失序）
+  fireSwitchHook({ from: prev, to: target, battle, ctx: { variationTarget } });
   finishIfBattleEnded(battle, 'win');
   return { ok: true };
 }
@@ -1003,16 +1034,13 @@ export function endTurn(battle) {
   if (battle.finished) return;
   const enemyHelpers = { dealDamage, enemyAttack, inflictFreeze, lockSkill, pickTeamTarget, spawnEnemy };
 
-  // ===== 折枝墨鹤协同攻击（领域内每回合自动触发）=====
-  battle.team.forEach(t => { if (t.alive) zhezhiCraneAttack(t, battle); });
-
   // ===== 敌方出招 =====
   battle.enemies.forEach(enemy => {
     if (!enemy.alive) return;
 
-    // 眩晕中跳过
-    if (enemy._stunned > 0) {
-      battle.log.push({ type: 'mechanic', src: enemy.name, msg: '眩晕中，跳过行动' });
+    // 破韧/残骸/弹反中断中跳过
+    if (enemy.suppressed > 0) {
+      battle.log.push({ type: 'mechanic', src: enemy.name, msg: `中断中（${enemy.suppressed} 回合），跳过行动` });
       return;
     }
 
@@ -1160,30 +1188,32 @@ export function endTurn(battle) {
     cartethyiaTurnCleanup(t, battle);
     kakaroTurnCleanup(t, battle);
     zhezhiTurnCleanup(t, battle);
+    tickStacks(battle, t);     // Step B：统一衰减 Stack（卡提希娅决意 / 忌炎锐意无衰减直接 no-op）
     tickWeaponTriggers(t);
   });
 
-  // 敌人易伤期 / debuff / 特殊状态衰减
+  // 敌人 suppressed / debuff / 特殊状态衰减
   battle.enemies.forEach(e => {
-    if (e._brokenFresh) { e._brokenFresh = false; }
-    else if (e.vibrationBroken > 0) e.vibrationBroken--;
+    if (e._suppressedFresh) { e._suppressedFresh = false; }
+    else if (e.suppressed > 0) {
+      e.suppressed--;
+      if (e.suppressed <= 0) e.suppressedVuln = 0;
+    }
     e.debuffs = (e.debuffs || []).filter(d => --d.duration > 0);
     if (e.judgeMark) {
       e.judgeMark.remaining--;
       if (e.judgeMark.remaining <= 0) delete e.judgeMark;
     }
     // Boss 状态衰减
-    if (e._stunned > 0) e._stunned--;
-    if (e._vulnerable > 0) e._vulnerable--;
     if (e._flightTurns > 0) e._flightTurns--;
-    if (e._transition > 0) e._transition--;
     if (e._overclockTurns > 0) e._overclockTurns--;
-    if (e._windWallTurns > 0) e._windWallTurns--;
     if (e._spinTired) e._spinTired = false;
     // 反击姿态衰减
     if (e._deflectActive) e._deflectActive = false;
     // 残骸过期
     if (e._debrisReady && battle.turn % 5 === 0 && !e._debrisReady) { /* debris stays 1 turn */ }
+    // Step D：TempStat 统一衰减（过渡减伤 / 风壁 / 飞空无敌 等）
+    tickTempStats(e);
     // 绿泡回合末治疗（若未被击破）
     if (e._bubbleHp > 0 && e._bubbleHealAmt > 0 && e.alive) {
       e.hp = Math.min(e.hpMax, e.hp + e._bubbleHealAmt);
@@ -1194,7 +1224,6 @@ export function endTurn(battle) {
     // 冰翼盾：若被击破则清除标记
     if (e._iceShielded && e.shield <= 0) {
       e._iceShielded = false;
-      e._iceShieldDmgReduc = 0;
       e._hitTracker = {};
       battle.log.push({ type: 'mechanic', src: e.name, msg: '冰翼盾被击破！减伤解除' });
     }

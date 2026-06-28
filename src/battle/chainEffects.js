@@ -114,14 +114,14 @@ export const CHAIN_BATTLE_EFFECTS = {
     [{ effect: 'burstDmg', value: 1.00, label: '解放伤害 +100%' }]
   ],
 
-  // 1.2 · 折枝（副C 冷凝 音感仪）— A 级
+  // 1.2 · 折枝（副C 冷凝 音感仪）— A 级（改造版 · 召唤物）
   '折枝': [
-    [{ effect: 'crate', value: 0.10, label: '共鸣技能后暴击 +10%' }],
-    [{ effect: 'burstDmg', value: 0.60, label: '解放伤害 +60%' }],
-    [{ effect: 'atk', value: 0.45, label: '共鸣技能后攻击 +15%×3 = +45%' }],
-    [{ effect: 'teamAtk', value: 0.20, label: '解放时全队攻击 +20%' }],
-    [{ effect: 'burstDmg', value: 0.40, label: '协同墨鹤 +40% 解放伤害' }],
-    [{ effect: 'skillDmg', value: 1.20, label: '额外白鹤 = 共鸣技能伤害 +120%' }]
+    [{ effect: 'crate', value: 0.10, label: '共鸣技能后暴击 +10%（持续整场）' }],
+    [{ effect: 'zhezhiCraneCapBonus', value: 6, label: '墨鹤上限 +6（6 → 12）' }],
+    [{ effect: 'atk', value: 0.45, label: '共鸣技能后攻击 +15%×3 = +45%（持续整场）' }],
+    [{ effect: 'zhezhiTeamAtk4Chain', value: 0.20, label: '解放时全队攻击 +20%（与领域同寿 3 回合）' }],
+    [{ effect: 'zhezhiExtraCrane', value: 0.40, label: '每累计召唤 3 只墨鹤 → 额外 +1 只（140% 追击伤害）' }],
+    [{ effect: 'zhezhiWhiteCrane', value: 1.20, label: '共鸣技能额外白鹤 = 共鸣技能 120% 伤害' }]
   ],
 
   // 1.2 · 相里要（副C 导电 臂铠）— A 级

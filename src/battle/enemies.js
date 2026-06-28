@@ -515,13 +515,14 @@ export function spawnEnemy(name, opts = 1.0) {
     isMinion: !!data.isMinion,
     vibration: 100,
     vibrationMax: 100,
-    vibrationBroken: 0,
+    suppressed: 0,               // 破韧/弹反/残骸中断窗口（>0 时敌人不普攻 + periodic 静音）
+    suppressedVuln: 0,           // suppressed 期间的易伤率（破韧默认 0.3 → ×1.3、弹反/残骸 0.5）
+    _suppressedFresh: false,     // 本回合刚进入 suppressed，end-of-turn 不递减
     // 新版 BOSS 运行时状态
     phase: 1,                    // 当前阶段（1/2/3）
     marks: {},                   // 标记追踪 { teamIdx: count }
     bossLevel: bossLv,
     _shielded: false,
-    _brokenFresh: false,
     _overclockTurns: 0,          // Overclock 剩余回合
     _turrets: null,              // 浮空剑/电锯 召唤物数据
     _bubbleHp: 0,                // 绿泡 HP

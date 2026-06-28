@@ -31,9 +31,9 @@ export function resistMultiplier(attackerElem, defender) {
   return 0.9;
 }
 
-// 易伤态：敌人破韧（vibration 削空）后 1 回合受到伤害额外 ×1.3
-export function vibrationMultiplier(defender) {
-  if (defender && defender.vibrationBroken > 0) return 1.3;
+// 易伤态：破韧易伤已收口到 dealDamage 内的 suppressed.suppressedVuln（默认 0.3 = ×1.3）
+// 这里保留接口但永远返回 1.0，等清理完调用方后可移除
+export function vibrationMultiplier(_defender) {
   return 1.0;
 }
 

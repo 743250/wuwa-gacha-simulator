@@ -2,6 +2,16 @@
 //
 // enemies.js 负责数据，这里负责战斗中触发。
 // combat.js 的 endTurn 调用 threshold / periodic / onHit 三个 hook。
+//
+// suppressed 中断窗口（Step A 收口）：敌人 suppressed > 0 时，所有 periodic 一律静音
+//   （计数不累加、CD 不递减、AOE 不出）。新机制只在 periodic/threshold/onHit 三个 hook 内实现，
+//   不要再在 combat.js 或角色文件里另起 hook。
+//
+// 敌方减伤/无敌（Step D 收口）：所有"target 受到伤害时的减伤/无敌/易伤"统一走
+//   applyEnemyDefendHook(enemy, dmg)，由 dealDamage 调用。临时倍率挂 tempStats.js
+//   的 applyTempStat / removeTempStat / computeStat / tickTempStats。
+
+import { applyTempStat, removeTempStat, clearTempStat, computeStat, hasTempStat, tickTempStats } from './tempStats.js';
 
 function isMechanicTurn(m, turn) {
   return !!(m?.cycle && turn % m.cycle === 0);
@@ -32,7 +42,11 @@ const LEGACY_MECHANICS = {
     threshold({ battle, enemy }) {
       const m = enemy.mechanic;
       if (enemy.enraged || enemy.hp / enemy.hpMax > m.threshold) return;
-      enemy.atk = Math.round(enemy.atk * (1 + (m.atkBonus || 0.3)));
+      // 狂暴：永久 atk ×(1+atkBonus)，存原始 baseAtk 便于退出/重置
+      if (!enemy.baseAtk) enemy.baseAtk = enemy.atk;
+      const mult = 1 + (m.atkBonus || 0.3);
+      applyTempStat(enemy, 'atk', mult, Infinity, 'enrage');
+      enemy.atk = computeStat(enemy, 'atk', enemy.baseAtk);
       enemy.enraged = true;
       // 梦魇亚当：狂暴 + 双动（splash/defDown 在 onHit 中处理）
       if (m.splash || m.defDown) {
@@ -118,7 +132,8 @@ const LEGACY_MECHANICS = {
       // 叹息古龙：俯冲可弹反
       if (m.diveMult && battle._heavyUsedThisTurn) {
         battle.log.push({ type: 'mechanic', src: enemy.name, msg: `俯冲被 ${battle.team[battle.active]?.name} 弹反！眩晕 1 回合` });
-        enemy._stunned = 1;
+        enemy.suppressed = Math.max(enemy.suppressed || 0, 1);
+        enemy.suppressedVuln = 0.5;
         return;
       }
       battle.log.push({ type: 'mechanic', src: enemy.name, msg: '俯冲压制' });
@@ -133,7 +148,7 @@ const LEGACY_MECHANICS = {
         const shieldVal = Math.round(enemy.hpMax * (m.iceShieldPct || 0.25));
         enemy.shield = (enemy.shield || 0) + shieldVal;
         enemy._iceShielded = true;
-        enemy._iceShieldDmgReduc = m.iceShieldDmgReduc || 0.5;
+        applyTempStat(enemy, 'dmgReduc', m.iceShieldDmgReduc || 0.5, Infinity, 'ice_shield');
         battle.log.push({ type: 'mechanic', src: enemy.name, msg: `展开冰翼盾 +${shieldVal}（减伤 ${((m.iceShieldDmgReduc||0.5)*100).toFixed(0)}%）！需削韧破盾` });
       }
       // 原 aoe_freeze 逻辑
@@ -246,8 +261,8 @@ const NEW_MECHANICS = {
         if (battle._heavyUsedThisTurn) {
           const who = battle.team[battle.active];
           battle.log.push({ type: 'mechanic', src: enemy.name, msg: `俯冲被 ${who?.name} 弹反！BOSS 瘫痪 1 回合，受伤 +50%` });
-          enemy._stunned = 1;
-          enemy._vulnerable = 1; // 受伤 +50%
+          enemy.suppressed = Math.max(enemy.suppressed || 0, 1);
+          enemy.suppressedVuln = 0.5; // 受伤 +50%
         } else {
           const tgt = helpers.pickTeamTarget(battle);
           if (tgt) helpers.enemyAttack(battle, enemy, tgt, { mult: m.diveMult || 2.0, action: '俯冲' });
@@ -294,7 +309,7 @@ const NEW_MECHANICS = {
       if (isMechanicTurn({ cycle: m.diveCycle || 5 }, battle.turn)) {
         if (battle._heavyUsedThisTurn) {
           battle.log.push({ type: 'mechanic', src: enemy.name, msg: `俯冲被弹反！BOSS 瘫痪 1 回合` });
-          enemy._stunned = 1;
+          enemy.suppressed = Math.max(enemy.suppressed || 0, 1);
         } else {
           const tgt = helpers.pickTeamTarget(battle);
           if (tgt) helpers.enemyAttack(battle, enemy, tgt, { mult: m.diveMult || 1.8, action: '俯冲' });
@@ -352,8 +367,7 @@ const NEW_MECHANICS = {
       }
       // 风壁
       if (isMechanicTurn({ cycle: m.windWallCycle || 4 }, battle.turn)) {
-        enemy._windWallDmgReduc = m.windWallDmgReduc || 0.4;
-        enemy._windWallTurns = m.windWallDuration || 2;
+        applyTempStat(enemy, 'dmgReduc', m.windWallDmgReduc || 0.4, m.windWallDuration || 2, 'wind_wall');
         battle.log.push({ type: 'mechanic', src: enemy.name, msg: `召唤风壁！减伤 ${((m.windWallDmgReduc||0.4)*100).toFixed(0)}%，持续 ${m.windWallDuration||2} 回合` });
       }
       // 回旋 AOE
@@ -403,6 +417,7 @@ const NEW_MECHANICS = {
       // 飞空
       if (isMechanicTurn({ cycle: m.flightCycle || 5 }, battle.turn)) {
         enemy._flightTurns = 2; // +2 因为回合末 -1 = 实际 1 回合
+        applyTempStat(enemy, 'dmgImmune', '∞', 2, 'flight');
         battle.log.push({ type: 'mechanic', src: enemy.name, msg: '海之女飞空！1 回合内无敌' });
       }
       // 落地 AOE（飞空结束回合触发）
@@ -455,15 +470,17 @@ const NEW_MECHANICS = {
       if (!enemy._p2 && hpPct <= (m.p1Threshold || 0.70) && hpPct > (m.p2Threshold || 0.40)) {
         enemy._p2 = true;
         enemy.phase = 2;
-        enemy._transition = 1; // 过渡减伤 1 回合
+        applyTempStat(enemy, 'dmgReduc', 0.5, 1, 'phase_transition'); // 过渡减伤 1 回合
         battle.log.push({ type: 'mechanic', src: enemy.name, msg: '进入阶段二「剑·镰」！切换武器模式' });
       }
       // P2→P3
       if (!enemy._p3 && hpPct <= (m.p2Threshold || 0.40)) {
         enemy._p3 = true;
         enemy.phase = 3;
-        enemy._transition = 1;
-        enemy.atk = Math.round(enemy.atk * (1 + (m.p3AtkBonus || 0.3)));
+        applyTempStat(enemy, 'dmgReduc', 0.5, 1, 'phase_transition');
+        if (!enemy.baseAtk) enemy.baseAtk = enemy.atk;
+        applyTempStat(enemy, 'atk', 1 + (m.p3AtkBonus || 0.3), Infinity, 'phase3_enrage');
+        enemy.atk = computeStat(enemy, 'atk', enemy.baseAtk);
         battle.log.push({ type: 'mechanic', src: enemy.name, msg: `进入阶段三「红温」！攻击 +${((m.p3AtkBonus||0.3)*100).toFixed(0)}% · 双动` });
       }
     },
@@ -532,7 +549,7 @@ const NEW_MECHANICS = {
       if (isMechanicTurn({ cycle: m.thrustCycle || 5 }, battle.turn)) {
         if (battle._heavyUsedThisTurn) {
           battle.log.push({ type: 'mechanic', src: enemy.name, msg: '推刺被弹反！BOSS 瘫痪 1 回合' });
-          enemy._stunned = 1;
+          enemy.suppressed = Math.max(enemy.suppressed || 0, 1);
           enemy.vibration = Math.max(0, (enemy.vibration || 100) - 40);
         } else {
           const tgt = helpers.pickTeamTarget(battle);
@@ -553,8 +570,11 @@ export function applyEnemyThresholdMechanic(ctx) {
   ALL_MECHANICS[type]?.threshold?.(ctx);
 }
 
+// suppressed 中断窗口：所有周期触发一律静音（计数不累加、CD 不递减、AOE 不出）
 export function applyEnemyPeriodicMechanic(ctx) {
-  const type = ctx.enemy?.mechanic?.type;
+  const enemy = ctx.enemy;
+  if (enemy && enemy.suppressed > 0) return;
+  const type = enemy?.mechanic?.type;
   ALL_MECHANICS[type]?.periodic?.(ctx);
 }
 
@@ -564,29 +584,24 @@ export function applyEnemyOnHitMechanic(ctx) {
   ALL_MECHANICS[type]?.onHit?.(ctx);
 }
 
-// 新增：敌方被攻击时的 hook（反击姿态反弹 / 冰翼盾减伤）
+// 新增：敌方被攻击时的 hook（统一收口减伤/无敌/易伤 · Step D）
+// 优先级：飞空无敌 → dmgReduc 减伤 → suppressed 易伤
 export function applyEnemyDefendHook(enemy, dmg) {
-  const m = enemy?.mechanic;
-  if (!m || dmg <= 0) return dmg;
-  // 冰翼盾减伤（辉萤军势 / 异构武装）
-  if (enemy._iceShieldDmgReduc && enemy.shield > 0) {
-    dmg = Math.round(dmg * (1 - enemy._iceShieldDmgReduc));
+  if (!enemy || dmg <= 0) return dmg;
+  // 飞空无敌（dmgImmune '∞' 任何实例 → 0）
+  if (hasTempStat(enemy, 'dmgImmune')) return 0;
+  // 减伤：dmgReduc 多层乘子（冰翼盾 / 风壁 / 过渡）
+  // 但冰翼盾需要 shield 还在；shield 没了 → 清掉 ice_shield 那份
+  if (enemy._iceShielded && (!enemy.shield || enemy.shield <= 0)) {
+    removeTempStat(enemy, 'ice_shield');
+    enemy._iceShielded = false;
   }
-  // 风壁减伤（聚械机偶）
-  if (enemy._windWallDmgReduc && enemy._windWallTurns > 0) {
-    dmg = Math.round(dmg * (1 - enemy._windWallDmgReduc));
+  if (hasTempStat(enemy, 'dmgReduc')) {
+    dmg = computeStat(enemy, 'dmgReduc', dmg);
   }
-  // 过渡减伤（无妄者阶段切换）
-  if (enemy._transition > 0) {
-    dmg = Math.round(dmg * 0.5);
-  }
-  // 飞空无敌（海之女）
-  if (enemy._flightTurns > 0 && enemy._flightTurns >= 2) {
-    return 0; // 完全无敌
-  }
-  // 眩晕中（被弹反/残骸砸晕）
-  if (enemy._stunned > 0) {
-    dmg = Math.round(dmg * (1 + (enemy._vulnerable ? 0.5 : 0))); // 弹反瘫痪 +50% 易伤
+  // 破韧/弹反/残骸中断窗口：按 suppressedVuln 加易伤
+  if (enemy.suppressed > 0 && enemy.suppressedVuln) {
+    dmg = Math.round(dmg * (1 + enemy.suppressedVuln));
   }
   return dmg;
 }

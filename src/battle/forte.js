@@ -301,7 +301,7 @@ export function forteEnhances(unit, actionType) {
   if (!unit.forte?.ready) return null;
   const t = unit.forte.effectType;
   // 强化对应动作？
-  if (actionType === 'normal' && (t === 'enhancedNormal' || t === 'toggleForm')) return unit.forte;
+  if (actionType === 'normal' && t === 'enhancedNormal') return unit.forte;
   if (actionType === 'skill' && t === 'enhancedSkill') return unit.forte;
   if (actionType === 'burst' && t === 'enhancedBurst') return unit.forte;
   return null;

@@ -7,6 +7,7 @@ import { renderCharacterBattleStatus } from '../battle/characters/index.js';
 import { ELEMENT_COLOR } from '../battle/elements.js';
 import { BUFF_RENDERERS, TEAM_BUFF_TYPES } from './battleRenderers/buffRenderers.js';
 import { formatEnemyMechanic } from '../battle/enemies.js';
+import { getTempStatInstances, hasTempStat } from '../battle/tempStats.js';
 import { flattenEnemies, DUNGEONS, canUseWeeklyBoss, consumeWeeklyBoss, getWeeklyBossUsed, WEEKLY_BOSS_LIMIT, getDungeonEncounter, getSol3Level, getSol3Config, getWorldBossSpawnOpts, increaseBossLevel, decreaseBossLevel } from '../battle/dungeon.js';
 import { spendStamina } from '../daily/stamina.js';
 import { settleAbyss, ABYSS_ZONES, startAbyssFloor } from '../daily/abyss.js';
@@ -17,6 +18,10 @@ let currentBattle = null;
 let pendingDungeon = null;
 let _lastLogLen = 0;       // 用于检测新增日志（弹 toast）
 let _lastBuffSnapshot = null; // 用于检测新增 buff（用 flash 动画）
+
+// 显示名：形态切换后 unit.displayName 会覆盖 unit.name（Step C）
+// 数据层一律用 unit.name（key、log、save），UI 显示层走这里
+const displayName = (u) => (u && u.displayName) ? u.displayName : (u ? u.name : '');
 
 // 进入副本战斗（普通副本）
 export function startDungeonBattle(dungeonId) {
@@ -176,7 +181,7 @@ function renderHeader() {
     <div style="font-size:18px;font-weight:700;letter-spacing:3px;color:var(--gold)">${titleTxt}</div>
     ${subTitle ? `<div style="font-size:11px;color:var(--accent);letter-spacing:1px;margin-top:4px">${subTitle}</div>` : ''}
     <div style="font-size:11px;color:var(--muted);letter-spacing:2px;margin-top:4px">
-      回合 <b style="color:var(--text)">${b.turn}</b> · AP <b style="color:var(--gold)">${b.ap}/${b.apMax}</b> · ${switchTag} · 当前 <b style="color:var(--accent)">${b.team[b.active]?.name}</b>
+      回合 <b style="color:var(--text)">${b.turn}</b> · AP <b style="color:var(--gold)">${b.ap}/${b.apMax}</b> · ${switchTag} · 当前 <b style="color:var(--accent)">${displayName(b.team[b.active])}</b>
     </div>
     <div style="font-size:9px;color:var(--dim);letter-spacing:.5px;margin-top:4px;line-height:1.5">
       每回合 4 AP · 普攻 1AP · 技能 1AP/CD3${b.team[b.active]?.hasHeavy ? ' · 重击 2AP/CD1' : ''} · 解放 3AP · 切人 0AP（限 1 次）
@@ -214,20 +219,20 @@ function renderBuffStripe() {
     });
     if (t.shield > 0) items.push({
       key: `sh-${t.name}`, cls: 'shield', icon: '🛡',
-      label: `${t.name} 护盾 ${t.shield}`, dur: null
+      label: `${displayName(t)} 护盾 ${t.shield}`, dur: null
     });
     if (t.concerto >= 100) items.push({
       key: `con-${t.name}`, cls: 'crit', icon: '🎵',
-      label: `${t.name} 协奏满（切人触发延奏）`, dur: null
+      label: `${displayName(t)} 协奏满（切人触发延奏）`, dur: null
     });
     if (t.skillLockedTurns > 0) items.push({
       key: `lock-${t.name}`, cls: 'debuff', icon: '🔒',
-      label: `${t.name} 技能封锁`, dur: t.skillLockedTurns
+      label: `${displayName(t)} 技能封锁`, dur: t.skillLockedTurns
     });
     (t.debuffs || []).forEach(d => {
       if (d.type === 'erosion') items.push({
         key: `per-${t.name}-${d.element}`, cls: 'debuff', icon: '☣',
-        label: `${t.name} ${d.element}侵蚀`, dur: d.duration
+        label: `${displayName(t)} ${d.element}侵蚀`, dur: d.duration
       });
     });
   });
@@ -237,16 +242,16 @@ function renderBuffStripe() {
     (e.debuffs || []).forEach(d => {
       if (d.type === 'erosion') items.push({
         key: `er-${e.name}-${d.element}`, cls: 'debuff', icon: '☣',
-        label: `${e.name} ${d.element}侵蚀 +${(d.value*100).toFixed(0)}%`, dur: d.duration
+        label: `${displayName(e)} ${d.element}侵蚀 +${(d.value*100).toFixed(0)}%`, dur: d.duration
       });
       if (d.type === 'spectro_frazzle') items.push({
         key: `sf-${e.name}`, cls: 'debuff', icon: '☣',
-        label: `${e.name} 衍射失序`, dur: d.duration
+        label: `${displayName(e)} 衍射失序`, dur: d.duration
       });
     });
-    if (e.vibrationBroken > 0) items.push({
+    if (e.suppressed > 0) items.push({
       key: `vb-${e.name}`, cls: 'debuff', icon: '💢',
-      label: `${e.name} 破韧易伤 ×1.3`, dur: e.vibrationBroken
+      label: `${displayName(e)} 中断 ×${(1 + (e.suppressedVuln || 0.3)).toFixed(1)}（${e.suppressed}回合）`, dur: e.suppressed
     });
   });
 
@@ -281,14 +286,14 @@ function renderEnemies() {
     const hpPct = Math.max(0, e.hp / e.hpMax);
     const elemColor = ELEMENT_COLOR[e.element] || '#fff';
     const vibPct = (e.vibration ?? 100) / (e.vibrationMax || 100);
-    const broken = e.vibrationBroken > 0;
+    const broken = e.suppressed > 0;
     const m = e.mechanic;
     let mechHint = '';
     const mechanicText = formatEnemyMechanic(m, { includeNext: true, turn: b.turn });
     if (mechanicText) mechHint = `<div style="font-size:9px;color:var(--muted);margin-top:3px;letter-spacing:.3px">机制：${mechanicText}</div>`;
     html += `<div onclick="window.__bTarget(${realIdx})" style="border:1px solid ${isTarget ? 'var(--red)' : 'var(--line)'};border-radius:10px;padding:11px;margin-bottom:6px;background:${isTarget ? 'rgba(255,80,80,.10)' : 'rgba(255,80,80,.04)'};cursor:pointer;transition:.15s">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
-        <span style="font-weight:600;font-size:14px">${isTarget ? '🎯 ' : ''}${e.name}${e.class ? ` <span style="font-size:9px;color:var(--muted);letter-spacing:1px">[${e.class}]</span>` : ''}</span>
+        <span style="font-weight:600;font-size:14px">${isTarget ? '🎯 ' : ''}${displayName(e)}${e.class ? ` <span style="font-size:9px;color:var(--muted);letter-spacing:1px">[${e.class}]</span>` : ''}</span>
         <span style="font-size:10px;padding:2px 8px;border:1px solid ${elemColor};color:${elemColor};border-radius:999px">${e.element}</span>
       </div>
       <div style="height:8px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden">
@@ -299,23 +304,23 @@ function renderEnemies() {
         <span>${(hpPct*100).toFixed(0)}% · 本属性抗 40%</span>
       </div>
       <div style="display:flex;align-items:center;gap:6px;margin-top:4px">
-        <span style="font-size:9px;color:${broken ? 'var(--gold)' : 'var(--muted)'};letter-spacing:1px;min-width:50px">${broken ? `易伤 ×1.3 (${e.vibrationBroken}回合)` : '破韧'}</span>
+        <span style="font-size:9px;color:${broken ? 'var(--gold)' : 'var(--muted)'};letter-spacing:1px;min-width:50px">${broken ? `中断 ×${(1 + (e.suppressedVuln || 0.3)).toFixed(1)} (${e.suppressed}回合)` : '破韧'}</span>
         <div style="flex:1;height:3px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden">
           <div style="height:100%;width:${(vibPct*100).toFixed(1)}%;background:${broken ? 'var(--gold)' : '#aaa'};border-radius:2px;transition:width .3s ease"></div>
         </div>
       </div>
-      ${e.shield > 0 ? `<div style="font-size:10px;color:var(--accent);margin-top:3px">🛡 护盾 ${e.shield}${e._iceShieldDmgReduc ? ' · 冰翼减伤 ' + (e._iceShieldDmgReduc*100).toFixed(0) + '%' : ''}</div>` : ''}
-      ${e._stunned > 0 ? `<div style="font-size:10px;color:var(--gold);margin-top:2px">💫 眩晕 ${e._stunned}回合${e._vulnerable ? ' · 易伤 +50%' : ''}</div>` : ''}
-      ${e._flightTurns >= 2 ? `<div style="font-size:10px;color:var(--accent);margin-top:2px">🕊 飞空无敌中</div>` : ''}
+      ${e.shield > 0 ? `<div style="font-size:10px;color:var(--accent);margin-top:3px">🛡 护盾 ${e.shield}${(() => { const ic = getTempStatInstances(e,'dmgReduc').find(s => s.source==='ice_shield'); return ic ? ` · 冰翼减伤 ${(ic.mult*100).toFixed(0)}%` : ''; })()}</div>` : ''}
+      ${e.suppressed > 0 && e.suppressedVuln >= 0.5 ? `<div style="font-size:10px;color:var(--gold);margin-top:2px">💫 中断 ${e.suppressed}回合 · 易伤 +${(e.suppressedVuln*100).toFixed(0)}%</div>` : ''}
+      ${hasTempStat(e,'dmgImmune') ? `<div style="font-size:10px;color:var(--accent);margin-top:2px">🕊 飞空无敌中</div>` : ''}
       ${e._deflectActive ? `<div style="font-size:10px;color:var(--gold);margin-top:2px">🛡 反击姿态 · 反弹 ${((e.mechanic?.value||0.4)*100).toFixed(0)}%</div>` : ''}
       ${e._bubbleHp > 0 ? `<div style="font-size:10px;color:var(--green);margin-top:2px">🫧 绿泡 HP ${e._bubbleHp} · 回合末回复 ${e._bubbleHealAmt||0}</div>` : ''}
       ${e._debrisReady ? `<div style="font-size:10px;color:var(--gold);margin-top:2px">⚙ 残骸可投掷！点击"残骸"按钮眩晕 BOSS</div>` : ''}
-      ${e._windWallTurns > 0 ? `<div style="font-size:10px;color:var(--accent);margin-top:2px">🌪 风壁减伤 ${((e._windWallDmgReduc||0.4)*100).toFixed(0)}% · 剩余 ${e._windWallTurns}回合</div>` : ''}
+      ${(() => { const w = getTempStatInstances(e,'dmgReduc').find(s => s.source==='wind_wall'); return w ? `<div style="font-size:10px;color:var(--accent);margin-top:2px">🌪 风壁减伤 ${(w.mult*100).toFixed(0)}% · 剩余 ${w.turns===Infinity?'∞':w.turns}回合</div>` : ''; })()}
       ${e._overclockTurns > 0 ? `<div style="font-size:10px;color:var(--red);margin-top:2px">🔥 Overclock 双动 · 剩余 ${e._overclockTurns}回合</div>` : ''}
       ${e._laserCharging ? `<div style="font-size:10px;color:var(--red);margin-top:2px">⚡ 蓄力激光中…下回合发射！</div>` : ''}
       ${e._saws && e._saws.length > 0 ? `<div style="font-size:10px;color:var(--red);margin-top:2px">🪚 追踪电锯 ×${e._saws.length}</div>` : ''}
       ${e.phase > 1 ? `<div style="font-size:10px;color:var(--gold);margin-top:2px">📌 阶段 ${e.phase}${e._airPhase ? ' · 空中（近战-30%）' : ''}</div>` : ''}
-      ${Object.keys(e.marks || {}).some(k => e.marks[k] > 0) ? `<div style="font-size:10px;color:var(--red);margin-top:2px">🔥 灼伤：${b.team.filter(t=>t.alive).map(t=>t.name+(e.marks[t.idx]||0)+'层').join(' · ')}</div>` : ''}
+      ${Object.keys(e.marks || {}).some(k => e.marks[k] > 0) ? `<div style="font-size:10px;color:var(--red);margin-top:2px">🔥 灼伤：${b.team.filter(t=>t.alive).map(t=>displayName(t)+(e.marks[t.idx]||0)+'层').join(' · ')}</div>` : ''}
       ${e.cartethyiaErosion > 0 ? `<div style="font-size:10px;color:var(--green);margin-top:2px">🌪 风蚀 ×${e.cartethyiaErosion} 层 · 回合末每层扣 ATK×0.3</div>` : ''}
       ${e._delayedBlast ? `<div style="font-size:10px;color:var(--red);margin-top:2px">💥 地面发光…下回合爆破！</div>` : ''}
       ${mechHint}
@@ -349,7 +354,7 @@ function renderTeam() {
     html += `<div class="bf-unit ${isActive ? 'active' : ''}" style="border:2px solid ${isActive ? 'var(--gold)' : 'var(--line)'};border-radius:10px;padding:8px;background:${isActive ? 'rgba(245,207,107,.06)' : 'rgba(255,255,255,.02)'};cursor:${canSwitch ? 'pointer' : 'default'};opacity:${canSwitch || isActive ? '1' : '.6'}"
       onclick="${canSwitch ? `window.__bSwitch(${i})` : ''}" title="${swapHint}">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-        <span style="font-size:12px;font-weight:600">${t.name}${frozen}${locked}${burstReady}${fReady ? '<span style="color:var(--gold);font-size:9px;margin-left:3px">✦</span>' : ''}</span>
+        <span style="font-size:12px;font-weight:600">${displayName(t)}${frozen}${locked}${burstReady}${fReady ? '<span style="color:var(--gold);font-size:9px;margin-left:3px">✦</span>' : ''}</span>
         <span style="font-size:9px;color:${elemColor}">${t.element}</span>
       </div>
       <div style="height:5px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden">
@@ -430,8 +435,8 @@ function renderActions() {
 
     const blocker = (() => {
       if (cur && !cur.alive) return '当前角色已倒下，请切换队员';
-      if (cur && cur.frozenTurns > 0) return `${cur.name} 被冻结（剩余 ${cur.frozenTurns} 回合）→ 请切换队员或结束回合`;
-      if (cur && cur.skillLockedTurns > 0) return `${cur.name} 技能被封锁（剩余 ${cur.skillLockedTurns} 回合）`;
+      if (cur && cur.frozenTurns > 0) return `${displayName(cur)} 被冻结（剩余 ${cur.frozenTurns} 回合）→ 请切换队员或结束回合`;
+      if (cur && cur.skillLockedTurns > 0) return `${displayName(cur)} 技能被封锁（剩余 ${cur.skillLockedTurns} 回合）`;
       if (!hasTarget) return '当前没有活着的敌人';
       if (b.ap <= 0) return `AP 已耗尽（0/${b.apMax}）→ 请点击「结束回合」`;
       return '';
@@ -503,7 +508,7 @@ function renderSkillPanel(cur) {
 
   let html = `<div style="border:1px solid var(--line);border-radius:10px;padding:9px 12px;margin-bottom:8px;background:rgba(245,207,107,.04);font-size:11px;line-height:1.55">
     <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px">
-      <span style="font-weight:700;color:var(--gold);letter-spacing:1px">${cur.name}</span>
+      <span style="font-weight:700;color:var(--gold);letter-spacing:1px">${displayName(cur)}</span>
       <span style="font-size:10px;color:var(--muted)">${cur.element} · ${cur.type}${wName ? ' · 装备 ' + wName : ''}</span>
     </div>`;
 
