@@ -447,7 +447,10 @@ export function getEchoById(id) {
 
 /** 获取某套装的所有声骸 */
 export function getEchoesBySet(setId) {
-  return ECHO_CATALOG.filter(e => e.set === setId);
+  return ECHO_CATALOG.filter(e => {
+    if (Array.isArray(e.set)) return e.set.includes(setId);
+    return e.set === setId;
+  });
 }
 
 /** 获取某元素的所有声骸 */

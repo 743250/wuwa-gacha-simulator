@@ -291,6 +291,10 @@ export function cartethyiaErosionTick(enemy, battle) {
     type: 'mechanic', src: enemy.name,
     msg: `风蚀效应造成 ${dmg} 点伤害（${erosion} 层 × ${enemy.atk} × 0.3）`
   });
+  if (enemy.hp <= 0) {
+    enemy.alive = false;
+    battle.log.push({ type: 'mechanic', src: enemy.name, msg: `${enemy.name} 被风蚀效应击败` });
+  }
 }
 
 // endTurn 清理：决意计时移到 stacks.js tickStacks 统一管理，芙露形态计时仍在此处
