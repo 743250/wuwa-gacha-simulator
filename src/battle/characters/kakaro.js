@@ -28,6 +28,12 @@ export function kakaroShikaku(self, target, dmg, battle) {
   battle.log.push({ type: 'attack', src: self.name, tgt: target.name, dmg: extraDmg, crit: false, action: '死告·猎杀影协同（6 链）' });
 }
 
+// onBurst hook：解放进入杀戮武装形态
+export function kakaroOnBurst(self, ctx) {
+  if (self.name !== '卡卡罗') return;
+  kakaroEnterDeathblade(self, ctx.battle);
+}
+
 export function kakaroTurnCleanup(self, ctx) {
   if (self.name !== '卡卡罗') return;
   const battle = ctx.battle;
@@ -45,5 +51,6 @@ export default {
   enterDeathblade: kakaroEnterDeathblade,
   deathbladeBonus: kakaroDeathbladeBonus,
   shikaku: kakaroShikaku,
+  onBurst: kakaroOnBurst,
   turnCleanup: kakaroTurnCleanup
 };

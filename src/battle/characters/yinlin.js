@@ -85,6 +85,14 @@ export function yinlinOnAttack(self, ctx) {
   yinlinGainVerdict(self, 15, '普攻', battle);
 }
 
+// onSkill hook：共鸣技能命中印记回调 + 积 30 审判
+export function yinlinOnSkill(self, ctx) {
+  if (self.name !== '吟霖') return;
+  const battle = ctx.battle;
+  yinlinOnHit(self, ctx.target, 'skill', battle);
+  yinlinGainVerdict(self, 30, '共鸣技能', battle);
+}
+
 // 解放后：主目标必挂印记 + 4 链全队 atk buff + 6 链开启疾霆窗口
 export function yinlinBurst(self, primary, battle) {
   if (self.name !== '吟霖') return;
@@ -103,6 +111,12 @@ export function yinlinBurst(self, primary, battle) {
     self.yinlinJiTingActive = self.yinlinJiTing.dur + 1;
     battle.log.push({ type: 'mechanic', src: self.name, msg: `疾霆昭彰 · 普攻命中印记目标额外触发（持续 ${self.yinlinJiTing.dur} 回合）` });
   }
+}
+
+// onBurst hook：解放主目标挂印记 + buff 窗口
+export function yinlinOnBurst(self, ctx) {
+  if (self.name !== '吟霖') return;
+  yinlinBurst(self, ctx.target, ctx.battle);
 }
 
 // endTurn 清理
@@ -124,6 +138,8 @@ export default {
   gainVerdict: yinlinGainVerdict,
   onHit: yinlinOnHit,
   onAttack: yinlinOnAttack,
+  onSkill: yinlinOnSkill,
   burst: yinlinBurst,
+  onBurst: yinlinOnBurst,
   turnCleanup: yinlinTurnCleanup
 };

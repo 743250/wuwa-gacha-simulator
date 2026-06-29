@@ -18,7 +18,7 @@
 //   ★2：18 回合内 + 队伍均血 ≥ 70%
 //   ★3：15 回合内 + 队伍均血 ≥ 70%
 import { S, DAY } from '../state.js';
-import { createBattle, getCombatTeamNames } from '../battle/combat.js';
+import { startEncounter, getCombatTeamNames } from '../battle/combat.js';
 import { flattenEnemies, currentVersion } from '../battle/dungeon.js';
 import { STAR_CRITERIA, getAbyssTemperatureForVersion, getAbyssEnvironment } from '../battle/balance.js';
 
@@ -230,7 +230,7 @@ export function startAbyssFloor(idOrFloor) {
   if (names.length === 0) return null;
   const enemyNames = flattenEnemies(info.enemies);
   const scale = getAbyssFloorScale(info, S.today);
-  const battle = createBattle(names, enemyNames, { enemyStatScale: scale });
+  const battle = startEncounter({ team: names, enemies: enemyNames, options: { enemyStatScale: scale } });
   if (battle) battle._abyssFloor = info.id;
   return battle;
 }

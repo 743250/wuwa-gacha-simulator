@@ -43,11 +43,18 @@ export function cantarellaMarkDream(self, target, battle) {
   battle.log.push({ type: 'mechanic', src: self.name, msg: `${target.name} 陷入迷梦（受到非迷梦伤害触发惊醒）` });
 }
 
+// onBurst hook：2 链解放后给主目标挂迷梦
+export function cantarellaOnBurst(self, ctx) {
+  if (self.name !== '坎特蕾拉') return;
+  cantarellaMarkDream(self, ctx.target, ctx.battle);
+}
+
 export default {
   name: '坎特蕾拉',
   hasHeavy: true,
   enterMirage: cantarellaEnterMirage,
   exitMirage: cantarellaExitMirage,
   awaken: cantarellaAwaken,
-  markDream: cantarellaMarkDream
+  markDream: cantarellaMarkDream,
+  onBurst: cantarellaOnBurst
 };

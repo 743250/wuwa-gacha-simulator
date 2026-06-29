@@ -47,6 +47,14 @@ export function encoreOnAttack(self, ctx) {
   encoreGainDisorder(self, 20, source, battle);
 }
 
+// onSkill hook：共鸣技能积失序（黑咩窗口内视为狂热并由 gainDisorder 内部额外 +10）
+export function encoreOnSkill(self, ctx) {
+  if (self.name !== '安可') return;
+  const battle = ctx.battle;
+  const source = (self.encoreBlackTurns || 0) > 0 ? '共鸣技能·黑咩·狂热' : '共鸣技能·热力羊咩';
+  encoreGainDisorder(self, 35, source, battle);
+}
+
 // 解放后进入黑咩形态
 export function encoreStartBlackSheep(self, battle) {
   if (self.name !== '安可') return;
@@ -55,6 +63,12 @@ export function encoreStartBlackSheep(self, battle) {
     type: 'mechanic', src: self.name,
     msg: '黑咩大暴走 · 进入黑咩形态（后续 3 回合），普攻/技能/重击获得强化'
   });
+}
+
+// onBurst hook：解放后进入黑咩形态
+export function encoreOnBurst(self, ctx) {
+  if (self.name !== '安可') return;
+  encoreStartBlackSheep(self, ctx.battle);
 }
 
 // endTurn 清理
@@ -76,6 +90,8 @@ export default {
   hasHeavy: true,
   gainDisorder: encoreGainDisorder,
   onAttack: encoreOnAttack,
+  onSkill: encoreOnSkill,
   startBlackSheep: encoreStartBlackSheep,
+  onBurst: encoreOnBurst,
   turnCleanup: encoreTurnCleanup
 };

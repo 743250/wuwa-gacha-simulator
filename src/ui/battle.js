@@ -2,7 +2,7 @@
 // 重构：拆 4 个区独立刷新，避免每次行动整页 innerHTML 重绘导致的"UI 一直变"
 // 增强：buff 突出显示 + 入场动画 + 顶部 toast 队列
 import { S, $, msg } from '../state.js';
-import { createBattle, doAttack, doSkill, doHeavy, doBurst, doSwitch, doDebris, endTurn, getCombatTeamNames } from '../battle/combat.js';
+import { startEncounter, doAttack, doSkill, doHeavy, doBurst, doSwitch, doDebris, endTurn, getCombatTeamNames } from '../battle/combat.js';
 import { renderCharacterBattleStatus } from '../battle/characters/index.js';
 import { ELEMENT_COLOR } from '../battle/elements.js';
 import { collectUnitBadges, collectEnemyBadges, renderBadge } from './battleRenderers/buffRenderers.js';
@@ -53,7 +53,7 @@ export function startDungeonBattle(dungeonId) {
     const enemyLevel = encounter.enemyLevel || d.enemyLevel || d.minLevel || 40;
     battleOpts = { enemyScale: finalScale, enemyLevel };
   }
-  const battle = createBattle(names, enemyNames, battleOpts);
+  const battle = startEncounter({ team: names, enemies: enemyNames, options: battleOpts });
   if (!battle) {
     msg('战斗创建失败：队伍或敌人配置异常');
     return;

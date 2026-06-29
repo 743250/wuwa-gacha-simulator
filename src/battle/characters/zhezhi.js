@@ -55,6 +55,12 @@ export function zhezhiSummonField(self, battle) {
   });
 }
 
+// onBurst hook：解放展开墨鹤领域
+export function zhezhiOnBurst(self, ctx) {
+  if (self.name !== '折枝') return;
+  zhezhiSummonField(self, ctx.battle);
+}
+
 // 共鸣技能命中时 +1 墨鹤补货 + 6 链白鹤
 export function zhezhiSkillSummon(self, battle) {
   if (self.name !== '折枝') return;
@@ -107,6 +113,12 @@ export function zhezhiSkillSummon(self, battle) {
       }
     }
   }
+}
+
+// onSkill hook：折枝共鸣技能补货 + 6 链白鹤（追击 craneAssist 仍由 combat.js 在此之后具名调用）
+export function zhezhiOnSkill(self, ctx) {
+  if (self.name !== '折枝') return;
+  zhezhiSkillSummon(self, ctx.battle);
 }
 
 // 墨鹤追击：己方角色每次攻击命中主目标时消耗 1 只墨鹤追击
@@ -223,6 +235,8 @@ export default {
   hasHeavy: true,
   summonField: zhezhiSummonField,
   skillSummon: zhezhiSkillSummon,
+  onSkill: zhezhiOnSkill,
+  onBurst: zhezhiOnBurst,
   craneAssist: zhezhiCraneAssist,
   inkShield: zhezhiInkShield,
   turnCleanup: zhezhiTurnCleanup,

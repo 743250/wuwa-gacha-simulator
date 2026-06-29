@@ -39,10 +39,17 @@ export function brantFlameDirge(self, battle) {
   }
 }
 
+// onBurst hook：满航路解放全队治疗 + 再燃
+export function brantOnBurst(self, ctx) {
+  if (self.name !== '布兰特') return;
+  brantFlameDirge(self, ctx.battle);
+}
+
 export default {
   name: '布兰特',
   hasHeavy: true,
   gainWindRide: brantGainWindRide,
   windRideBonus: brantWindRideBonus,
-  flameDirge: brantFlameDirge
+  flameDirge: brantFlameDirge,
+  onBurst: brantOnBurst
 };

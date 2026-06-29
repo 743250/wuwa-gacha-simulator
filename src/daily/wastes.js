@@ -18,7 +18,7 @@
 //   - 版本切换时重置
 
 import { S } from '../state.js';
-import { createBattle, getCombatTeamNames } from '../battle/combat.js';
+import { startEncounter, getCombatTeamNames } from '../battle/combat.js';
 import { flattenEnemies } from '../battle/dungeon.js';
 import { activePhase } from '../gacha/core.js';
 import { STAR_CRITERIA } from '../battle/balance.js';
@@ -146,9 +146,13 @@ export function startWastesStage(id) {
     });
   });
 
-  const battle = createBattle(names, enemyNames, {
-    enemyScale: info.enemyScale,
-    wastesTokens: tokenEffects  // 传给 combat.js 处理
+  const battle = startEncounter({
+    team: names,
+    enemies: enemyNames,
+    options: {
+      enemyScale: info.enemyScale,
+      wastesTokens: tokenEffects  // 传给 combat.js 处理
+    }
   });
   if (battle) battle._wastesStage = id;
   return battle;

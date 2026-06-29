@@ -32,6 +32,22 @@ export function jiyanGainRuiyi(self, source, battle) {
   gainStack(self, 'jiyan_ruiyi', source, battle);
 }
 
+// onSkill hook：共鸣技能积锐意 + 3 链观势
+export function jiyanOnSkill(self, ctx) {
+  if (self.name !== '忌炎') return;
+  const battle = ctx.battle;
+  jiyanGainRuiyi(self, '共鸣技能', battle);
+  jiyanGuanShiBuff(self, battle);
+}
+
+// onHeavy hook：重击积锐意 + 3 链观势
+export function jiyanOnHeavy(self, ctx) {
+  if (self.name !== '忌炎') return;
+  const battle = ctx.battle;
+  jiyanGainRuiyi(self, '重击', battle);
+  jiyanGuanShiBuff(self, battle);
+}
+
 export function jiyanGuanShiBuff(self, battle) {
   if (self.name !== '忌炎' || !self.jiyanGuanShi) return;
   const cfg = self.jiyanGuanShi;
@@ -73,6 +89,14 @@ export function jiyanQiZheng(self, battle) {
     type: 'mechanic', src: self.name,
     msg: `奇正 · 全队重击伤害 +${(cfg.value*100).toFixed(0)}%（${cfg.dur} 回合）`
   });
+}
+
+// onBurst hook：解放后 3 链观势 + 4 链奇正（锐意倍率由 jiyanBurstRuiyi 在结算前具名调用）
+export function jiyanOnBurst(self, ctx) {
+  if (self.name !== '忌炎') return;
+  const battle = ctx.battle;
+  jiyanGuanShiBuff(self, battle);
+  jiyanQiZheng(self, battle);
 }
 
 // 变奏入场：锐意 + 2 链通变 + 5 链明断 + 3 链观势
@@ -130,7 +154,10 @@ export default {
   collectBadges: collectJiyanBadges,
   gainRuiyi: jiyanGainRuiyi,
   guanShi: jiyanGuanShiBuff,
+  onSkill: jiyanOnSkill,
+  onHeavy: jiyanOnHeavy,
   burstRuiyi: jiyanBurstRuiyi,
   qiZheng: jiyanQiZheng,
+  onBurst: jiyanOnBurst,
   switchIn: jiyanSwitchIn
 };

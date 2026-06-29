@@ -55,13 +55,24 @@ export function cur() {
   return a.find(b => b.id === S.selected);
 }
 
-// 概率曲线
+// 概率曲线（与 tests/gacha/core.test.js 锁定的拐点一致，改动需同步测试）
+const BASE_RATE = .008;        // 65 抽以内基础概率 0.8%
+const HARD_PITY = 80;          // 80 抽硬保底
+const SOFT_PITY_KNOT = 65;     // 软保底起点
+const MID_PITY_KNOT = 70;      // 中段拐点
+const HIGH_PITY_KNOT = 75;     // 高段拐点
+const SOFT_SLOPE = .04;        // 66-70 每抽 +4%
+const MID_SLOPE = .08;         // 71-75 每抽 +8%
+const HIGH_SLOPE = .10;        // 76-79 每抽 +10%
+const SOFT_SPAN = MID_PITY_KNOT - SOFT_PITY_KNOT;   // 5 抽
+const MID_SPAN = HIGH_PITY_KNOT - MID_PITY_KNOT;    // 5 抽
+
 export function rate(p) {
-  if (p >= 80) return 1;
-  if (p <= 65) return .008;
-  if (p <= 70) return Math.min(1, .008 + (p - 65) * .04);
-  if (p <= 75) return Math.min(1, .008 + 5 * .04 + (p - 70) * .08);
-  return Math.min(1, .008 + 5 * .04 + 5 * .08 + (p - 75) * .10);
+  if (p >= HARD_PITY) return 1;
+  if (p <= SOFT_PITY_KNOT) return BASE_RATE;
+  if (p <= MID_PITY_KNOT) return Math.min(1, BASE_RATE + (p - SOFT_PITY_KNOT) * SOFT_SLOPE);
+  if (p <= HIGH_PITY_KNOT) return Math.min(1, BASE_RATE + SOFT_SPAN * SOFT_SLOPE + (p - MID_PITY_KNOT) * MID_SLOPE);
+  return Math.min(1, BASE_RATE + SOFT_SPAN * SOFT_SLOPE + MID_SPAN * MID_SLOPE + (p - HIGH_PITY_KNOT) * HIGH_SLOPE);
 }
 
 export function poolTide(pool) {

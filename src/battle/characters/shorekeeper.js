@@ -19,6 +19,12 @@ export function shorekeeperSkillHeal(self, battle) {
   });
 }
 
+// onSkill hook：共鸣技能附带全队治疗
+export function shorekeeperOnSkill(self, ctx) {
+  if (self.name !== '守岸人') return;
+  shorekeeperSkillHeal(self, ctx.battle);
+}
+
 // 共鸣解放 · 终末回环 → 展开「星域」
 export function shorekeeperStarfield(self, battle) {
   if (self.name !== '守岸人') return;
@@ -60,10 +66,19 @@ export function shorekeeperBurstRefund(self, battle) {
   battle.log.push({ type: 'mechanic', src: self.name, msg: `共鸣链 3 · 解放后额外回复 ${refund} 能量（CD ${self.burstEnergyRefundCd || 2} 回合）` });
 }
 
+// onBurst hook：展开星域 + 3 链解放回能
+export function shorekeeperOnBurst(self, ctx) {
+  if (self.name !== '守岸人') return;
+  shorekeeperStarfield(self, ctx.battle);
+  shorekeeperBurstRefund(self, ctx.battle);
+}
+
 export default {
   name: '守岸人',
   hasHeavy: false,
   skillHeal: shorekeeperSkillHeal,
+  onSkill: shorekeeperOnSkill,
   starfield: shorekeeperStarfield,
-  burstRefund: shorekeeperBurstRefund
+  burstRefund: shorekeeperBurstRefund,
+  onBurst: shorekeeperOnBurst
 };

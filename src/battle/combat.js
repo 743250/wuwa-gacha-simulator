@@ -23,16 +23,12 @@ import { applyEnemyPeriodicMechanic, applyEnemyThresholdMechanic, applyEnemyOnHi
 import { hasHeavyAttack } from './characters/index.js';
 import { fireCharacterHook } from './characters/index.js';
 import { ACTION_COST, ACTION_MULTIPLIER, VIBRATION_DAMAGE } from './balance.js';
-import { jiyanGainRuiyi, jiyanGuanShiBuff, jiyanBurstRuiyi, jiyanQiZheng } from './characters/jiyan.js';
-import { shorekeeperSkillHeal, shorekeeperStarfield, shorekeeperBurstRefund } from './characters/shorekeeper.js';
-import { yinlinGainVerdict, yinlinOnHit, yinlinBurst } from './characters/yinlin.js';
-import { encoreGainDisorder, encoreStartBlackSheep } from './characters/encore.js';
-import { cartethyiaGainResolve, cartethyiaApplyErosion, cartethyiaEnterFurForm, cartethyiaBurstErosion, cartethyiaResolveMultiplier, cartethyiaErosionTick, cartethyiaErosionOnBreak, cartethyiaLethalShield } from './characters/cartethyia.js';
-import { carlottaApplyDissociation } from './characters/carlotta.js';
-import { brantFlameDirge } from './characters/brant.js';
-import { cantarellaMarkDream } from './characters/cantarella.js';
-import { kakaroEnterDeathblade } from './characters/kakaro.js';
-import { zhezhiSummonField, zhezhiCraneAssist, zhezhiSkillSummon, zhezhiInkShield } from './characters/zhezhi.js';
+// 返回值参与倍率/控制流的 hook 仍保留具名调用（fireCharacterHook 会丢弃返回值）；
+// encoreGainDisorder 仍用于安可特殊重击；zhezhiCraneAssist/InkShield 是全队/重击专用入口。
+import { jiyanBurstRuiyi } from './characters/jiyan.js';
+import { encoreGainDisorder } from './characters/encore.js';
+import { cartethyiaEnterFurForm, cartethyiaBurstErosion, cartethyiaResolveMultiplier, cartethyiaErosionTick, cartethyiaErosionOnBreak, cartethyiaLethalShield } from './characters/cartethyia.js';
+import { zhezhiCraneAssist, zhezhiInkShield } from './characters/zhezhi.js';
 
 export function getCombatTeamNames(teamNames = S.team) {
   const seen = new Set();
@@ -103,6 +99,12 @@ export function createBattle(teamNames, enemyNames, opts = {}) {
   battle.log.push({ type: 'system', msg: `战斗开始！队伍 ${team.map(t=>t.name).join(' / ')} VS ${enemies.map(e=>e.name).join(' / ')}` });
   battle.log.push({ type: 'system', msg: `回合 1 · 当前出手：${team[0].name}` });
   return battle;
+}
+
+// 统一战斗入口：所有外部调用方（深塔/海墟/UI）都走这里，createBattle 视为内部实现。
+// 以后改 createBattle 签名或挂战斗开始 hook 只需改这一处。
+export function startEncounter({ team, enemies, options = {} } = {}) {
+  return createBattle(team, enemies, options);
 }
 
 function createTeamUnit(roleName, idx) {
@@ -649,19 +651,11 @@ export function doSkill(battle, targetIdx) {
   gainConcerto(self, 18);
   gainForte(self, 'skill');
 
-  shorekeeperSkillHeal(self, battle);
-
   if (fEnh) consumeForte(self);
   // Step D：菲比 toggleForm dispatch —— 使用技能后 forte 满自动切换形态（史遗留未接）
   if (!fEnh && self.forte?.ready && self.forte?.effectType === 'toggleForm') {
     fireCharacterHook(self, 'toggleForm', battle);
     consumeForte(self);
-  }
-  // 卡提希娅：共鸣技能叠决意 + 芙露德莉斯形态下附加风蚀 + 额外能量
-  cartethyiaGainResolve(self, '共鸣技能', battle);
-  cartethyiaApplyErosion(self, target, battle, false);
-  if ((self.cartethyiaFurTurns || 0) > 0) {
-    self.energy = Math.min(self.energyMax, self.energy + 8);
   }
 
   if (fEnh && fEnh.effectType === 'erosion') {
@@ -679,16 +673,8 @@ export function doSkill(battle, targetIdx) {
     type: 'skill', src: self.name, tgt: target.name, dmg: real, crit,
     action: fEnh ? `${fEnh.resourceName}强化技能` : '共鸣技能'
   });
-  // 忌炎：共鸣技能积锐意 + 3 链观势
-  jiyanGainRuiyi(self, '共鸣技能', battle);
-  jiyanGuanShiBuff(self, battle);
-  // 安可：共鸣技能积失序；黑咩窗口内视为黑咩·狂热并额外 +10
-  encoreGainDisorder(self, 35, (self.encoreBlackTurns || 0) > 0 ? '共鸣技能·黑咩·狂热' : '共鸣技能·热力羊咩', battle);
-  // 吟霖：共鸣技能 +30 审判 + 命中印记回调
-  yinlinOnHit(self, target, 'skill', battle);
-  yinlinGainVerdict(self, 30, '共鸣技能', battle);
-  carlottaApplyDissociation(self, target, battle);
-  zhezhiSkillSummon(self, battle);
+  // 角色专属共鸣技能 hook（守岸人治疗 · 卡提希娅决意/风蚀 · 忌炎锐意 · 安可失序 · 吟霖审判 · 珂莱塔解离 · 折枝补货）
+  fireCharacterHook(self, 'onSkill', { battle, target });
   // 折枝墨鹤追击：共鸣技能命中主目标时消耗 1 只墨鹤（追击在补货之后，逻辑上仍是技能命中触发）
   zhezhiCraneAssist(battle, target);
   finishIfBattleEnded(battle, 'win');
@@ -803,16 +789,9 @@ export function doBurst(battle) {
     battle.log.push({ type: 'mechanic', src: self.name, msg: `进入强化形态（攻击/技能 +${((fEnh.effectMult-1)*100).toFixed(0)}%，持续 2 回合）` });
   }
 
-  encoreStartBlackSheep(self, battle);
-
-  shorekeeperStarfield(self, battle);
-  kakaroEnterDeathblade(self, battle);
-  brantFlameDirge(self, battle);
-  zhezhiSummonField(self, battle);
-
-  // ★ 忌炎 3 链 观势：解放后自身暴击/暴伤 buff
-  jiyanGuanShiBuff(self, battle);
-  jiyanQiZheng(self, battle);
+  // 角色解放钩子（安可黑咩 / 守岸人星域+回能 / 卡卡罗武装 / 布兰特归亡曲 / 折枝领域 /
+  // 忌炎观势+奇正 / 吟霖印记 / 坎特蕾拉迷梦）
+  fireCharacterHook(self, 'onBurst', { battle, target: primary });
 
   // 触发武器被动：解放释放
   fireTrigger(self, 'burst_cast', { battle });
@@ -820,9 +799,6 @@ export function doBurst(battle) {
   if (self.concerto >= 100) {
     consumeConcerto(self, battle);
   }
-  shorekeeperBurstRefund(self, battle);
-  yinlinBurst(self, primary, battle);
-  cantarellaMarkDream(self, primary, battle);
   // 折枝墨鹤追击：解放 AOE 只对主目标触发一次（不因 AOE 多次消耗）
   if (self.name !== '折枝') zhezhiCraneAssist(battle, primary);
   battle.log.push({
@@ -931,15 +907,8 @@ export function doHeavy(battle, targetIdx) {
       battle.log.push({ type: 'mechanic', src: self.name, msg: '击破绿泡！全队获得治疗' });
     }
   }
-  // 卡提希娅：重击叠决意 + 芙露德莉斯形态下附加风蚀 + 额外能量
-  cartethyiaGainResolve(self, '重击', battle);
-  cartethyiaApplyErosion(self, target, battle, false);
-  if ((self.cartethyiaFurTurns || 0) > 0) {
-    self.energy = Math.min(self.energyMax, self.energy + 8);
-  }
-  // 忌炎：重击积锐意 + 3 链观势
-  jiyanGainRuiyi(self, '重击', battle);
-  jiyanGuanShiBuff(self, battle);
+  // 角色重击钩子（卡提希娅决意+风蚀 / 忌炎锐意+观势）
+  fireCharacterHook(self, 'onHeavy', { battle, target });
   finishIfBattleEnded(battle, 'win');
   return { ok: true };
 }

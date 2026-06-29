@@ -22,6 +22,12 @@ export function carlottaApplyDissociation(self, target, battle) {
   }
 }
 
+// onSkill hook：共鸣技能命中 → 目标解离/变彩
+export function carlottaOnSkill(self, ctx) {
+  if (self.name !== '珂莱塔') return;
+  carlottaApplyDissociation(self, ctx.target, ctx.battle);
+}
+
 // 对解离/变彩目标的暴击加成
 export function carlottaCrateBonus(self, target) {
   if (self.name !== '珂莱塔' || !target?.debuffs) return 0;
@@ -39,6 +45,7 @@ export default {
   name: '珂莱塔',
   hasHeavy: true,
   applyDissociation: carlottaApplyDissociation,
+  onSkill: carlottaOnSkill,
   crateBonus: carlottaCrateBonus,
   deathKnell: carlottaDeathKnell
 };

@@ -74,6 +74,28 @@ export function cartethyiaOnAttack(self, ctx) {
   }
 }
 
+// onSkill hook：共鸣技能叠决意 + 芙露形态附加风蚀 + 额外能量
+export function cartethyiaOnSkill(self, ctx) {
+  if (self.name !== '卡提希娅') return;
+  const battle = ctx.battle;
+  cartethyiaGainResolve(self, '共鸣技能', battle);
+  cartethyiaApplyErosion(self, ctx.target, battle, false);
+  if ((self.cartethyiaFurTurns || 0) > 0) {
+    self.energy = Math.min(self.energyMax, self.energy + 8);
+  }
+}
+
+// onHeavy hook：重击叠决意 + 芙露形态附加风蚀 + 额外能量
+export function cartethyiaOnHeavy(self, ctx) {
+  if (self.name !== '卡提希娅') return;
+  const battle = ctx.battle;
+  cartethyiaGainResolve(self, '重击', battle);
+  cartethyiaApplyErosion(self, ctx.target, battle, false);
+  if ((self.cartethyiaFurTurns || 0) > 0) {
+    self.energy = Math.min(self.energyMax, self.energy + 8);
+  }
+}
+
 // 获取决意带来的气动伤害加成倍率
 export function cartethyiaResolveMultiplier(self) {
   if (self.name !== '卡提希娅') return 1.0;
@@ -334,6 +356,8 @@ export default {
   gainResolve: cartethyiaGainResolve,
   applyErosion: cartethyiaApplyErosion,
   onAttack: cartethyiaOnAttack,
+  onSkill: cartethyiaOnSkill,
+  onHeavy: cartethyiaOnHeavy,
   enterFurForm: cartethyiaEnterFurForm,
   burstErosion: cartethyiaBurstErosion,
   erosionOnBreak: cartethyiaErosionOnBreak,
