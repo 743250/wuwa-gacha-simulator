@@ -32,6 +32,11 @@ export function openModal({ title, body, qty, actions, className = '' }) {
   $('modal').classList.add('on');
 }
 
+export function closeModal() {
+  const m = $('modal');
+  if (m) m.classList.remove('on');
+}
+
 export function adjustQty(d) { const i = $('qtyInput'); if (!i) return; i.value = Math.max(+i.min, Math.min(+i.max, (+i.value || 0) + d)); }
 export function setQty(v) { const i = $('qtyInput'); if (!i) return; i.value = Math.max(+i.min, Math.min(+i.max, v)); }
 

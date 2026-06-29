@@ -25,14 +25,14 @@ import { fireCharacterHook } from './characters/index.js';
 import { ACTION_COST, ACTION_MULTIPLIER, VIBRATION_DAMAGE } from './balance.js';
 import { jiyanGainRuiyi, jiyanGuanShiBuff, jiyanBurstRuiyi, jiyanQiZheng } from './characters/jiyan.js';
 import { shorekeeperSkillHeal, shorekeeperStarfield, shorekeeperBurstRefund } from './characters/shorekeeper.js';
-import { yinlinGainVerdict, yinlinOnHit, yinlinBurst, yinlinTurnCleanup } from './characters/yinlin.js';
-import { encoreGainDisorder, encoreStartBlackSheep, encoreTurnCleanup } from './characters/encore.js';
-import { cartethyiaGainResolve, cartethyiaApplyErosion, cartethyiaEnterFurForm, cartethyiaBurstErosion, cartethyiaResolveMultiplier, cartethyiaErosionTick, cartethyiaTurnCleanup, cartethyiaErosionOnBreak, cartethyiaLethalShield } from './characters/cartethyia.js';
+import { yinlinGainVerdict, yinlinOnHit, yinlinBurst } from './characters/yinlin.js';
+import { encoreGainDisorder, encoreStartBlackSheep } from './characters/encore.js';
+import { cartethyiaGainResolve, cartethyiaApplyErosion, cartethyiaEnterFurForm, cartethyiaBurstErosion, cartethyiaResolveMultiplier, cartethyiaErosionTick, cartethyiaErosionOnBreak, cartethyiaLethalShield } from './characters/cartethyia.js';
 import { carlottaApplyDissociation } from './characters/carlotta.js';
 import { brantFlameDirge } from './characters/brant.js';
 import { cantarellaMarkDream } from './characters/cantarella.js';
-import { kakaroEnterDeathblade, kakaroTurnCleanup } from './characters/kakaro.js';
-import { zhezhiSummonField, zhezhiCraneAssist, zhezhiSkillSummon, zhezhiInkShield, zhezhiTurnCleanup } from './characters/zhezhi.js';
+import { kakaroEnterDeathblade } from './characters/kakaro.js';
+import { zhezhiSummonField, zhezhiCraneAssist, zhezhiSkillSummon, zhezhiInkShield } from './characters/zhezhi.js';
 
 export function getCombatTeamNames(teamNames = S.team) {
   const seen = new Set();
@@ -72,7 +72,10 @@ export function createBattle(teamNames, enemyNames, opts = {}) {
 
   const expectedEnemies = (enemyNames || []).filter(Boolean);
   const enemies = expectedEnemies.map((n, idx) => {
-    const e = spawnEnemy(n, opts.enemyStatScale || opts.enemyScale || 1.0);
+    // 副本池：enemyLevel 控制 HP/ATK/DEF 等级缩放，enemyScale 控制额外倍率
+    const scale = opts.enemyStatScale || opts.enemyScale || 1.0;
+    const spawnOpts = opts.enemyLevel ? { enemyLevel: opts.enemyLevel, hp: scale, atk: scale, def: 1.0 } : scale;
+    const e = spawnEnemy(n, spawnOpts);
     if (e) e.idx = idx + 100;
     return e;
   }).filter(Boolean);
@@ -137,6 +140,7 @@ function createTeamUnit(roleName, idx) {
     weaponTriggers: s.weaponTriggers || [],
     weaponStacks: {},                       // 触发器运行时叠层状态
     _weaponTeamAtk: s.teamAtkBonus || 0,
+    echoStats: s.echoStats || null,         // 声骸套装效果（setBonuses/mainStats/subStats）
     alive: true,
     frozenTurns: 0,
     skillLockedTurns: 0,
@@ -614,19 +618,10 @@ export function doAttack(battle, targetIdx) {
   if (fEnh) consumeForte(self);
   // 折枝墨鹤追击：己方普攻命中主目标时消耗 1 只墨鹤（不递归）
   zhezhiCraneAssist(battle, target);
-  // 卡提希娅：普攻叠决意（卡提希娅形态）+ 芙露德莉斯形态下附加风蚀 + 额外能量
-  cartethyiaGainResolve(self, '普攻', battle);
-  cartethyiaApplyErosion(self, target, battle, false);
-  if ((self.cartethyiaFurTurns || 0) > 0) {
-    self.energy = Math.min(self.energyMax, self.energy + 8);
-  }
   // 触发武器被动：普攻命中
   fireTrigger(self, 'normal_hit', { battle, target });
-  // 安可：普攻积失序；黑咩窗口内额外 +10
-  encoreGainDisorder(self, 20, (self.encoreBlackTurns || 0) > 0 ? '普攻·黑咩·胡闹' : '普攻·羊咩出击', battle);
-  // 吟霖：普攻 +15 审判 + 命中印记回调（2 链 / 6 链疾霆昭彰）
-  yinlinOnHit(self, target, 'normal', battle);
-  yinlinGainVerdict(self, 15, '普攻', battle);
+  // 角色专属普攻 hook（卡提希娅决意/风蚀 · 安可失序 · 吟霖审判）
+  fireCharacterHook(self, 'onAttack', { battle, target });
   finishIfBattleEnded(battle, 'win');
   return { ok: true };
 }
@@ -1183,11 +1178,7 @@ export function endTurn(battle) {
     if (t._burstRefundCdLeft > 0) t._burstRefundCdLeft--;
     // 雷霆墙锁定衰减
     if (t._wallLocked > 0) t._wallLocked--;
-    yinlinTurnCleanup(t, battle);
-    encoreTurnCleanup(t, battle);
-    cartethyiaTurnCleanup(t, battle);
-    kakaroTurnCleanup(t, battle);
-    zhezhiTurnCleanup(t, battle);
+    fireCharacterHook(t, 'turnCleanup', { battle });
     tickStacks(battle, t);     // Step B：统一衰减 Stack（卡提希娅决意 / 忌炎锐意无衰减直接 no-op）
     tickWeaponTriggers(t);
   });

@@ -39,6 +39,14 @@ export function encoreGainDisorder(self, amount, source, battle) {
   }
 }
 
+// onAttack hook：普攻命中积失序（黑咩窗口内视为胡闹并额外 +10，由 gainDisorder 内部处理）
+export function encoreOnAttack(self, ctx) {
+  if (self.name !== '安可') return;
+  const battle = ctx.battle;
+  const source = (self.encoreBlackTurns || 0) > 0 ? '普攻·黑咩·胡闹' : '普攻·羊咩出击';
+  encoreGainDisorder(self, 20, source, battle);
+}
+
 // 解放后进入黑咩形态
 export function encoreStartBlackSheep(self, battle) {
   if (self.name !== '安可') return;
@@ -50,8 +58,9 @@ export function encoreStartBlackSheep(self, battle) {
 }
 
 // endTurn 清理
-export function encoreTurnCleanup(self, battle) {
+export function encoreTurnCleanup(self, ctx) {
   if (self.name !== '安可' || !hasForm(self, 'encore_black')) return;
+  const battle = ctx.battle;
   self.encoreBlackTurns--;
   if (self.encoreBlackTurns <= 0) {
     exitForm(self, 'encore_black', battle);
@@ -66,6 +75,7 @@ export default {
   name: '安可',
   hasHeavy: true,
   gainDisorder: encoreGainDisorder,
+  onAttack: encoreOnAttack,
   startBlackSheep: encoreStartBlackSheep,
   turnCleanup: encoreTurnCleanup
 };

@@ -46,6 +46,13 @@ export function renderCharacterBattleStatus(unit) {
   return render ? render(unit) : '';
 }
 
+// 统一徽章收集：返回角色专属资源 badge 数组（供战斗 UI 卡片下方状态行使用）
+export function collectCharacterBadges(unit) {
+  const collect = getCharacterMechanic(unit?.name)?.collectBadges;
+  if (typeof collect !== 'function') return [];
+  return collect(unit) || [];
+}
+
 // 通用调派：避免 combat.js 直接 import 各角色模块
 export function fireCharacterHook(self, hookName, ctx) {
   const fn = getCharacterMechanic(self.name)?.[hookName];

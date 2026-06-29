@@ -160,8 +160,9 @@ export function zhezhiInkShield(self, battle) {
 }
 
 // 领域结束清理（endTurn 调用）
-export function zhezhiTurnCleanup(self, battle) {
+export function zhezhiTurnCleanup(self, ctx) {
   if (self.name !== '折枝') return;
+  const battle = ctx.battle;
   if (self.zhezhiFieldTurns > 0) {
     self.zhezhiFieldTurns--;
     if (self.zhezhiFieldTurns === 0) {
@@ -192,6 +193,31 @@ function dealDamageToEnemy(target, dmg) {
   return dmg;
 }
 
+// 徽章数组版本
+export function collectZhezhiBadges(unit) {
+  if (unit.name !== '折枝') return [];
+  const out = [];
+  const turns = unit.zhezhiFieldTurns || 0;
+  const cranes = unit.zhezhiCranes || 0;
+  const cap = unit.zhezhiCraneCap || 6;
+
+  if (turns > 0) {
+    out.push({
+      key: 'zhezhi_field', cls: 'field', icon: '🌐',
+      label: `墨鹤领域 ${turns - 1}回`, dur: turns - 1,
+      tip: '<b>墨鹤领域</b><br>折枝共鸣解放展开。期间己方攻击命中消耗 1 只墨鹤追击 atk×35% 冷凝伤害。'
+    });
+  }
+  if (turns > 0 || cranes > 0) {
+    out.push({
+      key: 'zhezhi_cranes', cls: 'atk', icon: '🢀',
+      label: `墨鹤 ${cranes}/${cap}`,
+      tip: `<b>墨鹤</b><br>召唤物。己方攻击命中时消耗 1 只追击 atk×35% 冷凝伤害。重击「点睛」消耗半数 (至少 1 只) 转全队护盾 atk×50%/只。上限 ${cap}。`
+    });
+  }
+  return out;
+}
+
 export default {
   name: '折枝',
   hasHeavy: true,
@@ -199,5 +225,16 @@ export default {
   skillSummon: zhezhiSkillSummon,
   craneAssist: zhezhiCraneAssist,
   inkShield: zhezhiInkShield,
-  turnCleanup: zhezhiTurnCleanup
+  turnCleanup: zhezhiTurnCleanup,
+  renderBattleStatus(unit) {
+    const turns = unit.zhezhiFieldTurns || 0;
+    const cranes = unit.zhezhiCranes || 0;
+    const cap = unit.zhezhiCraneCap || 6;
+    if (turns <= 0 && cranes <= 0) return '';
+    const turnColor = turns > 0 ? 'var(--accent)' : 'var(--muted)';
+    const craneColor = cranes > 0 ? 'var(--gold)' : 'var(--muted)';
+    const turnsTxt = turns > 0 ? `墨鹤领域 ${turns - 1}回 · ` : '';
+    return `<div style="font-size:9px;color:${turnColor};margin-top:2px;letter-spacing:.3px">${turnsTxt}<span style="color:${craneColor}">墨鹤 ${cranes}/${cap}</span></div>`;
+  },
+  collectBadges: collectZhezhiBadges
 };

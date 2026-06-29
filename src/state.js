@@ -38,6 +38,10 @@ export const state0 = () => ({
   shopBuyCount: {},               // 商店礼包购买次数 {id: count}
   lastMonthlyClaim: '',           // 月卡上次领取日期（防止同一天重复领）
   roles: {}, weapons: {}, log: [],
+  // ===== 声骸系统 =====
+  echos: [],                 // [{ id, name, cost, set, element, level, mainStat:{key,label,value}, subStats:[{key,label,value}], lock, equippedBy, equipSlot }]
+  echoNextId: 1,             // 声骸自增 ID
+  dataBankLevel: 8,          // 数据坞等级（默认 8 = 金 100%, COST 上限 12）
 
   // ===== P1 战斗养成 =====
   team: [null, null, null],          // 3 人编队，存角色名

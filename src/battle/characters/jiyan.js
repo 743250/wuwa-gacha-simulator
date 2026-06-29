@@ -106,12 +106,28 @@ export function jiyanSwitchIn(self, battle) {
 // Step E：切人入场钩子（锐意 + 通变 / 明断 / 观势）
 registerSwitchHook('忌炎', ({ to, battle }) => jiyanSwitchIn(to, battle));
 
+// 徽章数组版本
+export function collectJiyanBadges(unit) {
+  if (unit.name !== '忌炎') return [];
+  const cap = unit.jiyanRuiyiCap || 2;
+  const cur = getStack(unit, 'jiyan_ruiyi');
+  if (cur <= 0) return [];
+  const perStack = unit.jiyanRuiyiPerStack || 1.0;
+  const nextMult = 1 + cur * perStack;
+  return [{
+    key: 'ruiyi', cls: 'field', icon: '◆',
+    label: `锐意 ${cur}/${cap} · 解放 ×${nextMult.toFixed(1)}`,
+    tip: `<b>锐意之势</b><br>每层提升解放倍率 ×${perStack.toFixed(1)}。当前 ${cur}/${cap} 层 → 解放倍率 ×${nextMult.toFixed(1)}。`
+  }];
+}
+
 export default {
   name: '忌炎',
   hasHeavy: true,
   renderBattleStatus(unit) {
     return renderStacks(unit);
   },
+  collectBadges: collectJiyanBadges,
   gainRuiyi: jiyanGainRuiyi,
   guanShi: jiyanGuanShiBuff,
   burstRuiyi: jiyanBurstRuiyi,

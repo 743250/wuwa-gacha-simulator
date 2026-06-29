@@ -77,6 +77,14 @@ export function yinlinOnHit(self, target, dmgType, battle, helpers) {
   }
 }
 
+// onAttack hook：普攻命中印记回调 + 积 15 审判
+export function yinlinOnAttack(self, ctx) {
+  if (self.name !== '吟霖') return;
+  const battle = ctx.battle;
+  yinlinOnHit(self, ctx.target, 'normal', battle);
+  yinlinGainVerdict(self, 15, '普攻', battle);
+}
+
 // 解放后：主目标必挂印记 + 4 链全队 atk buff + 6 链开启疾霆窗口
 export function yinlinBurst(self, primary, battle) {
   if (self.name !== '吟霖') return;
@@ -98,8 +106,9 @@ export function yinlinBurst(self, primary, battle) {
 }
 
 // endTurn 清理
-export function yinlinTurnCleanup(self, battle) {
+export function yinlinTurnCleanup(self, ctx) {
   if (self.name !== '吟霖') return;
+  const battle = ctx.battle;
   if (self.yinlinJiTingActive > 0) {
     self.yinlinJiTingActive--;
     if (self.yinlinJiTingActive === 0) {
@@ -114,6 +123,7 @@ export default {
   hasHeavy: false,
   gainVerdict: yinlinGainVerdict,
   onHit: yinlinOnHit,
+  onAttack: yinlinOnAttack,
   burst: yinlinBurst,
   turnCleanup: yinlinTurnCleanup
 };

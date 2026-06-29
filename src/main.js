@@ -3,10 +3,9 @@ import './state.js';
 import { S, resetState, msg, date } from './state.js';
 import { render } from './ui/render.js';
 import { tryPull, doPullN, toFive } from './gacha/actions.js';
-import { advanceDay, nextPhase, nextVersion, jumpToday, dailyTick, jumpToVersion, jumpToDate } from './time/timeline.js';
-import { convertLunite } from './shop/actions.js';
+import { advanceDay, nextPhase, nextVersion, jumpToday, jumpToVersion, jumpToDate } from './time/timeline.js';
 import { openModal } from './modal.js';
-import { loadState, saveState, exportSave, importSave, clearSave, saveStateNow } from './save.js';
+import { loadState, saveState, exportSave, importSave, clearSave, saveStateNow, pickSaveFolder, isFsSaveActive, isFsSupported } from './save.js';
 import { renderTeamBuilder } from './ui/teambuilder.js';
 import { renderBag } from './ui/bag.js';
 import { renderDungeon } from './ui/dungeon.js';
@@ -52,6 +51,51 @@ document.getElementById('reset').onclick = () => {
       { label: '确认重置', cls: 'warn', fn: () => { resetState(); clearSave(); rerenderAll(); msg('已重置', false); } }
     ]
   });
+};
+
+// 存档管理面板
+document.getElementById('saveMgmt').onclick = async () => {
+  const supported = isFsSupported();
+  const active = isFsSaveActive();
+  const body = `<div style="font-size:11px;color:var(--muted);line-height:1.6;margin-bottom:10px">
+    <b style="color:var(--gold)">本地文件存档</b>（File System Access API）<br>
+    授权一个文件夹后,存档直接写到本地真实文件,不再受浏览器隔离限制。<br>
+    可在资源管理器看到、可云盘同步、可手动备份。
+  </div>
+  <div style="font-size:11px;margin-bottom:8px">
+    状态:${supported
+      ? (active ? '<b style="color:var(--green)">已授权本地文件夹</b>' : '<b style="color:var(--gold)">未授权</b>(仅 localStorage)')
+      : '<b style="color:var(--red)">当前浏览器不支持</b>(将仅用 localStorage)'}
+  </div>`;
+  const actions = [
+    { label: '关闭', cls: '', fn: () => {} }
+  ];
+  if (supported) {
+    actions.unshift({ label: active ? '重新选择文件夹' : '授权本地文件夹', cls: 'gold', fn: async () => {
+      const ok = await pickSaveFolder();
+      if (ok) {
+        await saveStateNow();
+        msg('已授权并保存到本地', false);
+      }
+      rerenderAll();
+    }});
+  }
+  actions.unshift({ label: '导入存档', cls: '', fn: () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json,application/json';
+    input.onchange = (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      importSave(file, (ok, err) => {
+        if (ok) { rerenderAll(); msg('存档导入成功', false); }
+        else msg('导入失败:' + (err || '格式错误'));
+      });
+    };
+    input.click();
+  }});
+  actions.unshift({ label: '导出存档', cls: '', fn: () => exportSave() });
+  openModal({ title: '存档管理', body, actions });
 };
 
 // 选版本/选日期（#13）
@@ -105,14 +149,6 @@ document.getElementById('pull1').onclick = () => tryPull(1);
 document.getElementById('pull10').onclick = () => tryPull(10);
 document.getElementById('free10').onclick = () => doPullN(10, true);
 document.getElementById('toFive').onclick = toFive;
-
-// 商店底部按钮
-document.getElementById('convertLunite').onclick = convertLunite;
-document.getElementById('dailyLunite').onclick = () => {
-  if (S.days <= 0) return msg('无月卡天数');
-  if (!dailyTick()) return msg('今天已领过');
-  msg('+90 星声', false); render();
-};
 
 // 清空日志
 document.getElementById('clearLog').onclick = () => { S.log = []; msg('已清空', false); render(); };
@@ -207,9 +243,8 @@ document.body.addEventListener('mouseout', e => {
 });
 
 // 启动前加载存档
-loadState();
-
-// 启动后初始化日常委托（如果今天没刷新过）
-resetDailyIfNeeded();
-
-render();
+(async () => {
+  await loadState();
+  resetDailyIfNeeded();
+  render();
+})();

@@ -1,8 +1,11 @@
-// 背包面板：统一展示玩家所有持有物（货币 / 抽卡资源 / 材料 / 药剂 / 武器 / 特殊道具）
+// 背包面板：统一展示玩家所有持有物（货币 / 抽卡资源 / 材料 / 药剂 / 武器 / 声骸 / 特殊道具）
 import { S, $, msg } from '../state.js';
 import { usePotion, useAllPotions, POTIONS, buyStaminaWithAstrite } from '../daily/stamina.js';
 import { WEAPON_BOX_OPTIONS } from '../data/podcast-rewards.js';
 import { openModal } from '../modal.js';
+import { generateEcho, levelUpEcho, levelUpEchoMax, recycleEcho, toggleEchoLock, unequipEcho, echoToNext, dataBankCostCap } from '../equip/echoActions.js';
+import { ECHO_CATALOG, getSetById } from '../data/echoes.js';
+import { totalExp } from '../equip/actions.js';
 
 export function renderBag() {
   const container = $('paneBag');
@@ -164,6 +167,53 @@ export function renderBag() {
     html += '</div>';
   }
 
+  // 声骸仓库
+  const echos = S.echos || [];
+  const cap = dataBankCostCap(S.dataBankLevel);
+  html += `<div style="font-size:10px;color:var(--muted);letter-spacing:2px;margin:14px 0 6px;display:flex;justify-content:space-between;align-items:baseline">
+    <span>声 骸 仓 库 (${echos.length})</span>
+    <span style="font-size:9px;color:var(--gold)">数据坞 LV ${S.dataBankLevel} · COST 上限 ${cap}</span>
+  </div>`;
+  if (echos.length === 0) {
+    html += `<div style="border:1px dashed var(--line2);border-radius:8px;padding:14px;text-align:center;color:var(--dim);font-size:11px">
+      暂无声骸。前往角色面板「声骸」tab 生成测试声骸。
+    </div>`;
+  } else {
+    html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:6px">';
+    echos.forEach(e => {
+      const set = getSetById(Array.isArray(e.set) ? e.set[0] : e.set);
+      const color = set?.element ? ({'热熔':'#ff8c5e','冷凝':'#7bd6ff','导电':'#b58cff','气动':'#8de6a6','衍射':'#fff0b0','湮灭':'#c39bff'}[set.element] || '#fff') : '#999';
+      const lockIcon = e.lock ? '🔒' : '';
+      const eqTag = e.equippedBy ? `<div style="position:absolute;top:3px;left:4px;font-size:8px;color:var(--green);font-weight:700">装:${e.equippedBy}</div>` : '';
+      html += `<div class="echo-card" style="position:relative;border:1px solid ${color};border-radius:8px;padding:6px 5px;background:rgba(255,255,255,.02);${e.lock ? 'box-shadow:0 0 8px rgba(245,207,107,.25) inset' : ''}">
+        ${eqTag}
+        <div style="position:absolute;top:3px;right:4px;font-size:9px;color:var(--gold)">${lockIcon}C${e.cost}</div>
+        <div style="font-size:11px;font-weight:700;color:${color};text-align:center;margin-top:10px;word-break:break-all;line-height:1.1">${e.name}</div>
+        <div style="font-size:8px;color:var(--muted);text-align:center;margin-top:2px">LV ${e.level} · ${e.element || ''}</div>
+        <div style="font-size:8px;color:var(--gold);text-align:center;margin-top:2px">${e.mainStat?.label || ''}</div>
+        <div style="font-size:8px;color:var(--gold);text-align:center">${e.mainStat ? (e.mainStat.value*100).toFixed(1)+'%' : ''}</div>
+        <div style="font-size:8px;color:${color};text-align:center;margin-top:1px;letter-spacing:.3px">${set?.name || ''}</div>
+        <div style="display:flex;gap:2px;margin-top:4px;flex-wrap:wrap;justify-content:center">
+          <button class="mbtn" style="font-size:8px;padding:1px 4px" onclick="window.__bagEchoDetail(${e.id})">详</button>
+          ${!e.equippedBy ? `<button class="mbtn" style="font-size:8px;padding:1px 4px" onclick="window.__bagEchoLevelUp(${e.id})">升</button>` : ''}
+          ${!e.equippedBy && !e.lock ? `<button class="mbtn" style="font-size:8px;padding:1px 4px" onclick="window.__bagEchoRecycle(${e.id})">分</button>` : ''}
+          ${!e.equippedBy ? `<button class="mbtn" style="font-size:8px;padding:1px 4px" onclick="window.__bagEchoToggleLock(${e.id})">${e.lock?'锁':'开'}</button>` : ''}
+          ${e.equippedBy ? `<button class="mbtn" style="font-size:8px;padding:1px 4px" onclick="window.__bagEchoUnequip(${e.id})">卸</button>` : ''}
+        </div>
+      </div>`;
+    });
+    html += '</div>';
+  }
+  // 测试用生成入口
+  html += `<div style="margin-top:8px;padding:8px;border:1px dashed var(--line2);border-radius:8px;text-align:center">
+    <div style="font-size:10px;color:var(--muted);margin-bottom:6px">生成测试声骸（后续接入无音区产出）</div>
+    <select id="bagEchoGenSel" style="font-size:11px;padding:3px 6px;background:var(--bg2);color:var(--text);border:1px solid var(--line2);border-radius:4px;max-width:60%">
+      ${ECHO_CATALOG.map(e => `<option value="${e.id}">COST${e.cost} · ${e.name} (${e.element})</option>`).join('')}
+    </select>
+    <button class="mbtn gold" style="font-size:10px;margin-left:6px" onclick="window.__bagEchoGenerate()">生成</button>
+    <button class="mbtn" style="font-size:10px;margin-left:6px" onclick="window.__bagEchoGenerate10()">生成 ×10</button>
+  </div>`;
+
   container.innerHTML = html;
 }
 
@@ -243,4 +293,77 @@ window.__bagUseRefineStoneOn = (target) => {
   }
   renderBag();
   window.__render();
+};
+
+// ========== 声骸仓库交互 ==========
+window.__bagEchoDetail = (id) => {
+  const e = S.echos.find(x => x.id === id);
+  if (!e) return;
+  const set = getSetById(Array.isArray(e.set) ? e.set[0] : e.set);
+  const subRows = (e.subStats || []).map(s => `<div style="display:flex;justify-content:space-between;font-size:11px;padding:2px 0;border-bottom:1px dashed var(--line)">
+    <span style="color:var(--muted)">${s.label}</span>
+    <span style="color:var(--gold)">${(s.value*100).toFixed(1)}%</span></div>`).join('') || '<div style="color:var(--dim);font-size:11px">无副词条</div>';
+  openModal({
+    title: `${e.name} · LV ${e.level}`,
+    body: `<div style="font-size:11px;color:var(--muted);margin-bottom:8px">COST ${e.cost} · ${e.element} · ${set?.name || '无套装'}</div>
+<div style="font-size:11px;color:var(--muted);margin-bottom:4px">主词条</div>
+<div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid var(--line);margin-bottom:8px">
+  <span>${e.mainStat?.label || ''}</span><span style="color:var(--gold)">${e.mainStat ? (e.mainStat.value*100).toFixed(1)+'%' : ''}</span></div>
+<div style="font-size:11px;color:var(--muted);margin-bottom:4px">副词条</div>
+${subRows}
+<div style="font-size:10px;color:var(--dim);margin-top:8px">累计经验 ${totalExp(e)} · ${e.equippedBy ? `装备于 ${e.equippedBy}` : '未装备'}</div>`,
+    actions: [{ label: '关闭', cls: '', fn: () => {} }]
+  });
+};
+
+window.__bagEchoLevelUp = (id) => {
+  const e = S.echos.find(x => x.id === id);
+  if (!e) return;
+  const ok = levelUpEcho(id);
+  if (ok) msg(`${e.name} 升至 LV ${e.level}`, false);
+  renderBag();
+  window.__render();
+};
+
+window.__bagEchoRecycle = (id) => {
+  const e = S.echos.find(x => x.id === id);
+  if (!e) return;
+  const exp = e.exp || 0;
+  const refund = Math.floor(exp * 0.8 / 20000);
+  const ok = recycleEcho(id);
+  if (ok) msg(`已分解 ${e.name} · 返回特级促剂 ×${refund}`, false);
+  renderBag();
+  window.__render();
+};
+
+window.__bagEchoToggleLock = (id) => {
+  toggleEchoLock(id);
+  renderBag();
+};
+
+window.__bagEchoUnequip = (id) => {
+  const e = S.echos.find(x => x.id === id);
+  if (!e) return;
+  const ok = unequipEcho(id);
+  if (ok) msg(`已卸下 ${e.name}`, false);
+  renderBag();
+  window.__render();
+};
+
+window.__bagEchoGenerate = () => {
+  const sel = $('bagEchoGenSel');
+  if (!sel) return;
+  const e = generateEcho(sel.value);
+  if (!e) { msg('生成失败'); return; }
+  msg(`生成 ${e.name}（COST ${e.cost}）`, false);
+  renderBag();
+};
+
+window.__bagEchoGenerate10 = () => {
+  const sel = $('bagEchoGenSel');
+  if (!sel) return;
+  let last = null;
+  for (let i = 0; i < 10; i++) last = generateEcho(sel.value);
+  msg(`生成 10 个 ${last?.name || ''}`, false);
+  renderBag();
 };

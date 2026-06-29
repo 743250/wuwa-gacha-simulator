@@ -15,7 +15,7 @@ export function totalExp() {
 }
 
 // 消耗 amount 经验，优先用高档
-function consumeExp(amount) {
+export function consumeExp(amount) {
   const m = S.materials;
   let need = amount;
   // 先消耗特级

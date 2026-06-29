@@ -34,10 +34,12 @@ export const shopCatalog = {
   pass: [
     { id: 'bp_basic', name: '先约电台 · 内幕频道', price: 68,
       unlocksPodcast: true,
-      desc: '解锁本期付费奖励轨（70 级双线）<br>满级合计：680 星声 + 浮金 ×5 + 唤声 ×2 + 结晶溶剂 ×7 + 4★ 武器自选箱 + 大量养成料<br><b style="color:var(--gold)">需在本期满级才能取得全部</b>' },
+      desc: '解锁本期付费奖励轨（70 级双线）<br>满级合计：680 星声 + 浮金 ×5 + 唤声 ×2 + 结晶溶剂 ×7 + 4★ 武器自选箱 + 大量养成料<br><b style="color:var(--gold)">需在本期满级才能取得全部</b>',
+      limit: 1, period: 'version' },
     { id: 'bp_premium', name: '先约电台 · 寰宇频道', price: 128,
       unlocksPodcast: true, premiumPodcast: true,
-      desc: '解锁付费轨 + 立即 +10 级<br>额外赠：浮金 ×8 / 唤声 ×4 / 特级促剂 ×4 / 头像挂件<br><span style="color:var(--muted);font-size:11px">含内幕频道全部内容（从内幕升级差价 ¥60）</span>' }
+      desc: '解锁付费轨 + 立即 +10 级<br>额外赠：浮金 ×8 / 唤声 ×4 / 特级促剂 ×4 / 头像挂件<br><span style="color:var(--muted);font-size:11px">含内幕频道全部内容（从内幕升级差价 ¥60）</span>',
+      limit: 1, period: 'version' }
   ],
 
   // ===== 礼包（鸣潮 3.4 国服 · 按用户提供的官方口径）=====

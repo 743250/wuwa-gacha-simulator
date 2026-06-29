@@ -64,6 +64,71 @@ describe('battle/stats', () => {
     });
   });
 
+  // ===== echoContrib() — 声骸套装加成 =====
+  describe('echoContrib() — 声骸系统', () => {
+    let echoes, echoActions;
+
+    beforeAll(async () => {
+      echoes = await import('../../src/data/echoes.js');
+      echoActions = await import('../../src/equip/echoActions.js');
+    });
+
+    beforeEach(() => {
+      resetState({
+        team: ['忌炎', '守岸人', '安可'],
+        roles: { '忌炎': { level: 90, chain: 0, equipWeapon: '苍鳞千嶂' } },
+      });
+      S.echos = [];
+      S.echoNextId = 1;
+      S.dataBankLevel = 8;
+    });
+
+    it('returns null when role has no echoes', () => {
+      expect(stats.echoContrib('忌炎')).toBeNull();
+    });
+
+    it('aggregates main stat into atk/crate', () => {
+      const role = '忌炎';
+      S.roles[role].equipEchoes = [null, null, null, null, null];
+      const c4 = echoes.ECHO_CATALOG.find(e => e.cost === 4 && e.set !== 'unknown');
+      const e = echoActions.generateEcho(c4.id);
+      // Force a crit rate main stat
+      e.mainStat = { key: 'crate', label: '暴击率', value: 0.22 };
+      echoActions.equipEcho(role, 0, e.id);
+      const s = stats.computeBattleStats(role);
+      expect(s.echoStats).toBeTruthy();
+      expect(s.echoStats.mainStats.length).toBe(1);
+      expect(s.crate).toBeGreaterThan(0);
+    });
+
+    it('activates 2-piece set bonus when 2 echoes of same set equipped', () => {
+      const role = '忌炎';
+      S.roles[role].equipEchoes = [null, null, null, null, null];
+      const c1 = echoes.ECHO_CATALOG.filter(e => e.cost === 1 && e.set === 'fire');
+      const e1 = echoActions.generateEcho(c1[0].id);
+      const e2 = echoActions.generateEcho(c1[1].id);
+      echoActions.equipEcho(role, 0, e1.id);
+      echoActions.equipEcho(role, 1, e2.id);
+      const s = stats.computeBattleStats(role);
+      const setBonus = s.echoStats.setBonuses.find(b => b.setId === 'fire' && b.tier === 2);
+      expect(setBonus).toBeTruthy();
+      // 熔山裂谷 2件 = 热熔元素伤害 +10%
+      expect(s.elemBonus['热熔']).toBeGreaterThanOrEqual(0.10);
+    });
+
+    it('sub stats contribute to atk/cdmg', () => {
+      const role = '忌炎';
+      S.roles[role].equipEchoes = [null, null, null, null, null];
+      const c1 = echoes.ECHO_CATALOG.find(e => e.cost === 1 && e.set !== 'unknown');
+      const e = echoActions.generateEcho(c1.id);
+      // Force cdmg sub stat
+      e.subStats = [{ key: 'cdmg', label: '暴击伤害', value: 0.10, locked: false }];
+      echoActions.equipEcho(role, 0, e.id);
+      const s = stats.computeBattleStats(role);
+      expect(s.cdmg).toBeGreaterThan(0);
+    });
+  });
+
   // ===== calcBP() — battle power =====
   describe('calcBP()', () => {
     it('returns 0 for unknown role', () => {

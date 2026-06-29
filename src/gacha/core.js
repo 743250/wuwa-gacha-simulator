@@ -234,6 +234,7 @@ export function addRole(n, r) {
     level: 1,
     exp: 0,
     equipWeapon: null,
+    equipEchoes: [null, null, null, null, null],  // 5 个声骸槽，存声骸 id
     skillLevels: { 普攻: 1, 技能: 1, 解放: 1, 回路: 1 }
   };
   o.pulled = (o.pulled || 0) + 1;
@@ -242,6 +243,7 @@ export function addRole(n, r) {
   if (o.level === undefined) o.level = 1;
   if (o.skillLevels === undefined) o.skillLevels = { 普攻: 1, 技能: 1, 解放: 1, 回路: 1 };
   if (o.equipWeapon === undefined) o.equipWeapon = null;
+  if (!Array.isArray(o.equipEchoes)) o.equipEchoes = [null, null, null, null, null];
   if (o.exp === undefined) o.exp = 0;
   S.roles[n] = o; return o;
 }

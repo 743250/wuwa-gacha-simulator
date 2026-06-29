@@ -19,53 +19,74 @@ import { phases } from '../data/phases.js';
 
 export const DUNGEONS = [
   // ===== 模拟战训（角色经验）=====
+  // 40 波片 Lv30：杂兵组合,敌人等级随玩家等级微调
   {
     id: 'sim_exp_1', type: 'exp', name: '模拟战训·共鸣经验', cost: 40,
     enemies: ['幼狼×3', '飞兽×1'],
+    enemyLevel: 30,
     encounterPool: [
       { enemies: ['幼狼×3', '飞兽×1'], enemyScale: 1.0, weight: 4, tag: '残象群' },
       { enemies: ['古老幽灵×2'], enemyScale: 1.1, weight: 3, tag: '幽影残响' },
+      { enemies: ['剑齿野猪×2', '咔嚓×1'], enemyScale: 1.0, weight: 3, tag: '热熔冲锋' },
+      { enemies: ['导电掠食者×2', '拂拂×1'], enemyScale: 1.05, weight: 3, tag: '雷风小队' },
+      { enemies: ['吞吞×2', '折折×1'], enemyScale: 1.0, weight: 3, tag: '冰光幻象' },
+      { enemies: ['滴答×2'], enemyScale: 1.1, weight: 2, tag: '湮灭发条' },
       { enemies: ['聚械机偶'], enemyScale: 0.45, weight: 1, tag: '机械训练靶' }
     ],
     drops: { exp_high: 5, exp_mid: 5 },                  // 55k exp，~31 次满级（~5.2 天）
     minLevel: 1, desc: '高级×5 中级×5 · 40 波片'
   },
+  // 80 波片 Lv70：精英 + BOSS 混合,凝缩双倍档
   {
     id: 'sim_exp_2', type: 'exp', name: '模拟战训·共鸣经验（凝缩）', cost: 80,
     enemies: ['燎照之骑'],
+    enemyLevel: 70,
     encounterPool: [
-      { enemies: ['燎照之骑'], enemyScale: 1.05, weight: 3, tag: '热熔骑士' },
-      { enemies: ['飞廉之猩'], enemyScale: 1.05, weight: 3, tag: '气动强敌' },
-      { enemies: ['朔雷之鳞'], enemyScale: 1.0, weight: 2, tag: '导电强敌' },
-      { enemies: ['无常凶鹭'], enemyScale: 1.15, weight: 2, tag: '湮灭飞行' },
-      { enemies: ['无妄者'], enemyScale: 1.05, weight: 1, tag: '护盾强敌' },
-      { enemies: ['伤痕'], enemyScale: 1.25, weight: 1, tag: '热熔狂暴' }
+      { enemies: ['紫羽鹭', '青羽鹭'], enemyScale: 0.9, weight: 3, tag: '双鹭疾袭' },
+      { enemies: ['碧焰蜥×2'], enemyScale: 0.95, weight: 3, tag: '焰蜥群' },
+      { enemies: ['石壁护腕'], enemyScale: 0.85, weight: 2, tag: '巨岩护腕' },
+      { enemies: ['鼓手', '自走傀儡斥候'], enemyScale: 0.9, weight: 2, tag: '湮冷双形' },
+      { enemies: ['坚岩守护者'], enemyScale: 0.85, weight: 2, tag: '光岩守护' },
+      { enemies: ['燎照之骑'], enemyScale: 1.05, weight: 1, tag: '热熔骑士' },
+      { enemies: ['飞廉之猩'], enemyScale: 1.05, weight: 1, tag: '气动强敌' },
+      { enemies: ['朔雷之鳞'], enemyScale: 1.0, weight: 1, tag: '导电强敌' },
+      { enemies: ['无常凶鹭'], enemyScale: 1.15, weight: 1, tag: '湮灭飞行' },
+      { enemies: ['无妄者'], enemyScale: 1.05, weight: 1, tag: '护盾强敌' }
     ],
     drops: { exp_super: 4, exp_high: 4 },                // 112k exp，凝缩双倍档
     minLevel: 40, enemyScale: 1.5, desc: '特级×4 高级×4 · 80 波片（凝缩）'
   },
 
   // ===== 锻造挑战（武器/技能材料 · 官方名 Forgery Challenge）=====
+  // 40 波片 Lv40：构造体 + 杂兵混编
   {
     id: 'tacet_1', type: 'weapon', name: '锻造挑战·武器养成', cost: 40,
     enemies: ['聚械机偶'],
+    enemyLevel: 40,
     encounterPool: [
       { enemies: ['聚械机偶'], enemyScale: 0.75, weight: 4, tag: '机械核心' },
       { enemies: ['异构武装'], enemyScale: 0.9, weight: 3, tag: '构造体护盾' },
       { enemies: ['云闪之鳞'], enemyScale: 1.05, weight: 2, tag: '导电突进' },
+      { enemies: ['自走傀儡斥候×2'], enemyScale: 0.9, weight: 3, tag: '冰属玩偶' },
+      { enemies: ['石壁护腕', '剑齿野猪×2'], enemyScale: 0.85, weight: 2, tag: '巨岩护腕' },
+      { enemies: ['紫羽鹭', '导电掠食者×2'], enemyScale: 0.95, weight: 2, tag: '雷羽群' },
       { enemies: ['古老幽灵×2', '飞兽×1'], enemyScale: 1.25, weight: 2, tag: '混编残响' }
     ],
     drops: { weapon_book: 24 },
     minLevel: 20, enemyScale: 1.3, desc: '武器石×24 · 40 波片'
   },
+  // 80 波片 Lv80：周本影 + 高阶精英
   {
     id: 'tacet_2', type: 'weapon', name: '锻造挑战·武器养成（凝缩·双倍）', cost: 80,
     enemies: ['赫卡忒'],
+    enemyLevel: 80,
     encounterPool: [
       { enemies: ['赫卡忒'], enemyScale: 1.8, weight: 3, tag: '湮灭周本影' },
       { enemies: ['无归的谬误'], enemyScale: 1.65, weight: 3, tag: '数据封锁' },
       { enemies: ['异构武装'], enemyScale: 1.45, weight: 2, tag: '冷凝护盾' },
-      { enemies: ['鸣式·利维亚坦'], enemyScale: 1.55, weight: 1, tag: '鸣式残响' }
+      { enemies: ['鸣式·利维亚坦'], enemyScale: 1.55, weight: 1, tag: '鸣式残响' },
+      { enemies: ['坚岩守护者', '碧焰蜥×2'], enemyScale: 1.3, weight: 2, tag: '光焰混编' },
+      { enemies: ['鼓手', '紫羽鹭×2'], enemyScale: 1.35, weight: 2, tag: '湮雷混编' }
     ],
     drops: { weapon_book: 50 },
     minLevel: 40, enemyScale: 1.8, desc: '武器石×50 · 80 波片（凝缩）'
@@ -74,21 +95,29 @@ export const DUNGEONS = [
   // ===== 无音区（声骸 · 官方名 Tacet Field · 60 波片）=====
   // 模拟器抽象：声骸 → 星声 + 武器石 + 高级促剂
   // 注：星声产出折半（v0.2 校准），避免主线副本越打越富
+  // 60 波片 Lv50：杂兵 + 精英 + 偶现 BOSS
   {
     id: 'silent_1', type: 'echo', name: '无音区·常规', cost: 60,
     enemies: ['古老幽灵×2', '幻象×1'],
+    enemyLevel: 50,
     encounterPool: [
       { enemies: ['古老幽灵×2', '幻象×1'], enemyScale: 1.0, weight: 4, tag: '声骸残响' },
       { enemies: ['飞兽×2', '幼狼×2'], enemyScale: 1.1, weight: 3, tag: '野外残象群' },
       { enemies: ['哀声鸷'], enemyScale: 0.85, weight: 2, tag: '衍射飞行' },
-      { enemies: ['辉萤军势'], enemyScale: 0.8, weight: 2, tag: '冷凝群体' }
+      { enemies: ['辉萤军势'], enemyScale: 0.8, weight: 2, tag: '冷凝群体' },
+      { enemies: ['青羽鹭×2', '拂拂×1'], enemyScale: 0.95, weight: 3, tag: '风翼群' },
+      { enemies: ['吞吞×2', '自走傀儡斥候'], enemyScale: 0.9, weight: 2, tag: '冰属玩偶群' },
+      { enemies: ['碧焰蜥×2', '咔嚓×2'], enemyScale: 0.95, weight: 2, tag: '焰蜥混编' },
+      { enemies: ['鼓手', '滴答×2'], enemyScale: 0.9, weight: 2, tag: '湮灭乐师' }
     ],
     drops: { exp_high: 4, weapon_book: 10, astrite: 10 },
     minLevel: 1, desc: '高级×4 · 武器石×10 · 星声+10 · 60 波片'
   },
+  // 60 波片 Lv70：BOSS + 精英组合
   {
     id: 'silent_2', type: 'echo', name: '无音区·高阶', cost: 60,
     enemies: ['无妄者', '飞廉之猩'],
+    enemyLevel: 70,
     encounterPool: [
       { enemies: ['无妄者', '飞廉之猩'], enemyScale: 1.1, weight: 3, tag: '双强敌' },
       { enemies: ['无常凶鹭'], enemyScale: 1.4, weight: 3, tag: '湮灭压制' },
@@ -96,7 +125,9 @@ export const DUNGEONS = [
       { enemies: ['叹息古龙'], enemyScale: 1.35, weight: 2, tag: '热熔龙息' },
       { enemies: ['角'], enemyScale: 1.15, weight: 1, tag: '岁主残响' },
       { enemies: ['伤痕·梦魇形态'], enemyScale: 1.05, weight: 1, tag: '湮灭梦魇' },
-      { enemies: ['梦魇亚当·重锤'], enemyScale: 1.25, weight: 1, tag: '联动重锤' }
+      { enemies: ['梦魇亚当·重锤'], enemyScale: 1.25, weight: 1, tag: '联动重锤' },
+      { enemies: ['石壁护腕', '坚岩守护者'], enemyScale: 1.2, weight: 2, tag: '巨岩双守' },
+      { enemies: ['紫羽鹭', '青羽鹭', '碧焰蜥'], enemyScale: 1.15, weight: 2, tag: '三色精英' }
     ],
     drops: { exp_super: 1, exp_high: 1, exp_mid: 3, weapon_book: 12, astrite: 10 },
     minLevel: 40, enemyScale: 1.6, desc: '特级×1 高级×1 中级×3 · 武器石×12 · 星声+10 · 60 波片'

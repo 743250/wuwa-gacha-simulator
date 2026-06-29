@@ -63,6 +63,17 @@ export function cartethyiaGainResolve(self, source, battle) {
   gainStack(self, 'cartethyia_resolve', source, battle);
 }
 
+// onAttack hook：普攻叠决意 + 芙露形态附加风蚀 + 额外能量
+export function cartethyiaOnAttack(self, ctx) {
+  if (self.name !== '卡提希娅') return;
+  const battle = ctx.battle;
+  cartethyiaGainResolve(self, '普攻', battle);
+  cartethyiaApplyErosion(self, ctx.target, battle, false);
+  if ((self.cartethyiaFurTurns || 0) > 0) {
+    self.energy = Math.min(self.energyMax, self.energy + 8);
+  }
+}
+
 // 获取决意带来的气动伤害加成倍率
 export function cartethyiaResolveMultiplier(self) {
   if (self.name !== '卡提希娅') return 1.0;
@@ -257,8 +268,9 @@ export function cartethyiaErosionTick(enemy, battle) {
 }
 
 // endTurn 清理：决意计时移到 stacks.js tickStacks 统一管理，芙露形态计时仍在此处
-export function cartethyiaTurnCleanup(self, battle) {
+export function cartethyiaTurnCleanup(self, ctx) {
   if (self.name !== '卡提希娅') return;
+  const battle = ctx.battle;
 
   // 芙露德莉斯形态计时
   if (self.cartethyiaFurTurns > 0 && hasForm(self, 'cartethyia_furu')) {
@@ -272,27 +284,39 @@ export function cartethyiaTurnCleanup(self, battle) {
 
 // 战斗内左侧状态渲染
 export function renderCartethyiaStatus(unit) {
-  if (unit.name !== '卡提希娅') return '';
-  const parts = [];
+  const badges = collectCartethyiaBadges(unit);
+  if (!badges.length) return '';
+  return `<div style="font-size:9px;color:var(--gold);margin-top:2px;letter-spacing:.3px">${badges.map(b => `${b.icon} ${b.label}`).join(' | ')}</div>`;
+}
 
-  // 决意（走 Stack 注册器获取）
+// 徽章数组版本（供统一徽章系统使用）
+export function collectCartethyiaBadges(unit) {
+  if (unit.name !== '卡提希娅') return [];
+  const out = [];
+
   const resolve = getStack(unit, 'cartethyia_resolve');
   const resolveCap = unit.cartethyiaResolveCap || 3;
   if (resolve > 0) {
-    const pct = (unit.cartethyiaResolveDmgPct || 10) * resolve;
-    parts.push(`决意 ${'◆'.repeat(resolve)}${'◇'.repeat(resolveCap - resolve)} +${pct}%气动`);
+    const dmgPct = (unit.cartethyiaResolveDmgPct || 10) * resolve;
+    out.push({
+      key: 'resolve', cls: 'field', icon: '◆',
+      label: `决意 ${resolve}/${resolveCap} +${dmgPct}%气动`,
+      tip: `<b>决意</b><br>气动伤害加成 +${dmgPct}%。${resolve}/${resolveCap} 层。`
+    });
   }
 
-  // 芙露德莉斯形态
   const fur = unit.cartethyiaFurTurns || 0;
   if (fur > 0) {
     const rightLabels = { human: '人权·防↑', divine: '神权·暴↑', alien: '异权·风蚀×2' };
     const right = unit.cartethyiaRight ? (rightLabels[unit.cartethyiaRight] || '') : '';
-    parts.push(`芙露德莉斯 ${fur - 1}回合${right ? ' · ' + right : ''}`);
+    out.push({
+      key: 'fur', cls: 'burst', icon: '🌟',
+      label: `芙露德莉斯 ${fur - 1}回${right ? ' · ' + right : ''}`, dur: fur - 1,
+      tip: `<b>芙露德莉斯形态</b><br>强化形态。${right || '无附加权能'}。剩余 ${fur - 1} 回合。`
+    });
   }
 
-  if (!parts.length) return '';
-  return `<div style="font-size:9px;color:var(--gold);margin-top:2px;letter-spacing:.3px">${parts.join(' | ')}</div>`;
+  return out;
 }
 
 // Step E：切人入场钩子（2 链 · 变奏上场主目标 +1 层风蚀）
@@ -306,8 +330,10 @@ export default {
   name: '卡提希娅',
   hasHeavy: false,
   renderBattleStatus: renderCartethyiaStatus,
+  collectBadges: collectCartethyiaBadges,
   gainResolve: cartethyiaGainResolve,
   applyErosion: cartethyiaApplyErosion,
+  onAttack: cartethyiaOnAttack,
   enterFurForm: cartethyiaEnterFurForm,
   burstErosion: cartethyiaBurstErosion,
   erosionOnBreak: cartethyiaErosionOnBreak,

@@ -1,46 +1,187 @@
-// 存档管理：localStorage 自动保存 + 手动导入导出
+// 存档管理：File System Access API（首选）+ localStorage（兜底）
+//
+// 优先用 File System Access API：用户授权一个文件夹后,存档直接写到本地真实文件,
+// 不再受 localStorage 沙箱隔离(不同浏览器/域名各存一份)的困扰。
+// 不支持 File System Access API 的浏览器(老 Chrome/Safari/Firefox)回退到 localStorage。
+//
+// 持久化两份：
+//   · 文件系统 wuwa-save.json（主）—— 用户授权的文件夹,可在资源管理器看到/云盘同步
+//   · localStorage wuwa-gacha-save-v1（镜像）—— 兜底,确保至少有一份
+//
+// 句柄存在 localStorage 的 'wuwa-fs-handle' 键里（仅存权限元数据,非内容）。
+
 import { S, state0, fmt } from './state.js';
 
 const KEY = 'wuwa-gacha-save-v1';
+const HANDLE_KEY = 'wuwa-fs-handle';
+const FILE_NAME = 'wuwa-save.json';
 let saveTimer = null;
 
-export function saveState() {
-  // 防抖：1 秒内多次调用只存最后一次
-  if (saveTimer) clearTimeout(saveTimer);
-  saveTimer = setTimeout(() => {
-    try {
-      localStorage.setItem(KEY, JSON.stringify(S));
-    } catch (e) {
-      console.warn('存档失败：', e);
-    }
-  }, 1000);
+// 文件句柄（启动时从 IndexedDB 恢复）
+let fileHandle = null;
+let fsSupported = typeof window !== 'undefined' && 'showSaveFilePicker' in window;
+
+// ============ 句柄持久化（IndexedDB,因为 localStorage 不能存 FileSystemHandle）============
+const IDB_NAME = 'wuwa-saves';
+const IDB_STORE = 'handles';
+
+function idbOpen() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(IDB_NAME, 1);
+    req.onupgradeneeded = () => req.result.createObjectStore(IDB_STORE);
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
 }
 
-// 立即保存（重置/导入等场景）
-export function saveStateNow() {
+async function idbGet(key) {
   try {
-    localStorage.setItem(KEY, JSON.stringify(S));
+    const db = await idbOpen();
+    return await new Promise((resolve, reject) => {
+      const tx = db.transaction(IDB_STORE, 'readonly');
+      const req = tx.objectStore(IDB_STORE).get(key);
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+    });
+  } catch { return null; }
+}
+
+async function idbSet(key, value) {
+  try {
+    const db = await idbOpen();
+    return await new Promise((resolve, reject) => {
+      const tx = db.transaction(IDB_STORE, 'readwrite');
+      tx.objectStore(IDB_STORE).put(value, key);
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+    });
+  } catch { /* 忽略 */ }
+}
+
+// ============ 文件系统 API ============
+
+// 用户首次需要授权文件夹：弹窗选目录
+export async function pickSaveFolder() {
+  if (!fsSupported) {
+    console.warn('当前浏览器不支持 File System Access API');
+    return false;
+  }
+  try {
+    const handle = await window.showDirectoryPicker({ id: 'wuwa-saves', mode: 'readwrite' });
+    fileHandle = handle;
+    await idbSet(HANDLE_KEY, handle);
+    return true;
   } catch (e) {
-    console.warn('存档失败：', e);
+    if (e.name === 'AbortError') return false; // 用户取消
+    console.warn('授权文件夹失败:', e);
+    return false;
   }
 }
 
-export function loadState() {
+// 检查权限,必要时请求
+async function verifyPermission(handle, write = true) {
+  const opts = { mode: write ? 'readwrite' : 'read' };
+  if ((await handle.queryPermission(opts)) === 'granted') return true;
+  if ((await handle.requestPermission(opts)) === 'granted') return true;
+  return false;
+}
+
+// 写到文件系统
+async function writeToFS(jsonStr) {
+  if (!fileHandle) {
+    fileHandle = await idbGet(HANDLE_KEY);
+    if (!fileHandle) return false;
+  }
+  if (!(await verifyPermission(fileHandle, true))) return false;
+  try {
+    const writable = await fileHandle.createWritable();
+    await writable.write(jsonStr);
+    await writable.close();
+    return true;
+  } catch (e) {
+    console.warn('文件系统写入失败:', e);
+    return false;
+  }
+}
+
+// 从文件系统读
+async function readFromFS() {
+  if (!fileHandle) {
+    fileHandle = await idbGet(HANDLE_KEY);
+    if (!fileHandle) return null;
+  }
+  if (!(await verifyPermission(fileHandle, false))) return null;
+  try {
+    const file = await fileHandle.getFile();
+    const text = await file.text();
+    return text;
+  } catch (e) {
+    console.warn('文件系统读取失败:', e);
+    return null;
+  }
+}
+
+export function isFsSaveActive() {
+  return !!fileHandle;
+}
+
+export function isFsSupported() {
+  return fsSupported;
+}
+
+// ============ 统一存档 API ============
+
+export function saveState() {
+  if (saveTimer) clearTimeout(saveTimer);
+  saveTimer = setTimeout(doSave, 1000);
+}
+
+export async function saveStateNow() {
+  await doSave();
+}
+
+async function doSave() {
+  const jsonStr = JSON.stringify(S, null, 2);
+  // 并行写两份
+  const fsPromise = fsSupported ? writeToFS(jsonStr) : Promise.resolve(false);
+  const lsPromise = new Promise(resolve => {
+    try {
+      localStorage.setItem(KEY, jsonStr);
+      resolve(true);
+    } catch (e) {
+      console.warn('localStorage 存档失败:', e);
+      resolve(false);
+    }
+  });
+  const [fsOk, lsOk] = await Promise.all([fsPromise, lsPromise]);
+  if (!fsOk && !lsOk) console.warn('存档全部失败');
+}
+
+export async function loadState() {
+  // 1. 优先从文件系统读
+  if (fsSupported) {
+    const fsText = await readFromFS();
+    if (fsText) {
+      const ok = applyLoadedState(fsText);
+      if (ok) return true;
+    }
+  }
+  // 2. 回退到 localStorage
   const raw = localStorage.getItem(KEY);
   if (!raw) return false;
+  return applyLoadedState(raw);
+}
+
+function applyLoadedState(raw) {
   try {
     const data = JSON.parse(raw);
-    // 迁移：以 state0() 为基础，再覆盖存档数据
-    // 对于嵌套对象（如 pity / materials），先合并默认值再覆盖
     const fresh = state0();
-    // 深度合并：保留旧存档没有的新字段
     const merged = deepMerge(fresh, data);
-    // 旧存档迁移：把已废弃字段折算到新名字
     migrateLegacy(merged);
     Object.assign(S, merged);
     return true;
   } catch (e) {
-    console.warn('存档损坏，使用默认状态：', e);
+    console.warn('存档损坏,使用默认状态:', e);
     return false;
   }
 }
@@ -48,7 +189,13 @@ export function loadState() {
 function deepMerge(target, source) {
   const out = { ...target };
   for (const k in source) {
-    if (source[k] !== null && typeof source[k] === 'object' && !Array.isArray(source[k]) && typeof target[k] === 'object' && !Array.isArray(target[k])) {
+    if (source[k] === undefined) continue;
+    if (source[k] === null) { out[k] = null; continue; }
+    if (Array.isArray(source[k])) {
+      out[k] = source[k];
+      continue;
+    }
+    if (typeof source[k] === 'object' && typeof target[k] === 'object' && target[k] !== null) {
       out[k] = deepMerge(target[k], source[k]);
     } else {
       out[k] = source[k];
@@ -57,11 +204,8 @@ function deepMerge(target, source) {
   return out;
 }
 
-// 旧存档迁移：处理已废弃的字段名
 function migrateLegacy(s) {
   if (!s.materials) return;
-  // 自创的「小型/大型体力药剂」→ 官方「结晶溶剂」
-  // 小药剂 +60 = 1 结晶溶剂；大药剂 +120 = 2 结晶溶剂
   const oldSmall = s.materials.stamina_potion || 0;
   const oldBig = s.materials.stamina_potion_big || 0;
   if (oldSmall || oldBig) {
@@ -69,11 +213,9 @@ function migrateLegacy(s) {
     delete s.materials.stamina_potion;
     delete s.materials.stamina_potion_big;
   }
-  // 移除曾短暂加入但没有消费链路的现实材料，避免背包出现死资源。
   ['skill_mat', 'echo_tube', 'echo_tuner', 'boss_mat', 'weekly_skill_mat'].forEach(k => {
     delete s.materials[k];
   });
-  // 角色元素修正：今汐 湮灭 → 衍射
   if (s.roles) {
     Object.values(s.roles).forEach(r => {
       if (r && r.n === '今汐' && r.element === '湮灭') r.element = '衍射';
@@ -83,6 +225,7 @@ function migrateLegacy(s) {
 
 export function clearSave() {
   localStorage.removeItem(KEY);
+  // 文件系统的存档不删,保留作为冷备份
 }
 
 export function exportSave() {
@@ -99,14 +242,14 @@ export function exportSave() {
 
 export function importSave(file, onDone) {
   const reader = new FileReader();
-  reader.onload = (e) => {
+  reader.onload = async (e) => {
     try {
       const data = JSON.parse(e.target.result);
       const fresh = state0();
       const merged = deepMerge(fresh, data);
       migrateLegacy(merged);
       Object.assign(S, merged);
-      saveStateNow();
+      await saveStateNow();
       onDone(true);
     } catch (err) {
       onDone(false, err.message);
@@ -114,3 +257,4 @@ export function importSave(file, onDone) {
   };
   reader.readAsText(file);
 }
+

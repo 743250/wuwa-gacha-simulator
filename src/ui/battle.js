@@ -5,9 +5,7 @@ import { S, $, msg } from '../state.js';
 import { createBattle, doAttack, doSkill, doHeavy, doBurst, doSwitch, doDebris, endTurn, getCombatTeamNames } from '../battle/combat.js';
 import { renderCharacterBattleStatus } from '../battle/characters/index.js';
 import { ELEMENT_COLOR } from '../battle/elements.js';
-import { BUFF_RENDERERS, TEAM_BUFF_TYPES } from './battleRenderers/buffRenderers.js';
-import { formatEnemyMechanic } from '../battle/enemies.js';
-import { getTempStatInstances, hasTempStat } from '../battle/tempStats.js';
+import { collectUnitBadges, collectEnemyBadges, renderBadge } from './battleRenderers/buffRenderers.js';
 import { flattenEnemies, DUNGEONS, canUseWeeklyBoss, consumeWeeklyBoss, getWeeklyBossUsed, WEEKLY_BOSS_LIMIT, getDungeonEncounter, getSol3Level, getSol3Config, getWorldBossSpawnOpts, increaseBossLevel, decreaseBossLevel } from '../battle/dungeon.js';
 import { spendStamina } from '../daily/stamina.js';
 import { settleAbyss, ABYSS_ZONES, startAbyssFloor } from '../daily/abyss.js';
@@ -52,7 +50,8 @@ export function startDungeonBattle(dungeonId) {
     battleOpts = { enemyStatScale: spawnOpts };
   } else {
     const finalScale = (encounter.enemyScale || d.enemyScale || 1.0);
-    battleOpts = { enemyScale: finalScale };
+    const enemyLevel = encounter.enemyLevel || d.enemyLevel || d.minLevel || 40;
+    battleOpts = { enemyScale: finalScale, enemyLevel };
   }
   const battle = createBattle(names, enemyNames, battleOpts);
   if (!battle) {
@@ -190,68 +189,28 @@ function renderHeader() {
 }
 
 // ===== 顶部 buff 横条（明显化）=====
-// 把全队 + 全敌人 的所有 buff/debuff 汇总成大号彩色徽章；新出现的 buff 加 flash 动画
+// 全队 + 全敌人 状态汇总成大号彩色徽章；新出现的加 flash 动画
+// 通过 collectUnitBadges / collectEnemyBadges 统一收集，自带 tooltip
 function renderBuffStripe() {
   const b = currentBattle;
   const root = $('bfBuffStripe');
   if (!root) return;
   const items = [];
 
-  // "全队 buff" 去重：一份 buff 会同步存到每个队员身上，UI 只显示一次
-  const teamSeen = new Set();
-  const isDup = (buf) => {
-    if (!TEAM_BUFF_TYPES.has(buf.type)) return false;
-    const k = `${buf.src || ''}-${buf.type}-${buf.value}`;
-    if (teamSeen.has(k)) return true;
-    teamSeen.add(k);
-    return false;
-  };
-
   b.team.forEach(t => {
     if (!t.alive) return;
-    (t.buffs || []).forEach(buf => {
-      if (isDup(buf)) return;
-      const renderer = BUFF_RENDERERS[buf.type];
-      if (renderer) items.push({
-        key: `${buf.type}-${t.name}`, cls: renderer.cls, icon: renderer.icon,
-        label: renderer.label(buf, t), dur: buf.duration
-      });
-    });
-    if (t.shield > 0) items.push({
-      key: `sh-${t.name}`, cls: 'shield', icon: '🛡',
-      label: `${displayName(t)} 护盾 ${t.shield}`, dur: null
-    });
-    if (t.concerto >= 100) items.push({
-      key: `con-${t.name}`, cls: 'crit', icon: '🎵',
-      label: `${displayName(t)} 协奏满（切人触发延奏）`, dur: null
-    });
-    if (t.skillLockedTurns > 0) items.push({
-      key: `lock-${t.name}`, cls: 'debuff', icon: '🔒',
-      label: `${displayName(t)} 技能封锁`, dur: t.skillLockedTurns
-    });
-    (t.debuffs || []).forEach(d => {
-      if (d.type === 'erosion') items.push({
-        key: `per-${t.name}-${d.element}`, cls: 'debuff', icon: '☣',
-        label: `${displayName(t)} ${d.element}侵蚀`, dur: d.duration
-      });
+    const badges = collectUnitBadges(t, b, { includeTeamGlobal: true });
+    badges.forEach(bd => {
+      // 顶部 stripe 加角色名前缀，避免同名 buff 在不同角色身上混淆
+      items.push({ ...bd, key: bd.key, label: `${displayName(t)} ${bd.label}` });
     });
   });
 
   b.enemies.forEach(e => {
     if (!e.alive) return;
-    (e.debuffs || []).forEach(d => {
-      if (d.type === 'erosion') items.push({
-        key: `er-${e.name}-${d.element}`, cls: 'debuff', icon: '☣',
-        label: `${displayName(e)} ${d.element}侵蚀 +${(d.value*100).toFixed(0)}%`, dur: d.duration
-      });
-      if (d.type === 'spectro_frazzle') items.push({
-        key: `sf-${e.name}`, cls: 'debuff', icon: '☣',
-        label: `${displayName(e)} 衍射失序`, dur: d.duration
-      });
-    });
-    if (e.suppressed > 0) items.push({
-      key: `vb-${e.name}`, cls: 'debuff', icon: '💢',
-      label: `${displayName(e)} 中断 ×${(1 + (e.suppressedVuln || 0.3)).toFixed(1)}（${e.suppressed}回合）`, dur: e.suppressed
+    const badges = collectEnemyBadges(e, b);
+    badges.forEach(bd => {
+      items.push({ ...bd, key: bd.key, label: `${displayName(e)} ${bd.label}` });
     });
   });
 
@@ -265,7 +224,8 @@ function renderBuffStripe() {
   const prev = _lastBuffSnapshot || new Set();
   root.innerHTML = items.map(it => {
     const isNew = !prev.has(it.key);
-    return `<span class="bf-buff ${it.cls}${isNew ? ' flash' : ''}">${it.icon} ${it.label}${it.dur != null ? `<span class="bf-dur">${it.dur}</span>` : ''}</span>`;
+    const tipEsc = String(it.tip || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return `<span class="tip-term bf-buff ${it.cls}${isNew ? ' flash' : ''}" data-tip="${tipEsc}">${it.icon} ${it.label}${it.dur != null ? `<span class="bf-dur">${it.dur}</span>` : ''}</span>`;
   }).join('');
   _lastBuffSnapshot = new Set(items.map(i => i.key));
 }
@@ -287,10 +247,10 @@ function renderEnemies() {
     const elemColor = ELEMENT_COLOR[e.element] || '#fff';
     const vibPct = (e.vibration ?? 100) / (e.vibrationMax || 100);
     const broken = e.suppressed > 0;
-    const m = e.mechanic;
-    let mechHint = '';
-    const mechanicText = formatEnemyMechanic(m, { includeNext: true, turn: b.turn });
-    if (mechanicText) mechHint = `<div style="font-size:9px;color:var(--muted);margin-top:3px;letter-spacing:.3px">机制：${mechanicText}</div>`;
+    const enemyBadges = collectEnemyBadges(e, b);
+    const badgeRow = enemyBadges.length
+      ? `<div class="bf-status-row">${enemyBadges.map(renderBadge).join('')}</div>`
+      : '';
     html += `<div onclick="window.__bTarget(${realIdx})" style="border:1px solid ${isTarget ? 'var(--red)' : 'var(--line)'};border-radius:10px;padding:11px;margin-bottom:6px;background:${isTarget ? 'rgba(255,80,80,.10)' : 'rgba(255,80,80,.04)'};cursor:pointer;transition:.15s">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
         <span style="font-weight:600;font-size:14px">${isTarget ? '🎯 ' : ''}${displayName(e)}${e.class ? ` <span style="font-size:9px;color:var(--muted);letter-spacing:1px">[${e.class}]</span>` : ''}</span>
@@ -309,21 +269,7 @@ function renderEnemies() {
           <div style="height:100%;width:${(vibPct*100).toFixed(1)}%;background:${broken ? 'var(--gold)' : '#aaa'};border-radius:2px;transition:width .3s ease"></div>
         </div>
       </div>
-      ${e.shield > 0 ? `<div style="font-size:10px;color:var(--accent);margin-top:3px">🛡 护盾 ${e.shield}${(() => { const ic = getTempStatInstances(e,'dmgReduc').find(s => s.source==='ice_shield'); return ic ? ` · 冰翼减伤 ${(ic.mult*100).toFixed(0)}%` : ''; })()}</div>` : ''}
-      ${e.suppressed > 0 && e.suppressedVuln >= 0.5 ? `<div style="font-size:10px;color:var(--gold);margin-top:2px">💫 中断 ${e.suppressed}回合 · 易伤 +${(e.suppressedVuln*100).toFixed(0)}%</div>` : ''}
-      ${hasTempStat(e,'dmgImmune') ? `<div style="font-size:10px;color:var(--accent);margin-top:2px">🕊 飞空无敌中</div>` : ''}
-      ${e._deflectActive ? `<div style="font-size:10px;color:var(--gold);margin-top:2px">🛡 反击姿态 · 反弹 ${((e.mechanic?.value||0.4)*100).toFixed(0)}%</div>` : ''}
-      ${e._bubbleHp > 0 ? `<div style="font-size:10px;color:var(--green);margin-top:2px">🫧 绿泡 HP ${e._bubbleHp} · 回合末回复 ${e._bubbleHealAmt||0}</div>` : ''}
-      ${e._debrisReady ? `<div style="font-size:10px;color:var(--gold);margin-top:2px">⚙ 残骸可投掷！点击"残骸"按钮眩晕 BOSS</div>` : ''}
-      ${(() => { const w = getTempStatInstances(e,'dmgReduc').find(s => s.source==='wind_wall'); return w ? `<div style="font-size:10px;color:var(--accent);margin-top:2px">🌪 风壁减伤 ${(w.mult*100).toFixed(0)}% · 剩余 ${w.turns===Infinity?'∞':w.turns}回合</div>` : ''; })()}
-      ${e._overclockTurns > 0 ? `<div style="font-size:10px;color:var(--red);margin-top:2px">🔥 Overclock 双动 · 剩余 ${e._overclockTurns}回合</div>` : ''}
-      ${e._laserCharging ? `<div style="font-size:10px;color:var(--red);margin-top:2px">⚡ 蓄力激光中…下回合发射！</div>` : ''}
-      ${e._saws && e._saws.length > 0 ? `<div style="font-size:10px;color:var(--red);margin-top:2px">🪚 追踪电锯 ×${e._saws.length}</div>` : ''}
-      ${e.phase > 1 ? `<div style="font-size:10px;color:var(--gold);margin-top:2px">📌 阶段 ${e.phase}${e._airPhase ? ' · 空中（近战-30%）' : ''}</div>` : ''}
-      ${Object.keys(e.marks || {}).some(k => e.marks[k] > 0) ? `<div style="font-size:10px;color:var(--red);margin-top:2px">🔥 灼伤：${b.team.filter(t=>t.alive).map(t=>displayName(t)+(e.marks[t.idx]||0)+'层').join(' · ')}</div>` : ''}
-      ${e.cartethyiaErosion > 0 ? `<div style="font-size:10px;color:var(--green);margin-top:2px">🌪 风蚀 ×${e.cartethyiaErosion} 层 · 回合末每层扣 ATK×0.3</div>` : ''}
-      ${e._delayedBlast ? `<div style="font-size:10px;color:var(--red);margin-top:2px">💥 地面发光…下回合爆破！</div>` : ''}
-      ${mechHint}
+      ${badgeRow}
     </div>`;
   });
   root.innerHTML = html;
@@ -380,16 +326,8 @@ function renderTeam() {
         ${t._wallLocked > 0 ? ` · <span style="color:var(--accent)">⚡雷霆墙锁定</span>` : ''}
       </div>
       ${(() => {
-        const debuffs = [];
-        (t.debuffs || []).forEach(d => {
-          if (d.type === 'havoc_erosion' && d.stacks > 0) debuffs.push(`<span style="color:#c39bff">湮灭之蚀 ×${d.stacks}</span>`);
-          if (d.type === 'defDown' && d.stacks > 0) debuffs.push(`<span style="color:var(--red)">防御 ↓${(d.stacks*d.value*100).toFixed(0)}%</span>`);
-        });
-        // 灼伤 marks (from enemy)
-        b.enemies.forEach(e => {
-          if (e.marks && e.marks[t.idx] > 0) debuffs.push(`<span style="color:var(--red)">🔥灼伤 ×${e.marks[t.idx]}</span>`);
-        });
-        return debuffs.length > 0 ? `<div style="font-size:9px;margin-top:2px">${debuffs.join(' · ')}</div>` : '';
+        const badges = collectUnitBadges(t, b, { includeTeamGlobal: false });
+        return badges.length ? `<div class="bf-status-row">${badges.map(renderBadge).join('')}</div>` : '';
       })()}
     </div>`;
   });
@@ -430,7 +368,9 @@ function renderActions() {
     const skillReady = cur && cur.cd.skill === 0 && (cur.skillLockedTurns || 0) === 0;
     const canAtk = notFrozen && b.ap >= 1 && hasTarget;
     const canSkill = notFrozen && skillReady && b.ap >= 1 && hasTarget;
-    const canHeavy = cur.hasHeavy && notFrozen && cur.cd.heavy === 0 && b.ap >= 2 && hasTarget;
+    const isZhezhi = cur.name === '折枝';
+    const zhezhiDianjingReady = isZhezhi && (cur.zhezhiFieldTurns || 0) > 0 && (cur.zhezhiCranes || 0) > 0;
+    const canHeavy = cur.hasHeavy && notFrozen && cur.cd.heavy === 0 && b.ap >= 2 && (hasTarget || zhezhiDianjingReady);
     const canBurst = notFrozen && cur.energy >= cur.energyMax && b.ap >= 3 && aliveEnemyCount > 0;
 
     const blocker = (() => {

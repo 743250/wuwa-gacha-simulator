@@ -2,6 +2,7 @@
 import { S } from '../state.js';
 import { getStats } from './template.js';
 import { weaponContrib } from '../equip/weapons.js';
+import { getSetById } from '../data/echoes.js';
 
 // 计算角色当前完整战斗属性（已含武器、共鸣链）
 // 不含战斗中的临时 buff
@@ -58,7 +59,136 @@ export function computeBattleStats(roleName) {
 
     // ★ 当期武器加成（#12）：已取消（用户决定）
   }
+
+  // 应用声骸（5 格）
+  const ec = echoContrib(roleName);
+  if (ec) {
+    stats.atk += ec.atkFlat;
+    ec.bonuses.forEach(b => applyBonus(stats, b));
+    stats.echoStats = { setBonuses: ec.setBonuses, mainStats: ec.mainStats, subStats: ec.subStats };
+  }
+
   return stats;
+}
+
+// 声骸贡献：聚合 5 格声骸的主词条 + 副词条 + 套装效果
+// 返回 { atkFlat, bonuses, setBonuses, mainStats, subStats }
+// 套装只激活 2 件/5 件 → bonuses 中；条件类（_cond / _stack / _next）先按静态值折半计入面板
+export function echoContrib(roleName) {
+  const r = S.roles[roleName];
+  if (!r || !Array.isArray(r.equipEchoes)) return null;
+  const equipped = r.equipEchoes
+    .map(id => id != null ? S.echos.find(e => e.id === id) : null)
+    .filter(Boolean);
+  if (!equipped.length) return null;
+
+  const bonuses = [];
+  const mainStats = [];
+  const subStats = [];
+
+  // 主词条：按 key 转为 bonus
+  for (const e of equipped) {
+    if (!e.mainStat) continue;
+    const m = e.mainStat;
+    mainStats.push({ name: e.name, ...m });
+    const b = mainStatToBonus(m);
+    if (b) bonuses.push(b);
+  }
+
+  // 副词条：直接转 bonus（固定值已是百分比小数或 flat）
+  for (const e of equipped) {
+    for (const s of (e.subStats || [])) {
+      subStats.push({ name: e.name, ...s });
+      const b = subStatToBonus(s);
+      if (b) bonuses.push(b);
+    }
+  }
+
+  // 套装效果：按 set id 计数，2 件激活 bonus2，5 件激活 bonus5
+  const setCount = {};
+  for (const e of equipped) {
+    const setId = Array.isArray(e.set) ? e.set[0] : e.set;
+    if (setId) setCount[setId] = (setCount[setId] || 0) + 1;
+  }
+  const setBonuses = [];
+  for (const [setId, n] of Object.entries(setCount)) {
+    const set = getSetById(setId);
+    if (!set) continue;
+    if (n >= 2 && set.bonus2) setBonuses.push({ setId, name: set.name, tier: 2, ...set.bonus2 });
+    if (n >= 5 && set.bonus5) setBonuses.push({ setId, name: set.name, tier: 5, ...set.bonus5 });
+  }
+  // 套装 bonus 转 panel bonus
+  for (const sb of setBonuses) {
+    const b = setBonusToBonus(sb);
+    if (b) bonuses.push(b);
+  }
+
+  return { atkFlat: 0, bonuses, setBonuses, mainStats, subStats };
+}
+
+// 主词条（COST4 暴击/暴伤/攻击%/生命%/防御%/治疗；COST3 元素伤/攻击%等；COST1 攻击%/生命%/防御%）
+function mainStatToBonus(m) {
+  const map = {
+    crate: { type: 'crate' },
+    cdmg: { type: 'cdmg' },
+    atk_pct: { type: 'atk_pct' },
+    hp_pct: { type: 'hp' },
+    def_pct: { type: 'def_pct' },
+    heal_bonus: { type: 'heal' },
+    energy_regen: { type: 'energy_regen', key: 'energy_regen' },
+  };
+  const elemMap = {
+    elem_dmg_fire: '热熔', elem_dmg_thunder: '导电', elem_dmg_frost: '冷凝',
+    elem_dmg_wind: '气动', elem_dmg_spectro: '衍射', elem_dmg_havoc: '湮灭'
+  };
+  if (elemMap[m.key]) return { type: 'elem_dmg', element: elemMap[m.key], value: m.value, source: '声骸主词条' };
+  const def = map[m.key];
+  if (!def) return null;
+  return { ...def, value: m.value, source: '声骸主词条' };
+}
+
+// 副词条 → bonus（固定值累加到 atk/hp/def_flat，百分比走 applyBonus）
+function subStatToBonus(s) {
+  const elemMap = {
+    elem_dmg_fire: '热熔', elem_dmg_thunder: '导电', elem_dmg_frost: '冷凝',
+    elem_dmg_wind: '气动', elem_dmg_spectro: '衍射', elem_dmg_havoc: '湮灭'
+  };
+  if (s.key === 'atk_flat') return { type: 'atk_flat', value: s.value, source: '声骸副词条' };
+  if (s.key === 'hp_flat') return { type: 'hp_flat', value: s.value, source: '声骸副词条' };
+  if (s.key === 'def_flat') return { type: 'def_flat', value: s.value, source: '声骸副词条' };
+  if (s.key === 'crate') return { type: 'crate', value: s.value, source: '声骸副词条' };
+  if (s.key === 'cdmg') return { type: 'cdmg', value: s.value, source: '声骸副词条' };
+  if (s.key === 'atk_pct') return { type: 'atk_pct', value: s.value, source: '声骸副词条' };
+  if (s.key === 'hp_pct') return { type: 'hp', value: s.value, source: '声骸副词条' };
+  if (s.key === 'def_pct') return { type: 'def_pct', value: s.value, source: '声骸副词条' };
+  if (s.key === 'energy_regen') return { type: 'energy_regen', value: s.value, source: '声骸副词条', key: 'energy_regen' };
+  if (s.key === 'normal_atk_dmg') return { type: 'normal_pct', value: s.value, source: '声骸副词条' };
+  if (s.key === 'skill_dmg') return { type: 'skill_pct', value: s.value, source: '声骸副词条' };
+  if (s.key === 'burst_dmg') return { type: 'burst_pct', value: s.value, source: '声骸副词条' };
+  if (s.key === 'heavy_dmg') return { type: 'heavy_pct', value: s.value, source: '声骸副词条' };
+  if (elemMap[s.key]) return { type: 'elem_dmg', element: elemMap[s.key], value: s.value, source: '声骸副词条' };
+  return null;
+}
+
+// 套装效果 → bonus（条件类按静态值折半计入面板，运行时 trigger 由战斗侧另行处理）
+function setBonusToBonus(sb) {
+  const map = {
+    elem_dmg: () => ({ type: 'elem_dmg', element: sb.elem, value: sb.value, source: `声骸套装·${sb.name}` }),
+    elem_dmg_cond: () => ({ type: 'elem_dmg', element: sb.elem, value: sb.value * 0.5, source: `声骸套装·${sb.name}(预估)` }),
+    heal_bonus: () => ({ type: 'heal', value: sb.value, source: `声骸套装·${sb.name}` }),
+    energy_regen: () => ({ type: 'energy_regen', value: sb.value, key: 'energy_regen', source: `声骸套装·${sb.name}` }),
+    atk_pct: () => ({ type: 'atk_pct', value: sb.value, source: `声骸套装·${sb.name}` }),
+    atk_pct_stack: () => ({ type: 'atk_pct', value: sb.value * 2, source: `声骸套装·${sb.name}(预估2层)` }),
+    atk_team_flat: () => ({ type: 'team_atk', value: sb.value, source: `声骸套装·${sb.name}` }),
+    atk_next_flat: () => null, // 延奏后下一角色才加成，不计入本人面板
+    normal_atk_dmg: () => ({ type: 'normal_pct', value: sb.value, source: `声骸套装·${sb.name}` }),
+    normal_atk_dmg_cond: () => ({ type: 'normal_pct', value: sb.value, source: `声骸套装·${sb.name}` }),
+    skill_dmg: () => ({ type: 'skill_pct', value: sb.value, source: `声骸套装·${sb.name}` }),
+    coord_dmg: () => null, // 协同攻击伤害+30%，无对应面板字段，战斗侧处理
+    atk_pct_elem: () => ({ type: 'atk_pct', value: sb.value, source: `声骸套装·${sb.name}` }),
+  };
+  const fn = map[sb.type];
+  return fn ? fn() : null;
 }
 
 function applyBonus(stats, b) {
@@ -86,6 +216,10 @@ function applyBonus(stats, b) {
     case 'team_atk':      stats.teamAtkBonus += b.value; break;
     case 'resonance':     stats.resonanceBonus += b.value; break;
     case 'def_pierce':    stats.defPierce += b.value; break;
+    case 'atk_flat':     stats.atk += b.value; break;
+    case 'hp_flat':       stats.hp += b.value; break;
+    case 'def_flat':      stats.def += b.value; break;
+    case 'energy_regen':  stats.energyRegen = (stats.energyRegen || 0) + b.value; break;
   }
 }
 

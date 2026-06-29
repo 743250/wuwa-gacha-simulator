@@ -78,6 +78,82 @@ export const ENEMIES = {
     description: '虚幻型小怪', class: null
   },
 
+  // ===== 普通级 Common（2026-06-28 扩充，副本池专用）=====
+  '剑齿野猪': {
+    hp: 36000, atk: 7000, def: 1512, element: '物理', class: null,
+    resist: { 物理: 0.40, 热熔: 0.10, 湮灭: 0.10, 气动: 0.10, 冷凝: 0.10, 衍射: 0.10, 导电: 0.10 },
+    mechanic: { type: 'none' },
+    description: '剑齿野猪,普通级物理残象,獠牙猛兽近战冲锋'
+  },
+  '导电掠食者': {
+    hp: 33000, atk: 7200, def: 1512, element: '导电', class: null,
+    resist: res('导电'), mechanic: { type: 'none' },
+    description: '导电掠食者,普通级导电残象,雷电狼形掠食者'
+  },
+  '吞吞': {
+    hp: 38000, atk: 6500, def: 1512, element: '冷凝', class: null,
+    resist: res('冷凝'), mechanic: { type: 'none' },
+    description: '吞吞,普通级冷凝残象,圆胖冰属吞噬球体'
+  },
+  '拂拂': {
+    hp: 32000, atk: 7400, def: 1512, element: '气动', class: null,
+    resist: res('气动'), mechanic: { type: 'none' },
+    description: '拂拂,普通级气动残象,浮空气团生物'
+  },
+  '咔嚓': {
+    hp: 35000, atk: 7300, def: 1512, element: '热熔', class: null,
+    resist: res('热熔'), mechanic: { type: 'none' },
+    description: '咔嚓,普通级热熔残象,蟹钳形热熔兵卒'
+  },
+  '折折': {
+    hp: 34000, atk: 7000, def: 1512, element: '衍射', class: null,
+    resist: res('衍射'), mechanic: { type: 'none' },
+    description: '折折,普通级衍射残象,折线形衍射生命'
+  },
+  '滴答': {
+    hp: 33000, atk: 7300, def: 1512, element: '湮灭', class: null,
+    resist: res('湮灭'), mechanic: { type: 'none' },
+    description: '滴答,普通级湮灭残象,发条机关湮灭造物'
+  },
+
+  // ===== 精英级 Elite（2026-06-28 扩充，副本池专用）=====
+  '石壁护腕': {
+    hp: 115809, atk: 8979, def: 1512, element: '物理', class: 'Elite',
+    resist: { 物理: 0.40, 热熔: 0.10, 湮灭: 0.10, 气动: 0.10, 冷凝: 0.10, 衍射: 0.10, 导电: 0.10 },
+    mechanic: { type: 'none' },
+    description: '石壁护腕,精英级物理残象,高防岩石护腕战士'
+  },
+  '紫羽鹭': {
+    hp: 64601, atk: 10051, def: 1512, element: '导电', class: 'Elite',
+    resist: res('导电'), mechanic: { type: 'none' },
+    description: '紫羽鹭,精英级导电残象,紫色羽翼雷电苍鹭'
+  },
+  '青羽鹭': {
+    hp: 64601, atk: 10051, def: 1512, element: '气动', class: 'Elite',
+    resist: res('气动'), mechanic: { type: 'none' },
+    description: '青羽鹭,精英级气动残象,青色羽翼疾风苍鹭'
+  },
+  '碧焰蜥': {
+    hp: 64601, atk: 10051, def: 1512, element: '热熔', class: 'Elite',
+    resist: res('热熔'), mechanic: { type: 'none' },
+    description: '碧焰蜥,精英级热熔残象,翠绿焰火蜥蜴'
+  },
+  '自走傀儡斥候': {
+    hp: 85000, atk: 9500, def: 1512, element: '冷凝', class: 'Elite',
+    resist: res('冷凝'), mechanic: { type: 'none' },
+    description: '自走傀儡斥候,精英级冷凝残象,冰属自走玩偶侦察兵'
+  },
+  '鼓手': {
+    hp: 72000, atk: 9800, def: 1512, element: '湮灭', class: 'Elite',
+    resist: res('湮灭'), mechanic: { type: 'none' },
+    description: '鼓手,精英级湮灭残象,湮灭乐章鼓师'
+  },
+  '坚岩守护者': {
+    hp: 105000, atk: 8600, def: 1512, element: '衍射', class: 'Elite',
+    resist: res('衍射'), mechanic: { type: 'none' },
+    description: '坚岩守护者,精英级衍射残象,衍射岩石守护雕像'
+  },
+
   // ================================================================
   // 17 世界 BOSS（2026-06-25 移植）
   // ================================================================
@@ -466,6 +542,7 @@ export function spawnEnemy(name, opts = 1.0) {
 
   let hpMult, atkMult, defMult;
   const isWorldBoss = data.class === 'Overlord' || data.class === 'Calamity';
+  let enemyLv = 90;
 
   if (typeof opts === 'number') {
     // 副本池（模拟战训等）：世界 BOSS 额外缩放到训练强度
@@ -478,6 +555,7 @@ export function spawnEnemy(name, opts = 1.0) {
     // 新版世界 BOSS 缩放
     const tier = opts.worldTier || 1;
     const level = opts.bossLevel || 40;
+    enemyLv = level;
     const tierMult = worldTierMult(tier);
     const levelRatio = level / 90;
     hpMult = tierMult * levelRatio;
@@ -489,6 +567,7 @@ export function spawnEnemy(name, opts = 1.0) {
     hpMult = opts.hp ?? opts.all ?? 1;
     atkMult = opts.atk ?? opts.all ?? 1;
     defMult = opts.def ?? opts.all ?? 1;
+    if (opts.enemyLevel) enemyLv = opts.enemyLevel;
   } else {
     hpMult = 1.0;
     atkMult = 1.0;
@@ -496,13 +575,23 @@ export function spawnEnemy(name, opts = 1.0) {
   }
 
   const bossLv = (opts && opts.bossLevel) ? opts.bossLevel : 90;
+  // 非世界 BOSS 也支持按 level 缩放 DEF（defForLevel 通用公式）
+  // 同时按 level 比例缩放 HP/ATK（如果调用方显式传了 enemyLevel 且不是世界 BOSS）
   const useDef = isWorldBoss ? defForLevel(bossLv) : Math.round(data.def * defMult);
+  // 副本敌人按等级比例缩放（Lv90 为基准）
+  let finalHp = data.hp * hpMult;
+  let finalAtk = data.atk * atkMult;
+  if (!isWorldBoss && opts && typeof opts === 'object' && opts.enemyLevel) {
+    const lvRatio = opts.enemyLevel / 90;
+    finalHp = data.hp * hpMult * lvRatio;
+    finalAtk = data.atk * atkMult * lvRatio;
+  }
 
   return {
     name,
-    hp: Math.round(data.hp * hpMult),
-    hpMax: Math.round(data.hp * hpMult),
-    atk: Math.round(data.atk * atkMult),
+    hp: Math.round(finalHp),
+    hpMax: Math.round(finalHp),
+    atk: Math.round(finalAtk),
     def: useDef,
     element: data.element,
     resist: { ...data.resist },

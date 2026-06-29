@@ -36,21 +36,21 @@ describe('save', () => {
 
   // ===== loadState() =====
   describe('loadState()', () => {
-    it('returns false when no save exists', () => {
+    it('returns false when no save exists', async () => {
       globalThis.localStorage.clear();
-      expect(save.loadState()).toBe(false);
+      expect(await save.loadState()).toBe(false);
     });
 
-    it('loads saved state from localStorage', () => {
+    it('loads saved state from localStorage', async () => {
       globalThis.localStorage.setItem('wuwa-gacha-save-v1', JSON.stringify({ astrite: 50000 }));
-      const ok = save.loadState();
+      const ok = await save.loadState();
       expect(ok).toBe(true);
       expect(S.astrite).toBe(50000);
     });
 
-    it('merges with state0 defaults for missing fields', () => {
+    it('merges with state0 defaults for missing fields', async () => {
       globalThis.localStorage.setItem('wuwa-gacha-save-v1', JSON.stringify({ astrite: 100 }));
-      save.loadState();
+      await save.loadState();
       // Field that existed in state0 but not in saved data should keep default
       expect(typeof S.stamina).toBe('number');
       expect(typeof S.team).toBe('object');
@@ -116,9 +116,9 @@ describe('save', () => {
       expect(S.materials.exp_low).toBe(50);   // override
     });
 
-    it('handles corrupted save gracefully', () => {
+    it('handles corrupted save gracefully', async () => {
       globalThis.localStorage.setItem('wuwa-gacha-save-v1', 'not-json-at-all');
-      const ok = save.loadState();
+      const ok = await save.loadState();
       expect(ok).toBe(false);
       // S should still be in valid default state
       expect(S.astrite).toBe(16000);

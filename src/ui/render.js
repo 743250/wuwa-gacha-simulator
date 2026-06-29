@@ -4,13 +4,15 @@ import { activePhase, activeBanners, cur, poolKind, poolTitle, tideKey, tideName
 import { shopCatalog } from '../shop/actions.js';
 import { seqText } from '../data/seq.js';
 import { standard5, fourAll, weapons as characterWeapons, bannerNames } from '../data/chars.js';
-import { openModal } from '../modal.js';
+import { openModal, closeModal } from '../modal.js';
 import { upgrade } from '../gacha/core.js';
 import { saveState } from '../save.js';
 import { computeBattleStats, calcBP, expToNext, weaponToNext } from '../battle/stats.js';
 import { getMeta } from '../battle/template.js';
 import { WEAPON_DATA } from '../equip/weapons.js';
 import { levelUpRole, levelUpRoleMax, levelUpWeapon, levelUpWeaponMax, refineWeapon, equipWeapon, unequipWeapon, getEquippableWeapons, totalExp } from '../equip/actions.js';
+import { generateEcho, equipEcho, unequipSlot, getEquippableEchoes, calcTotalCost, levelUpEcho, levelUpEchoMax, recycleEcho, toggleEchoLock, dataBankCostCap, echoToNext } from '../equip/echoActions.js';
+import { ECHO_CATALOG, ECHO_SETS, getSetById, getEchoById } from '../data/echoes.js';
 import { getForte } from '../battle/forte.js';
 import { getOverrideMeta, hasChainOverride } from '../battle/chains.js';
 import { attachTermTips } from './terms.js';
@@ -483,6 +485,75 @@ function renderRoleTabContent(tabId, preview = false) {
         <div style="font-size:10px;color:var(--muted);text-align:center;margin-top:10px">武器石库存 <b style="color:var(--gold)">${S.materials.weapon_book}</b></div>
       </div>`;
   }
+  if (tabId === 'echo') {
+    if (preview) {
+      return `${previewNote}<div style="border:1px solid var(--line);border-radius:8px;padding:18px;background:rgba(255,255,255,.02);color:var(--muted);font-size:12px;text-align:center">未持有角色暂不开放声骸配置。</div>`;
+    }
+    const slots = Array.isArray(o.equipEchoes) ? o.equipEchoes : [null, null, null, null, null];
+    const totalCost = calcTotalCost(n);
+    const cap = dataBankCostCap(S.dataBankLevel);
+    const setCount = {};
+    slots.forEach(id => {
+      if (id == null) return;
+      const e = S.echos.find(x => x.id === id);
+      if (!e) return;
+      const setId = Array.isArray(e.set) ? e.set[0] : e.set;
+      if (setId) setCount[setId] = (setCount[setId] || 0) + 1;
+    });
+    const activeSets = Object.entries(setCount).filter(([, n]) => n >= 2).map(([setId, n]) => {
+      const set = getSetById(setId);
+      return set ? { ...set, count: n, tier: n >= 5 ? 5 : 2 } : null;
+    }).filter(Boolean);
+
+    return `
+      ${previewNote}
+      <div style="border:1px solid var(--line);border-radius:8px;padding:11px 13px;background:rgba(255,255,255,.02);margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px">
+          <span style="font-size:9px;color:var(--muted);letter-spacing:2px">声 骂 槽 位</span>
+          <span style="font-size:10px;color:${totalCost > cap ? 'var(--red)' : 'var(--gold)'}">COST ${totalCost} / ${cap}</span>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px">
+          ${slots.map((id, i) => {
+            const e = id != null ? S.echos.find(x => x.id === id) : null;
+            if (!e) {
+              return `<div class="echo-slot empty" onclick="window.__openEchoPicker('${n.replace(/'/g, "\\'")}',${i})" style="border:1px dashed var(--line2);border-radius:8px;padding:9px 4px;text-align:center;cursor:pointer;min-height:78px;display:flex;flex-direction:column;justify-content:center;align-items:center">
+                <div style="font-size:18px;color:var(--dim)">＋</div>
+                <div style="font-size:9px;color:var(--dim);margin-top:3px">槽位 ${i+1}</div>
+              </div>`;
+            }
+            const set = getSetById(Array.isArray(e.set) ? e.set[0] : e.set);
+            const setColor = set?.element ? ({'热熔':'#ff8c5e','冷凝':'#7bd6ff','导电':'#b58cff','气动':'#8de6a6','衍射':'#fff0b0','湮灭':'#c39bff'}[set.element] || '#fff') : '#999';
+            return `<div class="echo-slot" style="border:1px solid ${setColor};border-radius:8px;padding:7px 4px;text-align:center;min-height:78px;background:rgba(255,255,255,.02);position:relative">
+              <div style="font-size:9px;color:var(--gold);position:absolute;top:2px;left:4px">COST ${e.cost}</div>
+              <div style="font-size:9px;color:var(--muted);position:absolute;top:2px;right:4px">+${e.level}</div>
+              <div style="font-size:11px;font-weight:700;margin-top:14px;color:${setColor}">${e.name}</div>
+              <div style="font-size:9px;color:var(--muted);margin-top:3px">${e.mainStat?.label || ''}</div>
+              <div style="font-size:9px;color:var(--gold);margin-top:1px">${e.mainStat ? (e.mainStat.value*100).toFixed(1)+'%' : ''}</div>
+              <div style="font-size:8px;color:${setColor};margin-top:2px;letter-spacing:.5px">${set?.name || ''}</div>
+              <div style="display:flex;gap:2px;justify-content:center;margin-top:4px">
+                <button class="mbtn" style="font-size:9px;padding:1px 5px" onclick="window.__openEchoPicker('${n.replace(/'/g, "\\'")}',${i})">换</button>
+                <button class="mbtn" style="font-size:9px;padding:1px 5px" onclick="window.__unequipEchoSlot('${n.replace(/'/g, "\\'")}',${i})">卸</button>
+              </div>
+            </div>`;
+          }).join('')}
+        </div>
+        <div style="font-size:10px;color:var(--muted);text-align:center;margin-top:10px">数据坞 LV ${S.dataBankLevel} · COST 上限 ${cap} · 持有 ${S.echos.length} 个声骸</div>
+      </div>
+      <div style="border:1px solid var(--line);border-radius:8px;padding:11px 13px;background:rgba(255,255,255,.02)">
+        <div style="font-size:9px;color:var(--muted);letter-spacing:2px;margin-bottom:8px">已 激 活 套 装</div>
+        ${activeSets.length ? activeSets.map(s => {
+          const color = s.element ? ({'热熔':'#ff8c5e','冷凝':'#7bd6ff','导电':'#b58cff','气动':'#8de6a6','衍射':'#fff0b0','湮灭':'#c39bff'}[s.element] || '#fff') : 'var(--gold)';
+          const bonus = s.tier === 2 ? s.bonus2 : s.bonus5;
+          return `<div style="border:1px solid ${color};border-radius:6px;padding:7px 9px;margin-bottom:6px;background:rgba(255,255,255,.02)">
+            <div style="display:flex;justify-content:space-between;align-items:baseline">
+              <span style="font-size:11px;font-weight:700;color:${color}">${s.name}</span>
+              <span style="font-size:10px;color:var(--gold)">${s.tier}/5 ✦</span>
+            </div>
+            <div style="font-size:10px;color:var(--muted);margin-top:3px;line-height:1.5">${bonus?.cond || ''} ${bonus?.elem ? `${bonus.elem}+${(bonus.value*100).toFixed(0)}%` : `+${(bonus.value*100).toFixed(0)}%`}</div>
+          </div>`;
+        }).join('') : '<div style="font-size:10px;color:var(--dim);text-align:center;padding:8px">未激活任何套装（2 件起激活）</div>'}
+      </div>`;
+  }
   if (tabId === 'chain') {
     const canUp = !preview && o.spare > 0 && o.chain < 6;
     const usingOverride = hasChainOverride(base);
@@ -553,6 +624,7 @@ function renderRoleModal(preview = _currentRolePreview) {
   const TABS = [
     { id: 'basic',  icon: '🧍', label: '基本属性' },
     { id: 'weapon', icon: '⚔', label: '武器' },
+    { id: 'echo',  icon: '💠', label: '声骸' },
     { id: 'chain',  icon: '🔗', label: '共鸣链' },
     { id: 'skill',  icon: '✦', label: '技能介绍' },
     { id: 'levelup',icon: '🎯', label: '突破升级' }
@@ -666,6 +738,114 @@ window.__doUnequip = (n) => {
   unequipWeapon(n);
   refreshRolePane();
   render();
+};
+
+// ===== 声骸系统 =====
+window.__openEchoPicker = (roleName, slot) => {
+  const equippable = getEquippableEchoes(roleName);
+  const cap = dataBankCostCap(S.dataBankLevel);
+  const used = calcTotalCost(roleName);
+  const cur = (Array.isArray(S.roles[roleName]?.equipEchoes) ? S.roles[roleName].equipEchoes : [])[slot];
+  const curCost = cur != null ? (S.echos.find(e => e.id === cur)?.cost || 0) : 0;
+  const items = equippable.map(e => {
+    const set = getSetById(Array.isArray(e.set) ? e.set[0] : e.set);
+    const color = set?.element ? ({'热熔':'#ff8c5e','冷凝':'#7bd6ff','导电':'#b58cff','气动':'#8de6a6','衍射':'#fff0b0','湮灭':'#c39bff'}[set.element] || '#fff') : '#999';
+    const wouldTotal = used - curCost + e.cost;
+    const overCost = wouldTotal > cap;
+    const isEquippedHere = e.id === cur;
+    return `<div style="border:1px solid ${isEquippedHere ? 'var(--gold)' : color};border-radius:8px;padding:8px 10px;background:rgba(255,255,255,.02);${overCost && !isEquippedHere ? 'opacity:.5' : ''}">
+      <div style="display:flex;justify-content:space-between;align-items:baseline">
+        <span style="font-size:12px;font-weight:700;color:${color}">${e.name}${isEquippedHere ? ' ✓' : ''}</span>
+        <span style="font-size:10px;color:var(--gold)">COST ${e.cost} · LV ${e.level}</span>
+      </div>
+      <div style="font-size:10px;color:var(--muted);margin-top:3px">${e.mainStat?.label || ''} ${e.mainStat ? (e.mainStat.value*100).toFixed(1)+'%' : ''} · ${set?.name || ''}</div>
+      <div style="font-size:9px;color:var(--dim);margin-top:2px">${(e.subStats||[]).map(s=>s.label).join(' / ')}</div>
+      <div style="margin-top:5px;display:flex;gap:4px;flex-wrap:wrap">
+        ${isEquippedHere ? '' : `<button class="mbtn" style="font-size:10px;padding:2px 8px" ${overCost ? 'disabled' : ''} onclick="window.__doEquipEcho('${roleName.replace(/'/g,"\\'")}',${slot},${e.id})">装备</button>`}
+        <button class="mbtn" style="font-size:10px;padding:2px 8px" onclick="window.__echoDetail(${e.id})">详情</button>
+        ${!e.equippedBy ? `<button class="mbtn" style="font-size:10px;padding:2px 8px" onclick="window.__echoLevelUp(${e.id})">升级</button>` : ''}
+        ${!e.equippedBy && !e.lock ? `<button class="mbtn" style="font-size:10px;padding:2px 8px" onclick="window.__echoRecycle(${e.id})">分解</button>` : ''}
+        ${!e.equippedBy ? `<button class="mbtn" style="font-size:10px;padding:2px 8px" onclick="window.__echoToggleLock(${e.id})">${e.lock?'解锁':'锁定'}</button>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+  openModal({
+    title: `选择声骸 · 槽位 ${slot+1} · 总 COST ${used}/${cap}`,
+    body: `<div style="max-height:60vh;overflow-y:auto;display:flex;flex-direction:column;gap:6px">
+      ${items || '<div style="color:var(--dim);font-size:12px;text-align:center;padding:20px">无可装备的声骸。前往仓库获取声骸。</div>'}
+      <div style="margin-top:8px;padding:8px;border:1px dashed var(--line2);border-radius:8px;text-align:center">
+        <div style="font-size:10px;color:var(--muted);margin-bottom:6px">生成新声骸（测试用 · 后续接入无音区产出）</div>
+        <select id="echoGenSel" style="font-size:11px;padding:3px 6px;background:var(--bg2);color:var(--text);border:1px solid var(--line2);border-radius:4px;max-width:60%">
+          ${ECHO_CATALOG.map(e => `<option value="${e.id}">COST${e.cost} · ${e.name} (${e.element})</option>`).join('')}
+        </select>
+        <button class="mbtn gold" style="font-size:10px;margin-left:6px" onclick="window.__echoGenerate()">生成</button>
+      </div>
+    </div>`,
+    actions: [{ label: '关闭', cls: '', fn: () => {} }]
+  });
+};
+window.__doEquipEcho = (roleName, slot, echoId) => {
+  const r = equipEcho(roleName, slot, echoId);
+  if (!r.ok) { msg(r.err); return; }
+  closeModal();
+  refreshRolePane();
+  render();
+};
+window.__unequipEchoSlot = (roleName, slot) => {
+  unequipSlot(roleName, slot);
+  refreshRolePane();
+  render();
+};
+window.__echoDetail = (id) => {
+  const e = S.echos.find(x => x.id === id);
+  if (!e) return;
+  const set = getSetById(Array.isArray(e.set) ? e.set[0] : e.set);
+  openModal({
+    title: `${e.name} · LV ${e.level} · COST ${e.cost}`,
+    body: `<div style="font-size:12px;color:var(--muted);line-height:1.7">
+      <div>套装：<b style="color:var(--gold)">${set?.name || '未知'}</b></div>
+      <div>元素：<b>${e.element || '—'}</b></div>
+      <div>主词条：<b style="color:var(--gold)">${e.mainStat?.label} ${(e.mainStat?.value*100).toFixed(1)}%</b></div>
+      <div style="margin-top:6px">副词条（${(e.subStats||[]).length}）：</div>
+      <div style="margin-left:10px">${(e.subStats||[]).map(s => `<div>· ${s.label} ${(s.value*100).toFixed(1)}%</div>`).join('')}</div>
+    </div>`,
+    actions: [{ label: '关闭', cls: '', fn: () => {} }]
+  });
+};
+window.__echoLevelUp = (id) => {
+  const e = S.echos.find(x => x.id === id);
+  if (!e) return;
+  if (e.level >= 25) { msg('已满级'); return; }
+  const cost = echoToNext(e);
+  if (levelUpEcho(id)) {
+    msg(`声骸 +1 级（消耗 ${cost.toLocaleString()} exp）`, false);
+    closeModal();
+    render();
+  } else {
+    msg(`经验不足（需 ${cost.toLocaleString()}）`);
+  }
+};
+window.__echoRecycle = (id) => {
+  if (recycleEcho(id)) {
+    msg('已分解', false);
+    closeModal();
+    render();
+  }
+};
+window.__echoToggleLock = (id) => {
+  toggleEchoLock(id);
+  closeModal();
+  render();
+};
+window.__echoGenerate = () => {
+  const sel = document.getElementById('echoGenSel');
+  if (!sel) return;
+  const e = generateEcho(sel.value);
+  if (e) {
+    msg(`生成 ${e.name}`, false);
+    closeModal();
+    render();
+  }
 };
 
 
@@ -817,6 +997,8 @@ function renderShopBanner(it) {
   const used = S.shopBuyCount?.[it.id] || 0;
   const exhausted = it.limit && used >= it.limit;
   const left = it.limit ? Math.max(0, it.limit - used) : 0;
+  // 新手礼包：永久限购 1 次，购买后直接从列表消失
+  if (it.id?.startsWith('newbie') && exhausted) return '';
   let limitLabel = '';
   if (it.period === 'month') limitLabel = `每月限购：${left}/${it.limit}`;
   else if (it.period === 'version') limitLabel = `本版本限购：${left}/${it.limit}`;

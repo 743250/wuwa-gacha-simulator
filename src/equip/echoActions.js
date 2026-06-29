@@ -1,0 +1,226 @@
+// 声骸养成动作：生成 / 装备 / 卸下 / 升级 / 分解
+// 核心原则：不实现声骸主动技能，纯粹作为数据加成工具
+import { S, msg, pick } from '../state.js';
+import { ECHO_CATALOG, ECHO_SETS, MAIN_STAT_POOL, SUB_STAT_POOL, LEVEL_EXP, MAX_LEVEL_EXP, getEchoById, getSetById } from '../data/echoes.js';
+import { totalExp, consumeExp } from './actions.js';
+
+// 数据坞等级 → COST 上限映射
+// 默认 8 级 = COST 12，满级 10 = COST 12（鸣潮官方 21 级满 = COST 12）
+// 模拟器简化为 8/9/10 三档对应 11/12/12
+export function dataBankCostCap(level) {
+  if (level >= 9) return 12;
+  if (level >= 8) return 12;
+  if (level >= 7) return 11;
+  return 10 + Math.floor(level / 3);
+}
+
+// 从数组中按权重随机抽取（默认均匀）
+function rand(min, max) { return Math.random() * (max - min) + min; }
+
+// 生成新声骸
+// cost 决定主词条池，元素决定 COST3 属性词条池
+export function generateEcho(echoId) {
+  const data = typeof echoId === 'string' ? getEchoById(echoId) : echoId;
+  if (!data) return null;
+  const mainPool = MAIN_STAT_POOL[data.cost];
+  if (!mainPool) return null;
+
+  // COST3 主词条：优先选与声骸元素一致的属性伤害，未命中则全池随机
+  let mainPoolFiltered = mainPool;
+  if (data.cost === 3 && data.element) {
+    const elemKey = {
+      '热熔': 'elem_dmg_fire', '导电': 'elem_dmg_thunder',
+      '冷凝': 'elem_dmg_frost', '气动': 'elem_dmg_wind',
+      '衍射': 'elem_dmg_spectro', '湮灭': 'elem_dmg_havoc'
+    }[data.element];
+    if (elemKey && mainPool.some(s => s.key === elemKey)) {
+      // 50% 概率用元素伤，否则随机
+      if (Math.random() < 0.5) {
+        mainPoolFiltered = [mainPool.find(s => s.key === elemKey)];
+      }
+    }
+  }
+  const mainDef = pick(mainPoolFiltered);
+
+  // 副词条：随机 4 种，初值固定在中值，升级时解锁第 5/6/7 条（实际只生成 4 个，并通过升级增加）
+  // 这里生成 4 个副词条（与 csv 中 COST4 默认 4 副词条一致），数值取中值
+  const subKeys = new Set();
+  const subPool = SUB_STAT_POOL.slice();
+  while (subKeys.size < 4 && subPool.length) {
+    const idx = Math.floor(Math.random() * subPool.length);
+    subKeys.add(subPool[idx].key);
+    subPool.splice(idx, 1);
+  }
+  const subStats = [...subKeys].map(k => {
+    const def = SUB_STAT_POOL.find(s => s.key === k);
+    const value = (def.min + def.max) / 2;
+    return { key: def.key, label: def.label, value, locked: false };
+  });
+
+  // set 字段可能是数组（鸣钟之龟），用第一项作为主套装
+  const setId = Array.isArray(data.set) ? data.set[0] : data.set;
+
+  const echo = {
+    id: S.echoNextId++,
+    catalogId: data.id,
+    name: data.name,
+    cost: data.cost,
+    set: setId,
+    element: data.element,
+    level: 1,
+    exp: 0,
+    mainStat: { key: mainDef.key, label: mainDef.label, value: mainDef.value },
+    subStats,
+    lock: false,
+    equippedBy: null,
+    equipSlot: null
+  };
+  S.echos.push(echo);
+  return echo;
+}
+
+// 计算指定角色已装备声骸总 COST
+export function calcTotalCost(roleName) {
+  const r = S.roles[roleName];
+  if (!r || !Array.isArray(r.equipEchoes)) return 0;
+  return r.equipEchoes.reduce((sum, id) => {
+    if (id == null) return sum;
+    const e = S.echos.find(x => x.id === id);
+    return sum + (e ? e.cost : 0);
+  }, 0);
+}
+
+// 装备声骸到角色第 slot 格（0-4）
+export function equipEcho(roleName, slot, echoId) {
+  const role = S.roles[roleName];
+  const echo = S.echos.find(e => e.id === echoId);
+  if (!role || !echo) return { ok: false, err: '数据缺失' };
+  if (echo.equippedBy && echo.equippedBy !== roleName) {
+    return { ok: false, err: '该声骸已被其他角色装备' };
+  }
+  if (!Array.isArray(role.equipEchoes)) role.equipEchoes = [null, null, null, null, null];
+  if (slot < 0 || slot > 4) return { ok: false, err: '槽位非法' };
+
+  // 计算装备后总 COST
+  const oldEchoId = role.equipEchoes[slot];
+  const oldCost = oldEchoId != null ? (S.echos.find(e => e.id === oldEchoId)?.cost || 0) : 0;
+  const newTotal = calcTotalCost(roleName) - oldCost + echo.cost;
+  const cap = dataBankCostCap(S.dataBankLevel);
+  if (newTotal > cap) {
+    return { ok: false, err: `总 COST ${newTotal} 超过上限 ${cap}` };
+  }
+
+  // 卸下旧槽位
+  if (oldEchoId != null) {
+    const old = S.echos.find(e => e.id === oldEchoId);
+    if (old) { old.equippedBy = null; old.equipSlot = null; }
+  }
+  role.equipEchoes[slot] = echoId;
+  echo.equippedBy = roleName;
+  echo.equipSlot = slot;
+  return { ok: true };
+}
+
+// 卸下指定声骸
+export function unequipEcho(echoId) {
+  const echo = S.echos.find(e => e.id === echoId);
+  if (!echo || !echo.equippedBy) return false;
+  const role = S.roles[echo.equippedBy];
+  if (role && Array.isArray(role.equipEchoes) && role.equipEchoes[echo.equipSlot] === echoId) {
+    role.equipEchoes[echo.equipSlot] = null;
+  }
+  echo.equippedBy = null;
+  echo.equipSlot = null;
+  return true;
+}
+
+// 卸下角色某槽位
+export function unequipSlot(roleName, slot) {
+  const role = S.roles[roleName];
+  if (!role || !Array.isArray(role.equipEchoes)) return false;
+  const id = role.equipEchoes[slot];
+  if (id == null) return false;
+  const echo = S.echos.find(e => e.id === id);
+  if (echo) { echo.equippedBy = null; echo.equipSlot = null; }
+  role.equipEchoes[slot] = null;
+  return true;
+}
+
+// 获取可装备的声骸（未装备或已装备给本角色）
+export function getEquippableEchoes(roleName) {
+  return S.echos.filter(e => !e.equippedBy || e.equippedBy === roleName);
+}
+
+// 升级声骸到下一级
+export function echoToNext(echo) {
+  const lv = echo.level || 1;
+  if (lv >= 25) return Infinity;
+  const phase = LEVEL_EXP.find(p => lv >= p.from && lv < p.to);
+  if (!phase) return Infinity;
+  // 按等级线性分摊该阶段总经验
+  const stepExp = Math.ceil(phase.exp / (phase.to - phase.from));
+  return stepExp;
+}
+
+// 升级一次（消耗经验书）
+export function levelUpEcho(echoId) {
+  const echo = S.echos.find(e => e.id === echoId);
+  if (!echo) return false;
+  if (echo.level >= 25) { msg('声骸已满级'); return false; }
+  const cost = echoToNext(echo);
+  if (totalExp() < cost) {
+    msg(`经验不足（需 ${cost.toLocaleString()}）`);
+    return false;
+  }
+  consumeExp(cost);
+  echo.level++;
+  echo.exp += cost;
+  // 每 5 级解锁一条新副词条（5/10/15/20）
+  if (echo.level % 5 === 0 && echo.level <= 20) {
+    const usedKeys = new Set(echo.subStats.map(s => s.key));
+    const pool = SUB_STAT_POOL.filter(s => !usedKeys.has(s.key));
+    if (pool.length) {
+      const def = pick(pool);
+      const value = (def.min + def.max) / 2;
+      echo.subStats.push({ key: def.key, label: def.label, value, locked: false });
+    }
+  }
+  return true;
+}
+
+// 一键升满
+export function levelUpEchoMax(echoId) {
+  const echo = S.echos.find(e => e.id === echoId);
+  if (!echo) return 0;
+  let count = 0;
+  while (echo.level < 25) {
+    const cost = echoToNext(echo);
+    if (totalExp() < cost) break;
+    if (!levelUpEcho(echoId)) break;
+    count++;
+  }
+  return count;
+}
+
+// 分解声骸：返回部分经验
+export function recycleEcho(echoId) {
+  const echo = S.echos.find(e => e.id === echoId);
+  if (!echo) return false;
+  if (echo.equippedBy) { msg('已装备的声骸无法分解'); return false; }
+  if (echo.lock) { msg('已锁定的声骸无法分解'); return false; }
+  // 回收经验 = 已投入经验 × 0.8，转化为特级共鸣促剂（每 20000 = 1 个）
+  const refund = Math.floor(echo.exp * 0.8 / 20000);
+  if (refund > 0) {
+    S.materials.exp_super = (S.materials.exp_super || 0) + refund;
+  }
+  S.echos = S.echos.filter(e => e.id !== echoId);
+  return true;
+}
+
+// 锁定/解锁
+export function toggleEchoLock(echoId) {
+  const echo = S.echos.find(e => e.id === echoId);
+  if (!echo) return false;
+  echo.lock = !echo.lock;
+  return true;
+}

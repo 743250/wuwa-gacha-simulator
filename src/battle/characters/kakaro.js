@@ -28,8 +28,9 @@ export function kakaroShikaku(self, target, dmg, battle) {
   battle.log.push({ type: 'attack', src: self.name, tgt: target.name, dmg: extraDmg, crit: false, action: '死告·猎杀影协同（6 链）' });
 }
 
-export function kakaroTurnCleanup(self, battle) {
+export function kakaroTurnCleanup(self, ctx) {
   if (self.name !== '卡卡罗') return;
+  const battle = ctx.battle;
   if (self.kakaroDeathblade > 0) {
     self.kakaroDeathblade--;
     if (self.kakaroDeathblade === 0) {
