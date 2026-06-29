@@ -15,6 +15,7 @@ import { spawnEnemy } from './enemies.js';
 import { resistMultiplier, vibrationMultiplier } from './elements.js';
 import { initForte, gainForte, consumeForte, forteEnhances } from './forte.js';
 import { fireTrigger, collectWeaponBonus, tickWeaponTriggers } from './weaponTriggers.js';
+import { fireEchoSetTrigger } from './echoSetTriggers.js';
 import { tickStacks } from './stacks.js';
 import { applyTempStat, removeTempStat, computeStat, tickTempStats } from './tempStats.js';
 import { onUnitSwitchOut } from './forms.js';
@@ -198,7 +199,10 @@ function calcDamage(attacker, defender, multiplier, dmgType) {
   const elemAdd = wb.elemBonus?.[attacker.element] || 0;
   // ★ 卡提希娅 4 链带来的全队 elemAllUp 运行时 buff
   const elemAllUpBuff = (attacker.buffs || []).reduce((a, b) => b.type === 'elemAllUp' ? a + b.value : a, 0);
-  const elemBonus = 1 + elemBase + elemAdd + elemAllUpBuff;
+  // ★ 声骸套装 5 件条件型运行时触发：单元素伤害加成 buff
+  const echoElemBuff = (attacker.buffs || []).reduce((a, b) =>
+    b.type === 'echoElemDmg' && b.element === attacker.element ? a + b.value : a, 0);
+  const elemBonus = 1 + elemBase + elemAdd + elemAllUpBuff + echoElemBuff;
   // 强化窗口：卡卡罗 burstWindow、安可黑咩形态等
   const burstWin = attacker.buffs?.find(b => b.type === 'burstWindow');
   let windowBonus = burstWin && (dmgType === 'normal' || dmgType === 'skill') ? (1 + burstWin.value) : 1;
@@ -622,6 +626,9 @@ export function doAttack(battle, targetIdx) {
   zhezhiCraneAssist(battle, target);
   // 触发武器被动：普攻命中
   fireTrigger(self, 'normal_hit', { battle, target });
+  // 触发声骸套装 5 件条件型（普攻命中叠层 / 持续 buff）
+  fireEchoSetTrigger(self, 'normal_hit', battle);
+  fireEchoSetTrigger(self, 'normal_or_heavy_hit', battle);
   // 角色专属普攻 hook（卡提希娅决意/风蚀 · 安可失序 · 吟霖审判）
   fireCharacterHook(self, 'onAttack', { battle, target, helpers: { calcDamage, dealDamage } });
   finishIfBattleEnded(battle, 'win');
@@ -665,6 +672,9 @@ export function doSkill(battle, targetIdx) {
   }
   // 触发武器被动：技能命中
   fireTrigger(self, 'skill_hit', { battle, target });
+  // 触发声骸套装 5 件条件型（技能命中 / 重击或技能命中）
+  fireEchoSetTrigger(self, 'skill_hit', battle);
+  fireEchoSetTrigger(self, 'heavy_or_skill_hit', battle);
   // 治疗型技能（辅助/治疗位 用技能视为 heal_skill）
   if (self.type === '辅助' || self.type === '治疗') {
     fireTrigger(self, 'heal_skill', { battle });
@@ -795,6 +805,8 @@ export function doBurst(battle) {
 
   // 触发武器被动：解放释放
   fireTrigger(self, 'burst_cast', { battle });
+  // 触发声骸套装 5 件条件型（使用解放后持续 buff）
+  fireEchoSetTrigger(self, 'burst_cast', battle);
   // 协奏值满后视为切人（变奏/延奏）
   if (self.concerto >= 100) {
     consumeConcerto(self, battle);
@@ -872,6 +884,10 @@ export function doHeavy(battle, targetIdx) {
   gainConcerto(self, 14);
   gainForte(self, 'heavy');
   fireTrigger(self, 'heavy_hit', { battle, target });
+  // 触发声骸套装 5 件条件型（重击命中 / 普攻或重击命中 / 重击或技能命中）
+  fireEchoSetTrigger(self, 'heavy_hit', battle);
+  fireEchoSetTrigger(self, 'normal_or_heavy_hit', battle);
+  fireEchoSetTrigger(self, 'heavy_or_skill_hit', battle);
   let heavyAction = '重击';
   if (isEncore) {
     if (encoreSpecial) {
@@ -981,6 +997,8 @@ export function doSwitch(battle, toIdx) {
   if (concertoFull) {
     prev.concerto = 0;
     fireTrigger(target, 'variation', { battle });
+    // 触发声骸套装 5 件条件型（变奏入场后持续 buff）
+    fireEchoSetTrigger(target, 'variation_in', battle);
     battle.log.push({ type: 'mechanic', src: prev.name, msg: `协奏满 · ${prev.name} 延奏 → ${target.name} 强化变奏` });
   }
   battle.log.push({ type: 'switch', src: target.name, action: '切换上场' });

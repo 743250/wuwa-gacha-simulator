@@ -14,8 +14,14 @@ export function dataBankCostCap(level) {
   return 10 + Math.floor(level / 3);
 }
 
-// 从数组中按权重随机抽取（默认均匀）
 function rand(min, max) { return Math.random() * (max - min) + min; }
+
+// 副词条数值随机：浮点型（暴击/攻击%/元素伤等）原样保留精度，固定值型（攻击固定/生命固定等）取整
+const FLOAT_STAT_KEYS = new Set(['crate', 'cdmg', 'atk_pct', 'hp_pct', 'def_pct', 'energy_regen', 'normal_atk_dmg', 'skill_dmg', 'burst_dmg', 'heavy_dmg']);
+function randomStatValue(def) {
+  const v = rand(def.min, def.max);
+  return FLOAT_STAT_KEYS.has(def.key) ? Math.round(v * 1000) / 1000 : Math.round(v);
+}
 
 // 生成新声骸
 // cost 决定主词条池，元素决定 COST3 属性词条池
@@ -53,7 +59,7 @@ export function generateEcho(echoId) {
   }
   const subStats = [...subKeys].map(k => {
     const def = SUB_STAT_POOL.find(s => s.key === k);
-    const value = (def.min + def.max) / 2;
+    const value = randomStatValue(def);
     return { key: def.key, label: def.label, value, locked: false };
   });
 
@@ -188,7 +194,7 @@ export function levelUpEcho(echoId) {
     const pool = SUB_STAT_POOL.filter(s => !usedKeys.has(s.key));
     if (pool.length) {
       const def = pick(pool);
-      const value = (def.min + def.max) / 2;
+      const value = randomStatValue(def);
       echo.subStats.push({ key: def.key, label: def.label, value, locked: false });
     }
   }
