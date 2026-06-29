@@ -623,7 +623,7 @@ export function doAttack(battle, targetIdx) {
   // 触发武器被动：普攻命中
   fireTrigger(self, 'normal_hit', { battle, target });
   // 角色专属普攻 hook（卡提希娅决意/风蚀 · 安可失序 · 吟霖审判）
-  fireCharacterHook(self, 'onAttack', { battle, target });
+  fireCharacterHook(self, 'onAttack', { battle, target, helpers: { calcDamage, dealDamage } });
   finishIfBattleEnded(battle, 'win');
   return { ok: true };
 }
@@ -674,7 +674,7 @@ export function doSkill(battle, targetIdx) {
     action: fEnh ? `${fEnh.resourceName}强化技能` : '共鸣技能'
   });
   // 角色专属共鸣技能 hook（守岸人治疗 · 卡提希娅决意/风蚀 · 忌炎锐意 · 安可失序 · 吟霖审判 · 珂莱塔解离 · 折枝补货）
-  fireCharacterHook(self, 'onSkill', { battle, target });
+  fireCharacterHook(self, 'onSkill', { battle, target, helpers: { calcDamage, dealDamage } });
   // 折枝墨鹤追击：共鸣技能命中主目标时消耗 1 只墨鹤（追击在补货之后，逻辑上仍是技能命中触发）
   zhezhiCraneAssist(battle, target);
   finishIfBattleEnded(battle, 'win');

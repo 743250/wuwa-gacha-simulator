@@ -67,6 +67,7 @@ export function yinlinOnHit(self, target, dmgType, battle, helpers) {
   }
   yinlinAddMark(target, 1);
   if (dmgType === 'normal' && self.yinlinJiTingActive && !self._jiTingFiredThisTurn && self.yinlinJiTing) {
+    if (!helpers?.calcDamage || !helpers?.dealDamage) return;
     self._jiTingFiredThisTurn = true;
     const { dmg, crit } = helpers.calcDamage(self, target, self.yinlinJiTing.value, 'skill');
     const real = helpers.dealDamage(target, dmg);
@@ -81,7 +82,7 @@ export function yinlinOnHit(self, target, dmgType, battle, helpers) {
 export function yinlinOnAttack(self, ctx) {
   if (self.name !== '吟霖') return;
   const battle = ctx.battle;
-  yinlinOnHit(self, ctx.target, 'normal', battle);
+  yinlinOnHit(self, ctx.target, 'normal', battle, ctx.helpers);
   yinlinGainVerdict(self, 15, '普攻', battle);
 }
 
@@ -89,7 +90,7 @@ export function yinlinOnAttack(self, ctx) {
 export function yinlinOnSkill(self, ctx) {
   if (self.name !== '吟霖') return;
   const battle = ctx.battle;
-  yinlinOnHit(self, ctx.target, 'skill', battle);
+  yinlinOnHit(self, ctx.target, 'skill', battle, ctx.helpers);
   yinlinGainVerdict(self, 30, '共鸣技能', battle);
 }
 
