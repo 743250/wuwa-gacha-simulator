@@ -1195,11 +1195,11 @@ export function endTurn(battle) {
 
   // 敌人 suppressed / debuff / 特殊状态衰减
   battle.enemies.forEach(e => {
-    if (e._suppressedFresh) { e._suppressedFresh = false; }
-    else if (e.suppressed > 0) {
+    if (e.suppressed > 0) {
       e.suppressed--;
       if (e.suppressed <= 0) e.suppressedVuln = 0;
     }
+    delete e._suppressedFresh;
     // 中断窗口期间（含刚结束的那回合）：韧性保持满
     // 抑制 enemyMechanics 弹反路径残留的低韧性，避免中断结束瞬间被一击即破韧
     if (e.suppressed >= 0 && (e.vibration ?? 100) < (e.vibrationMax || 100) && (e._wasSuppressedLastTurn || e.suppressed > 0)) {

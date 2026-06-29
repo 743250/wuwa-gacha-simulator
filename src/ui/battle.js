@@ -588,7 +588,9 @@ window.__bSettle = () => {
     const drops = {};
     Object.entries(rawDrops).forEach(([k, v]) => {
       // 星声不收世界等级加成，其余材料按 SOL3 倍率缩放
-      drops[k] = k === 'astrite' ? v : Math.round(v * dropMult);
+      // echo_set/echo_count 是元字段（字符串/数组/整数），不参与倍率缩放
+      if (k === 'astrite' || k === 'echo_set' || k === 'echo_count') { drops[k] = v; return; }
+      drops[k] = Math.round(v * dropMult);
     });
     const rewardText = [];
     if (drops.exp_super) { S.materials.exp_super += drops.exp_super; rewardText.push(`特级共鸣促剂 ×${drops.exp_super}`); }
