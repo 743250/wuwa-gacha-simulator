@@ -101,17 +101,24 @@ export function equipEcho(roleName, slot, echoId) {
   if (!Array.isArray(role.equipEchoes)) role.equipEchoes = [null, null, null, null, null];
   if (slot < 0 || slot > 4) return { ok: false, err: '槽位非法' };
 
-  // 计算装备后总 COST
+  // 若该声骸已装备在本角色其他槽位，先清掉原槽位，避免同一声骸出现在两个槽位
+  if (echo.equippedBy === roleName && echo.equipSlot != null && echo.equipSlot !== slot) {
+    role.equipEchoes[echo.equipSlot] = null;
+  }
+
+  // 计算装备后总 COST（扣除本槽位旧声骸 + 当前声骸若已在别槽的 cost 重复算一次要扣掉）
   const oldEchoId = role.equipEchoes[slot];
   const oldCost = oldEchoId != null ? (S.echos.find(e => e.id === oldEchoId)?.cost || 0) : 0;
-  const newTotal = calcTotalCost(roleName) - oldCost + echo.cost;
+  // 已在本角色其他槽位时，calcTotalCost 已计入 echo.cost，需扣除避免重复
+  const selfAlreadyEquipped = echo.equippedBy === roleName;
+  const newTotal = calcTotalCost(roleName) - oldCost - (selfAlreadyEquipped ? echo.cost : 0) + echo.cost;
   const cap = dataBankCostCap(S.dataBankLevel);
   if (newTotal > cap) {
     return { ok: false, err: `总 COST ${newTotal} 超过上限 ${cap}` };
   }
 
   // 卸下旧槽位
-  if (oldEchoId != null) {
+  if (oldEchoId != null && oldEchoId !== echoId) {
     const old = S.echos.find(e => e.id === oldEchoId);
     if (old) { old.equippedBy = null; old.equipSlot = null; }
   }

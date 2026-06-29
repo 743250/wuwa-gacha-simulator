@@ -321,3 +321,39 @@ export function getEchoesByElement(element) {
 export function getEchoesByCost(cost) {
   return ECHO_CATALOG.filter(e => e.cost === cost);
 }
+
+// 主/副词条值格式化：固定值（atk_flat/hp_flat/def_flat）显示为整数，百分比显示为 N.N%
+const FLAT_STAT_KEYS = new Set(['atk_flat', 'hp_flat', 'def_flat']);
+
+/** 把声骸词条 value 按 key 渲染成展示字符串：固定值整数，百分比给 N.N% */
+export function formatEchoStatValue(key, value) {
+  if (FLAT_STAT_KEYS.has(key)) return String(Math.round(value));
+  return (value * 100).toFixed(1) + '%';
+}
+
+// 套装 bonus 类型 → 中文描述前缀（不含数值）
+const SET_BONUS_TYPE_LABEL = {
+  elem_dmg:           (b) => `${b.elem ?? ''}伤害加成`,
+  elem_dmg_cond:      (b) => `${b.elem ?? ''}伤害加成`,
+  heal_bonus:         () => '治疗加成',
+  energy_regen:       () => '能量回复',
+  atk_pct:            () => '攻击加成',
+  atk_pct_stack:      () => '攻击加成（叠层）',
+  atk_team_flat:      () => '全队攻击加成',
+  atk_next_flat:      () => '延奏后下一角色攻击加成',
+  normal_atk_dmg:     () => '普攻伤害加成',
+  normal_atk_dmg_cond:() => '普攻伤害加成',
+  skill_dmg:          () => '技能伤害加成',
+  coord_dmg:          () => '协同攻击伤害加成',
+  atk_pct_elem:       () => '攻击加成 / 全元素伤害加成',
+};
+
+/** 把套装 bonus 渲染成中文效果描述一行字 */
+export function formatSetBonus(bonus) {
+  if (!bonus || !bonus.type) return '';
+  const label = SET_BONUS_TYPE_LABEL[bonus.type];
+  const prefix = label ? label(bonus) : bonus.type;
+  const valueStr = `${(bonus.value * 100).toFixed(0)}%`;
+  const condStr = bonus.cond ? `（${bonus.cond}）` : '';
+  return `${prefix} +${valueStr}${condStr}`;
+}

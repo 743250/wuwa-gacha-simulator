@@ -12,7 +12,7 @@ import { getMeta } from '../battle/template.js';
 import { WEAPON_DATA } from '../equip/weapons.js';
 import { levelUpRole, levelUpRoleMax, levelUpWeapon, levelUpWeaponMax, refineWeapon, equipWeapon, unequipWeapon, getEquippableWeapons, totalExp } from '../equip/actions.js';
 import { generateEcho, equipEcho, unequipSlot, getEquippableEchoes, calcTotalCost, levelUpEcho, levelUpEchoMax, recycleEcho, toggleEchoLock, dataBankCostCap, echoToNext } from '../equip/echoActions.js';
-import { ECHO_CATALOG, ECHO_SETS, getSetById, getEchoById } from '../data/echoes.js';
+import { ECHO_CATALOG, ECHO_SETS, getSetById, getEchoById, formatEchoStatValue, formatSetBonus } from '../data/echoes.js';
 import { getForte } from '../battle/forte.js';
 import { getOverrideMeta, hasChainOverride } from '../battle/chains.js';
 import { attachTermTips } from './terms.js';
@@ -509,7 +509,7 @@ function renderRoleTabContent(tabId, preview = false) {
       ${previewNote}
       <div style="border:1px solid var(--line);border-radius:8px;padding:11px 13px;background:rgba(255,255,255,.02);margin-bottom:10px">
         <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px">
-          <span style="font-size:9px;color:var(--muted);letter-spacing:2px">声 骂 槽 位</span>
+          <span style="font-size:9px;color:var(--muted);letter-spacing:2px">声 骸 槽 位</span>
           <span style="font-size:10px;color:${totalCost > cap ? 'var(--red)' : 'var(--gold)'}">COST ${totalCost} / ${cap}</span>
         </div>
         <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px">
@@ -549,7 +549,7 @@ function renderRoleTabContent(tabId, preview = false) {
               <span style="font-size:11px;font-weight:700;color:${color}">${s.name}</span>
               <span style="font-size:10px;color:var(--gold)">${s.tier}/5 ✦</span>
             </div>
-            <div style="font-size:10px;color:var(--muted);margin-top:3px;line-height:1.5">${bonus?.cond || ''} ${bonus?.elem ? `${bonus.elem}+${(bonus.value*100).toFixed(0)}%` : `+${(bonus.value*100).toFixed(0)}%`}</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:3px;line-height:1.5">${formatSetBonus(bonus)}</div>
           </div>`;
         }).join('') : '<div style="font-size:10px;color:var(--dim);text-align:center;padding:8px">未激活任何套装（2 件起激活）</div>'}
       </div>`;
@@ -803,11 +803,18 @@ window.__echoDetail = (id) => {
   openModal({
     title: `${e.name} · LV ${e.level} · COST ${e.cost}`,
     body: `<div style="font-size:12px;color:var(--muted);line-height:1.7">
-      <div>套装：<b style="color:var(--gold)">${set?.name || '未知'}</b></div>
+      <div>套装：<b style="color:var(--gold)">${set?.name || '未知'}</b>${set?.element ? ` · ${set.element}` : ''}</div>
       <div>元素：<b>${e.element || '—'}</b></div>
-      <div>主词条：<b style="color:var(--gold)">${e.mainStat?.label} ${(e.mainStat?.value*100).toFixed(1)}%</b></div>
+      <div>主词条：<b style="color:var(--gold)">${e.mainStat?.label} ${formatEchoStatValue(e.mainStat?.key, e.mainStat?.value)}</b></div>
       <div style="margin-top:6px">副词条（${(e.subStats||[]).length}）：</div>
-      <div style="margin-left:10px">${(e.subStats||[]).map(s => `<div>· ${s.label} ${(s.value*100).toFixed(1)}%</div>`).join('')}</div>
+      <div style="margin-left:10px">${(e.subStats||[]).map(s => `<div>· ${s.label} ${formatEchoStatValue(s.key, s.value)}</div>`).join('')}</div>
+      ${set ? `<div style="margin-top:8px;padding-top:6px;border-top:1px dashed var(--line)">
+        <div style="color:var(--gold);font-size:11px;margin-bottom:3px">套装效果</div>
+        <div style="margin-left:10px">
+          <div>· <b>2 件</b>：${formatSetBonus(set.bonus2) || '—'}</div>
+          <div>· <b>5 件</b>：${formatSetBonus(set.bonus5) || '—'}</div>
+        </div>
+      </div>` : ''}
     </div>`,
     actions: [{ label: '关闭', cls: '', fn: () => {} }]
   });

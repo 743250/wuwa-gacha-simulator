@@ -4,7 +4,7 @@ import { usePotion, useAllPotions, POTIONS, buyStaminaWithAstrite } from '../dai
 import { WEAPON_BOX_OPTIONS } from '../data/podcast-rewards.js';
 import { openModal } from '../modal.js';
 import { generateEcho, levelUpEcho, levelUpEchoMax, recycleEcho, toggleEchoLock, unequipEcho, echoToNext, dataBankCostCap } from '../equip/echoActions.js';
-import { ECHO_CATALOG, getSetById } from '../data/echoes.js';
+import { ECHO_CATALOG, getSetById, formatEchoStatValue, formatSetBonus } from '../data/echoes.js';
 import { totalExp } from '../equip/actions.js';
 
 export function renderBag() {
@@ -191,7 +191,7 @@ export function renderBag() {
         <div style="font-size:11px;font-weight:700;color:${color};text-align:center;margin-top:10px;word-break:break-all;line-height:1.1">${e.name}</div>
         <div style="font-size:8px;color:var(--muted);text-align:center;margin-top:2px">LV ${e.level} · ${e.element || ''}</div>
         <div style="font-size:8px;color:var(--gold);text-align:center;margin-top:2px">${e.mainStat?.label || ''}</div>
-        <div style="font-size:8px;color:var(--gold);text-align:center">${e.mainStat ? (e.mainStat.value*100).toFixed(1)+'%' : ''}</div>
+        <div style="font-size:8px;color:var(--gold);text-align:center">${e.mainStat ? formatEchoStatValue(e.mainStat.key, e.mainStat.value) : ''}</div>
         <div style="font-size:8px;color:${color};text-align:center;margin-top:1px;letter-spacing:.3px">${set?.name || ''}</div>
         <div style="display:flex;gap:2px;margin-top:4px;flex-wrap:wrap;justify-content:center">
           <button class="mbtn" style="font-size:8px;padding:1px 4px" onclick="window.__bagEchoDetail(${e.id})">详</button>
@@ -302,15 +302,22 @@ window.__bagEchoDetail = (id) => {
   const set = getSetById(Array.isArray(e.set) ? e.set[0] : e.set);
   const subRows = (e.subStats || []).map(s => `<div style="display:flex;justify-content:space-between;font-size:11px;padding:2px 0;border-bottom:1px dashed var(--line)">
     <span style="color:var(--muted)">${s.label}</span>
-    <span style="color:var(--gold)">${(s.value*100).toFixed(1)}%</span></div>`).join('') || '<div style="color:var(--dim);font-size:11px">无副词条</div>';
+    <span style="color:var(--gold)">${formatEchoStatValue(s.key, s.value)}</span></div>`).join('') || '<div style="color:var(--dim);font-size:11px">无副词条</div>';
   openModal({
     title: `${e.name} · LV ${e.level}`,
     body: `<div style="font-size:11px;color:var(--muted);margin-bottom:8px">COST ${e.cost} · ${e.element} · ${set?.name || '无套装'}</div>
 <div style="font-size:11px;color:var(--muted);margin-bottom:4px">主词条</div>
 <div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid var(--line);margin-bottom:8px">
-  <span>${e.mainStat?.label || ''}</span><span style="color:var(--gold)">${e.mainStat ? (e.mainStat.value*100).toFixed(1)+'%' : ''}</span></div>
+  <span>${e.mainStat?.label || ''}</span><span style="color:var(--gold)">${e.mainStat ? formatEchoStatValue(e.mainStat.key, e.mainStat.value) : ''}</span></div>
 <div style="font-size:11px;color:var(--muted);margin-bottom:4px">副词条</div>
 ${subRows}
+${set ? `<div style="margin-top:8px;padding-top:6px;border-top:1px dashed var(--line)">
+  <div style="color:var(--gold);font-size:11px;margin-bottom:3px">套装效果 · ${set.name}</div>
+  <div style="margin-left:10px;font-size:11px">
+    <div>· <b>2 件</b>：${formatSetBonus(set.bonus2) || '—'}</div>
+    <div>· <b>5 件</b>：${formatSetBonus(set.bonus5) || '—'}</div>
+  </div>
+</div>` : ''}
 <div style="font-size:10px;color:var(--dim);margin-top:8px">累计经验 ${totalExp(e)} · ${e.equippedBy ? `装备于 ${e.equippedBy}` : '未装备'}</div>`,
     actions: [{ label: '关闭', cls: '', fn: () => {} }]
   });
