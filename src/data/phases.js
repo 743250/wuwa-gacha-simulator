@@ -2,8 +2,31 @@
 import { date } from '../state.js';
 import { fourAll } from './chars.js';
 
+// 各版本官方名称（来源：库街区 / Fandom wiki）
+export const VERSION_NAMES = {
+  '1.0': '鸣潮往复，文明不屈',
+  '1.1': '往岁乘霄醒惊蛰',
+  '1.2': '天上月华人如愿',
+  '1.3': '行至海岸尽头',
+  '1.4': '暗夜叩响白昼之门',
+  '2.0': '致缄默以欢歌',
+  '2.1': '飞鸟轻鸣，浪涛欢唱',
+  '2.2': '真伪倒悬于高塔',
+  '2.3': '焰行夏曲庆"团"圆',
+  '2.4': '轻掷欢呼之冕',
+  '2.5': '生命不灭的轻歌',
+  '2.6': '日以灼锋，月以流明',
+  '2.7': '暗潮将映的黎明',
+  '2.8': '奔往琥珀之都',
+  '3.0': '我们生而眺望',
+  '3.1': '赠予雪中的你',
+  '3.2': '于影中启明的决心',
+  '3.3': '自星海尽处回响',
+  '3.4': '未选择的梦'
+};
+
 function phase(v, start, end, chars, fours) {
-  return { v, start: date(start), end: date(end), chars, fours: fours || fourAll.slice(0,3) };
+  return { v, name: VERSION_NAMES[v] || v, start: date(start), end: date(end), chars, fours: fours || fourAll.slice(0,3) };
 }
 
 export const phases = [

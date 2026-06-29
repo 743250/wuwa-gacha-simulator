@@ -1,6 +1,7 @@
 // 渲染主入口
 import { S, DAY, fmt, $ } from '../state.js';
 import { activePhase, activeBanners, cur, poolKind, poolTitle, tideKey, tideName, tideLetter, targetOptions, isCollabActive } from '../gacha/core.js';
+import { VERSION_NAMES } from '../data/phases.js';
 import { shopCatalog } from '../shop/actions.js';
 import { seqText } from '../data/seq.js';
 import { standard5, fourAll, weapons as characterWeapons, bannerNames } from '../data/chars.js';
@@ -40,7 +41,8 @@ export function render() {
   // 时间
   $('dateNow').textContent = fmt(S.today);
   const vs = aps.map(p => p.v).filter((v, i, a) => a.indexOf(v) === i).join(' · ') || '无';
-  $('dateMeta').textContent = `版本 ${vs} · 开放卡池 ${bs.length}`;
+  const vName = VERSION_NAMES[vs] || '';
+  $('dateMeta').textContent = `版本 ${vs}${vName ? ' · ' + vName : ''} · 开放卡池 ${bs.length}`;
 
   // 卡池横向 Tab
   if (bs.length) {
@@ -114,7 +116,7 @@ export function render() {
     $('bnArt').className = 'banner-art ' + (kind === 'weapon' ? 'theme-l' : 'theme-r');
     $('bnArt').innerHTML = `
       <div class="ba-main">
-        <div class="ba-sub">${poolTitle(b)} · ${b.version}</div>
+        <div class="ba-sub">${poolTitle(b)} · ${b.version} · ${VERSION_NAMES[b.version] || ''}</div>
         <div class="ba-name${headline.length > 5 ? ' small' : ''}">${headline}</div>
         <div class="ba-banner">「${b.banner}」</div>
         ${poolBadge}
