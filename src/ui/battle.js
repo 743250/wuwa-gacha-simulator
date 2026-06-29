@@ -483,6 +483,7 @@ function effectLabel(effect, element) {
     case 'def_pierce':  return '穿防';
     case 'team_atk':    return '全队攻↑';
     case 'crate':       return '暴击↑';
+    case 'concerto_refund': return '协奏↑';
     default:            return effect;
   }
 }
@@ -612,7 +613,7 @@ window.__bSettle = () => {
           const e = generateEcho(pick.id);
           if (e) rolled.push(e.name);
         }
-        if (rolled.length) rewardText.push(`声骸: ${rolled.join(' · ')}`);
+        if (rolled.length) rewardText.push(`声骸 ×${rolled.length}: ${rolled.join(' · ')}`);
       }
     }
     // 电台任务：副本完成

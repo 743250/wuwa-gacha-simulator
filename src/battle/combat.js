@@ -1043,6 +1043,9 @@ export function endTurn(battle) {
   battle.enemies.forEach(enemy => {
     if (!enemy.alive) return;
 
+    // ★ 卡提希娅风蚀效应：敌人回合开始时受到伤害（中断/跳过行动期间仍结算）
+    cartethyiaErosionTick(enemy, battle);
+
     // 破韧/残骸/弹反中断中跳过
     if (enemy.suppressed > 0) {
       battle.log.push({ type: 'mechanic', src: enemy.name, msg: `中断中（${enemy.suppressed} 回合），跳过行动` });
@@ -1062,9 +1065,6 @@ export function endTurn(battle) {
     }
 
     // ---- 特殊 pre-attack 效果 ----
-
-    // ★ 卡提希娅风蚀效应：敌人回合开始时受到伤害
-    cartethyiaErosionTick(enemy, battle);
 
     // 叹息古龙：电锯召唤 & 电锯攻击
     if (enemy.mechanic?.type === 'burn_team' && enemy.mechanic?.sawCycle) {

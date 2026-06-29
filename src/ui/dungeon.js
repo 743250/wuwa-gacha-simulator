@@ -4,6 +4,7 @@ import { DUNGEONS, WEEKLY_BOSS, parseEnemyStr, getWeeklyBossUsed, WEEKLY_BOSS_LI
 import { getCombatTeamNames } from '../battle/combat.js';
 import { ENEMIES, formatEnemyMechanic } from '../battle/enemies.js';
 import { ELEMENT_COLOR } from '../battle/elements.js';
+import { getSetById } from '../data/echoes.js';
 import './battle.js';
 
 WEEKLY_BOSS.forEach(b => {
@@ -21,11 +22,20 @@ const DROP_LABEL = {
 
 function formatDrops(drops) {
   if (!drops) return '';
-  return Object.entries(drops).map(([k, v]) => {
+  const parts = [];
+  for (const [k, v] of Object.entries(drops)) {
+    if (k === 'echo_set' || k === 'echo_count') continue;
     const d = DROP_LABEL[k];
-    if (!d) return `${k} ×${v}`;
-    return `<span style="color:${d.color}">${d.name} ×${v}</span>`;
-  }).join(' · ');
+    if (!d) continue;
+    parts.push(`<span style="color:${d.color}">${d.name} ×${v}</span>`);
+  }
+  if (drops.echo_set) {
+    const setIds = Array.isArray(drops.echo_set) ? drops.echo_set : [drops.echo_set];
+    const names = setIds.map(sid => getSetById(sid)?.name || sid).filter(Boolean);
+    const cnt = drops.echo_count || 1;
+    if (names.length) parts.push(`<span style="color:var(--accent)">声骸 ×${cnt}（${names.join(' / ')}）</span>`);
+  }
+  return parts.join(' · ');
 }
 
 function formatEnemies(enemyStrs) {
