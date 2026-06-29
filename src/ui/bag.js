@@ -3,7 +3,7 @@ import { S, $, msg } from '../state.js';
 import { usePotion, useAllPotions, POTIONS, buyStaminaWithAstrite } from '../daily/stamina.js';
 import { WEAPON_BOX_OPTIONS } from '../data/podcast-rewards.js';
 import { openModal, closeModal } from '../modal.js';
-import { generateEcho, levelUpEcho, levelUpEchoMax, recycleEcho, toggleEchoLock, unequipEcho, echoToNext, dataBankCostCap } from '../equip/echoActions.js';
+import { generateEcho, levelUpEcho, levelUpEchoMax, recycleEcho, toggleEchoLock, unequipEcho, echoToNext, dataBankCostCap, retuneEchoSubStat } from '../equip/echoActions.js';
 import { ECHO_CATALOG, getSetById, formatEchoStatValue, formatSetBonus } from '../data/echoes.js';
 import { totalExp } from '../equip/actions.js';
 
@@ -299,15 +299,19 @@ window.__bagEchoDetail = (id) => {
   if (!e) return;
   const set = getSetById(Array.isArray(e.set) ? e.set[0] : e.set);
   const subRows = (e.subStats && e.subStats.length
-    ? e.subStats.map(s => {
+    ? e.subStats.map((s, idx) => {
         if (s.unlocked === false) {
           return `<div style="display:flex;justify-content:space-between;font-size:11px;padding:2px 0;border-bottom:1px dashed var(--line);opacity:.5">
-            <span style="color:var(--dim)">??? · 未解锁（升至 LV ${Math.ceil((e.subStats.indexOf(s)+1)*5)} 解锁）</span>
+            <span style="color:var(--dim)">??? · 未解锁（升至 LV ${(idx+1)*5} 解锁）</span>
             <span style="color:var(--dim)">—</span></div>`;
         }
-        return `<div style="display:flex;justify-content:space-between;font-size:11px;padding:2px 0;border-bottom:1px dashed var(--line)">
+        const tuner = S.materials.echo_tuner || 0;
+        return `<div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;padding:2px 0;border-bottom:1px dashed var(--line)">
           <span style="color:var(--muted)">${s.label}</span>
-          <span style="color:var(--gold)">${formatEchoStatValue(s.key, s.value)}</span></div>`;
+          <span style="display:flex;align-items:center;gap:6px">
+            <span style="color:var(--gold)">${formatEchoStatValue(s.key, s.value)}</span>
+            <button class="mbtn" style="font-size:9px;padding:1px 5px" onclick="window.__bagEchoRetune(${e.id},${idx})" ${tuner < 1 ? 'disabled' : ''}>调谐</button>
+          </span></div>`;
       }).join('')
     : '<div style="color:var(--dim);font-size:11px">无副词条</div>');
   const canLevel = e.level < 25;
@@ -397,6 +401,18 @@ window.__bagEchoUnequip = (id) => {
   if (!e) return;
   const ok = unequipEcho(id);
   if (ok) msg(`已卸下 ${e.name}`, false);
+  renderBag();
+  window.__render();
+};
+
+window.__bagEchoRetune = (id, idx) => {
+  const e = S.echos.find(x => x.id === id);
+  if (!e) return;
+  const r = retuneEchoSubStat(id, idx);
+  if (!r.ok) { msg(r.err); return; }
+  msg(`${e.name} · ${r.label} 调谐：${formatEchoStatValue(e.subStats[idx].key, r.oldVal)} → ${formatEchoStatValue(e.subStats[idx].key, r.newVal)}`, false);
+  closeModal();
+  window.__bagEchoDetail(id);
   renderBag();
   window.__render();
 };

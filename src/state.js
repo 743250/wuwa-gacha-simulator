@@ -53,6 +53,8 @@ export const state0 = () => ({
     exp_super: 2,         // 特级共鸣促剂 = 20000 经验
     // 武器突破石（统一）
     weapon_book: 30,
+    // 声骸调谐器（重 roll 副词条数值）
+    echo_tuner: 5,
     // 结晶溶剂（高级药剂，无上限）
     crystal_solvent: 3,
     // 凝缩波片（普通药剂，官方上限 5）

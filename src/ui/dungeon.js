@@ -17,7 +17,8 @@ const DROP_LABEL = {
   exp_mid:   { name: '中级共鸣促剂', color: 'var(--accent)' },
   exp_low:   { name: '初级共鸣促剂', color: 'var(--green)' },
   weapon_book: { name: '武器突破石', color: 'var(--gold)' },
-  astrite:   { name: '星声', color: 'var(--gold)' }
+  astrite:   { name: '星声', color: 'var(--gold)' },
+  echo_tuner: { name: '声骸调谐器', color: 'var(--accent)' }
 };
 
 function formatDrops(drops) {

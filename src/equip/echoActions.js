@@ -213,23 +213,23 @@ export function levelUpEchoMax(echoId) {
   return count;
 }
 
-// 分解声骸：返还部分经验
+// 分解声骸：返还部分经验 + 调谐器
 // 已投入经验按 75% 返还（接近官方返还比例，向下取整到 20000 经验 / 1 特级促剂）
 // 未升级（无投入经验）时按 COST 档给基础经验瓶，避免分解空手而归
+// 调谐器返还：COST4=3 / COST3=2 / COST1=1，已升级声骸额外 +1（每 10 级）
 const ECHO_BASE_EXP_REFUND = { 1: { exp_mid: 1 }, 3: { exp_high: 1 }, 4: { exp_super: 1 } };
+const ECHO_TUNER_REFUND = { 1: 1, 3: 2, 4: 3 };
 export function recycleEcho(echoId) {
   const echo = S.echos.find(e => e.id === echoId);
   if (!echo) return false;
   if (echo.equippedBy) { msg('已装备的声骸无法分解'); return false; }
   if (echo.lock) { msg('已锁定的声骸无法分解'); return false; }
-  let refundMsg;
+  const parts = [];
   if (echo.exp > 0) {
     const refund = Math.floor(echo.exp * 0.8 / 20000);
     if (refund > 0) {
       S.materials.exp_super = (S.materials.exp_super || 0) + refund;
-      refundMsg = `返还 特级共鸣促剂 ×${refund}`;
-    } else {
-      refundMsg = '返还经验不足 1 个特级促剂，已分解';
+      parts.push(`特级共鸣促剂 ×${refund}`);
     }
   } else {
     const base = ECHO_BASE_EXP_REFUND[echo.cost] || { exp_low: 1 };
@@ -237,9 +237,16 @@ export function recycleEcho(echoId) {
       S.materials[k] = (S.materials[k] || 0) + n;
     }
     const label = base.exp_super ? '特级共鸣促剂' : base.exp_high ? '高级共鸣促剂' : base.exp_mid ? '中级共鸣促剂' : '初级共鸣促剂';
-    refundMsg = `返还 ${label} ×${Object.values(base)[0]}`;
+    parts.push(`${label} ×${Object.values(base)[0]}`);
   }
-  msg(refundMsg, false);
+  const tunerBase = ECHO_TUNER_REFUND[echo.cost] || 1;
+  const tunerBonus = Math.floor((echo.level || 1) / 10);
+  const tunerTotal = tunerBase + tunerBonus;
+  if (tunerTotal > 0) {
+    S.materials.echo_tuner = (S.materials.echo_tuner || 0) + tunerTotal;
+    parts.push(`声骸调谐器 ×${tunerTotal}`);
+  }
+  msg('返还 ' + parts.join(' · '), false);
   S.echos = S.echos.filter(e => e.id !== echoId);
   return true;
 }
@@ -250,4 +257,21 @@ export function toggleEchoLock(echoId) {
   if (!echo) return false;
   echo.lock = !echo.lock;
   return true;
+}
+
+// 调谐：重 roll 单个已解锁副词条的数值（不换词条类型）
+// 官方机制：消耗 1 调谐器，词条类型不变，数值在 min~max 范围内重新随机
+export function retuneEchoSubStat(echoId, subIdx) {
+  const echo = S.echos.find(e => e.id === echoId);
+  if (!echo) return { ok: false, err: '声骸不存在' };
+  const sub = echo.subStats?.[subIdx];
+  if (!sub) return { ok: false, err: '副词条不存在' };
+  if (sub.unlocked === false) return { ok: false, err: '副词条未解锁' };
+  if ((S.materials.echo_tuner || 0) < 1) return { ok: false, err: '调谐器不足' };
+  const def = SUB_STAT_POOL.find(s => s.key === sub.key);
+  if (!def) return { ok: false, err: '词条定义缺失' };
+  S.materials.echo_tuner -= 1;
+  const oldVal = sub.value;
+  sub.value = randomStatValue(def);
+  return { ok: true, oldVal, newVal: sub.value, label: sub.label };
 }

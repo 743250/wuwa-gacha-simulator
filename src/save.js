@@ -35,7 +35,7 @@ const MIGRATIONS = [
       delete s.materials.stamina_potion;
       delete s.materials.stamina_potion_big;
     }
-    ['skill_mat', 'echo_tube', 'echo_tuner', 'boss_mat', 'weekly_skill_mat'].forEach(k => {
+    ['skill_mat', 'echo_tube', 'boss_mat', 'weekly_skill_mat'].forEach(k => {
       delete s.materials[k];
     });
     if (s.roles) {

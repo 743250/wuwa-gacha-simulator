@@ -598,6 +598,7 @@ window.__bSettle = () => {
     if (drops.exp_mid) { S.materials.exp_mid += drops.exp_mid; rewardText.push(`中级共鸣促剂 ×${drops.exp_mid}`); }
     if (drops.exp_low) { S.materials.exp_low += drops.exp_low; rewardText.push(`初级共鸣促剂 ×${drops.exp_low}`); }
     if (drops.weapon_book) { S.materials.weapon_book += drops.weapon_book; rewardText.push(`武器石 ×${drops.weapon_book}`); }
+    if (drops.echo_tuner) { S.materials.echo_tuner += drops.echo_tuner; rewardText.push(`声骸调谐器 ×${drops.echo_tuner}`); }
     if (drops.astrite) { S.astrite += drops.astrite; rewardText.push(`星声 +${drops.astrite}`); }
     // 声骸掉落：按套装筛选并生成 echo（echo_set 支持数组 → 多套随机选一）
     if (drops.echo_set) {

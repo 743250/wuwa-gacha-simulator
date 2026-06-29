@@ -110,7 +110,7 @@ export const DUNGEONS = [
       { enemies: ['碧焰蜥×2', '咔嚓×2'], enemyScale: 0.95, weight: 2, tag: '焰蜥混编' },
       { enemies: ['鼓手', '滴答×2'], enemyScale: 0.9, weight: 2, tag: '湮灭乐师' }
     ],
-    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: ['frost','fire','thunder','wind','spectro','havoc','heal','energy','atk'], echo_count: 1 },
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: ['frost','fire','thunder','wind','spectro','havoc','heal','energy','atk'], echo_count: 1, echo_tuner: 1 },
     minLevel: 1, desc: '特级×1 高级×2 · 武器石×12 · 星声+10 · 声骸×1 · 60 波片'
   },
   // 60 波片 Lv70：BOSS + 精英组合
@@ -129,7 +129,7 @@ export const DUNGEONS = [
       { enemies: ['石壁护腕', '坚岩守护者'], enemyScale: 1.2, weight: 2, tag: '巨岩双守' },
       { enemies: ['紫羽鹭', '青羽鹭', '碧焰蜥'], enemyScale: 1.15, weight: 2, tag: '三色精英' }
     ],
-    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: ['havoc_new','coord','energy_new','lost_dream','glory_forge','sync_law'], echo_count: 1 },
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: ['havoc_new','coord','energy_new','lost_dream','glory_forge','sync_law'], echo_count: 1, echo_tuner: 2 },
     minLevel: 40, enemyScale: 1.6, desc: '特级×1 高级×2 · 武器石×12 · 星声+10 · 声骸×1 · 60 波片'
   },
 
@@ -146,7 +146,7 @@ export const DUNGEONS = [
       { enemies: ['飞廉之猩'], enemyScale: 1.0, weight: 3, tag: '气动残响' },
       { enemies: ['云闪之鳞'], enemyScale: 1.05, weight: 2, tag: '雷鳞护盾' }
     ],
-    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'cartethyia_wind', echo_count: 1 },
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'cartethyia_wind', echo_count: 1, echo_tuner: 1 },
     minLevel: 50, enemyScale: 1.5, desc: '特级×1 高级×2 · 武器石×12 · 星声+10 · +流云之举声骸 · 60 波片'
   },
   // 卡提希娅 ID 17「愿戴荣光之旅」
@@ -157,7 +157,7 @@ export const DUNGEONS = [
     encounterPool: [
       { enemies: ['飞廉之猩'], enemyScale: 1.0, weight: 3, tag: '气动残响' }
     ],
-    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'cartethyia_glory', echo_count: 1 },
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'cartethyia_glory', echo_count: 1, echo_tuner: 1 },
     minLevel: 50, enemyScale: 1.5, desc: '特级×1 高级×2 · 武器石×12 · 星声+10 · +荣光之旅声骸 · 60 波片'
   },
   // 珂莱塔 ID 10「凌冽决断之心」
@@ -169,7 +169,7 @@ export const DUNGEONS = [
       { enemies: ['聚械机偶'], enemyScale: 0.9, weight: 3, tag: '机械核心' },
       { enemies: ['辉萤军势'], enemyScale: 1.0, weight: 2, tag: '冷凝群体' }
     ],
-    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'carlotta_skill', echo_count: 1 },
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'carlotta_skill', echo_count: 1, echo_tuner: 1 },
     minLevel: 40, enemyScale: 1.45, desc: '特级×1 高级×2 · 武器石×12 · 星声+10 · +凌冽决断声骸 · 60 波片'
   },
   // 菲比 ID 11「此间永驻之光」
@@ -181,7 +181,7 @@ export const DUNGEONS = [
       { enemies: ['哀声鸷'], enemyScale: 1.0, weight: 3, tag: '衍射飞行' },
       { enemies: ['无冠者'], enemyScale: 1.1, weight: 2, tag: '湮灭护盾' }
     ],
-    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'phoebe_lightnoise', echo_count: 1 },
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'phoebe_lightnoise', echo_count: 1, echo_tuner: 1 },
     minLevel: 40, enemyScale: 1.45, desc: '特级×1 高级×2 · 武器石×12 · 星声+10 · +此间永驻声骸 · 60 波片'
   },
   // 布兰特 ID 18「奔狼燎原之焰」
@@ -193,7 +193,7 @@ export const DUNGEONS = [
       { enemies: ['燎照之骑'], enemyScale: 1.0, weight: 3, tag: '焰骑残响' },
       { enemies: ['巨龙·热熔'], enemyScale: 1.10, weight: 2, tag: '熔龙吐息' }
     ],
-    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'brant_burst', echo_count: 1 },
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'brant_burst', echo_count: 1, echo_tuner: 1 },
     minLevel: 40, enemyScale: 1.5, desc: '特级×1 高级×2 · 武器石×12 · 星声+10 · +奔狼燎原声骸 · 60 波片'
   },
   // 坎特蕾拉 ID 23「命理崩毁之弦」（3件套结构）
@@ -204,7 +204,7 @@ export const DUNGEONS = [
     encounterPool: [
       { enemies: ['无常凶鹭'], enemyScale: 1.0, weight: 3, tag: '湮灭飞行' }
     ],
-    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'cantarella_void', echo_count: 1 },
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'cantarella_void', echo_count: 1, echo_tuner: 1 },
     minLevel: 40, enemyScale: 1.45, desc: '特级×1 高级×2 · 武器石×12 · 星声+10 · +命理崩毁声骸 · 60 波片'
   },
   // 布兰特 ID 27「长路启航之星」 + ID 28「斑驳粉饰之沫」合用同区
@@ -216,7 +216,7 @@ export const DUNGEONS = [
       { enemies: ['燎照之骑'], enemyScale: 1.0, weight: 3, tag: '焰骑残响' }
     ],
     // 掉落长路启航 + 斑驳粉饰（两套同源布兰特，50/50 概率）
-    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: ['brant_path', 'brant_mottle'], echo_count: 1 },
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: ['brant_path', 'brant_mottle'], echo_count: 1, echo_tuner: 1 },
     minLevel: 40, enemyScale: 1.5, desc: '特级×1 高级×2 · 武器石×12 · 星声+10 · +长路启航/斑驳粉饰声骸 · 60 波片'
   },
   // 绯雪 ID 30「雪落无声之愿」
@@ -228,7 +228,7 @@ export const DUNGEONS = [
       { enemies: ['辉萤军势'], enemyScale: 1.0, weight: 3, tag: '冷凝群体' },
       { enemies: ['朔雷之鳞'], enemyScale: 0.95, weight: 2, tag: '导电突进' }
     ],
-    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'feixue_snow', echo_count: 1 },
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'feixue_snow', echo_count: 1, echo_tuner: 1 },
     minLevel: 50, enemyScale: 1.5, desc: '特级×1 高级×2 · 武器石×12 · 星声+10 · +雪落无声声骸 · 60 波片'
   },
   // 洛瑟菈 ID 31「剪心辑梦之影」
@@ -239,7 +239,7 @@ export const DUNGEONS = [
     encounterPool: [
       { enemies: ['无冠者'], enemyScale: 1.0, weight: 3, tag: '湮灭护盾' }
     ],
-    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'lumera_chord', echo_count: 1 },
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'lumera_chord', echo_count: 1, echo_tuner: 1 },
     minLevel: 50, enemyScale: 1.5, desc: '特级×1 高级×2 · 武器石×12 · 星声+10 · +剪心辑梦声骸 · 60 波片'
   },
 

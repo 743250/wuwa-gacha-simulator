@@ -122,7 +122,7 @@ describe('state', () => {
     });
 
     it('materials object does not contain deprecated keys', () => {
-      const deprecated = ['skill_mat', 'echo_tube', 'echo_tuner', 'boss_mat', 'weekly_skill_mat'];
+      const deprecated = ['skill_mat', 'echo_tube', 'boss_mat', 'weekly_skill_mat'];
       deprecated.forEach(key => {
         expect(s.materials[key]).toBeUndefined();
       });
