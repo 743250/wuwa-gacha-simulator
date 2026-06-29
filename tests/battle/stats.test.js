@@ -104,7 +104,7 @@ describe('battle/stats', () => {
     it('activates 2-piece set bonus when 2 echoes of same set equipped', () => {
       const role = '忌炎';
       S.roles[role].equipEchoes = [null, null, null, null, null];
-      const c1 = echoes.ECHO_CATALOG.filter(e => e.cost === 1 && e.set === 'fire');
+      const c1 = echoes.ECHO_CATALOG.filter(e => e.cost === 1 && (Array.isArray(e.set) ? e.set[0] === 'fire' : e.set === 'fire'));
       const e1 = echoActions.generateEcho(c1[0].id);
       const e2 = echoActions.generateEcho(c1[1].id);
       echoActions.equipEcho(role, 0, e1.id);

@@ -110,7 +110,7 @@ export const DUNGEONS = [
       { enemies: ['碧焰蜥×2', '咔嚓×2'], enemyScale: 0.95, weight: 2, tag: '焰蜥混编' },
       { enemies: ['鼓手', '滴答×2'], enemyScale: 0.9, weight: 2, tag: '湮灭乐师' }
     ],
-    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: ['frost','fire','thunder','wind','spectro','havoc','heal','energy','atk','normal_atk'], echo_count: 1 },
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: ['frost','fire','thunder','wind','spectro','havoc','heal','energy','atk'], echo_count: 1 },
     minLevel: 1, desc: '特级×1 高级×2 · 武器石×12 · 星声+10 · 声骸×1 · 60 波片'
   },
   // 60 波片 Lv70：BOSS + 精英组合
@@ -129,7 +129,7 @@ export const DUNGEONS = [
       { enemies: ['石壁护腕', '坚岩守护者'], enemyScale: 1.2, weight: 2, tag: '巨岩双守' },
       { enemies: ['紫羽鹭', '青羽鹭', '碧焰蜥'], enemyScale: 1.15, weight: 2, tag: '三色精英' }
     ],
-    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: ['frost_new','fire_new','thunder_new','wind_new','spectro_new','havoc_new','coord','energy_new'], echo_count: 1 },
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: ['havoc_new','coord','energy_new','lost_dream','glory_forge','sync_law'], echo_count: 1 },
     minLevel: 40, enemyScale: 1.6, desc: '特级×1 高级×2 · 武器石×12 · 星声+10 · 声骸×1 · 60 波片'
   },
 

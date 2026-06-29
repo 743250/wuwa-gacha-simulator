@@ -185,7 +185,7 @@ export function renderBag() {
       const color = set?.element ? ({'热熔':'#ff8c5e','冷凝':'#7bd6ff','导电':'#b58cff','气动':'#8de6a6','衍射':'#fff0b0','湮灭':'#c39bff'}[set.element] || '#fff') : '#999';
       const lockIcon = e.lock ? '🔒' : '';
       const eqTag = e.equippedBy ? `<div style="position:absolute;top:3px;left:4px;font-size:8px;color:var(--green);font-weight:700">装:${e.equippedBy}</div>` : '';
-      html += `<div class="echo-card" style="position:relative;border:1px solid ${color};border-radius:8px;padding:6px 5px;background:rgba(255,255,255,.02);${e.lock ? 'box-shadow:0 0 8px rgba(245,207,107,.25) inset' : ''}">
+      html += `<div class="echo-card" onclick="window.__bagEchoDetail(${e.id})" style="cursor:pointer;position:relative;border:1px solid ${color};border-radius:8px;padding:6px 5px;background:rgba(255,255,255,.02);${e.lock ? 'box-shadow:0 0 8px rgba(245,207,107,.25) inset' : ''}">
         ${eqTag}
         <div style="position:absolute;top:3px;right:4px;font-size:9px;color:var(--gold)">${lockIcon}C${e.cost}</div>
         <div style="font-size:11px;font-weight:700;color:${color};text-align:center;margin-top:10px;word-break:break-all;line-height:1.1">${e.name}</div>
@@ -193,13 +193,10 @@ export function renderBag() {
         <div style="font-size:8px;color:var(--gold);text-align:center;margin-top:2px">${e.mainStat?.label || ''}</div>
         <div style="font-size:8px;color:var(--gold);text-align:center">${e.mainStat ? formatEchoStatValue(e.mainStat.key, e.mainStat.value) : ''}</div>
         <div style="font-size:8px;color:${color};text-align:center;margin-top:1px;letter-spacing:.3px">${set?.name || ''}</div>
-        <div style="display:flex;gap:2px;margin-top:4px;flex-wrap:wrap;justify-content:center">
-          <button class="mbtn" style="font-size:8px;padding:1px 4px" onclick="window.__bagEchoDetail(${e.id})">详</button>
-          <button class="mbtn" style="font-size:8px;padding:1px 4px" onclick="window.__bagEchoLevelUp(${e.id})">升</button>
-          <button class="mbtn gold" style="font-size:8px;padding:1px 4px" onclick="window.__bagEchoLevelUpMax(${e.id})">满</button>
-          ${!e.lock ? `<button class="mbtn" style="font-size:8px;padding:1px 4px" onclick="window.__bagEchoRecycle(${e.id})">分</button>` : ''}
-          <button class="mbtn" style="font-size:8px;padding:1px 4px" onclick="window.__bagEchoToggleLock(${e.id})">${e.lock?'锁':'开'}</button>
-          ${e.equippedBy ? `<button class="mbtn" style="font-size:8px;padding:1px 4px" onclick="window.__bagEchoUnequip(${e.id})">卸</button>` : ''}
+        <div style="display:flex;gap:3px;margin-top:5px;flex-wrap:wrap;justify-content:center" onclick="event.stopPropagation()">
+          <button class="mbtn" style="font-size:9px;padding:2px 6px" onclick="window.__bagEchoLevelUp(${e.id})">升级</button>
+          <button class="mbtn gold" style="font-size:9px;padding:2px 6px" onclick="window.__bagEchoLevelUpMax(${e.id})">升满</button>
+          <button class="mbtn" style="font-size:9px;padding:2px 6px" onclick="window.__bagEchoToggleLock(${e.id})">${e.lock?'解锁':'锁定'}</button>
         </div>
       </div>`;
     });
@@ -336,6 +333,11 @@ ${set ? `<div style="margin-top:8px;padding-top:6px;border-top:1px dashed var(--
         { label: `升级 (${nextCost.toLocaleString()} exp)`, cls: 'gold', fn: () => { window.__bagEchoLevelUp(id); } },
         { label: '一键升满', cls: '', fn: () => { window.__bagEchoLevelUpMax(id); } }
       ] : []),
+      { label: e.lock ? '解锁' : '锁定', cls: '', fn: () => { window.__bagEchoToggleLock(id); } },
+      ...(e.equippedBy ? [{ label: '卸下', cls: '', fn: () => { window.__bagEchoUnequip(id); } }] : []),
+      ...(!e.lock && !e.equippedBy ? [{ label: '分解', cls: '', fn: () => {
+        if (confirm(`确认分解 ${e.name}（LV ${e.level}）？\n分解返还 80% 累计经验为特级共鸣促剂。`)) window.__bagEchoRecycle(id);
+      } }] : []),
       { label: '关闭', cls: '', fn: () => {} }
     ]
   });

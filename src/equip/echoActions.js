@@ -17,7 +17,7 @@ export function dataBankCostCap(level) {
 function rand(min, max) { return Math.random() * (max - min) + min; }
 
 // 副词条数值随机：浮点型（暴击/攻击%/元素伤等）原样保留精度，固定值型（攻击固定/生命固定等）取整
-const FLOAT_STAT_KEYS = new Set(['crate', 'cdmg', 'atk_pct', 'hp_pct', 'def_pct', 'energy_regen', 'normal_atk_dmg', 'skill_dmg', 'burst_dmg', 'heavy_dmg']);
+const FLOAT_STAT_KEYS = new Set(['crate', 'cdmg', 'atk_pct', 'hp_pct', 'def_pct', 'resonance_efficiency', 'normal_atk_dmg', 'skill_dmg', 'burst_dmg', 'heavy_dmg']);
 function randomStatValue(def) {
   const v = rand(def.min, def.max);
   return FLOAT_STAT_KEYS.has(def.key) ? Math.round(v * 1000) / 1000 : Math.round(v);

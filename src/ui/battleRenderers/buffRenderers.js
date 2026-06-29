@@ -357,7 +357,7 @@ function describeEchoSetBonus(sb) {
     case 'elem_dmg':       return `${sb.elem}元素伤害 +${pct(v)}。`;
     case 'elem_dmg_cond': return `${sb.elem}元素伤害 +${pct(v)}（触发条件后）。`;
     case 'heal_bonus':    return `治疗加成 +${pct(v)}。`;
-    case 'energy_regen':  return `共鸣解放伤害 +${pct(v)}。`;
+    case 'resonance_efficiency':  return `共鸣解放伤害 +${pct(v)}。`;
     case 'atk_pct':       return `攻击力 +${pct(v)}。`;
     case 'atk_pct_stack': return `攻击力 +${pct(v)}（每层，最大 2 层）。`;
     case 'atk_team_flat': return `全队攻击力 +${v}。`;

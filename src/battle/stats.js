@@ -138,7 +138,7 @@ function mainStatToBonus(m) {
     hp_pct: { type: 'hp' },
     def_pct: { type: 'def_pct' },
     heal_bonus: { type: 'heal' },
-    energy_regen: { type: 'energy_regen', key: 'energy_regen' },
+    resonance_efficiency: { type: 'resonance_efficiency', key: 'resonance_efficiency' },
   };
   const elemMap = {
     elem_dmg_fire: '热熔', elem_dmg_thunder: '导电', elem_dmg_frost: '冷凝',
@@ -164,7 +164,7 @@ function subStatToBonus(s) {
   if (s.key === 'atk_pct') return { type: 'atk_pct', value: s.value, source: '声骸副词条' };
   if (s.key === 'hp_pct') return { type: 'hp', value: s.value, source: '声骸副词条' };
   if (s.key === 'def_pct') return { type: 'def_pct', value: s.value, source: '声骸副词条' };
-  if (s.key === 'energy_regen') return { type: 'energy_regen', value: s.value, source: '声骸副词条', key: 'energy_regen' };
+  if (s.key === 'resonance_efficiency') return { type: 'resonance_efficiency', value: s.value, source: '声骸副词条', key: 'resonance_efficiency' };
   if (s.key === 'normal_atk_dmg') return { type: 'normal_pct', value: s.value, source: '声骸副词条' };
   if (s.key === 'skill_dmg') return { type: 'skill_pct', value: s.value, source: '声骸副词条' };
   if (s.key === 'burst_dmg') return { type: 'burst_pct', value: s.value, source: '声骸副词条' };
@@ -179,7 +179,7 @@ function setBonusToBonus(sb) {
     elem_dmg: () => ({ type: 'elem_dmg', element: sb.elem, value: sb.value, source: `声骸套装·${sb.name}` }),
     elem_dmg_cond: () => ({ type: 'elem_dmg', element: sb.elem, value: sb.value * 0.5, source: `声骸套装·${sb.name}(预估)` }),
     heal_bonus: () => ({ type: 'heal', value: sb.value, source: `声骸套装·${sb.name}` }),
-    energy_regen: () => ({ type: 'energy_regen', value: sb.value, key: 'energy_regen', source: `声骸套装·${sb.name}` }),
+    resonance_efficiency: () => ({ type: 'resonance_efficiency', value: sb.value, key: 'resonance_efficiency', source: `声骸套装·${sb.name}` }),
     atk_pct: () => ({ type: 'atk_pct', value: sb.value, source: `声骸套装·${sb.name}` }),
     atk_pct_stack: () => ({ type: 'atk_pct', value: sb.value * 2, source: `声骸套装·${sb.name}(预估2层)` }),
     atk_team_flat: () => ({ type: 'team_atk', value: sb.value, source: `声骸套装·${sb.name}` }),
@@ -232,7 +232,7 @@ function applyBonus(stats, b) {
     case 'atk_flat':     stats.atk += b.value; break;
     case 'hp_flat':       stats.hp += b.value; break;
     case 'def_flat':      stats.def += b.value; break;
-    case 'energy_regen':  stats.energyRegen = (stats.energyRegen || 0) + b.value; break;
+    case 'resonance_efficiency':  stats.resonanceEfficiency = (stats.resonanceEfficiency || 0) + b.value; break;
   }
 }
 

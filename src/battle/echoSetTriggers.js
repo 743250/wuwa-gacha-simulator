@@ -27,8 +27,6 @@ const COND_TRIGGER_MAP = [
   { match: /普攻或重击命中.*可叠3层/, event: 'normal_or_heavy_hit', elem: '冷凝', stackable: true, maxStacks: 3, setId: 'frost' },
   // 雷套 thunder 5件：重击/技能命中 可叠2层 各持续15秒
   { match: /重击\/技能命中.*可叠2层/, event: 'heavy_or_skill_hit', elem: '导电', stackable: true, maxStacks: 2, setId: 'thunder' },
-  // 2.0 凝冽寒渊 frost_new 5件：释放技能后冷凝伤害+30%
-  { match: /释放技能后冷凝伤害/, event: 'skill_hit', elem: '冷凝', stackable: false, setId: 'frost_new' },
 ];
 
 /**

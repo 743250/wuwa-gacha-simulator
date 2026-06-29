@@ -44,7 +44,7 @@ describe('data/echoes', () => {
         expect(s.name).toBeTruthy();
         expect(s.bonus5).toBeTruthy();
         expect(s.bonus5.type).toBeTruthy();
-        if (s.tier !== 3) {
+        if (s.tier !== 3 && s.tier !== 1) {
           expect(s.bonus2).toBeTruthy();
           expect(s.bonus2.type).toBeTruthy();
         }
@@ -116,8 +116,8 @@ describe('data/echoes', () => {
       const fireEchoes = getEchoesBySet('fire');
       expect(fireEchoes.length).toBeGreaterThan(0);
       for (const e of fireEchoes) {
-        const sid = Array.isArray(e.set) ? e.set[0] : e.set;
-        expect(sid).toBe('fire');
+        const inSet = Array.isArray(e.set) ? e.set.includes('fire') : e.set === 'fire';
+        expect(inSet).toBe(true);
       }
     });
 
