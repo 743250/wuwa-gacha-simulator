@@ -17,6 +17,49 @@ const HANDLE_KEY = 'wuwa-fs-handle';
 const FILE_NAME = 'wuwa-save.json';
 let saveTimer = null;
 
+// ============ 存档版本 + 迁移链 ============
+// 当前存档版本号。每次改动 S 的结构（加/删字段、改字段含义）必须 +1 并在 MIGRATIONS 里加一条。
+// 老存档缺少 _v 时按 0 处理，逐级跑到当前版本。
+const SAVE_VERSION = 2;
+
+// 迁移函数：from → to，每个函数把存档从版本 N 升级到 N+1。
+// 只动结构/字段名/数值含义，不要碰业务逻辑。
+const MIGRATIONS = [
+  // 0 → 1：体力药剂统一为 crystal_solvent；删除废弃材料；今汐元素修正
+  (s) => {
+    if (!s.materials) return;
+    const oldSmall = s.materials.stamina_potion || 0;
+    const oldBig = s.materials.stamina_potion_big || 0;
+    if (oldSmall || oldBig) {
+      s.materials.crystal_solvent = (s.materials.crystal_solvent || 0) + oldSmall + oldBig * 2;
+      delete s.materials.stamina_potion;
+      delete s.materials.stamina_potion_big;
+    }
+    ['skill_mat', 'echo_tube', 'echo_tuner', 'boss_mat', 'weekly_skill_mat'].forEach(k => {
+      delete s.materials[k];
+    });
+    if (s.roles) {
+      Object.values(s.roles).forEach(r => {
+        if (r && r.n === '今汐' && r.element === '湮灭') r.element = '衍射';
+      });
+    }
+  },
+  // 1 → 2：声骸副词条引入 unlocked 字段。老存档的副词条默认按已解锁处理（undefined !== false），
+  // 不强制改写——echoContrib 用 `s.unlocked === false` 判定，undefined 视为已解锁。
+  // 此迁移为占位，记录"为何不强制改"——见 docs/decisions/0001-echo-substats-5-slots.md
+  (s) => {
+    if (Array.isArray(s.echos)) {
+      s.echos.forEach(e => {
+        if (e && Array.isArray(e.subStats)) {
+          e.subStats.forEach(sub => {
+            if (sub && sub.unlocked === undefined) sub.unlocked = true;
+          });
+        }
+      });
+    }
+  },
+];
+
 // 文件句柄（启动时从 IndexedDB 恢复）
 let fileHandle = null;
 let fsSupported = typeof window !== 'undefined' && 'showSaveFilePicker' in window;
@@ -141,6 +184,7 @@ export async function saveStateNow() {
 }
 
 async function doSave() {
+  S._v = SAVE_VERSION;
   const jsonStr = JSON.stringify(S, null, 2);
   // 并行写两份
   const fsPromise = fsSupported ? writeToFS(jsonStr) : Promise.resolve(false);
@@ -177,13 +221,22 @@ function applyLoadedState(raw) {
     const data = JSON.parse(raw);
     const fresh = state0();
     const merged = deepMerge(fresh, data);
-    migrateLegacy(merged);
+    runMigrations(merged);
     Object.assign(S, merged);
     return true;
   } catch (e) {
     console.warn('存档损坏,使用默认状态:', e);
     return false;
   }
+}
+
+// 按版本号跑迁移链：从存档自带 _v（无则 0）跑到 SAVE_VERSION
+function runMigrations(s) {
+  const fromV = Number(s._v) || 0;
+  for (let v = fromV; v < SAVE_VERSION && v < MIGRATIONS.length; v++) {
+    MIGRATIONS[v](s);
+  }
+  s._v = SAVE_VERSION;
 }
 
 function deepMerge(target, source) {
@@ -205,22 +258,9 @@ function deepMerge(target, source) {
 }
 
 function migrateLegacy(s) {
-  if (!s.materials) return;
-  const oldSmall = s.materials.stamina_potion || 0;
-  const oldBig = s.materials.stamina_potion_big || 0;
-  if (oldSmall || oldBig) {
-    s.materials.crystal_solvent = (s.materials.crystal_solvent || 0) + oldSmall + oldBig * 2;
-    delete s.materials.stamina_potion;
-    delete s.materials.stamina_potion_big;
-  }
-  ['skill_mat', 'echo_tube', 'echo_tuner', 'boss_mat', 'weekly_skill_mat'].forEach(k => {
-    delete s.materials[k];
-  });
-  if (s.roles) {
-    Object.values(s.roles).forEach(r => {
-      if (r && r.n === '今汐' && r.element === '湮灭') r.element = '衍射';
-    });
-  }
+  // 旧函数保留为 no-op，逻辑已迁到 MIGRATIONS[0]
+  // 调用方（import）已切换到 runMigrations
+  void s;
 }
 
 export function clearSave() {
@@ -247,7 +287,7 @@ export function importSave(file, onDone) {
       const data = JSON.parse(e.target.result);
       const fresh = state0();
       const merged = deepMerge(fresh, data);
-      migrateLegacy(merged);
+      runMigrations(merged);
       Object.assign(S, merged);
       await saveStateNow();
       onDone(true);
