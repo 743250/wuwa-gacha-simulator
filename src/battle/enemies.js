@@ -123,13 +123,13 @@ export const ENEMIES = {
     mechanic: { type: 'none' },
     description: '石壁护腕,精英级物理残象,高防岩石护腕战士'
   },
-  '紫羽鹭': {
-    hp: 64601, atk: 10051, def: 1512, element: '导电', class: 'Elite',
+  '紫羽鹭': { // encore.moe ID: 320000020 (Lv90)
+    hp: 172017, atk: 5026, def: 800, element: '导电', class: 'Elite',
     resist: res('导电'), mechanic: { type: 'none' },
     description: '紫羽鹭,精英级导电残象,紫色羽翼雷电苍鹭'
   },
-  '青羽鹭': {
-    hp: 64601, atk: 10051, def: 1512, element: '气动', class: 'Elite',
+  '青羽鹭': { // encore.moe ID: 320000030 (Lv90)
+    hp: 172017, atk: 5026, def: 800, element: '气动', class: 'Elite',
     resist: res('气动'), mechanic: { type: 'none' },
     description: '青羽鹭,精英级气动残象,青色羽翼疾风苍鹭'
   },
@@ -159,8 +159,8 @@ export const ENEMIES = {
   // ================================================================
 
   // 01 燎照之骑 · 灼伤标记 + 双阶段
-  '燎照之骑': {
-    hp: 468488, atk: 8912, def: 1512, element: '热熔', class: 'Overlord',
+  '燎照之骑': { // encore.moe ID: 330000020 (Lv90)
+    hp: 833910, atk: 4456, def: 800, element: '热熔', class: 'Overlord',
     resist: res('热熔'),
     mechanic: {
       type: 'inferno_mark',
@@ -174,8 +174,8 @@ export const ENEMIES = {
   },
 
   // 02 飞廉之猩 · 抓投 + 冲击波 + 狂暴
-  '飞廉之猩': {
-    hp: 453257, atk: 11592, def: 1512, element: '气动', class: 'Overlord',
+  '飞廉之猩': { // encore.moe ID: 330000050 (Lv90)
+    hp: 806799, atk: 5796, def: 800, element: '气动', class: 'Overlord',
     resist: res('气动'),
     mechanic: {
       type: 'enrage',
@@ -191,8 +191,8 @@ export const ENEMIES = {
   },
 
   // 03 朔雷之鳞 · 雷霆墙（锁切换）+ 穿甲
-  '朔雷之鳞': {
-    hp: 459297, atk: 13200, def: 1512, element: '导电', class: 'Overlord',
+  '朔雷之鳞': { // encore.moe ID: 330000010 (Lv90)
+    hp: 657686, atk: 5026, def: 800, element: '导电', class: 'Overlord',
     resist: res('导电'),
     mechanic: {
       type: 'thunder_chain',
@@ -205,8 +205,8 @@ export const ENEMIES = {
   },
 
   // 04 云闪之鳞 · 蓄力激光 + 双段攻击
-  '云闪之鳞': {
-    hp: 369486, atk: 10051, def: 1512, element: '导电', class: 'Overlord',
+  '云闪之鳞': { // encore.moe ID: 340000080 (Lv90)
+    hp: 817550, atk: 6600, def: 800, element: '导电', class: 'Overlord',
     resist: res('导电'),
     mechanic: {
       type: 'thunder_chain',
@@ -222,8 +222,8 @@ export const ENEMIES = {
   },
 
   // 05 哀声鸷 · 追踪弹 + 弹反俯冲
-  '哀声鸷': {
-    hp: 435137, atk: 10386, def: 1512, element: '衍射', class: 'Overlord',
+  '哀声鸷': { // encore.moe ID: 330000060 (Lv90)
+    hp: 774546, atk: 5193, def: 800, element: '衍射', class: 'Overlord',
     resist: res('衍射'),
     mechanic: {
       type: 'parry_dive',
@@ -237,8 +237,8 @@ export const ENEMIES = {
   },
 
   // 06 无常凶鹭 · 湮灭之蚀 DoT + 弹反俯冲
-  '无常凶鹭': {
-    hp: 419906, atk: 10721, def: 1512, element: '湮灭', class: 'Overlord',
+  '无常凶鹭': { // encore.moe ID: 330000030 (Lv90)
+    hp: 747434, atk: 5361, def: 800, element: '湮灭', class: 'Overlord',
     resist: res('湮灭'),
     mechanic: {
       type: 'havoc_erosion',
@@ -253,8 +253,8 @@ export const ENEMIES = {
   },
 
   // 07 辉萤军势 · 冰翼盾（强制削韧破盾）+ 冻结累积
-  '辉萤军势': {
-    hp: 460348, atk: 13669, def: 1512, element: '冷凝', class: 'Overlord',
+  '辉萤军势': { // encore.moe ID: 330000040 (Lv90)
+    hp: 819420, atk: 6835, def: 800, element: '冷凝', class: 'Overlord',
     resist: res('冷凝'),
     mechanic: {
       type: 'aoe_freeze',
@@ -269,8 +269,8 @@ export const ENEMIES = {
   },
 
   // 08 异构武装 · 双阶段（地/空）+ 冰翼盾
-  '异构武装': {
-    hp: 584823, atk: 13401, def: 1512, element: '冷凝', class: 'Overlord',
+  '异构武装': { // encore.moe ID: 330000120 (Lv90)
+    hp: 1040986, atk: 6701, def: 800, element: '冷凝', class: 'Overlord',
     resist: res('冷凝'),
     mechanic: {
       type: 'shield',
@@ -288,8 +288,8 @@ export const ENEMIES = {
   },
 
   // 09 无归的谬误 · 延迟爆破 + Overclock
-  '无归的谬误': {
-    hp: 435137, atk: 8375, def: 1512, element: '衍射', class: 'Overlord',
+  '无归的谬误': { // encore.moe ID: 340000230 (Lv90)
+    hp: 774546, atk: 4188, def: 800, element: '衍射', class: 'Overlord',
     resist: res('衍射'),
     mechanic: {
       type: 'data_lock',
@@ -305,8 +305,8 @@ export const ENEMIES = {
   },
 
   // 10 叹息古龙 · 多技能组合 + 电锯召唤
-  '叹息古龙': {
-    hp: 535716, atk: 11726, def: 1512, element: '热熔', class: 'Overlord',
+  '叹息古龙': { // encore.moe ID: 330000131 (Lv90)
+    hp: 953575, atk: 5863, def: 800, element: '热熔', class: 'Overlord',
     resist: res('热熔'),
     mechanic: {
       type: 'burn_team',
@@ -324,8 +324,8 @@ export const ENEMIES = {
   },
 
   // 11 鸣钟之龟 · 反击姿态 + 高防
-  '鸣钟之龟': {
-    hp: 423058, atk: 8040, def: 2268, element: '冷凝', class: 'Calamity',
+  '鸣钟之龟': { // encore.moe ID: 340000020 (Lv90)
+    hp: 753044, atk: 4020, def: 800, element: '冷凝', class: 'Calamity',
     resist: res('冷凝'),   // DEF ×1.5（高防）
     mechanic: {
       type: 'turtle_reflect',
@@ -340,8 +340,8 @@ export const ENEMIES = {
   },
 
   // 12 聚械机偶 · 残骸眩晕 + 风壁
-  '聚械机偶': {
-    hp: 460348, atk: 12999, def: 1512, element: '导电', class: 'Overlord',
+  '聚械机偶': { // encore.moe ID: 340000060 (Lv90)
+    hp: 819420, atk: 6500, def: 800, element: '导电', class: 'Overlord',
     resist: res('导电'),
     mechanic: {
       type: 'debris_stun',
@@ -356,8 +356,8 @@ export const ENEMIES = {
   },
 
   // 13 罗蕾莱 · 自疗绿泡 + 不可弹反
-  '罗蕾莱': {
-    hp: 558562, atk: 10386, def: 1512, element: '湮灭', class: 'Overlord',
+  '罗蕾莱': { // encore.moe ID: 330000111 (Lv90)
+    hp: 994242, atk: 5193, def: 800, element: '湮灭', class: 'Overlord',
     resist: res('湮灭'),
     mechanic: {
       type: 'bubble_heal',
@@ -373,8 +373,8 @@ export const ENEMIES = {
   },
 
   // 14 无妄者 · 三阶段 + 武器切换
-  '无妄者': {
-    hp: 564602, atk: 11056, def: 1512, element: '湮灭', class: 'Calamity',
+  '无妄者': { // encore.moe ID: 340000070 (Lv90)
+    hp: 1004993, atk: 5528, def: 800, element: '湮灭', class: 'Calamity',
     resist: res('湮灭'),
     mechanic: {
       type: 'dreamless',
@@ -400,8 +400,8 @@ export const ENEMIES = {
   },
 
   // 15 海之女 · 飞空无敌 + 延迟水洼
-  '海之女': {
-    hp: 535716, atk: 10386, def: 1512, element: '气动', class: 'Calamity',
+  '海之女': { // encore.moe ID: 340000181 (Lv90)
+    hp: 953575, atk: 5193, def: 800, element: '气动', class: 'Calamity',
     resist: res('气动'),
     mechanic: {
       type: 'flight_tide',
@@ -417,8 +417,8 @@ export const ENEMIES = {
   },
 
   // 16 荣耀狮像 · 浮空剑双伤害源 + 弹反推刺
-  '荣耀狮像': {
-    hp: 535716, atk: 11726, def: 1512, element: '热熔', class: 'Calamity',
+  '荣耀狮像': { // encore.moe ID: 340000141 (Lv90)
+    hp: 953575, atk: 5863, def: 800, element: '热熔', class: 'Calamity',
     resist: res('热熔'),
     mechanic: {
       type: 'blade_turrets',
@@ -434,8 +434,8 @@ export const ENEMIES = {
   },
 
   // 17 梦魇亚当·重锤 · 溅射 + 降防 + 狂暴
-  '梦魇亚当·重锤': {
-    hp: 500000, atk: 11000, def: 1512, element: '物理', class: 'Overlord',
+  '梦魇亚当·重锤': { // encore.moe ID: 340000290 (Lv90)
+    hp: 1040986, atk: 5026, def: 800, element: '物理', class: 'Overlord',
     resist: { 物理: 0.40, 热熔: 0.10, 湮灭: 0.10, 气动: 0.10, 冷凝: 0.10, 衍射: 0.10, 导电: 0.10 },
     mechanic: {
       type: 'enrage',
@@ -453,8 +453,8 @@ export const ENEMIES = {
   },
 
   // ===== 剧情 / 周本 BOSS（保留）=====
-  '角': {
-    hp: 60000, atk: 1100, def: 1650, element: '衍射', class: 'Calamity',
+  '角': { // encore.moe ID: 340000090 (Lv90)
+    hp: 962924, atk: 3551, def: 800, element: '衍射', class: 'Calamity',
     resist: res('衍射'),
     mechanic: { type: 'minion', cycle: 5, hp: 8000, atk: 600 },
     description: '今汐相关岁主，每 5 回合召唤分身'
@@ -471,20 +471,20 @@ export const ENEMIES = {
     mechanic: { type: 'enrage', threshold: 0.4, atkBonus: 0.7 },
     description: '伤痕的湮灭变体，HP 低于 40% 狂暴'
   },
-  '鸣式·利维亚坦': {
-    hp: 75000, atk: 1250, def: 1700, element: '湮灭', class: 'Calamity',
+  '鸣式·利维亚坦': { // encore.moe ID: 340000200 (Lv90)
+    hp: 1402316, atk: 2513, def: 800, element: '湮灭', class: 'Calamity',
     resist: res('湮灭'),
     mechanic: { type: 'minion', cycle: 4, hp: 10000, atk: 700 },
     description: '后续版本周本 BOSS，每 4 回合召唤鸣式残响'
   },
-  '无冠者': {
-    hp: 25000, atk: 820, def: 1480, element: '湮灭', class: 'Calamity',
+  '无冠者': { // encore.moe ID: 340000010 (Lv90)
+    hp: 322533, atk: 2010, def: 800, element: '湮灭', class: 'Calamity',
     resist: res('湮灭'),
     mechanic: { type: 'enrage', threshold: 0.5, atkBonus: 0.3 },
     description: '剧情 BOSS，HP 低于 50% 狂暴'
   },
-  '赫卡忒': {
-    hp: 45000, atk: 1000, def: 1650, element: '湮灭', class: 'Calamity',
+  '赫卡忒': { // encore.moe ID: 340000190 (Lv90)
+    hp: 993307, atk: 5863, def: 800, element: '湮灭', class: 'Calamity',
     resist: res('湮灭'),
     mechanic: { type: 'minion', cycle: 4, hp: 6000, atk: 500 },
     description: '后期 BOSS，每 4 回合召唤幻象'
