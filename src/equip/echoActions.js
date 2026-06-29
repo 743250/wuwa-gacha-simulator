@@ -215,17 +215,33 @@ export function levelUpEchoMax(echoId) {
   return count;
 }
 
-// 分解声骸：返回部分经验
+// 分解声骸：返还部分经验
+// 已投入经验按 75% 返还（接近官方返还比例，向下取整到 20000 经验 / 1 特级促剂）
+// 未升级（无投入经验）时按 COST 档给基础经验瓶，避免分解空手而归
+const ECHO_BASE_EXP_REFUND = { 1: { exp_mid: 1 }, 3: { exp_high: 1 }, 4: { exp_super: 1 } };
 export function recycleEcho(echoId) {
   const echo = S.echos.find(e => e.id === echoId);
   if (!echo) return false;
   if (echo.equippedBy) { msg('已装备的声骸无法分解'); return false; }
   if (echo.lock) { msg('已锁定的声骸无法分解'); return false; }
-  // 回收经验 = 已投入经验 × 0.8，转化为特级共鸣促剂（每 20000 = 1 个）
-  const refund = Math.floor(echo.exp * 0.8 / 20000);
-  if (refund > 0) {
-    S.materials.exp_super = (S.materials.exp_super || 0) + refund;
+  let refundMsg;
+  if (echo.exp > 0) {
+    const refund = Math.floor(echo.exp * 0.8 / 20000);
+    if (refund > 0) {
+      S.materials.exp_super = (S.materials.exp_super || 0) + refund;
+      refundMsg = `返还 特级共鸣促剂 ×${refund}`;
+    } else {
+      refundMsg = '返还经验不足 1 个特级促剂，已分解';
+    }
+  } else {
+    const base = ECHO_BASE_EXP_REFUND[echo.cost] || { exp_low: 1 };
+    for (const [k, n] of Object.entries(base)) {
+      S.materials[k] = (S.materials[k] || 0) + n;
+    }
+    const label = base.exp_super ? '特级共鸣促剂' : base.exp_high ? '高级共鸣促剂' : base.exp_mid ? '中级共鸣促剂' : '初级共鸣促剂';
+    refundMsg = `返还 ${label} ×${Object.values(base)[0]}`;
   }
+  msg(refundMsg, false);
   S.echos = S.echos.filter(e => e.id !== echoId);
   return true;
 }

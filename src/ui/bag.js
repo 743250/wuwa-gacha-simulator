@@ -195,9 +195,9 @@ export function renderBag() {
         <div style="font-size:8px;color:${color};text-align:center;margin-top:1px;letter-spacing:.3px">${set?.name || ''}</div>
         <div style="display:flex;gap:2px;margin-top:4px;flex-wrap:wrap;justify-content:center">
           <button class="mbtn" style="font-size:8px;padding:1px 4px" onclick="window.__bagEchoDetail(${e.id})">详</button>
-          ${!e.equippedBy ? `<button class="mbtn" style="font-size:8px;padding:1px 4px" onclick="window.__bagEchoLevelUp(${e.id})">升</button>` : ''}
-          ${!e.equippedBy && !e.lock ? `<button class="mbtn" style="font-size:8px;padding:1px 4px" onclick="window.__bagEchoRecycle(${e.id})">分</button>` : ''}
-          ${!e.equippedBy ? `<button class="mbtn" style="font-size:8px;padding:1px 4px" onclick="window.__bagEchoToggleLock(${e.id})">${e.lock?'锁':'开'}</button>` : ''}
+          <button class="mbtn" style="font-size:8px;padding:1px 4px" onclick="window.__bagEchoLevelUp(${e.id})">升</button>
+          ${!e.lock ? `<button class="mbtn" style="font-size:8px;padding:1px 4px" onclick="window.__bagEchoRecycle(${e.id})">分</button>` : ''}
+          <button class="mbtn" style="font-size:8px;padding:1px 4px" onclick="window.__bagEchoToggleLock(${e.id})">${e.lock?'锁':'开'}</button>
           ${e.equippedBy ? `<button class="mbtn" style="font-size:8px;padding:1px 4px" onclick="window.__bagEchoUnequip(${e.id})">卸</button>` : ''}
         </div>
       </div>`;
@@ -335,10 +335,8 @@ window.__bagEchoLevelUp = (id) => {
 window.__bagEchoRecycle = (id) => {
   const e = S.echos.find(x => x.id === id);
   if (!e) return;
-  const exp = e.exp || 0;
-  const refund = Math.floor(exp * 0.8 / 20000);
   const ok = recycleEcho(id);
-  if (ok) msg(`已分解 ${e.name} · 返回特级促剂 ×${refund}`, false);
+  if (!ok) msg('分解失败（已装备/已锁定？）');
   renderBag();
   window.__render();
 };

@@ -1,6 +1,7 @@
 import { registerStack, gainStack, consumeStack, getStack, getStackCap, renderStacks } from '../stacks.js';
 import { registerForm, enterForm, exitForm, hasForm } from '../forms.js';
 import { registerSwitchHook } from '../switchHooks.js';
+import { fireEchoSetOnErosion } from '../echoSetTriggers.js';
 
 // 卡提希娅「决意 / 芙露德莉斯形态 / 风蚀」状态机
 //
@@ -164,6 +165,9 @@ export function cartethyiaApplyErosion(self, target, battle, isBurst = false) {
     type: 'mechanic', src: self.name,
     msg: `风蚀 +${stacks} 层（共 ${target.cartethyiaErosion} 层）`
   });
+
+  // 触发音骸套装 · 流云逝尽之空 5 件：自身添加风蚀 → 全队气动 +15% / 自身额外 +15%
+  fireEchoSetOnErosion(self, battle);
 
   // 4 链 · 为拯救舍弃其身：附加风蚀时全队元素伤害 +20% / 2 回合（不叠加）
   if (self.cartethyiaErosionTeamBuff) {

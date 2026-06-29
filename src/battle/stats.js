@@ -116,6 +116,8 @@ export function echoContrib(roleName) {
     if (!set) continue;
     if (n >= 2 && set.bonus2) setBonuses.push({ setId, name: set.name, tier: 2, ...set.bonus2 });
     if (n >= 5 && set.bonus5) setBonuses.push({ setId, name: set.name, tier: 5, ...set.bonus5 });
+    // 3 件套结构（如 cantarella_void）：set.tier=3 时 n>=3 激活 bonus5
+    if (set.tier === 3 && n >= 3 && set.bonus5) setBonuses.push({ setId, name: set.name, tier: 3, ...set.bonus5 });
   }
   // 套装 bonus 转 panel bonus
   for (const sb of setBonuses) {
@@ -186,6 +188,16 @@ function setBonusToBonus(sb) {
     skill_dmg: () => ({ type: 'skill_pct', value: sb.value, source: `声骸套装·${sb.name}` }),
     coord_dmg: () => null, // 协同攻击伤害+30%，无对应面板字段，战斗侧处理
     atk_pct_elem: () => ({ type: 'atk_pct', value: sb.value, source: `声骸套装·${sb.name}` }),
+    cartethyia_wind_team: () => null,  // 触发型：添加风蚀时全队+15% / 自身额外+15%，运行时处理
+    cartethyia_glory_self: () => null, // 触发型：命中风蚀目标时自身暴击+10% / 气动+30%，运行时处理
+    carlotta_skill_cond: () => null,  // 触发型：共鸣技能 → 冷凝+22.5%；解放 → 技能+18%×2 (运行时)
+    phoebe_lightnoise_cond: () => null, // 触发型：添加光噪→暴击+20%；10层光噪命中 → 衍射+15% (运行时)
+    brant_burst_cond: () => null,     // 触发型：解放 → 全队热熔+15% / 自身解放+20% (运行时)
+    cantarella_void_cond: () => null, // 触发型：添加虚湮 → 攻击+20% / 解放+30% (运行时)
+    brant_path_cond: () => null,      // 触发型：添加聚爆/震谐偏移 → 暴击+20% / 热熔+20% (运行时)
+    brant_mottle_cond: () => null,    // 触发型：添加聚爆 → 热熔+10% + 延奏接力25% (运行时)
+    feixue_snow_cond: () => null,     // 触发型：霜渐→落雪→爆发/接力 (运行时)
+    lumera_chord_cond: () => null,    // 触发型：震谐/集谐偏移 → 全队谐度破坏+20点 (运行时)
   };
   const fn = map[sb.type];
   return fn ? fn() : null;

@@ -763,9 +763,9 @@ window.__openEchoPicker = (roleName, slot) => {
       <div style="margin-top:5px;display:flex;gap:4px;flex-wrap:wrap">
         ${isEquippedHere ? '' : `<button class="mbtn" style="font-size:10px;padding:2px 8px" ${overCost ? 'disabled' : ''} onclick="window.__doEquipEcho('${roleName.replace(/'/g,"\\'")}',${slot},${e.id})">装备</button>`}
         <button class="mbtn" style="font-size:10px;padding:2px 8px" onclick="window.__echoDetail(${e.id})">详情</button>
-        ${!e.equippedBy ? `<button class="mbtn" style="font-size:10px;padding:2px 8px" onclick="window.__echoLevelUp(${e.id})">升级</button>` : ''}
-        ${!e.equippedBy && !e.lock ? `<button class="mbtn" style="font-size:10px;padding:2px 8px" onclick="window.__echoRecycle(${e.id})">分解</button>` : ''}
-        ${!e.equippedBy ? `<button class="mbtn" style="font-size:10px;padding:2px 8px" onclick="window.__echoToggleLock(${e.id})">${e.lock?'解锁':'锁定'}</button>` : ''}
+        <button class="mbtn" style="font-size:10px;padding:2px 8px" onclick="window.__echoLevelUp(${e.id})">升级</button>
+        ${!e.lock ? `<button class="mbtn" style="font-size:10px;padding:2px 8px" onclick="window.__echoRecycle(${e.id})">分解</button>` : ''}
+        <button class="mbtn" style="font-size:10px;padding:2px 8px" onclick="window.__echoToggleLock(${e.id})">${e.lock?'解锁':'锁定'}</button>
       </div>
     </div>`;
   }).join('');
@@ -833,10 +833,12 @@ window.__echoLevelUp = (id) => {
   }
 };
 window.__echoRecycle = (id) => {
-  if (recycleEcho(id)) {
-    msg('已分解', false);
+  const ok = recycleEcho(id);
+  if (ok) {
     closeModal();
     render();
+  } else {
+    msg('分解失败（已装备/已锁定？）');
   }
 };
 window.__echoToggleLock = (id) => {

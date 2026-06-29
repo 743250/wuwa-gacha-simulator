@@ -133,6 +133,116 @@ export const DUNGEONS = [
     minLevel: 40, enemyScale: 1.6, desc: '特级×1 高级×1 中级×3 · 武器石×12 · 星声+10 · 60 波片'
   },
 
+  // ===== 2.0+ 角色专属套 · 对应无音区副本（60 波片）=====
+  // 每副本对应一套角色专属声骸，掉落按套装筛选并生成 1 个 COST 声骸入库。
+  // 注：因模拟器未把部分新声骸补入 ECHO_CATALOG（如辛吉勒姆/达妮娅/无铭探索者/莳植熊蜂等），
+  //     套内 catalog 为空时这几个副本仅产出经验/武器石，留作占位直到 catalog 完整。
+  // 卡提希娅 ID 16「流云逝尽之空」
+  {
+    id: 'silent_cartethyia_wind', type: 'echo', name: '无音区·卡提希娅·流云', cost: 60,
+    enemies: ['飞廉之猩'],
+    enemyLevel: 80,
+    encounterPool: [
+      { enemies: ['飞廉之猩'], enemyScale: 1.0, weight: 3, tag: '气动残响' },
+      { enemies: ['云闪之鳞'], enemyScale: 1.05, weight: 2, tag: '雷鳞护盾' }
+    ],
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'cartethyia_wind', echo_count: 1 },
+    minLevel: 50, enemyScale: 1.5, desc: '特级×1 高级×2 · 武器石×12 · 星声+10 · +流云之举声骸 · 60 波片'
+  },
+  // 卡提希娅 ID 17「愿戴荣光之旅」
+  {
+    id: 'silent_cartethyia_glory', type: 'echo', name: '无音区·卡提希娅·荣光', cost: 60,
+    enemies: ['飞廉之猩'],
+    enemyLevel: 80,
+    encounterPool: [
+      { enemies: ['飞廉之猩'], enemyScale: 1.0, weight: 3, tag: '气动残响' }
+    ],
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'cartethyia_glory', echo_count: 1 },
+    minLevel: 50, enemyScale: 1.5, desc: '特级×1 高级×2 · 武器石×12 · 星声+10 · +荣光之旅声骸 · 60 波片'
+  },
+  // 珂莱塔 ID 10「凌冽决断之心」
+  {
+    id: 'silent_carlotta_skill', type: 'echo', name: '无音区·珂莱塔·凌冽决断', cost: 60,
+    enemies: ['聚械机偶'],
+    enemyLevel: 80,
+    encounterPool: [
+      { enemies: ['聚械机偶'], enemyScale: 0.9, weight: 3, tag: '机械核心' },
+      { enemies: ['辉萤军势'], enemyScale: 1.0, weight: 2, tag: '冷凝群体' }
+    ],
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'carlotta_skill', echo_count: 1 },
+    minLevel: 40, enemyScale: 1.45, desc: '特级×1 高级×2 · 武器石×12 · 星声+10 · +凌冽决断声骸 · 60 波片'
+  },
+  // 菲比 ID 11「此间永驻之光」
+  {
+    id: 'silent_phoebe_lightnoise', type: 'echo', name: '无音区·菲比·光噪长眠', cost: 60,
+    enemies: ['哀声鸷'],
+    enemyLevel: 80,
+    encounterPool: [
+      { enemies: ['哀声鸷'], enemyScale: 1.0, weight: 3, tag: '衍射飞行' },
+      { enemies: ['无冠者'], enemyScale: 1.1, weight: 2, tag: '湮灭护盾' }
+    ],
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'phoebe_lightnoise', echo_count: 1 },
+    minLevel: 40, enemyScale: 1.45, desc: '特级×1 高级×2 · 武器石×12 · 星声+10 · +此间永驻声骸 · 60 波片'
+  },
+  // 布兰特 ID 18「奔狼燎原之焰」
+  {
+    id: 'silent_brant_burst', type: 'echo', name: '无音区·布兰特·奔狼', cost: 60,
+    enemies: ['燎照之骑'],
+    enemyLevel: 80,
+    encounterPool: [
+      { enemies: ['燎照之骑'], enemyScale: 1.0, weight: 3, tag: '焰骑残响' },
+      { enemies: ['巨龙·热熔'], enemyScale: 1.10, weight: 2, tag: '熔龙吐息' }
+    ],
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'brant_burst', echo_count: 1 },
+    minLevel: 40, enemyScale: 1.5, desc: '特级×1 高级×2 · 武器石×12 · 星声+10 · +奔狼燎原声骸 · 60 波片'
+  },
+  // 坎特蕾拉 ID 23「命理崩毁之弦」（3件套结构）
+  {
+    id: 'silent_cantarella_void', type: 'echo', name: '无音区·坎特蕾拉·虚湮', cost: 60,
+    enemies: ['无常凶鹭'],
+    enemyLevel: 80,
+    encounterPool: [
+      { enemies: ['无常凶鹭'], enemyScale: 1.0, weight: 3, tag: '湮灭飞行' }
+    ],
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'cantarella_void', echo_count: 1 },
+    minLevel: 40, enemyScale: 1.45, desc: '特级×1 高级×2 · 武器石×12 · 星声+10 · +命理崩毁声骸 · 60 波片'
+  },
+  // 布兰特 ID 27「长路启航之星」 + ID 28「斑驳粉饰之沫」合用同区
+  {
+    id: 'silent_brant_path', type: 'echo', name: '无音区·布兰特·长路启航', cost: 60,
+    enemies: ['燎照之骑'],
+    enemyLevel: 80,
+    encounterPool: [
+      { enemies: ['燎照之骑'], enemyScale: 1.0, weight: 3, tag: '焰骑残响' }
+    ],
+    // 掉落长路启航 + 斑驳粉饰（两套同源布兰特，50/50 概率）
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: ['brant_path', 'brant_mottle'], echo_count: 1 },
+    minLevel: 40, enemyScale: 1.5, desc: '特级×1 高级×2 · 武器石×12 · 星声+10 · +长路启航/斑驳粉饰声骸 · 60 波片'
+  },
+  // 绯雪 ID 30「雪落无声之愿」
+  {
+    id: 'silent_feixue_snow', type: 'echo', name: '无音区·绯雪·落日堤屿', cost: 60,
+    enemies: ['辉萤军势'],
+    enemyLevel: 80,
+    encounterPool: [
+      { enemies: ['辉萤军势'], enemyScale: 1.0, weight: 3, tag: '冷凝群体' },
+      { enemies: ['朔雷之鳞'], enemyScale: 0.95, weight: 2, tag: '导电突进' }
+    ],
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'feixue_snow', echo_count: 1 },
+    minLevel: 50, enemyScale: 1.5, desc: '特级×1 高级×2 · 武器石×12 · 星声+10 · +雪落无声声骸 · 60 波片'
+  },
+  // 洛瑟菈 ID 31「剪心辑梦之影」
+  {
+    id: 'silent_lumera_chord', type: 'echo', name: '无音区·洛瑟菈·剪心辑梦', cost: 60,
+    enemies: ['无冠者'],
+    enemyLevel: 80,
+    encounterPool: [
+      { enemies: ['无冠者'], enemyScale: 1.0, weight: 3, tag: '湮灭护盾' }
+    ],
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'lumera_chord', echo_count: 1 },
+    minLevel: 50, enemyScale: 1.5, desc: '特级×1 高级×2 · 武器石×12 · 星声+10 · +剪心辑梦声骸 · 60 波片'
+  },
+
   // ===== 世界BOSS（60 波片 · 无次数限制 · 大世界探索）=====
   // 每个 Overlord 敌人一个固定入口，名字和敌人一致（不再用轮换池）
   // Tier 1 — 推荐 30+，初级世界BOSS（base HP ≤ 33000）

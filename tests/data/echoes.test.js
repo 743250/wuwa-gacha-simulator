@@ -38,14 +38,16 @@ describe('data/echoes', () => {
       expect(ECHO_SETS.length).toBeGreaterThanOrEqual(15);
     });
 
-    it('every set has 2pc and 5pc bonuses', () => {
+    it('every set has 2pc and 5pc bonuses (allowing tier=3 sets with no bonus2)', () => {
       for (const s of ECHO_SETS) {
         expect(s.id).toBeTruthy();
         expect(s.name).toBeTruthy();
-        expect(s.bonus2).toBeTruthy();
         expect(s.bonus5).toBeTruthy();
-        expect(s.bonus2.type).toBeTruthy();
         expect(s.bonus5.type).toBeTruthy();
+        if (s.tier !== 3) {
+          expect(s.bonus2).toBeTruthy();
+          expect(s.bonus2.type).toBeTruthy();
+        }
       }
     });
 

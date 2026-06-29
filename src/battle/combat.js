@@ -15,7 +15,7 @@ import { spawnEnemy } from './enemies.js';
 import { resistMultiplier, vibrationMultiplier } from './elements.js';
 import { initForte, gainForte, consumeForte, forteEnhances } from './forte.js';
 import { fireTrigger, collectWeaponBonus, tickWeaponTriggers } from './weaponTriggers.js';
-import { fireEchoSetTrigger } from './echoSetTriggers.js';
+import { fireEchoSetTrigger, fireEchoSetOnHitErosion, fireRoleEchoTriggers } from './echoSetTriggers.js';
 import { tickStacks } from './stacks.js';
 import { applyTempStat, removeTempStat, computeStat, tickTempStats } from './tempStats.js';
 import { onUnitSwitchOut } from './forms.js';
@@ -194,6 +194,11 @@ function calcDamage(attacker, defender, multiplier, dmgType) {
   // 临时 buff（如忌炎 4 链 奇正：全队重击 +25%）
   const heavyDmgBuff = (attacker.buffs || []).reduce((a, b) => b.type === 'heavyDmgUp' ? a + b.value : a, 0);
   if (dmgType === 'heavy') typeBonus += heavyDmgBuff;
+  // 角色专属声骸套装 5 件运行时触发：技能伤害 / 解放伤害加成
+  const skillDmgBuff = (attacker.buffs || []).reduce((a, b) => b.type === 'skillDmgUp' ? a + b.value : a, 0);
+  if (dmgType === 'skill') typeBonus += skillDmgBuff;
+  const burstDmgBuff = (attacker.buffs || []).reduce((a, b) => b.type === 'burstDmgUp' ? a + b.value : a, 0);
+  if (dmgType === 'burst') typeBonus += burstDmgBuff;
   // 元素加成
   const elemBase = (attacker.elemBonus?.[attacker.element] || 0) + (attacker.elemAllBonus || 0);
   const elemAdd = wb.elemBonus?.[attacker.element] || 0;
@@ -629,6 +634,10 @@ export function doAttack(battle, targetIdx) {
   // 触发声骸套装 5 件条件型（普攻命中叠层 / 持续 buff）
   fireEchoSetTrigger(self, 'normal_hit', battle);
   fireEchoSetTrigger(self, 'normal_or_heavy_hit', battle);
+  // 触发音骸套装 · 愿戴荣光之旅 5 件（命中风蚀目标时自身暴击+10% / 气动+30%）
+  fireEchoSetOnHitErosion(self, target, battle);
+  // 触发角色专属声骸套装 5 件（2.0+ 珂莱塔/菲比/布兰特/坎特蕾拉/洛瑟菈/绯雪）
+  fireRoleEchoTriggers(self, 'normal_hit', target, battle);
   // 角色专属普攻 hook（卡提希娅决意/风蚀 · 安可失序 · 吟霖审判）
   fireCharacterHook(self, 'onAttack', { battle, target, helpers: { calcDamage, dealDamage } });
   finishIfBattleEnded(battle, 'win');
@@ -675,6 +684,10 @@ export function doSkill(battle, targetIdx) {
   // 触发声骸套装 5 件条件型（技能命中 / 重击或技能命中）
   fireEchoSetTrigger(self, 'skill_hit', battle);
   fireEchoSetTrigger(self, 'heavy_or_skill_hit', battle);
+  // 触发音骸套装 · 愿戴荣光之旅 5 件（命中风蚀目标时自身暴击+10% / 气动+30%）
+  fireEchoSetOnHitErosion(self, target, battle);
+  // 触发角色专属声骸套装 5 件
+  fireRoleEchoTriggers(self, 'skill_hit', target, battle);
   // 治疗型技能（辅助/治疗位 用技能视为 heal_skill）
   if (self.type === '辅助' || self.type === '治疗') {
     fireTrigger(self, 'heal_skill', { battle });
@@ -807,6 +820,10 @@ export function doBurst(battle) {
   fireTrigger(self, 'burst_cast', { battle });
   // 触发声骸套装 5 件条件型（使用解放后持续 buff）
   fireEchoSetTrigger(self, 'burst_cast', battle);
+  // 触发音骸套装 · 愿戴荣光之旅 5 件（命中风蚀目标时自身暴击+10% / 气动+30%）
+  if (primary) fireEchoSetOnHitErosion(self, primary, battle);
+  // 触发角色专属声骸套装 5 件（解放类）
+  fireRoleEchoTriggers(self, 'burst_cast', primary, battle);
   // 协奏值满后视为切人（变奏/延奏）
   if (self.concerto >= 100) {
     consumeConcerto(self, battle);
@@ -888,6 +905,10 @@ export function doHeavy(battle, targetIdx) {
   fireEchoSetTrigger(self, 'heavy_hit', battle);
   fireEchoSetTrigger(self, 'normal_or_heavy_hit', battle);
   fireEchoSetTrigger(self, 'heavy_or_skill_hit', battle);
+  // 触发音骸套装 · 愿戴荣光之旅 5 件（命中风蚀目标时自身暴击+10% / 气动+30%）
+  fireEchoSetOnHitErosion(self, target, battle);
+  // 触发角色专属声骸套装 5 件
+  fireRoleEchoTriggers(self, 'heavy_hit', target, battle);
   let heavyAction = '重击';
   if (isEncore) {
     if (encoreSpecial) {
@@ -999,6 +1020,8 @@ export function doSwitch(battle, toIdx) {
     fireTrigger(target, 'variation', { battle });
     // 触发声骸套装 5 件条件型（变奏入场后持续 buff）
     fireEchoSetTrigger(target, 'variation_in', battle);
+    // 触发角色专属声骸套装 5 件接力（布兰特斑驳粉饰之沫 / 绯雪雪落无声之愿）
+    fireRoleEchoTriggers(target, 'variation_in', variationTarget || battle.enemies.find(e => e.alive), battle, prev);
     battle.log.push({ type: 'mechanic', src: prev.name, msg: `协奏满 · ${prev.name} 延奏 → ${target.name} 强化变奏` });
   }
   battle.log.push({ type: 'switch', src: target.name, action: '切换上场' });
@@ -1177,6 +1200,12 @@ export function endTurn(battle) {
       e.suppressed--;
       if (e.suppressed <= 0) e.suppressedVuln = 0;
     }
+    // 中断窗口期间（含刚结束的那回合）：韧性保持满
+    // 抑制 enemyMechanics 弹反路径残留的低韧性，避免中断结束瞬间被一击即破韧
+    if (e.suppressed >= 0 && (e.vibration ?? 100) < (e.vibrationMax || 100) && (e._wasSuppressedLastTurn || e.suppressed > 0)) {
+      e.vibration = e.vibrationMax || 100;
+    }
+    e._wasSuppressedLastTurn = e.suppressed > 0;
     e.debuffs = (e.debuffs || []).filter(d => --d.duration > 0);
     if (e.judgeMark) {
       e.judgeMark.remaining--;

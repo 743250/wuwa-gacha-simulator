@@ -144,6 +144,88 @@ export const ECHO_CATALOG = [
   { id: 'thunder_prism', name: '导电棱镜',     cost: 1, set: 'unknown',   element: '导电', source: '普通' },
   { id: 'light_prism',   name: '衍射棱镜',     cost: 1, set: 'spectro_new', element: '衍射', source: '普通' },
   { id: 'havoc_prism',   name: '湮灭棱镜',     cost: 1, set: 'havoc_new', element: '湮灭', source: '普通' },
+
+  // ============================================================
+  // 2.0+ 角色专属套 · 对应声骸（encore.moe API FetterGroups ID 10/11/16/17/18/23/27/28/30/31）
+  // 采集: 2026-06-29 (echoes-compact.json 266 条全量)
+  // 注: API Element 字段对 1-cost 普遍误标「衍射」，按声骸本身特性手动修正
+  // ============================================================================
+
+  // --- 珂莱塔 · 凌冽决断之心 (ID 10) ---
+  { id: 'windmane_wolf',   name: '风鬃狼',         cost: 1, set: 'carlotta_skill', element: '冷凝', source: '普通' },
+  { id: 'pup_lieve',       name: '浮灵偶·蕾弗',     cost: 1, set: 'carlotta_skill', element: '冷凝', source: '普通' },
+  { id: 'pup_lite',        name: '浮灵偶·莱特',     cost: 1, set: 'carlotta_skill', element: '冷凝', source: '普通' },
+  { id: 'magic_song',      name: '魔术先生',       cost: 1, set: 'carlotta_skill', element: '冷凝', source: '普通' },
+  { id: 'tour_knight',     name: '巡游骑士',       cost: 3, set: 'carlotta_skill', element: '导电', source: '精英' },
+  { id: 'poison_noble',    name: '毒冠贵族',       cost: 3, set: 'carlotta_skill', element: '导电', source: '精英' },
+  { id: 'water_noble',     name: '凝水贵族',       cost: 3, set: 'carlotta_skill', element: '导电', source: '精英' },
+  { id: 'mecha_armed',     name: '异构武装',       cost: 4, set: 'carlotta_skill', element: '冷凝', source: '世界BOSS' },
+  { id: 'nm_glaze',        name: '梦魇·辉萤军势',  cost: 4, set: 'carlotta_skill', element: '冷凝', source: '梦魇副本' },
+
+  // --- 菲比 · 此间永驻之光 (ID 11) ---
+  { id: 'frost_wolf_phoebe', name: '霜鬃狼',       cost: 1, set: 'phoebe_lightnoise', element: '衍射', source: '普通' },
+  { id: 'pup_haid',          name: '浮灵偶·海德',   cost: 1, set: 'phoebe_lightnoise', element: '衍射', source: '普通' },
+  { id: 'shadow_fire',       name: '幽翎火',         cost: 1, set: 'phoebe_lightnoise', element: '衍射', source: '普通' },
+  { id: 'puppet_fore',       name: '工头布偶',       cost: 1, set: 'phoebe_lightnoise', element: '衍射', source: '普通' },
+  { id: 'fancy_gold_rock',   name: '愚金幼岩',       cost: 1, set: 'phoebe_lightnoise', element: '衍射', source: '普通' },
+  { id: 'pardon_envoy_1',   name: '赦罪节使',       cost: 1, set: ['phoebe_lightnoise','cartethyia_wind','brant_burst'], element: '气动', source: '普通' },
+  { id: 'arc_knight',        name: '幻昼骑士',       cost: 3, set: 'phoebe_lightnoise', element: '衍射', source: '精英' },
+  { id: 'colored_glass_knife', name: '琉璃刀伶',    cost: 3, set: 'phoebe_lightnoise', element: '衍射', source: '精英' },
+  { id: 'statue_fist',       name: '重塑雕像的拳砾', cost: 3, set: ['phoebe_lightnoise','cartethyia_wind'], element: '衍射', source: '精英' },
+  { id: 'glory_envoy_3',     name: '荣光节使',       cost: 3, set: ['phoebe_lightnoise','cartethyia_wind','cartethyia_glory'], element: '气动', source: '精英' },
+  { id: 'nm_heron',          name: '梦魇·哀声鸷',    cost: 4, set: 'phoebe_lightnoise', element: '衍射', source: '梦魇副本' },
+
+  // --- 卡提希娅 · 流云逝尽之空 (ID 16) ---
+  { id: 'crown_envoy',       name: '卫冕节使',       cost: 1, set: ['cartethyia_wind','brant_burst'], element: '气动', source: '普通' },
+  { id: 'mercy_envoy',       name: '慈悲节使',       cost: 1, set: ['cartethyia_wind','cartethyia_glory'], element: '气动', source: '普通' },
+  { id: 'faith_puppet',      name: '苦信者的作俑',   cost: 1, set: ['cartethyia_wind','cartethyia_glory','brant_burst'], element: '气动', source: '普通' },
+  { id: 'wind_baby_dragon',  name: '飓力熊',         cost: 3, set: 'cartethyia_wind', element: '气动', source: '精英' },
+  { id: 'fludeer_formless',  name: '共鸣回响·芙露德莉斯', cost: 4, set: ['cartethyia_wind','cartethyia_glory'], element: '气动', source: '周本BOSS' },
+  { id: 'nm_kelpie',         name: '梦魇·凯尔匹',    cost: 4, set: ['cartethyia_wind','cartethyia_glory'], element: '冷凝', source: '梦魇副本' },
+
+  // --- 卡提希娅 · 愿戴荣光之旅 (ID 17) ---
+  { id: 'preach_remnant',   name: '传道者的遗形',   cost: 3, set: ['cartethyia_glory','brant_burst'], element: '气动', source: '精英' },
+  { id: 'horned_croc',      name: '角鳄',           cost: 3, set: 'cartethyia_glory', element: '气动', source: '精英' },
+
+  // --- 布兰特 · 奔狼燎原之焰 (ID 18) ---
+  { id: 'spine_dragon',     name: '蚀脊龙',         cost: 3, set: 'brant_burst', element: '热熔', source: '精英' },
+  { id: 'brant_lion',       name: '荣耀狮像',       cost: 4, set: 'brant_burst', element: '热熔', source: '世界BOSS' },
+
+  // --- 坎特蕾拉 · 命理崩毁之弦 (ID 23 · 3件套) ---
+  { id: 'blade_noble',      name: '持刃贵族',       cost: 3, set: 'cantarella_void', element: '湮灭', source: '精英' },
+  { id: 'nm_roar_croak',    name: '梦魇·呜咔咔',    cost: 1, set: 'cantarella_void', element: '湮灭', source: '梦魇副本' },
+  { id: 'nm_ostrich',       name: '梦魇·侏侏鸵',    cost: 1, set: 'cantarella_void', element: '物理', source: '梦魇副本' },
+  { id: 'nm_thorn_mush',    name: '梦魇·刺玫菇',    cost: 3, set: 'cantarella_void', element: '湮灭', source: '梦魇副本' },
+  { id: 'rm_leviathan',     name: '共鸣回响·鸣式·利维亚坦', cost: 4, set: 'cantarella_void', element: '湮灭', source: '周本BOSS' },
+
+  // --- 布兰特 · 长路启航之星 (ID 27) ---
+  { id: 'shock_tremor',     name: '颤栗战士',       cost: 1, set: ['brant_path','brant_mottle','feixue_snow'], element: '导电', source: '普通' },
+  { id: 'ice_dancer',       name: '冰盈舞者',       cost: 1, set: ['brant_path','brant_mottle','feixue_snow','lumera_chord'], element: '冷凝', source: '普通' },
+  { id: 'shadow_glim',      name: '影烁者',         cost: 1, set: ['brant_path','brant_mottle','feixue_snow'], element: '湮灭', source: '普通' },
+  { id: 'doc_pipip',        name: '噼啪啪',         cost: 1, set: 'brant_mottle', element: '气动', source: '普通' },
+  { id: 'crown_mech_falcon', name: '冠顶械隼',      cost: 3, set: ['brant_path','brant_mottle'], element: '热熔', source: '精英' },
+  { id: 'echo_crown_falcon', name: '共鸣回响·冠顶苍隼', cost: 3, set: ['brant_path','brant_mottle'], element: '气动', source: '精英' },
+  { id: 'gromma_diagram',   name: '格洛犸图',       cost: 3, set: ['brant_path','feixue_snow'], element: '气动', source: '精英' },
+  { id: 'xingleim',         name: '辛吉勒姆',      cost: 4, set: 'brant_path', element: '热熔', source: '世界BOSS' },
+
+  // --- 布兰特 · 斑驳粉饰之沫 (ID 28) ---
+  { id: 'tunnel_heavy',     name: '探隧重机',       cost: 3, set: 'brant_mottle', element: '热熔', source: '精英' },
+  { id: 'core_machine',     name: '炉芯机骸',       cost: 4, set: 'brant_mottle', element: '热熔', source: '世界BOSS' },
+  { id: 'echo_dania',       name: '共鸣回响·达妮娅', cost: 4, set: 'brant_mottle', element: '热熔', source: '周本BOSS' },
+
+  // --- 绯雪 · 雪落无声之愿 (ID 30) ---
+  { id: 'heavy_iron_hoof',  name: '重工铁蹄',       cost: 3, set: ['feixue_snow','lumera_chord'], element: '热熔', source: '精英' },
+  { id: 'frost_scale_shell', name: '霜鳞蜃甲',      cost: 3, set: 'feixue_snow', element: '冷凝', source: '精英' },
+  { id: 'wind_scale_shell', name: '风鳞蜃甲',       cost: 3, set: 'feixue_snow', element: '气动', source: '精英' },
+  { id: 'rm_virtual_god',   name: '共鸣回响·鸣式·虚造神型', cost: 4, set: 'feixue_snow', element: '冷凝', source: '周本BOSS' },
+
+  // --- 洛瑟菈 · 剪心辑梦之影 (ID 31) ---
+  { id: 'plant_bee',        name: '莳植熊蜂',       cost: 1, set: 'lumera_chord', element: '气动', source: '普通' },
+  { id: 'mine_bee',         name: '矿岩熊蜂',       cost: 1, set: 'lumera_chord', element: '物理', source: '普通' },
+  { id: 'plant_elk',        name: '莳植机麋',       cost: 3, set: 'lumera_chord', element: '气动', source: '精英' },
+  { id: 'mine_elk',         name: '矿岩机麋',       cost: 3, set: 'lumera_chord', element: '物理', source: '精英' },
+  { id: 'mirage_moth',      name: '迷胧幻蛾',       cost: 3, set: 'lumera_chord', element: '衍射', source: '精英' },
+  { id: 'nameless_seeker', name: '无铭探索者',     cost: 4, set: 'lumera_chord', element: '气动', source: '世界BOSS' },
 ];
 
 // ==================== 套装效果 ====================
@@ -223,6 +305,62 @@ export const ECHO_SETS = [
   { id: 'energy_new',   name: '无惧浪涛之勇', element: null,
     bonus2: { type: 'energy_regen', value: 0.10 },
     bonus5: { type: 'atk_pct_elem', value: 0.15, cond: '攻击+15%,能效达标后全属伤+15%' } },
+
+  // ======== 卡提希娅专属套装 (2.0+ · encore.moe API FetterGroups ID 16/17) ========
+  // 流云逝尽之空：角色为敌人添加「风蚀效应」时全队气动+15% / 自身额外+15%（官方文案）
+  { id: 'cartethyia_wind', name: '流云逝尽之空', element: '气动',
+    bonus2: { type: 'elem_dmg', value: 0.10, elem: '气动' },
+    bonus5: { type: 'cartethyia_wind_team', value: 0.15, extraSelf: 0.15, elem: '气动', cond: '添加风蚀效应时全队气动+15% / 自身额外+15%，持续20秒' } },
+
+  // 愿戴荣光之旅：攻击命中风蚀目标时自身暴击+10% / 气动+30%（官方文案）
+  { id: 'cartethyia_glory', name: '愿戴荣光之旅', element: '气动',
+    bonus2: { type: 'elem_dmg', value: 0.10, elem: '气动' },
+    bonus5: { type: 'cartethyia_glory_self', value: 0.30, crate: 0.10, elem: '气动', cond: '命中风蚀目标时自身暴击+10% / 气动+30%，持续10秒' } },
+
+  // ======== 2.0+ 角色专属套装（encore.moe API FetterGroups ID 10/11/18/23/27/28/30/31）========
+  // 数据来源：encore.moe API + mc.appfeng.com 交叉核验（采集 2026-06-29）
+
+  // --- ID 10 · 珂莱塔专属「凌冽决断之心」---
+  { id: 'carlotta_skill', name: '凌冽决断之心', element: '冷凝',
+    bonus2: { type: 'skill_dmg', value: 0.12 },
+    bonus5: { type: 'carlotta_skill_cond', value: 0.225, valueAlt: 0.18, elem: '冷凝', cond: '施放共鸣技能时自身冷凝+22.5%(15秒) / 施放共鸣解放时共鸣技能+18%(5秒,可叠2层)' } },
+
+  // --- ID 11 · 菲比专属「此间永驻之光」---
+  { id: 'phoebe_lightnoise', name: '此间永驻之光', element: '衍射',
+    bonus2: { type: 'elem_dmg', value: 0.10, elem: '衍射' },
+    bonus5: { type: 'phoebe_lightnoise_cond', value: 0.20, valueAlt: 0.15, crate: 0.20, elem: '衍射', cond: '添加光噪效应时自身暴击+20%(15秒) / 攻击10层光噪目标时自身衍射+15%(15秒)' } },
+
+  // --- ID 18 · 布兰特专属「奔狼燎原之焰」---
+  { id: 'brant_burst', name: '奔狼燎原之焰', element: '热熔',
+    bonus2: { type: 'elem_dmg', value: 0.10, elem: '热熔' },
+    bonus5: { type: 'brant_burst_cond', value: 0.15, valueSelf: 0.20, elem: '热熔', cond: '施放共鸣解放时全队热熔+15% / 自身解放+20%，持续35秒' } },
+
+  // --- ID 23 · 坎特蕾拉专属「命理崩毁之弦」(3 件套结构)---
+  // 注意：3 件套而非 2+5，bonus2 留空由 stats.js 处理
+  { id: 'cantarella_void', name: '命理崩毁之弦', element: '湮灭',
+    bonus2: null,
+    bonus5: { type: 'cantarella_void_cond', value: 0.20, valueAlt: 0.30, elem: '湮灭', cond: '添加虚湮效应时自身攻击+20% / 共鸣解放+30%，持续5秒' },
+    tier: 3 },
+
+  // --- ID 27 · 布兰特专属「长路启航之星」---
+  { id: 'brant_path', name: '长路启航之星', element: '热熔',
+    bonus2: { type: 'elem_dmg', value: 0.10, elem: '热熔' },
+    bonus5: { type: 'brant_path_cond', value: 0.20, elem: '热熔', crate: 0.20, cond: '添加聚爆效应或震谐偏移时自身暴击+20% / 热熔+20%，持续8秒' } },
+
+  // --- ID 28 · 布兰特专属「斑驳粉饰之沫」---
+  { id: 'brant_mottle', name: '斑驳粉饰之沫', element: '热熔',
+    bonus2: { type: 'elem_dmg', value: 0.10, elem: '热熔' },
+    bonus5: { type: 'brant_mottle_cond', value: 0.10, valueNext: 0.25, elem: '热熔', cond: '添加聚爆效应时热熔+10%(15秒) / 持续期间延奏后下一位变奏登场角色热熔+25%(15秒)' } },
+
+  // --- ID 30 · 绯雪专属「雪落无声之愿」---
+  { id: 'feixue_snow', name: '雪落无声之愿', element: '冷凝',
+    bonus2: { type: 'elem_dmg', value: 0.10, elem: '冷凝' },
+    bonus5: { type: 'feixue_snow_cond', value: 0.10, valueAlt: 0.25, elem: '冷凝', cond: '添加霜渐效应时冷凝+10%(15秒)+获【落雪】11秒(25秒CD) / 落雪+解放时暴击+25%(6秒可续) 或 落雪+延奏时下位冷凝+25%(15秒)' } },
+
+  // --- ID 31 · 洛瑟菈专属「剪心辑梦之影」(谐度破坏系)---
+  { id: 'lumera_chord', name: '剪心辑梦之影', element: null,
+    bonus2: { type: 'atk_pct', value: 0.10 },
+    bonus5: { type: 'lumera_chord_cond', value: 20, elem: null, flat: true, cond: '添加震谐偏移或集谐偏移时全队谐度破坏增幅+20点，持续30秒（同名不叠加）' } },
 ];
 
 // ==================== 主词条池 ====================
@@ -346,6 +484,16 @@ const SET_BONUS_TYPE_LABEL = {
   skill_dmg:          () => '技能伤害加成',
   coord_dmg:          () => '协同攻击伤害加成',
   atk_pct_elem:       () => '攻击加成 / 全元素伤害加成',
+  cartethyia_wind_team: (b) => `${b.elem ?? ''}伤害加成（全队+自身额外）`,
+  cartethyia_glory_self: (b) => `${b.elem ?? ''}伤害加成 / 暴击率加成`,
+  carlotta_skill_cond:    (b) => `${b.elem ?? ''}伤害加成 / 共鸣技能伤害加成`,
+  phoebe_lightnoise_cond:(b) => `暴击率加成 / ${b.elem ?? ''}伤害加成`,
+  brant_burst_cond:       (b) => `${b.elem ?? ''}伤害加成（全队） / 共鸣解放伤害加成`,
+  cantarella_void_cond:   (b) => `攻击加成 / 共鸣解放伤害加成`,
+  brant_path_cond:        (b) => `暴击率加成 / ${b.elem ?? ''}伤害加成`,
+  brant_mottle_cond:      (b) => `${b.elem ?? ''}伤害加成 / 延奏接力${b.elem ?? ''}伤害加成`,
+  feixue_snow_cond:       (b) => `${b.elem ?? ''}伤害加成 / 落雪暴击或接力${b.elem ?? ''}伤害加成`,
+  lumera_chord_cond:      () => '谐度破坏增幅（全队点数）',
 };
 
 /** 把套装 bonus 渲染成中文效果描述一行字 */
@@ -353,7 +501,7 @@ export function formatSetBonus(bonus) {
   if (!bonus || !bonus.type) return '';
   const label = SET_BONUS_TYPE_LABEL[bonus.type];
   const prefix = label ? label(bonus) : bonus.type;
-  const valueStr = `${(bonus.value * 100).toFixed(0)}%`;
+  const valueStr = bonus.flat ? `+${bonus.value} 点` : `+${(bonus.value * 100).toFixed(0)}%`;
   const condStr = bonus.cond ? `（${bonus.cond}）` : '';
-  return `${prefix} +${valueStr}${condStr}`;
+  return `${prefix} ${valueStr}${condStr}`;
 }

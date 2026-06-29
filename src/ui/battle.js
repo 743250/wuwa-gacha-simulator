@@ -8,6 +8,8 @@ import { ELEMENT_COLOR } from '../battle/elements.js';
 import { collectUnitBadges, collectEnemyBadges, renderBadge } from './battleRenderers/buffRenderers.js';
 import { flattenEnemies, DUNGEONS, canUseWeeklyBoss, consumeWeeklyBoss, getWeeklyBossUsed, WEEKLY_BOSS_LIMIT, getDungeonEncounter, getSol3Level, getSol3Config, getWorldBossSpawnOpts, increaseBossLevel, decreaseBossLevel } from '../battle/dungeon.js';
 import { spendStamina } from '../daily/stamina.js';
+import { generateEcho } from '../equip/echoActions.js';
+import { getEchoesBySet } from '../data/echoes.js';
 import { settleAbyss, ABYSS_ZONES, startAbyssFloor } from '../daily/abyss.js';
 import { settleWastes, startWastesStage, WASTES_STAGES } from '../daily/wastes.js';
 import { progressTask } from '../podcast/core.js';
@@ -594,6 +596,25 @@ window.__bSettle = () => {
     if (drops.exp_low) { S.materials.exp_low += drops.exp_low; rewardText.push(`初级共鸣促剂 ×${drops.exp_low}`); }
     if (drops.weapon_book) { S.materials.weapon_book += drops.weapon_book; rewardText.push(`武器石 ×${drops.weapon_book}`); }
     if (drops.astrite) { S.astrite += drops.astrite; rewardText.push(`星声 +${drops.astrite}`); }
+    // 声骸掉落：按套装筛选并生成 echo（echo_set 支持数组 → 多套随机选一）
+    if (drops.echo_set) {
+      const setIds = Array.isArray(drops.echo_set) ? drops.echo_set : [drops.echo_set];
+      const pool = [];
+      for (const sid of setIds) {
+        const part = getEchoesBySet(sid);
+        if (part.length) pool.push(...part);
+      }
+      if (pool.length) {
+        const n = drops.echo_count || 1;
+        const rolled = [];
+        for (let i = 0; i < n; i++) {
+          const pick = pool[Math.floor(Math.random() * pool.length)];
+          const e = generateEcho(pick.id);
+          if (e) rolled.push(e.name);
+        }
+        if (rolled.length) rewardText.push(`声骸: ${rolled.join(' · ')}`);
+      }
+    }
     // 电台任务：副本完成
     progressTask('d_dungeon', 1);
     progressTask('w_dungeon', 1);
