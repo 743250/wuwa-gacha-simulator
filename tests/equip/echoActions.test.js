@@ -50,7 +50,7 @@ describe('equip/echoActions', () => {
       expect(e.cost).toBe(catalog.cost);
       expect(e.level).toBe(1);
       expect(e.mainStat).toBeTruthy();
-      expect(e.subStats.length).toBe(4);
+      expect(e.subStats.length).toBe(5);
       expect(e.lock).toBe(false);
       expect(e.equippedBy).toBeNull();
     });
@@ -181,17 +181,18 @@ describe('equip/echoActions', () => {
 
     it('every 5 levels unlocks a new sub stat', () => {
       const e = generateEcho(ECHO_CATALOG[0].id);
-      e.level = 4;
-      const before = e.subStats.length;
-      // Bump to lvl 5 — should add a sub stat
+      // +0 全部 5 个槽位都未解锁
+      const lockedBefore = e.subStats.filter(s => s.unlocked === false).length;
+      expect(lockedBefore).toBe(5);
       S.materials.exp_super = 1000;
       S.materials.exp_high = 1000;
       S.materials.exp_mid = 1000;
       S.materials.exp_low = 1000;
-      // Force the level-up path
+      // 升到 LV5 → 应解锁 1 个槽位
       e.level = 4;
       levelUpEcho(e.id);
-      expect(e.subStats.length).toBeGreaterThanOrEqual(before);
+      const lockedAfter = e.subStats.filter(s => s.unlocked === false).length;
+      expect(lockedAfter).toBe(4);
     });
 
     it('levelUpEchoMax stops at max level or exp exhaustion', () => {

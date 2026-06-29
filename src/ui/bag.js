@@ -2,7 +2,7 @@
 import { S, $, msg } from '../state.js';
 import { usePotion, useAllPotions, POTIONS, buyStaminaWithAstrite } from '../daily/stamina.js';
 import { WEAPON_BOX_OPTIONS } from '../data/podcast-rewards.js';
-import { openModal } from '../modal.js';
+import { openModal, closeModal } from '../modal.js';
 import { generateEcho, levelUpEcho, levelUpEchoMax, recycleEcho, toggleEchoLock, unequipEcho, echoToNext, dataBankCostCap } from '../equip/echoActions.js';
 import { ECHO_CATALOG, getSetById, formatEchoStatValue, formatSetBonus } from '../data/echoes.js';
 import { totalExp } from '../equip/actions.js';
@@ -196,6 +196,7 @@ export function renderBag() {
         <div style="display:flex;gap:2px;margin-top:4px;flex-wrap:wrap;justify-content:center">
           <button class="mbtn" style="font-size:8px;padding:1px 4px" onclick="window.__bagEchoDetail(${e.id})">详</button>
           <button class="mbtn" style="font-size:8px;padding:1px 4px" onclick="window.__bagEchoLevelUp(${e.id})">升</button>
+          <button class="mbtn gold" style="font-size:8px;padding:1px 4px" onclick="window.__bagEchoLevelUpMax(${e.id})">满</button>
           ${!e.lock ? `<button class="mbtn" style="font-size:8px;padding:1px 4px" onclick="window.__bagEchoRecycle(${e.id})">分</button>` : ''}
           <button class="mbtn" style="font-size:8px;padding:1px 4px" onclick="window.__bagEchoToggleLock(${e.id})">${e.lock?'锁':'开'}</button>
           ${e.equippedBy ? `<button class="mbtn" style="font-size:8px;padding:1px 4px" onclick="window.__bagEchoUnequip(${e.id})">卸</button>` : ''}
@@ -300,16 +301,27 @@ window.__bagEchoDetail = (id) => {
   const e = S.echos.find(x => x.id === id);
   if (!e) return;
   const set = getSetById(Array.isArray(e.set) ? e.set[0] : e.set);
-  const subRows = (e.subStats || []).map(s => `<div style="display:flex;justify-content:space-between;font-size:11px;padding:2px 0;border-bottom:1px dashed var(--line)">
-    <span style="color:var(--muted)">${s.label}</span>
-    <span style="color:var(--gold)">${formatEchoStatValue(s.key, s.value)}</span></div>`).join('') || '<div style="color:var(--dim);font-size:11px">无副词条</div>';
+  const subRows = (e.subStats && e.subStats.length
+    ? e.subStats.map(s => {
+        if (s.unlocked === false) {
+          return `<div style="display:flex;justify-content:space-between;font-size:11px;padding:2px 0;border-bottom:1px dashed var(--line);opacity:.5">
+            <span style="color:var(--dim)">??? · 未解锁（升至 LV ${Math.ceil((e.subStats.indexOf(s)+1)*5)} 解锁）</span>
+            <span style="color:var(--dim)">—</span></div>`;
+        }
+        return `<div style="display:flex;justify-content:space-between;font-size:11px;padding:2px 0;border-bottom:1px dashed var(--line)">
+          <span style="color:var(--muted)">${s.label}</span>
+          <span style="color:var(--gold)">${formatEchoStatValue(s.key, s.value)}</span></div>`;
+      }).join('')
+    : '<div style="color:var(--dim);font-size:11px">无副词条</div>');
+  const canLevel = e.level < 25;
+  const nextCost = canLevel ? echoToNext(e) : 0;
   openModal({
-    title: `${e.name} · LV ${e.level}`,
+    title: `${e.name} · LV ${e.level} · COST ${e.cost}`,
     body: `<div style="font-size:11px;color:var(--muted);margin-bottom:8px">COST ${e.cost} · ${e.element} · ${set?.name || '无套装'}</div>
 <div style="font-size:11px;color:var(--muted);margin-bottom:4px">主词条</div>
 <div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid var(--line);margin-bottom:8px">
   <span>${e.mainStat?.label || ''}</span><span style="color:var(--gold)">${e.mainStat ? formatEchoStatValue(e.mainStat.key, e.mainStat.value) : ''}</span></div>
-<div style="font-size:11px;color:var(--muted);margin-bottom:4px">副词条</div>
+<div style="font-size:11px;color:var(--muted);margin-bottom:4px">副词条（${(e.subStats||[]).filter(s=>s.unlocked!==false).length}/${(e.subStats||[]).length}）</div>
 ${subRows}
 ${set ? `<div style="margin-top:8px;padding-top:6px;border-top:1px dashed var(--line)">
   <div style="color:var(--gold);font-size:11px;margin-bottom:3px">套装效果 · ${set.name}</div>
@@ -319,15 +331,47 @@ ${set ? `<div style="margin-top:8px;padding-top:6px;border-top:1px dashed var(--
   </div>
 </div>` : ''}
 <div style="font-size:10px;color:var(--dim);margin-top:8px">累计经验 ${totalExp(e)} · ${e.equippedBy ? `装备于 ${e.equippedBy}` : '未装备'}</div>`,
-    actions: [{ label: '关闭', cls: '', fn: () => {} }]
+    actions: [
+      ...(canLevel ? [
+        { label: `升级 (${nextCost.toLocaleString()} exp)`, cls: 'gold', fn: () => { window.__bagEchoLevelUp(id); } },
+        { label: '一键升满', cls: '', fn: () => { window.__bagEchoLevelUpMax(id); } }
+      ] : []),
+      { label: '关闭', cls: '', fn: () => {} }
+    ]
   });
 };
 
 window.__bagEchoLevelUp = (id) => {
   const e = S.echos.find(x => x.id === id);
   if (!e) return;
+  const before = totalExp();
   const ok = levelUpEcho(id);
-  if (ok) msg(`${e.name} 升至 LV ${e.level}`, false);
+  if (ok) {
+    const used = before - totalExp();
+    const unlocked = (e.level % 5 === 0) ? ' · 新副词条槽位已解锁' : '';
+    msg(`${e.name} 升至 LV ${e.level}（消耗 ${used.toLocaleString()} 经验${unlocked}）`, false);
+    closeModal();
+    window.__bagEchoDetail(id);
+  }
+  renderBag();
+  window.__render();
+};
+
+window.__bagEchoLevelUpMax = (id) => {
+  const e = S.echos.find(x => x.id === id);
+  if (!e) return;
+  const before = totalExp();
+  const count = levelUpEchoMax(id);
+  const used = before - totalExp();
+  if (count > 0) {
+    msg(`${e.name} 一键升至 LV ${e.level}（升 ${count} 级 · 消耗 ${used.toLocaleString()} 经验）`, false);
+    closeModal();
+    window.__bagEchoDetail(id);
+  } else if (e.level >= 25) {
+    msg('声骸已满级');
+  } else {
+    msg('经验不足，无法升级');
+  }
   renderBag();
   window.__render();
 };

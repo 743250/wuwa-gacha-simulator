@@ -390,6 +390,7 @@ function renderRoles() {
 let _currentRoleTab = 'basic';
 let _currentRoleName = null;
 let _currentRolePreview = false;
+let _echoSelectedSlot = {};
 
 export function openRoleModal(n) {
   _currentRoleName = n;
@@ -505,6 +506,16 @@ function renderRoleTabContent(tabId, preview = false) {
       return set ? { ...set, count: n, tier: n >= 5 ? 5 : 2 } : null;
     }).filter(Boolean);
 
+    // 选中槽位（per-role），缺省选第一个有装备的，否则槽 0
+    _echoSelectedSlot = _echoSelectedSlot || {};
+    if (_echoSelectedSlot[n] == null) {
+      const firstFilled = slots.findIndex(id => id != null);
+      _echoSelectedSlot[n] = firstFilled >= 0 ? firstFilled : 0;
+    }
+    const selIdx = _echoSelectedSlot[n];
+    const selId = slots[selIdx];
+    const selEcho = selId != null ? S.echos.find(x => x.id === selId) : null;
+
     return `
       ${previewNote}
       <div style="border:1px solid var(--line);border-radius:8px;padding:11px 13px;background:rgba(255,255,255,.02);margin-bottom:10px">
@@ -515,30 +526,64 @@ function renderRoleTabContent(tabId, preview = false) {
         <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px">
           ${slots.map((id, i) => {
             const e = id != null ? S.echos.find(x => x.id === id) : null;
-            if (!e) {
-              return `<div class="echo-slot empty" onclick="window.__openEchoPicker('${n.replace(/'/g, "\\'")}',${i})" style="border:1px dashed var(--line2);border-radius:8px;padding:9px 4px;text-align:center;cursor:pointer;min-height:78px;display:flex;flex-direction:column;justify-content:center;align-items:center">
-                <div style="font-size:18px;color:var(--dim)">＋</div>
-                <div style="font-size:9px;color:var(--dim);margin-top:3px">槽位 ${i+1}</div>
-              </div>`;
-            }
-            const set = getSetById(Array.isArray(e.set) ? e.set[0] : e.set);
-            const setColor = set?.element ? ({'热熔':'#ff8c5e','冷凝':'#7bd6ff','导电':'#b58cff','气动':'#8de6a6','衍射':'#fff0b0','湮灭':'#c39bff'}[set.element] || '#fff') : '#999';
-            return `<div class="echo-slot" style="border:1px solid ${setColor};border-radius:8px;padding:7px 4px;text-align:center;min-height:78px;background:rgba(255,255,255,.02);position:relative">
-              <div style="font-size:9px;color:var(--gold);position:absolute;top:2px;left:4px">COST ${e.cost}</div>
-              <div style="font-size:9px;color:var(--muted);position:absolute;top:2px;right:4px">+${e.level}</div>
-              <div style="font-size:11px;font-weight:700;margin-top:14px;color:${setColor}">${e.name}</div>
-              <div style="font-size:9px;color:var(--muted);margin-top:3px">${e.mainStat?.label || ''}</div>
-              <div style="font-size:9px;color:var(--gold);margin-top:1px">${e.mainStat ? (e.mainStat.value*100).toFixed(1)+'%' : ''}</div>
-              <div style="font-size:8px;color:${setColor};margin-top:2px;letter-spacing:.5px">${set?.name || ''}</div>
-              <div style="display:flex;gap:2px;justify-content:center;margin-top:4px">
-                <button class="mbtn" style="font-size:9px;padding:1px 5px" onclick="window.__openEchoPicker('${n.replace(/'/g, "\\'")}',${i})">换</button>
-                <button class="mbtn" style="font-size:9px;padding:1px 5px" onclick="window.__unequipEchoSlot('${n.replace(/'/g, "\\'")}',${i})">卸</button>
-              </div>
+            const isSel = i === selIdx;
+            const borderColor = e ? (getSetById(Array.isArray(e.set) ? e.set[0] : e.set)?.element ? ({'热熔':'#ff8c5e','冷凝':'#7bd6ff','导电':'#b58cff','气动':'#8de6a6','衍射':'#fff0b0','湮灭':'#c39bff'}[getSetById(Array.isArray(e.set) ? e.set[0] : e.set).element] || '#fff') : '#999') : 'var(--line2)';
+            return `<div class="echo-slot ${isSel ? 'selected' : ''}" onclick="window.__selectEchoSlot('${n.replace(/'/g, "\\'")}',${i})" style="border:${isSel ? '2' : '1'}px solid ${isSel ? 'var(--gold)' : borderColor};border-radius:8px;padding:7px 4px;text-align:center;${e ? '' : 'border-style:dashed;'}cursor:pointer;min-height:78px;display:flex;flex-direction:column;justify-content:center;align-items:center;background:${isSel ? 'rgba(245,207,107,.06)' : 'rgba(255,255,255,.02)'};position:relative">
+              ${e ? `<div style="font-size:9px;color:var(--gold);position:absolute;top:2px;left:4px">C${e.cost}</div>
+                <div style="font-size:9px;color:var(--muted);position:absolute;top:2px;right:4px">+${e.level}</div>
+                <div style="font-size:10px;font-weight:700;margin-top:10px;color:${borderColor};line-height:1.1;word-break:break-all">${e.name}</div>
+                <div style="font-size:8px;color:${borderColor};margin-top:2px;letter-spacing:.3px">${getSetById(Array.isArray(e.set) ? e.set[0] : e.set)?.name || ''}</div>` : `<div style="font-size:18px;color:var(--dim)">＋</div><div style="font-size:9px;color:var(--dim);margin-top:3px">槽位 ${i+1}</div>`}
             </div>`;
           }).join('')}
         </div>
         <div style="font-size:10px;color:var(--muted);text-align:center;margin-top:10px">数据坞 LV ${S.dataBankLevel} · COST 上限 ${cap} · 持有 ${S.echos.length} 个声骸</div>
       </div>
+      ${selEcho ? (() => {
+        const e = selEcho;
+        const set = getSetById(Array.isArray(e.set) ? e.set[0] : e.set);
+        const setColor = set?.element ? ({'热熔':'#ff8c5e','冷凝':'#7bd6ff','导电':'#b58cff','气动':'#8de6a6','衍射':'#fff0b0','湮灭':'#c39bff'}[set.element] || '#fff') : '#999';
+        const canLevel = e.level < 25;
+        const nextCost = canLevel ? echoToNext(e) : 0;
+        const unlockedCount = (e.subStats||[]).filter(s => s.unlocked !== false).length;
+        const subRows = (e.subStats||[]).map((s, idx) => {
+          if (s.unlocked === false) {
+            return `<div style="display:flex;justify-content:space-between;font-size:11px;padding:3px 0;border-bottom:1px dashed var(--line);opacity:.5">
+              <span style="color:var(--dim)">??? · 未解锁（LV ${(idx+1)*5}）</span>
+              <span style="color:var(--dim)">—</span></div>`;
+          }
+          return `<div style="display:flex;justify-content:space-between;font-size:11px;padding:3px 0;border-bottom:1px dashed var(--line)">
+            <span style="color:var(--muted)">${s.label}</span>
+            <span style="color:var(--gold)">${formatEchoStatValue(s.key, s.value)}</span></div>`;
+        }).join('');
+        return `<div style="border:1px solid ${setColor};border-radius:8px;padding:11px 13px;background:rgba(255,255,255,.02);margin-bottom:10px">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
+            <span style="font-size:13px;font-weight:700;color:${setColor}">${e.name}</span>
+            <span style="font-size:10px;color:var(--muted)">LV ${e.level} · COST ${e.cost} · ${e.element}</span>
+          </div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:4px;letter-spacing:1px">主词条</div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;padding:5px 0;border-bottom:1px solid var(--line);margin-bottom:8px">
+            <span>${e.mainStat?.label || '—'}</span>
+            <span style="color:var(--gold)">${e.mainStat ? formatEchoStatValue(e.mainStat.key, e.mainStat.value) : '—'}</span></div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:4px;letter-spacing:1px">副词条（${unlockedCount}/${(e.subStats||[]).length}）</div>
+          <div style="margin-bottom:8px">${subRows || '<div style="color:var(--dim);font-size:11px">无副词条</div>'}</div>
+          ${set ? `<div style="margin-top:6px;padding-top:6px;border-top:1px dashed var(--line)">
+            <div style="color:${setColor};font-size:11px;margin-bottom:3px;letter-spacing:1px">${set.name}</div>
+            <div style="font-size:11px;color:var(--muted);line-height:1.6">
+              <div>· <b>2 件</b>：${formatSetBonus(set.bonus2) || '—'}</div>
+              <div>· <b>5 件</b>：${formatSetBonus(set.bonus5) || '—'}</div>
+            </div>
+          </div>` : ''}
+          <div style="display:flex;gap:5px;margin-top:10px;flex-wrap:wrap">
+            <button class="mbtn" onclick="window.__openEchoPicker('${n.replace(/'/g, "\\'")}',${selIdx})">换装</button>
+            ${canLevel ? `<button class="mbtn gold" onclick="window.__echoLevelUp(${e.id})">升级 (${nextCost.toLocaleString()} exp)</button>` : ''}
+            ${canLevel ? `<button class="mbtn" onclick="window.__echoLevelUpMax(${e.id})">升满</button>` : ''}
+            <button class="mbtn" onclick="window.__unequipEchoSlot('${n.replace(/'/g, "\\'")}',${selIdx})">卸下</button>
+          </div>
+          <div style="font-size:10px;color:var(--muted);text-align:center;margin-top:8px">累计经验 ${totalExp(e)}${e.equippedBy ? ` · 装备于 ${e.equippedBy}` : ''}</div>
+        </div>`;
+      })() : `<div style="border:1px dashed var(--line2);border-radius:8px;padding:14px;text-align:center;color:var(--dim);font-size:11px;margin-bottom:10px">
+        槽位 ${selIdx+1} 未装备声骸 · <a style="color:var(--gold);cursor:pointer" onclick="window.__openEchoPicker('${n.replace(/'/g, "\\'")}',${selIdx})">点击装备</a>
+      </div>`}
       <div style="border:1px solid var(--line);border-radius:8px;padding:11px 13px;background:rgba(255,255,255,.02)">
         <div style="font-size:9px;color:var(--muted);letter-spacing:2px;margin-bottom:8px">已 激 活 套 装</div>
         ${activeSets.length ? activeSets.map(s => {
@@ -796,7 +841,13 @@ window.__unequipEchoSlot = (roleName, slot) => {
   refreshRolePane();
   render();
 };
+window.__selectEchoSlot = (roleName, idx) => {
+  _echoSelectedSlot[roleName] = idx;
+  render();
+};
 window.__echoDetail = (id) => {
+  // 委托给背包详情（统一带升级/升满按钮的 modal）
+  if (typeof window.__bagEchoDetail === 'function') return window.__bagEchoDetail(id);
   const e = S.echos.find(x => x.id === id);
   if (!e) return;
   const set = getSetById(Array.isArray(e.set) ? e.set[0] : e.set);
@@ -806,8 +857,8 @@ window.__echoDetail = (id) => {
       <div>套装：<b style="color:var(--gold)">${set?.name || '未知'}</b>${set?.element ? ` · ${set.element}` : ''}</div>
       <div>元素：<b>${e.element || '—'}</b></div>
       <div>主词条：<b style="color:var(--gold)">${e.mainStat?.label} ${formatEchoStatValue(e.mainStat?.key, e.mainStat?.value)}</b></div>
-      <div style="margin-top:6px">副词条（${(e.subStats||[]).length}）：</div>
-      <div style="margin-left:10px">${(e.subStats||[]).map(s => `<div>· ${s.label} ${formatEchoStatValue(s.key, s.value)}</div>`).join('')}</div>
+      <div style="margin-top:6px">副词条（${(e.subStats||[]).filter(s=>s.unlocked!==false).length}/${(e.subStats||[]).length}）：</div>
+      <div style="margin-left:10px">${(e.subStats||[]).map(s => s.unlocked === false ? `<div style="opacity:.5">· ??? · 未解锁</div>` : `<div>· ${s.label} ${formatEchoStatValue(s.key, s.value)}</div>`).join('')}</div>
       ${set ? `<div style="margin-top:8px;padding-top:6px;border-top:1px dashed var(--line)">
         <div style="color:var(--gold);font-size:11px;margin-bottom:3px">套装效果</div>
         <div style="margin-left:10px">
@@ -820,6 +871,7 @@ window.__echoDetail = (id) => {
   });
 };
 window.__echoLevelUp = (id) => {
+  if (typeof window.__bagEchoLevelUp === 'function') return window.__bagEchoLevelUp(id);
   const e = S.echos.find(x => x.id === id);
   if (!e) return;
   if (e.level >= 25) { msg('已满级'); return; }
@@ -832,7 +884,11 @@ window.__echoLevelUp = (id) => {
     msg(`经验不足（需 ${cost.toLocaleString()}）`);
   }
 };
+window.__echoLevelUpMax = (id) => {
+  if (typeof window.__bagEchoLevelUpMax === 'function') return window.__bagEchoLevelUpMax(id);
+};
 window.__echoRecycle = (id) => {
+  if (typeof window.__bagEchoRecycle === 'function') return window.__bagEchoRecycle(id);
   const ok = recycleEcho(id);
   if (ok) {
     closeModal();
@@ -842,6 +898,7 @@ window.__echoRecycle = (id) => {
   }
 };
 window.__echoToggleLock = (id) => {
+  if (typeof window.__bagEchoToggleLock === 'function') return window.__bagEchoToggleLock(id);
   toggleEchoLock(id);
   closeModal();
   render();

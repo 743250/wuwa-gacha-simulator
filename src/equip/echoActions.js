@@ -48,19 +48,22 @@ export function generateEcho(echoId) {
   }
   const mainDef = pick(mainPoolFiltered);
 
-  // 副词条：随机 4 种，初值固定在中值，升级时解锁第 5/6/7 条（实际只生成 4 个，并通过升级增加）
-  // 这里生成 4 个副词条（与 csv 中 COST4 默认 4 副词条一致），数值取中值
+  // 副词条：金色声骸共 5 个槽位，初始 0 条解锁，每升 5 级（5/10/15/20/25）解锁 1 条
+  // 数值在 min~max 间随机；未解锁槽位 unlocked=false，UI 渲染为 ??? 占位
+  // 升级到 5/10/15/20/25 时激活下一个未解锁槽位
+  const TOTAL_SUBS = 5;
+  const INIT_UNLOCKED = 0;
   const subKeys = new Set();
   const subPool = SUB_STAT_POOL.slice();
-  while (subKeys.size < 4 && subPool.length) {
+  while (subKeys.size < TOTAL_SUBS && subPool.length) {
     const idx = Math.floor(Math.random() * subPool.length);
     subKeys.add(subPool[idx].key);
     subPool.splice(idx, 1);
   }
-  const subStats = [...subKeys].map(k => {
+  const subStats = [...subKeys].map((k, i) => {
     const def = SUB_STAT_POOL.find(s => s.key === k);
     const value = randomStatValue(def);
-    return { key: def.key, label: def.label, value, locked: false };
+    return { key: def.key, label: def.label, value, locked: false, unlocked: i < INIT_UNLOCKED };
   });
 
   // set 字段可能是数组（鸣钟之龟），用第一项作为主套装
@@ -188,15 +191,10 @@ export function levelUpEcho(echoId) {
   consumeExp(cost);
   echo.level++;
   echo.exp += cost;
-  // 每 5 级解锁一条新副词条（5/10/15/20）
-  if (echo.level % 5 === 0 && echo.level <= 20) {
-    const usedKeys = new Set(echo.subStats.map(s => s.key));
-    const pool = SUB_STAT_POOL.filter(s => !usedKeys.has(s.key));
-    if (pool.length) {
-      const def = pick(pool);
-      const value = randomStatValue(def);
-      echo.subStats.push({ key: def.key, label: def.label, value, locked: false });
-    }
+  // 每 5 级（5/10/15/20/25）激活下一个未解锁副词条槽位
+  if (echo.level % 5 === 0) {
+    const nextLocked = echo.subStats.find(s => !s.unlocked);
+    if (nextLocked) nextLocked.unlocked = true;
   }
   return true;
 }

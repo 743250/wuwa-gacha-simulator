@@ -72,8 +72,8 @@ export const DUNGEONS = [
       { enemies: ['紫羽鹭', '导电掠食者×2'], enemyScale: 0.95, weight: 2, tag: '雷羽群' },
       { enemies: ['古老幽灵×2', '飞兽×1'], enemyScale: 1.25, weight: 2, tag: '混编残响' }
     ],
-    drops: { weapon_book: 24 },
-    minLevel: 20, enemyScale: 1.3, desc: '武器石×24 · 40 波片'
+    drops: { weapon_book: 16 },
+    minLevel: 20, enemyScale: 1.3, desc: '武器石×16 · 40 波片'
   },
   // 80 波片 Lv80：周本影 + 高阶精英
   {
@@ -88,8 +88,8 @@ export const DUNGEONS = [
       { enemies: ['坚岩守护者', '碧焰蜥×2'], enemyScale: 1.3, weight: 2, tag: '光焰混编' },
       { enemies: ['鼓手', '紫羽鹭×2'], enemyScale: 1.35, weight: 2, tag: '湮雷混编' }
     ],
-    drops: { weapon_book: 50 },
-    minLevel: 40, enemyScale: 1.8, desc: '武器石×50 · 80 波片（凝缩）'
+    drops: { weapon_book: 32 },
+    minLevel: 40, enemyScale: 1.8, desc: '武器石×32 · 80 波片（凝缩）'
   },
 
   // ===== 无音区（声骸 · 官方名 Tacet Field · 60 波片）=====
@@ -110,8 +110,8 @@ export const DUNGEONS = [
       { enemies: ['碧焰蜥×2', '咔嚓×2'], enemyScale: 0.95, weight: 2, tag: '焰蜥混编' },
       { enemies: ['鼓手', '滴答×2'], enemyScale: 0.9, weight: 2, tag: '湮灭乐师' }
     ],
-    drops: { exp_high: 4, weapon_book: 10, astrite: 10, echo_set: ['frost','fire','thunder','wind','spectro','havoc','heal','energy','atk','normal_atk'], echo_count: 1 },
-    minLevel: 1, desc: '高级×4 · 武器石×10 · 星声+10 · 声骸×1 · 60 波片'
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: ['frost','fire','thunder','wind','spectro','havoc','heal','energy','atk','normal_atk'], echo_count: 1 },
+    minLevel: 1, desc: '特级×1 高级×2 · 武器石×12 · 星声+10 · 声骸×1 · 60 波片'
   },
   // 60 波片 Lv70：BOSS + 精英组合
   {
@@ -129,8 +129,8 @@ export const DUNGEONS = [
       { enemies: ['石壁护腕', '坚岩守护者'], enemyScale: 1.2, weight: 2, tag: '巨岩双守' },
       { enemies: ['紫羽鹭', '青羽鹭', '碧焰蜥'], enemyScale: 1.15, weight: 2, tag: '三色精英' }
     ],
-    drops: { exp_super: 1, exp_high: 1, exp_mid: 3, weapon_book: 12, astrite: 10, echo_set: ['frost_new','fire_new','thunder_new','wind_new','spectro_new','havoc_new','coord','energy_new'], echo_count: 1 },
-    minLevel: 40, enemyScale: 1.6, desc: '特级×1 高级×1 中级×3 · 武器石×12 · 星声+10 · 声骸×1 · 60 波片'
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: ['frost_new','fire_new','thunder_new','wind_new','spectro_new','havoc_new','coord','energy_new'], echo_count: 1 },
+    minLevel: 40, enemyScale: 1.6, desc: '特级×1 高级×2 · 武器石×12 · 星声+10 · 声骸×1 · 60 波片'
   },
 
   // ===== 2.0+ 角色专属套 · 对应无音区副本（60 波片）=====

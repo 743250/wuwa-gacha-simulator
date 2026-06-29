@@ -95,9 +95,10 @@ export function echoContrib(roleName) {
     if (b) bonuses.push(b);
   }
 
-  // 副词条：直接转 bonus（固定值已是百分比小数或 flat）
+  // 副词条：仅统计已解锁（unlocked !== false）的槽位；旧档无此字段默认解锁
   for (const e of equipped) {
     for (const s of (e.subStats || [])) {
+      if (s.unlocked === false) continue;
       subStats.push({ name: e.name, ...s });
       const b = subStatToBonus(s);
       if (b) bonuses.push(b);
