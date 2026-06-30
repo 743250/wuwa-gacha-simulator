@@ -271,13 +271,12 @@ window.openStaminaModal = openStaminaModal;
 window.__staminaUse = (id, n) => {
   if (window.__usePotion) {
     window.__usePotion(id, n);
-    // 重开 modal 刷新数字
-    setTimeout(() => { document.getElementById('modal').classList.remove('on'); openStaminaModal(); }, 50);
+    openStaminaModal();
   }
 };
 window.__staminaBuy = () => {
   if (window.__buyStamina) {
     window.__buyStamina();
-    setTimeout(() => { document.getElementById('modal').classList.remove('on'); openStaminaModal(); }, 50);
+    openStaminaModal();
   }
 };

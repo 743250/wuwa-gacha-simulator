@@ -285,7 +285,10 @@ window.__bagUseRefineStoneOn = (target) => {
 };
 
 // ========== 声骸仓库交互 ==========
-window.__bagEchoDetail = (id) => {
+// 标记详情 modal 是否从角色面板进入（关闭时回到角色声骸面板）
+let _echoDetailFromRole = false;
+window.__bagEchoDetail = (id, fromRole = false) => {
+  _echoDetailFromRole = !!fromRole;
   const e = S.echos.find(x => x.id === id);
   if (!e) return;
   const set = getSetById(Array.isArray(e.set) ? e.set[0] : e.set);
@@ -334,7 +337,7 @@ ${set ? `<div style="margin-top:8px;padding-top:6px;border-top:1px dashed var(--
       ...(!e.lock && !e.equippedBy ? [{ label: '分解', cls: '', fn: () => {
         window.__bagEchoConfirmRecycle(id);
       } }] : []),
-      { label: '关闭', cls: '', fn: () => {} }
+      { label: '关闭', cls: '', fn: () => { if (_echoDetailFromRole && typeof window.__reopenRoleEchoTab === 'function') window.__reopenRoleEchoTab(); } }
     ]
   });
 };
@@ -348,8 +351,7 @@ window.__bagEchoLevelUp = (id) => {
     const used = before - totalExp();
     const unlocked = (e.level % 5 === 0) ? ' · 新副词条槽位已解锁' : '';
     msg(`${e.name} 升至 LV ${e.level}（消耗 ${used.toLocaleString()} 经验${unlocked}）`, false);
-    closeModal();
-    window.__bagEchoDetail(id);
+    window.__bagEchoDetail(id, _echoDetailFromRole);
   }
   renderBag();
   window.__render();
@@ -363,8 +365,7 @@ window.__bagEchoLevelUpMax = (id) => {
   const used = before - totalExp();
   if (count > 0) {
     msg(`${e.name} 一键升至 LV ${e.level}（升 ${count} 级 · 消耗 ${used.toLocaleString()} 经验）`, false);
-    closeModal();
-    window.__bagEchoDetail(id);
+    window.__bagEchoDetail(id, _echoDetailFromRole);
   } else if (e.level >= 25) {
     msg('声骸已满级');
   } else {
@@ -379,8 +380,12 @@ window.__bagEchoRecycle = (id) => {
   if (!e) return;
   const res = recycleEcho(id);
   if (!res.ok) { if (res.err) msg(res.err); else msg('分解失败（已装备/已锁定？）'); }
-  renderBag();
-  window.__render();
+  if (_echoDetailFromRole && typeof window.__reopenRoleEchoTab === 'function') {
+    window.__reopenRoleEchoTab();
+  } else {
+    renderBag();
+    window.__render();
+  }
 };
 
 window.__bagEchoConfirmRecycle = (id) => {
@@ -452,11 +457,12 @@ window.__bagEchoFeedDo = (targetId, feedId) => {
   renderBag();
   window.__render();
   // 升级完成后再打开一次目标详情
-  if (typeof window.__bagEchoDetail === 'function') window.__bagEchoDetail(targetId);
+  if (typeof window.__bagEchoDetail === 'function') window.__bagEchoDetail(targetId, _echoDetailFromRole);
 };
 
 window.__bagEchoToggleLock = (id) => {
   toggleEchoLock(id);
+  window.__bagEchoDetail(id, _echoDetailFromRole);
   renderBag();
 };
 
@@ -465,8 +471,12 @@ window.__bagEchoUnequip = (id) => {
   if (!e) return;
   const ok = unequipEcho(id);
   if (ok) msg(`已卸下 ${e.name}`, false);
-  renderBag();
-  window.__render();
+  if (_echoDetailFromRole && typeof window.__reopenRoleEchoTab === 'function') {
+    window.__reopenRoleEchoTab();
+  } else {
+    renderBag();
+    window.__render();
+  }
 };
 
 window.__bagEchoRetune = (id, idx) => {
@@ -475,8 +485,7 @@ window.__bagEchoRetune = (id, idx) => {
   const r = retuneEchoSubStat(id, idx);
   if (!r.ok) { msg(r.err); return; }
   msg(`${e.name} · ${r.label} 调谐：${formatEchoStatValue(e.subStats[idx].key, r.oldVal)} → ${formatEchoStatValue(e.subStats[idx].key, r.newVal)}`, false);
-  closeModal();
-  window.__bagEchoDetail(id);
+  window.__bagEchoDetail(id, _echoDetailFromRole);
   renderBag();
   window.__render();
 };

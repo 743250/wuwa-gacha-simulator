@@ -398,14 +398,12 @@ let _echoSelectedSlot = {};
 export function openRoleModal(n) {
   _currentRoleName = n;
   _currentRolePreview = false;
-  _currentRoleTab = 'basic';
   renderRoleModal(false);
 }
 
 export function openRolePreview(n) {
   _currentRoleName = n;
   _currentRolePreview = true;
-  _currentRoleTab = 'basic';
   renderRoleModal(true);
 }
 
@@ -533,7 +531,7 @@ function renderRoleTabContent(tabId, preview = false) {
             const setObj = e ? getSetById(Array.isArray(e.set) ? e.set[0] : e.set) : null;
             const borderColor = e ? (setObj?.element ? ({'热熔':'#ff8c5e','冷凝':'#7bd6ff','导电':'#b58cff','气动':'#8de6a6','衍射':'#fff0b0','湮灭':'#c39bff'}[setObj.element] || '#fff') : '#999') : 'var(--line2)';
             const clickHandler = e
-              ? `window.__selectEchoSlot('${n.replace(/'/g, "\\'")}',${i}); window.__bagEchoDetail(${e.id})`
+              ? `window.__selectEchoSlot('${n.replace(/'/g, "\\'")}',${i}); window.__bagEchoDetail(${e.id}, true)`
               : `window.__selectEchoSlot('${n.replace(/'/g, "\\'")}',${i}); window.__openEchoPicker('${n.replace(/'/g, "\\'")}',${i})`;
             return `<div class="echo-slot ${isSel ? 'selected' : ''}" onclick="${clickHandler}" style="border:${isSel ? '2' : '1'}px solid ${isSel ? 'var(--gold)' : borderColor};border-radius:8px;padding:7px 4px;text-align:center;${e ? '' : 'border-style:dashed;'}cursor:pointer;min-height:78px;display:flex;flex-direction:column;justify-content:center;align-items:center;background:${isSel ? 'rgba(245,207,107,.06)' : 'rgba(255,255,255,.02)'};position:relative">
               ${e ? `<div style="font-size:9px;color:var(--gold);position:absolute;top:2px;left:4px">C${e.cost}</div>
@@ -558,7 +556,7 @@ function renderRoleTabContent(tabId, preview = false) {
           <div style="display:flex;gap:5px;flex-wrap:wrap">
             <button class="mbtn" onclick="window.__openEchoPicker('${n.replace(/'/g, "\\'")}',${selIdx})">换装</button>
             ${canLevel ? `<button class="mbtn gold" onclick="window.__echoLevelUp(${e.id})">升级 (${nextCost.toLocaleString()} exp)</button>` : ''}
-            <button class="mbtn" onclick="window.__bagEchoDetail(${e.id})">详情</button>
+            <button class="mbtn" onclick="window.__bagEchoDetail(${e.id}, true)">详情</button>
             <button class="mbtn" onclick="window.__unequipEchoSlot('${n.replace(/'/g, "\\'")}',${selIdx})">卸下</button>
           </div>
         </div>`;
@@ -828,7 +826,7 @@ window.__openEchoPicker = (roleName, slot) => {
       <div style="max-height:55vh;overflow-y:auto;display:flex;flex-direction:column;gap:6px">
       ${items || '<div style="color:var(--dim);font-size:12px;text-align:center;padding:20px">无可装备的声骸。前往「冒险 · 副本 · 无音区」战斗掉落获取。</div>'}
     </div>`,
-    actions: [{ label: '关闭', cls: '', fn: () => {} }]
+    actions: [{ label: '关闭', cls: '', fn: () => { if (_currentRoleName) renderRoleModal(); } }]
   });
 };
 window.__echoPickerSetSort = (v) => { ECHO_PICKER_STATE.sort = v; };
@@ -845,23 +843,29 @@ window.__echoPickerSetQuery = (v) => {
 window.__doEquipEcho = (roleName, slot, echoId) => {
   const r = equipEcho(roleName, slot, echoId);
   if (!r.ok) { msg(r.err); return; }
-  closeModal();
-  refreshRolePane();
-  render();
+  // 装备后回到角色声骸面板（不关闭 modal），方便继续装其他槽位
+  if (_currentRoleName) renderRoleModal();
+  window.__render();
 };
 window.__unequipEchoSlot = (roleName, slot) => {
   unequipSlot(roleName, slot);
-  refreshRolePane();
-  render();
+  if (_currentRoleName) renderRoleModal();
+  window.__render();
 };
 window.__selectEchoSlot = (roleName, idx) => {
   _echoSelectedSlot[roleName] = idx;
   refreshRolePane();
   render();
 };
+// 从子 modal（详情/picker）关闭后回到角色声骸面板
+window.__reopenRoleEchoTab = () => {
+  if (!_currentRoleName) return;
+  _currentRoleTab = 'echo';
+  renderRoleModal();
+};
 window.__echoDetail = (id) => {
   // 委托给背包详情（统一带升级/升满按钮的 modal）
-  if (typeof window.__bagEchoDetail === 'function') return window.__bagEchoDetail(id);
+  if (typeof window.__bagEchoDetail === 'function') return window.__bagEchoDetail(id, true);
   const e = S.echos.find(x => x.id === id);
   if (!e) return;
   const set = getSetById(Array.isArray(e.set) ? e.set[0] : e.set);
@@ -892,8 +896,8 @@ window.__echoLevelUp = (id) => {
   const cost = echoToNext(e);
   if (levelUpEcho(id)) {
     msg(`声骸 +1 级（消耗 ${cost.toLocaleString()} exp）`, false);
-    closeModal();
-    render();
+    if (_currentRoleName) { _currentRoleTab = 'echo'; renderRoleModal(); }
+    else render();
   } else {
     msg(`经验不足（需 ${cost.toLocaleString()}）`);
   }
@@ -906,8 +910,8 @@ window.__echoRecycle = (id) => {
   if (typeof window.__bagEchoRecycle === 'function') return window.__bagEchoRecycle(id);
   const res = recycleEcho(id);
   if (res.ok) {
-    closeModal();
-    render();
+    if (_currentRoleName) { _currentRoleTab = 'echo'; renderRoleModal(); }
+    else { closeModal(); render(); }
   } else {
     msg(res.err || '分解失败（已装备/已锁定？）');
   }
@@ -915,8 +919,8 @@ window.__echoRecycle = (id) => {
 window.__echoToggleLock = (id) => {
   if (typeof window.__bagEchoToggleLock === 'function') return window.__bagEchoToggleLock(id);
   toggleEchoLock(id);
-  closeModal();
-  render();
+  if (_currentRoleName) { _currentRoleTab = 'echo'; renderRoleModal(); }
+  else render();
 };
 
 
