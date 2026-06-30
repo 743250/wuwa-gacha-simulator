@@ -32,11 +32,12 @@ export const FORTE = {
     desc: '韶光满层时共鸣技能进入强化形态（×1.8 伤害）'
   },
   '长离': {
+    // 离火由 combat.js 的 changliGainLihuo 专门控制（含心眼进出 + 每层 +5% 热熔），
+    // 故通用 gainForte 全部置 0，避免双算（同安可失序值做法）。
     kind: 'stacks', resourceName: '离火', max: 6,
-    gainPerNormal: 1, gainPerSkill: 2, gainPerBurst: 3,
-    effectType: 'enhancedNormal',
-    effectMult: 2.2,
-    desc: '攒满离火，普攻进入心眼派生（×2.2 重击）'
+    gainPerNormal: 0, gainPerSkill: 0, gainPerBurst: 0, gainPerHeavy: 0,
+    effectType: 'mindEye',
+    desc: '普攻/技能/重击各 +1 离火、解放 +3；每层离火 +5% 热熔伤害；满 6 层进入心眼模式（攻击键变身、离火抵 AP）'
   },
   '守岸人': {
     kind: 'gauge', resourceName: '协奏', max: 100,
@@ -45,11 +46,10 @@ export const FORTE = {
     desc: '共鸣解放·终末回环展开「星域」：全队每回合回血 + 暴击 +20% + 暴伤 +30%（3 回合）。守岸人是治疗位，所有共鸣链都用来加强星域'
   },
   '椿': {
-    kind: 'gauge', resourceName: '红椿', max: 100,
+    kind: 'gauge', resourceName: '红椿·蕊', max: 100,
     gainPerNormal: 10, gainPerSkill: 15, gainPerBurst: 30,
-    effectType: 'enhancedNormal',
-    effectMult: 1.7,
-    desc: '红椿满时进入强化形态（普攻 ×1.7）'
+    effectType: 'chunHanbao',
+    desc: '红椿·蕊满 100 + 协奏 ≥ 50 时共鸣技能替换为永生花；永生花消耗 50 蕊 + 50 协奏进入含苞 3 回合（普攻/技能 ×1.5，6 链 ×2.5）'
   },
   '珂莱塔': {
     kind: 'stacks', resourceName: '晶体层数', max: 5,
@@ -78,6 +78,20 @@ export const FORTE = {
     effectType: 'enhancedBurst',
     effectMult: 1.6,
     desc: '阈值满时共鸣解放伤害 ×1.6'
+  },
+  '赞妮': {
+    kind: 'gauge', resourceName: '焰光', max: 100,
+    // 焰光由 zanyan.js 状态机控制（进灼焰 +50 / 每回合 +10 / 重斩 -20），通用 gainForte 全部置 0
+    gainPerNormal: 0, gainPerSkill: 0, gainPerBurst: 0, gainPerHeavy: 0,
+    effectType: 'zanYanBlaze',
+    desc: '焰光上限 100。共鸣解放·重燃进入灼焰形态 3 回合（+50 焰光，每回合 +10），期间普攻替换为重斩（HP×12%，消耗 20 焰光）。形态结束自动施放终绝将至之刻（HP×20%，3 链按消耗焰光 +2%/点 最多 +200%）。'
+  },
+  '弗洛洛': {
+    kind: 'gauge', resourceName: '余响', max: 24,
+    // 余响由 frolo.js 状态机控制（普攻+3/技能+5/重击+4/变奏+2/谱曲终末+6/赫卡忒自动+2/强化+3/战斗开始+10）
+    gainPerNormal: 0, gainPerSkill: 0, gainPerBurst: 0, gainPerHeavy: 0,
+    effectType: 'furoloEchoes',
+    desc: '余响上限 24 层。每层使谱曲终末倍率 +20%（2 链 +35%），满 24 层 ×3.0；每层暴伤 +2.5%（固有·八重奏）。战斗开始 +10 层。'
   },
   '安可': {
     kind: 'gauge', resourceName: '失序值', max: 100,

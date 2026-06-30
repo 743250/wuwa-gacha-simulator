@@ -119,21 +119,21 @@ export const SKILL_HINTS = {
     forteDesc: '<span style="color:var(--gold);font-size:11px">▸ 形态切换</span><br>· <b class="term-resource">韶光</b> 0-100：普攻 +10 / 技能 +20 / 变奏入场 +50<br>· <b class="term-resource">惊蛰</b> 0-4：普攻/技能各 +1 层<br>· 韶光满 <b>100</b> 时，下次<b class="term-skill">共鸣技能</b>变为<b style="color:var(--gold)">惊龙破空</b>，消耗全部韶光和惊蛰；惊蛰层数越高，爆发越高<br><br><span style="color:var(--gold);font-size:11px">▸ 推荐战斗节奏</span><br>普攻/技能积韶光与惊蛰 → 变奏切下再切回补韶光 → 韶光满 100 + 惊蛰 4 层 → 惊龙破空 → 共鸣解放清场。'
   },
   '长离': {
-    intro: '热熔 · 迅刀 · 主C · 「离火」',
+    intro: '热熔 · 迅刀 · 副C · 「离火 · 心眼」',
     customLines: makeSkillLines({
       element: '热熔',
       normalName: '衔火洞明', skillName: '赫羽三相', heavyName: '焚身以火', burstName: '离火照丹心', varName: '天道持枢',
       hasHeavy: true,
-      normalMech: '<span style="color:var(--muted)">资源积累：</span>普攻每 <b>3</b> 段获得 <b>1</b> 层<b class="term-resource">离火</b>（上限 3）。',
-      skillMech: '<span style="color:var(--muted)">资源积累：</span>共鸣技能命中获得 <b>1</b> 层<b class="term-resource">离火</b>。',
-      heavyMech: '<span style="color:var(--muted)">派生条件：</span>拥有<b class="term-resource">离火</b>时，重击变为<b>焚身以火</b>；消耗 <b>1</b> 层离火，每层使本次重击 +50%。无离火时为普通重击。',
-      burstMech: '<span style="color:var(--muted)">爆发窗口：</span>建议在 2-3 层<b class="term-resource">离火</b>后释放，先用重击焚身打出强化段，再接解放收尾。',
-      skillFollowUp: '2 链：获得离火时暴击 +25%。',
-      heavyFollowUp: '1 链：共鸣技能/重击伤害 +10%。 5 链：重击·焚身以火倍率 +50%。',
-      burstFollowUp: '3 链：共鸣解放·离火照丹心 +80%。 6 链：共鸣技能/重击/解放无视 40% 防御。'
+      normalMech: '<span style="color:var(--muted)">资源积累：</span>普攻命中获得 <b>1</b> 层<b class="term-resource">离火</b>（上限 6）。<span style="color:var(--muted)">心眼态：</span>变身<b class="term-skill">心眼·征</b>，倍率 100%→<b>180%</b>、转<b>共鸣技能</b>伤害，消耗 2 层离火抵 1 AP。',
+      skillMech: '<span style="color:var(--muted)">资源积累：</span>共鸣技能命中获得 <b>1</b> 层<b class="term-resource">离火</b>。<span style="color:var(--muted)">心眼态：</span>变身<b class="term-skill">心眼·劫</b>，倍率 180%→<b>200%</b>，消耗 2 层离火抵 1 AP、不吃冷却。',
+      heavyMech: '<span style="color:var(--muted)">资源积累：</span>重击命中获得 <b>1</b> 层<b class="term-resource">离火</b>。<span style="color:var(--muted)">心眼态：</span>变身<b class="term-skill">心眼·冲</b>（爆发顶点），倍率 220%→<b>400%</b>、转<b>共鸣技能</b>伤害，消耗 4 层离火抵 2 AP。',
+      burstMech: '<span style="color:var(--muted)">爆发增益：</span>造成热熔伤害、获得 <b>3</b> 层<b class="term-resource">离火</b>，进入<b class="term-buff">焰羽</b>（2 回合攻击 +50%、无视 40% 防御）。',
+      skillFollowUp: '2 链：持有离火时暴击 +25%。',
+      heavyFollowUp: '1 链：共鸣技能/重击伤害 +10%。 5 链：重击伤害 +100%。',
+      burstFollowUp: '3 链：共鸣解放·离火照丹心 +80%。 6 链：所有攻击无视 40% 防御。'
     }),
     forteName: '离火',
-    forteDesc: '<span style="color:var(--gold);font-size:11px">▸ 形态/派生条件</span><br>· <b class="term-resource">离火</b> 0-3 层：共鸣技能 +1 / 普攻每 3 段 +1<br>· 拥有离火时，<b class="term-heavy">重击</b>变为<b style="color:#ff8c5e">焚身以火</b>；释放后消耗 1 层离火，每层让本次重击 +50%<br>· 没有离火时，重击只是普通蓄力段<br><br><span style="color:var(--gold);font-size:11px">▸ 推荐战斗节奏</span><br>变奏入场 → 共鸣技能积 1 层离火 → 普攻补到 2-3 层 → 重击·焚身以火消耗离火爆发 → 共鸣解放·离火照丹心收尾。'
+    forteDesc: '<span style="color:var(--gold);font-size:11px">▸ 离火（核心资源 · 0-6 层）</span><br>· 普攻/技能/重击各 +1 层，解放 +3 层<br>· 每持有 1 层，<b style="color:#ff8c5e">热熔伤害 +5%</b>（满 6 层 +30%），随层数实时变化<br>· 攒满 <b>6</b> 层进入<b style="color:#ff8c5e">心眼模式</b><br><br><span style="color:var(--gold);font-size:11px">▸ 心眼模式（变身爆发窗口）</span><br>· 三招变身<b class="term-skill">心眼·征/劫/冲</b>，倍率与伤害类型一起拔高（普攻打出 180% 共鸣技能伤害）<br>· 出招优先用离火抵 AP：<b>每 2 层离火 = 1 点 AP</b>，缺口用回合 AP 补<br>· 离火 &lt; 2 层时退出心眼，三招还原<br><br><span style="color:var(--gold);font-size:11px">▸ 推荐战斗节奏</span><br>普攻/技能攒离火 → 解放 +3 层开焰羽 → 凑满 6 层进心眼 → 心眼·冲(400%)+心眼·征(180%) 倾泻、不花回合 AP → 烧空退出再攒。'
   },
   '守岸人': {
     intro: '衍射 · 音感仪 · 辅助 · 「星域」',
@@ -266,19 +266,19 @@ export const SKILL_HINTS = {
     forteDesc: '<b class="term-burst">共鸣解放·终末回环</b>展开<b class="term-resource">星域</b>，为全队提供每回合治疗、暴击率 +20%、暴击伤害 +30%。<br>2 链追加全队攻击 +40%，1 链延长持续并切人不散。<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>普攻/技能积攒能量与协奏 → 解放展开星域 → 切换主力输出 → 在星域加成下输出。'
   },
   '椿': {
-    intro: '湮灭 · 迅刀 · 主C · 「红椿蕊」',
+    intro: '湮灭 · 迅刀 · 主C · 「红椿·蕊 → 永生花 → 含苞酣梦」',
     customLines: makeSkillLines({
       element: '湮灭',
-      normalName: '红椿剑舞', skillName: '一日花', burstName: '芳华绽烬', varName: '八千春秋',
-      normalMech: '<span style="color:var(--muted)">资源积累：</span>每段普攻 +<b>10</b> <b class="term-resource">红椿蕊</b>。<b class="term-resource">含苞</b>状态下普攻 ×1.5（6 链 ×2.5）。',
-      skillMech: '<span style="color:var(--muted)">形态切换：</span><b class="term-resource">红椿蕊</b>满 <b>100</b> 且协奏 ≥ <b>50</b> 时，共鸣技能替换为<b style="color:var(--gold)">永生花</b>：消耗 50 蕊 + 50 协奏，进入<b class="term-resource">含苞</b>状态 <b>3</b> 回合（普攻/技能 ×1.5；6 链 ×2.5）。<br><span style="color:var(--muted)">未满 100 蕊：</span>正常一日花，每次 +<b>20</b> 蕊。',
-      burstMech: '<span style="color:var(--muted)">含苞期间释放：</span>伤害基础放大 ×1.5（6 链 ×2.5）+ 3 链时自身攻击 +58%。',
-      skillFollowUp: '2 链：共鸣回路·一日花伤害倍率 +120%。 6 链：含苞强化倍率 1.5 → 2.5。',
+      normalName: '育种', skillName: '盛放与凋零的轮舞', burstName: '芳华绽烬', varName: '八千春秋',
+      normalMech: '<span style="color:var(--muted)">资源积累：</span>每段普攻 +<b>10</b> <b class="term-resource">红椿·蕊</b>。<b class="term-resource">含苞</b>状态下普攻 ×1.5（6 链 ×2.5）。',
+      skillMech: '<span style="color:var(--muted)">形态切换：</span><b class="term-resource">红椿·蕊</b>满 <b>100</b> 且协奏 ≥ <b>50</b> 时，共鸣技能替换为<b style="color:var(--gold)">永生花</b>：消耗 50 蕊 + 50 协奏，造成 atk ×250% 湮灭，进入<b class="term-resource">含苞</b>状态 <b>3</b> 回合（普攻/技能 ×1.5；6 链 ×2.5）。<br><span style="color:var(--muted)">未达触发条件：</span>正常共鸣技能，每次 +<b>15</b> 蕊。',
+      burstMech: '<span style="color:var(--muted)">含苞期间释放：</span>解放伤害 ×1.5（6 链 ×2.5）+ 3 链时自身攻击 +58%。',
+      skillFollowUp: '2 链：永生花倍率 +120%（×2.2）。 6 链：含苞酣梦 ×1.5 → ×2.5，含苞期间可再放一次永生花（每场 1 次）。',
       burstFollowUp: '3 链：解放·芳华绽烬 +50%，含苞期间攻击 +58%。',
-      varFollowUp: '1 链：变奏后暴击伤害 +28%。 5 链：变奏倍率 +303%。'
+      varFollowUp: '1 链：变奏后暴伤 +28%。 4 链：变奏后全队普攻 +25%。 5 链：变奏倍率 +303%。'
     }),
-    forteName: '红椿蕊',
-    forteDesc: '<span style="color:var(--gold);font-size:11px">▸ 形态切换</span><br>· <b style="color:var(--text)">常态</b>（默认）：普攻 +10 / 技能 +20 <b class="term-resource">红椿蕊</b>（0-100）<br>· <b style="color:var(--gold)">永生花触发</b>：红椿蕊满 <b>100</b> + 协奏值 ≥ <b>50</b> → 下次共鸣技能变为<b style="color:var(--gold)">永生花</b>，消耗资源后进入<b class="term-resource">含苞</b>状态<br>· <b style="color:#c39bff">含苞形态</b>：普攻/技能 ×<b>1.5</b>（6 链 ×<b>2.5</b>）+ 自身攻击 +58%（3 链），持续 <b>3</b> 回合后自动退出<br><br><span style="color:var(--gold);font-size:11px">▸ 推荐战斗节奏</span><br>变奏起手 → 普攻 + 共鸣技能积蕊 + 协奏 → 满 100 蕊后释放<b style="color:var(--gold)">永生花</b>进入含苞 → 含苞 3 回合全程爆发（普攻/技能 ×1.5/×2.5）→ 共鸣解放收尾。'
+    forteName: '红椿·蕊',
+    forteDesc: '<span style="color:var(--gold);font-size:11px">▸ 双资源 → 形态切换</span><br>· <b style="color:var(--text)">红椿·蕊</b>（个人资源 0-100）：普攻 +10 / 技能 +15 / 解放 +30 / 变奏 +20<br>· <b style="color:var(--text)">协奏</b>（团队资源 0-100）：通用协奏机制积累<br>· <b style="color:var(--gold)">永生花触发</b>：蕊满 100 + 协奏 ≥ 50 → 共鸣技能变为<b style="color:var(--gold)">永生花</b>，消耗 50 蕊 + 50 协奏，进入<b class="term-resource">含苞</b>状态<br>· <b style="color:#c39bff">含苞 · 酣梦</b>：3 回合，普攻/技能 ×<b>1.5</b>（6 链 ×<b>2.5</b>）+ 3 链自身攻击 +58%<br><br><span style="color:var(--gold);font-size:11px">▸ 推荐战斗节奏</span><br>变奏起手 → 普攻/技能积蕊 + 协奏 → 满 100 蕊 + 协奏 ≥ 50 释放<b style="color:var(--gold)">永生花</b>进入含苞 → 含苞 3 回合全程爆发 → 共鸣解放收尾。6 链含苞期间再满双资源可续窗永生花。'
   },
   '折枝': {
     intro: '冷凝 · 音感仪 · 限定副C · 「墨鹤召唤协同」',
@@ -818,25 +818,25 @@ export const SKILL_HINTS = {
   // 2.3+ & 3.0+ 新增角色 · 工厂版 SKILL_HINTS
   // ═══════════════════════════════════════════════════════════════
 
-  // 2.3 · 赞妮（主C 衍射 臂铠）— 光噪效应·灼焰形态·重斩连段
+  // 2.3 · 赞妮（主C 衍射 臂铠 · HP 核）— 灼焰形态·焰光·重斩·终绝将至之刻
   '赞妮': {
-    intro: '衍射 · 臂铠 · 主C · 灼焰形态重斩连段',
+    intro: '衍射 · 臂铠 · 主C · 「灼焰形态」重斩连段',
     hasHeavy: true,
     customLines: makeSkillLines({
       element: '衍射', hasHeavy: true,
-      normalName: '黯夜将明',
-      skillName: '标准防卫预案 / 引燃明灯',
-      burstName: '终绝将至之刻',
-      heavyName: '重斩·破晓/将明/终夜/闪裂',
+      normalName: '例行交涉',
+      skillName: '无眠守望',
+      burstName: '晨昏交替之时',
+      heavyName: '例行交涉 · 重击',
       varName: '即刻执行',
       forteName: '焰光',
-      skillMech: '【焰光】≥30 时替换为引燃明灯；按住进入准备架势可闪反击发重斩。',
-      burstMech: '处于灼焰形态时解锁重斩系列；【烈阳余烬】每层持续 2 回合。',
-      heavyMech: '重斩·终夜消耗至多 40 焰光，每点放大倍率。',
-      heavyFollowUp: '6 链：重斩倍率 +40%；焰光≤70 时立刻回满（每场 1 次）。'
+      skillMech: '对目标造成 HP 7.5% 衍射伤害；非灼焰形态下使用。',
+      burstMech: '对主目标造成 HP 16% 衍射伤害（5 链 ×2.2）+ 进入灼焰形态 3 回合：焰光 +50、每回合 +10、普攻键替换为重斩（HP 12%，消耗 20 焰光）。形态结束自动施放终绝将至之刻。',
+      heavyMech: '非灼焰形态下：HP 9% 衍射伤害。灼焰形态下重击按钮禁用（普攻键已替换为重斩）。',
+      heavyFollowUp: '6 链：重斩 ×1.4；焰光 <70 立即回 70（每场 1 次）；灼焰形态内致死不倒（每场 1 次）。'
     }),
     forteName: '焰光',
-    forteDesc: '赞妮的核心资源 <b class="term-resource">焰光</b>（0-100/灼焰时 150）：<br>· 层数上限 60 层<b class="term-resource">【烈阳余烬】</b>，转化时每层得 5 焰光。<br>· <b class="term-skill">集中压制/破袭反击</b>得 10 焰光。<br>· <b class="term-burst">共鸣解放·重燃</b>得 50 焰光。<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>叠光噪→转化烈阳余烬积焰光→进灼焰形态→重斩连段爆发。'
+    forteDesc: '赞妮的核心资源 <b class="term-resource">焰光</b>（上限 100）：<br>· <b class="term-burst">共鸣解放·重燃</b>进入<b class="term-state">灼焰形态</b>时 +50 焰光。<br>· 灼焰形态内每回合 +10（<b class="term-state">烈阳余烬</b>简化转化）。<br>· <b class="term-heavy">重斩</b>消耗 20 焰光。<br>· 形态结束时按本场消耗焰光强化<b class="term-burst">终绝将至之刻</b>（3 链每点 +2%，最多 +200%）。<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>解放进灼焰 → 重斩连段消耗焰光 → 形态结束终绝爆发。'
   },
 
   // 2.3 · 夏空（辅助 气动 佩枪）— 合奏音影·风蚀效应
@@ -878,98 +878,100 @@ export const SKILL_HINTS = {
     forteDesc: '露帕的核心资源 <b class="term-resource">狼焰</b>（0-100）：<br>· <b class="term-skill">凶噬</b>命中 +15，<b class="term-normal">重击·狼咬</b> +20。<br>· 满 100 进入<b class="term-resource">追猎</b>状态，全队热熔伤害提升。<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>技能/重击攒狼焰 → 满 100 进追猎 → 解放启动荣光 → 切主 C 输出。'
   },
 
-  // 2.5 · 弗洛洛（主C 湮灭 音感仪）— 乐声·指挥·赫卡忒
+  // 2.5 · 弗洛洛（主C 湮灭 音感仪 · HP 核）— 乐声·谱曲终末·定音·指挥状态·赫卡忒
   '弗洛洛': {
-    intro: '湮灭 · 音感仪 · 主C · 「乐声 · 谱曲终末 · 赫卡忒」',
-    hasHeavy: false,
+    intro: '湮灭 · 音感仪 · 主C · 「乐声 · 谱曲终末 · 赫卡忒指挥」',
+    hasHeavy: true,
     customLines: (stats, role) => {
       const tipAttr = s => s.replace(/&/g, '&amp;').replace(/'/g, '&#39;');
       const chain = role.chain || 0;
-      const atk = stats.atk;
+      const hp = stats.hp;
 
-      // 共鸣链参数
-      const skillDmgMult = 1 + (chain >= 1 ? 0.80 : 0) + (chain >= 3 ? 0.40 : 0);
-      const burstMult = 1 + (chain >= 2 ? 0.75 : 0);
-      const elemDmgBonus = chain >= 6 ? 0.60 : 0;
-      const allDmgBonus = chain >= 5 ? 0.15 : 0;
-      const totalMult = 1 + (chain >= 4 ? 0.20 : 0);
+      // HP 核倍率
+      const normalMult = 0.04 * (chain >= 1 ? 1.80 : 1);   // 普攻 HP×4%（1链+80%）
+      const skillMult  = 0.075 * (chain >= 1 ? 1.80 : 1);  // 技能 HP×7.5%（1链+80%）
+      const heavyMult  = 0.09;                              // 普通重击 HP×9%
+      // 谱曲终末:HP×20% × (1 + 余响层数×0.20[2链×0.35]) × 满24层×3.0
+      // 这里展示满余响(24层)核爆数字
+      const perLayer = chain >= 2 ? 0.35 : 0.20;
+      const dirgeBase = 0.20 * (chain >= 2 ? 1.75 : 1);
+      const dirgeFull = dirgeBase * (1 + 24 * perLayer) * 3.0;
+      const hecastAutoMult = 0.12;
+      const hecastAugMult = 0.24 * (chain >= 6 ? 1.24 : 1);
+      const varMult = 0.033;
 
-      // 伤害计算
-      const normalDmg = Math.round(atk * 1.0 * (1 + allDmgBonus));
-      const skillDmg  = Math.round(atk * 1.8 * skillDmgMult * totalMult);
-      const burstMain = Math.round(atk * 4.5 * burstMult * totalMult);
-      const burstSide = Math.round(atk * 2.25 * burstMult * totalMult);
-      const varDmg    = Math.round(atk * 0.8 * (1 + allDmgBonus));
-      const varConcerto = Math.round(atk * 1.6 * (1 + allDmgBonus));
-
-      // 谱曲终末（替代重击的核心招式）
-      const scoreFinal = Math.round(atk * 4.0 * skillDmgMult);    // 消耗 6 乐声 + 余响层数
+      const normalDmg = Math.round(hp * normalMult);
+      const skillDmg  = Math.round(hp * skillMult);
+      const heavyDmg  = Math.round(hp * heavyMult);
+      const dirgeDmg  = Math.round(hp * dirgeFull);
+      const hecastAutoDmg = Math.round(hp * hecastAutoMult);
+      const hecastAugDmg  = Math.round(hp * hecastAugMult);
+      const varDmg    = Math.round(hp * varMult);
 
       const normalTip = tipAttr(
-        `<b style="color:var(--gold)">普攻伤害公式</b><br>` +
-        `= 攻击 <b>${atk}</b> × 100%${allDmgBonus>0?` × (1 + ${(allDmgBonus*100).toFixed(0)}%)`:''} = <b style="color:var(--text)">${normalDmg}</b>`
+        `<b style="color:var(--gold)">普攻伤害公式（HP 核）</b><br>` +
+        `= 最大生命 <b>${hp}</b> × 4%${chain>=1?` × 1.80（1链）`:''} = <b style="color:var(--text)">${normalDmg}</b><br>` +
+        `命中后 +1 乐声 +3 余响`
       );
       const skillTip = tipAttr(
-        `<b style="color:var(--gold)">共鸣技能伤害公式</b><br>` +
-        `= 攻击 <b>${atk}</b> × 180%${skillDmgMult>1?` × 链增伤 ${skillDmgMult.toFixed(2)}`:''} = <b style="color:var(--accent)">${skillDmg}</b>`
+        `<b style="color:var(--gold)">共鸣技能伤害公式（HP 核）</b><br>` +
+        `= 最大生命 <b>${hp}</b> × 7.5%${chain>=1?` × 1.80（1链）`:''} = <b style="color:var(--accent)">${skillDmg}</b><br>` +
+        `命中后 +1 乐声 +5 余响`
       );
-      const scoreFinalTip = tipAttr(
-        `<b style="color:var(--gold)">谱曲终末伤害公式</b><br>` +
-        `= 攻击 <b>${atk}</b> × 400%（基础）${skillDmgMult>1?` × 链增伤 ${skillDmgMult.toFixed(2)}`:''}<br>` +
-        `+ 每层<b class="term-resource">余响</b>额外倍率<br>` +
-        `触发条件：6 枚<b class="term-resource">乐声</b> + 谱曲激活 + 非定音状态`
+      const heavyTip = tipAttr(
+        `<b style="color:var(--gold)">普通重击伤害公式（HP 核）</b><br>` +
+        `= 最大生命 <b>${hp}</b> × 9% = <b style="color:var(--text)">${heavyDmg}</b><br>` +
+        `命中后 +1 乐声 +4 余响（乐声未满 6 时可用）`
       );
-      const burstTip = tipAttr(
-        `<b style="color:var(--gold)">解放伤害公式（谱曲终末）</b><br>` +
-        `· 主目标：攻击 <b>${atk}</b> × 450%${burstMult>1?` × 链增伤 ${burstMult.toFixed(2)}`:''} = <b style="color:#ff8c5e">${burstMain}</b><br>` +
-        `· 副目标：攻击 <b>${atk}</b> × 225%${burstMult>1?` × 链增伤 ${burstMult.toFixed(2)}`:''} = <b style="color:#ff8c5e">${burstSide}</b>`
+      const dirgeTip = tipAttr(
+        `<b style="color:var(--gold)">谱曲终末伤害公式（满余响核爆 · HP 核）</b><br>` +
+        `= 最大生命 <b>${hp}</b> × 20%${chain>=2?` × 1.75（2链）`:''}<br>` +
+        `× (1 + 24 层余响 × ${perLayer*100}%) × 3.0（满层）<br>` +
+        `= <b style="color:#ff6b9d">${dirgeDmg}</b><br>` +
+        `消耗全部 6 枚乐声，进入定音状态（解锁解放）`
+      );
+      const hecastTip = tipAttr(
+        `<b style="color:var(--gold)">赫卡忒攻击（指挥状态自动）</b><br>` +
+        `· 自动攻击：HP × 12% = ${hecastAutoDmg}（+1 乐声 +2 余响）<br>` +
+        `· 强化攻击：HP × 24%${chain>=6?` × 1.24（6链）`:''} = ${hecastAugDmg}（额外 +1 乐声 +3 余响）<br>` +
+        `每第 2 次自动后触发强化`
       );
       const varTip = tipAttr(
-        `<b style="color:var(--gold)">变奏伤害公式</b><br>` +
-        `= 攻击 <b>${atk}</b> × 80% = ${varDmg}<br>` +
-        `· 协奏满：× 160% = <b style="color:var(--accent)">${varConcerto}</b>`
+        `<b style="color:var(--gold)">变奏伤害公式（HP 核）</b><br>` +
+        `= 最大生命 <b>${hp}</b> × 3.3% = ${varDmg}<br>` +
+        `+1 乐声 +2 余响`
       );
-
-      let chainHints = '';
-      const parts = [];
-      if (chain >= 1) parts.push(`<span style="color:var(--gold)">[1链]</span> 亡与死的乐章/梦呓伤害倍率 +80%`);
-      if (chain >= 2) parts.push(`<span style="color:var(--gold)">[2链]</span> 谱曲终末伤害倍率 +75%`);
-      if (chain >= 3) parts.push(`<span style="color:var(--gold)">[3链]</span> 声骸技能伤害加深 80%`);
-      if (chain >= 4) parts.push(`<span style="color:var(--gold)">[4链]</span> 声骸技能时全队全属性伤害 +20%`);
-      if (chain >= 5) parts.push(`<span style="color:var(--gold)">[5链]</span> 指挥状态减伤 30%`);
-      if (chain >= 6) parts.push(`<span style="color:var(--gold)">[6链]</span> 指挥状态湮灭伤害 +60%`);
-      if (parts.length) chainHints = '<br><span style="color:var(--muted);font-size:10px">·</span> ' + parts.join('<br><span style="color:var(--muted);font-size:10px">·</span> ');
 
       return [
         {
           icon: '⚔', name: '普攻 · 生与死的乐章', cost: '1 AP',
           color: 'var(--text)',
-          desc: `对目标造成 <span class="tip" data-tip='${normalTip}'><b style="color:var(--text)">${normalDmg}</b> 点</span><b class="term-normal">湮灭伤害</b>，命中后回复 12 能量、+8 协奏。<br>第 3 段进入<b class="term-resource">重世状态</b>。`
+          desc: `对主目标造成 <span class="tip" data-tip='${normalTip}'><b style="color:var(--text)">${normalDmg}</b> 点</span><b class="term-normal">湮灭伤害</b>。<br>命中后 +1 枚<b class="term-resource">乐声</b>、+3 层<b class="term-resource">余响</b>。${chain>=6?'<br><span style="color:var(--gold)">[6链]</span> 触发重世幻象·赫卡忒追击 HP×8%。':''}`
         },
         {
-          icon: '✦', name: '共鸣技能 · 亡与死的乐章 / 永不消逝的梦呓', cost: '1 AP · 冷却 3 回合',
+          icon: '✦', name: '共鸣技能 · 稍纵即逝的梦呓', cost: '1 AP · CD 3 回合',
           color: 'var(--accent)',
-          desc: `对目标造成 <span class="tip" data-tip='${skillTip}'><b style="color:var(--accent)">${skillDmg}</b> 点</span><b class="term-skill">湮灭伤害</b>，命中后回复 22 能量、获取 <b>1</b> 枚<b class="term-resource">乐声</b>。${chain>=1?`<br><span style="color:var(--gold)">[1链]</span> 伤害倍率 +80%。`:''}`
+          desc: `对主目标造成 <span class="tip" data-tip='${skillTip}'><b style="color:var(--accent)">${skillDmg}</b> 点</span><b class="term-skill">湮灭伤害</b>。<br>命中后 +1 枚<b class="term-resource">乐声</b>、+5 层<b class="term-resource">余响</b>。${chain>=1?'<br><span style="color:var(--gold)">[1链]</span> 倍率 +80%。':''}${chain>=6?'<br><span style="color:var(--gold)">[6链]</span> 触发重世幻象·赫卡忒追击 HP×8%。':''}`
         },
         {
-          icon: '🎼', name: '谱曲终末（核心）', cost: '1 AP · 需 6 乐声 + 谱曲激活',
+          icon: '🎼', name: '谱曲终末（重击替换 · 核心）', cost: '2 AP · CD 1 回合 · 需 6 乐声',
           color: '#ff6b9d',
-          desc: `<span class="tip" data-tip='${scoreFinalTip}'><b style="color:#ff6b9d">${scoreFinal}</b> 点</span><b class="term-skill">湮灭伤害</b>（视为共鸣技能伤害 + 声骸技能）。<br>消耗 6 枚<b class="term-resource">乐声</b> + 激活<b class="term-resource">谱曲</b>（每 25 秒可激活 1 次），每层<b class="term-resource">余响</b>额外增伤。<br>施放后进入<b class="term-resource">定音</b>状态，谱曲进入冷却。`
+          desc: `满 6 枚<b class="term-resource">乐声</b>时，重击替换为谱曲终末。<br>对主目标造成 <span class="tip" data-tip='${dirgeTip}'><b style="color:#ff6b9d">${dirgeDmg}</b> 点</span><b class="term-skill">湮灭 AOE 伤害</b>（视为声骸技能 + 共鸣技能伤害）。<br>消耗全部 6 枚乐声；每层<b class="term-resource">余响</b> +20% 倍率（2链 +35%），满 24 层 ×3.0。<br>施放后进入<b class="term-state">定音</b>状态，解锁共鸣解放。${chain>=2?'<br><span style="color:var(--gold)">[2链]</span> 倍率 +75% + 余响效果 +75% + 施放后 +14 余响。':''}${chain>=4?'<br><span style="color:var(--gold)">[4链]</span> 全队全属性伤害 +20%（4回合）。':''}`
         },
         {
-          icon: '⚡', name: '共鸣解放 · 谱曲终末', cost: `3 AP · 需共鸣能量满 ${stats.maxEnergy || 125}`,
+          icon: '⚡', name: '共鸣解放 · 往日深渊的圆舞曲', cost: '0 AP · 需定音状态',
           color: 'var(--gold)',
-          desc: `对主目标造成 <span class="tip" data-tip='${burstTip}'><b style="color:#ff8c5e">${burstMain}</b> 点</span>、副目标 <span class="tip" data-tip='${burstTip}'><b style="color:#ff8c5e">${burstSide}</b> 点</span><b class="term-burst">湮灭伤害</b>。<br>获得<b class="term-resource">余响</b>层数，强化下次谱曲终末。${chain>=2?`<br><span style="color:var(--gold)">[2链]</span> 伤害倍率 +75%。`:''}${chainHints}`
+          desc: `<b>不消耗 AP</b>（对应官方"共鸣能量上限为0"），需处于<b class="term-state">定音</b>状态。<br>无直接伤害。进入<b class="term-state">指挥状态</b> 3 回合：<br>· 弗洛洛攻击 +120%，本人正常行动<br>· 召唤<b class="term-resource">赫卡忒</b>（HP = 弗洛洛 HP），每回合自动攻击<span class="tip" data-tip='${hecastTip}'> HP×12% / HP×24%</span>，帮叠乐声+余响<br>· <b>赫卡忒替主人挡刀</b>，HP 归零则指挥状态结束${chain>=5?'<br><span style="color:var(--gold)">[5链]</span> 指挥状态期间赫卡忒及弗洛洛受伤 -30%。':''}${chain>=6?'<br><span style="color:var(--gold)">[6链]</span> 登场湮灭 +60% / 非登场目标受伤 +40%。':''}`
         },
         {
-          icon: '🎵', name: '变奏技能 · 指挥入场', cost: '切换上场时触发',
+          icon: '🎵', name: '变奏入场 · 致命组歌', cost: '切换上场时触发',
           color: '#c39bff',
-          desc: `切换上场时，对当前主目标造成 <span class="tip" data-tip='${varTip}'><b style="color:var(--accent)">${varDmg}</b>（协奏满 <b>${varConcerto}</b>）点</span><b class="term-variation">湮灭伤害</b>。`
+          desc: `切换上场时，对主目标造成 <span class="tip" data-tip='${varTip}'><b style="color:var(--accent)">${varDmg}</b> 点</span><b class="term-variation">湮灭伤害</b>。<br>+1 枚<b class="term-resource">乐声</b>、+2 层<b class="term-resource">余响</b>。指挥状态期间替换为永生组歌（HP×6.6%）。`
         }
       ];
     },
-    forteName: '乐声 / 余响',
-    forteDesc: '<span style="color:var(--gold);font-size:11px">▸ 资源系统</span><br>· <b class="term-resource">乐声</b>（0-6 枚）：普攻/技能积累，集齐 6 枚可施放<b class="term-resource">谱曲终末</b><br>· <b class="term-resource">谱曲</b>（每 25 秒激活 1 次）：谱曲终末的激活条件之一<br>· <b class="term-resource">余响</b>（0-∞）：解放后获得，每层增加谱曲终末倍率<br>· <b class="term-resource">定音</b>：施放谱曲终末后进入，此时无法再次施放<br><br><span style="color:var(--gold);font-size:11px">▸ 指挥状态 · 赫卡忒</span><br>· 谱曲终末后进入<b class="term-resource">指挥状态</b>，可召唤赫卡忒协同攻击（6 链：湮灭伤害 +60%）<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>普攻/技能攒 6 乐声 → 激活谱曲 → 谱曲终末（消耗乐声 + 余响爆发）→ 共鸣解放获得余响 → 循环。'
+    forteName: '余响 / 乐声',
+    forteDesc: '<span style="color:var(--gold);font-size:11px">▸ 资源系统（双重放大器）</span><br>· <b class="term-resource">乐声</b>（0-6 枚）：普攻/技能/重击/变奏各 +1，战斗开始 +4。满 6 时重击替换为<b class="term-heavy">谱曲终末</b>。<br>· <b class="term-resource">余响</b>（0-24 层）：全动作积累，战斗开始 +10。<br>　— <b>收益一</b>：每层使谱曲终末倍率 +20%（2链 +35%），满 24 层 ×3.0<br>　— <b>收益二</b>：每层暴伤 +2.5%（满层 +60% 暴伤）<br>· <b class="term-state">定音</b>：谱曲终末后进入，解锁解放（解放 0AP）<br>· <b class="term-state">指挥状态</b>（3回合）：解放后进入，攻击 +120%，赫卡忒召唤<br><br><span style="color:var(--gold);font-size:11px">▸ 赫卡忒（召唤物）</span><br>· HP = 弗洛洛 HP × 1.0（继承属性）<br>· 每回合自动攻击 HP×12%（+1 乐声 +2 余响），每第 2 次后强化 HP×24%（+1 乐声 +3 余响）<br>· <b>替主人挡刀</b>，HP 归零则消散，指挥状态立即结束<br>· 切人时消失（指挥状态不保留）<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>普攻/技能攒 6 乐声 → 谱曲终末（核爆 + 定音）→ 解放（0AP 进指挥状态）→ 赫卡忒持续压制 + 攒资源 → 循环。'
   },
 
   // 2.6 · 奥古斯塔（主C 导电 长刃）— 以众愿为冕

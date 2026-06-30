@@ -131,7 +131,7 @@ export const OVERRIDE_STATS = {
   // ─── 2.3 限定 ───
   '赞妮': {
     stats: { hp: 10775, atk: 438, def: 1137, crate: 0.05, cdmg: 1.5, energy: 125, dodge: 0.18 },
-    bonuses: { elemBonusFixed: 0.12 } // 固有技能：衍射伤害加成 +12%
+    bonuses: { elemBonusFixed: 0.12, hpScaling: true } // 固有技能：衍射伤害加成 +12%；HP 核（HP/ATK=24.6×，伤害基于 HP）
   },
   '夏空': {
     stats: { hp: 12238, atk: 375, def: 1198, crate: 0.05, cdmg: 1.5, energy: 125, dodge: 0.1 },

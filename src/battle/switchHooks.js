@@ -15,9 +15,15 @@
 // 字段：SWITCH_HOOKS 是私产，外部不要直接读写。
 
 const SWITCH_HOOKS = {};
+// switchOut 钩子：离场时触发（按 from.name 查找），用于弗洛洛指挥状态退出等
+const SWITCH_OUT_HOOKS = {};
 
 export function registerSwitchHook(name, fn) {
   SWITCH_HOOKS[name] = fn;
+}
+
+export function registerSwitchOutHook(name, fn) {
+  SWITCH_OUT_HOOKS[name] = fn;
 }
 
 export function getSwitchHook(name) {
@@ -33,4 +39,12 @@ export function fireSwitchHook({ from, to, battle, ctx }) {
   const fn = SWITCH_HOOKS[to.name];
   if (typeof fn !== 'function') return;
   fn({ from, to, battle, ctx });
+}
+
+// 在 doSwitch 离场时调用：fireSwitchOutHook({ from, to, battle })
+export function fireSwitchOutHook({ from, to, battle }) {
+  if (!from?.name) return;
+  const fn = SWITCH_OUT_HOOKS[from.name];
+  if (typeof fn !== 'function') return;
+  fn({ from, to, battle });
 }

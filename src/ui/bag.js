@@ -3,8 +3,8 @@ import { S, $, msg } from '../state.js';
 import { usePotion, useAllPotions, POTIONS, buyStaminaWithAstrite } from '../daily/stamina.js';
 import { WEAPON_BOX_OPTIONS } from '../data/podcast-rewards.js';
 import { openModal, closeModal } from '../modal.js';
-import { generateEcho, levelUpEcho, levelUpEchoMax, recycleEcho, toggleEchoLock, unequipEcho, echoToNext, dataBankCostCap, retuneEchoSubStat } from '../equip/echoActions.js';
-import { ECHO_CATALOG, getSetById, formatEchoStatValue, formatSetBonus } from '../data/echoes.js';
+import { levelUpEcho, levelUpEchoMax, recycleEcho, toggleEchoLock, unequipEcho, echoToNext, dataBankCostCap, retuneEchoSubStat } from '../equip/echoActions.js';
+import { getSetById, formatEchoStatValue, formatSetBonus } from '../data/echoes.js';
 import { totalExp } from '../equip/actions.js';
 
 export function renderBag() {
@@ -172,11 +172,11 @@ export function renderBag() {
   const cap = dataBankCostCap(S.dataBankLevel);
   html += `<div style="font-size:10px;color:var(--muted);letter-spacing:2px;margin:14px 0 6px;display:flex;justify-content:space-between;align-items:baseline">
     <span>声 骸 仓 库 (${echos.length})</span>
-    <span style="font-size:9px;color:var(--gold)">数据坞 LV ${S.dataBankLevel} · COST 上限 ${cap}</span>
+    <span style="font-size:9px;color:var(--gold)">COST 上限 ${cap}</span>
   </div>`;
   if (echos.length === 0) {
     html += `<div style="border:1px dashed var(--line2);border-radius:8px;padding:14px;text-align:center;color:var(--dim);font-size:11px">
-      暂无声骸。前往角色面板「声骸」tab 生成测试声骸。
+      暂无声骸。前往「冒险 · 副本 · 无音区」战斗掉落获取。
     </div>`;
   } else {
     html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:6px">';
@@ -202,15 +202,6 @@ export function renderBag() {
     });
     html += '</div>';
   }
-  // 测试用生成入口
-  html += `<div style="margin-top:8px;padding:8px;border:1px dashed var(--line2);border-radius:8px;text-align:center">
-    <div style="font-size:10px;color:var(--muted);margin-bottom:6px">生成测试声骸（后续接入无音区产出）</div>
-    <select id="bagEchoGenSel" style="font-size:11px;padding:3px 6px;background:var(--bg2);color:var(--text);border:1px solid var(--line2);border-radius:4px;max-width:60%">
-      ${ECHO_CATALOG.map(e => `<option value="${e.id}">COST${e.cost} · ${e.name} (${e.element})</option>`).join('')}
-    </select>
-    <button class="mbtn gold" style="font-size:10px;margin-left:6px" onclick="window.__bagEchoGenerate()">生成</button>
-    <button class="mbtn" style="font-size:10px;margin-left:6px" onclick="window.__bagEchoGenerate10()">生成 ×10</button>
-  </div>`;
 
   container.innerHTML = html;
 }
@@ -415,22 +406,4 @@ window.__bagEchoRetune = (id, idx) => {
   window.__bagEchoDetail(id);
   renderBag();
   window.__render();
-};
-
-window.__bagEchoGenerate = () => {
-  const sel = $('bagEchoGenSel');
-  if (!sel) return;
-  const e = generateEcho(sel.value);
-  if (!e) { msg('生成失败'); return; }
-  msg(`生成 ${e.name}（COST ${e.cost}）`, false);
-  renderBag();
-};
-
-window.__bagEchoGenerate10 = () => {
-  const sel = $('bagEchoGenSel');
-  if (!sel) return;
-  let last = null;
-  for (let i = 0; i < 10; i++) last = generateEcho(sel.value);
-  msg(`生成 10 个 ${last?.name || ''}`, false);
-  renderBag();
 };

@@ -202,12 +202,15 @@ const CHAIN_TERM_PATTERNS = [
   { re: /(重击)/g,                                                            cls: 'term-heavy' },
   { re: /(普攻)/g,                                                            cls: 'term-normal' },
   // 角色独有资源/状态名
-  { re: /(星蝶|星域|破阵值|破阵|离火|韶光|晶体|红椿|杀意|猎杀阈值|决意|气动侵蚀|衍射失序|心眼)/g, cls: 'term-resource' },
+  { re: /(星蝶|星域|破阵值|破阵|离火|韶光|晶体|红椿|杀意|猎杀阈值|决意|气动侵蚀|衍射失序|心眼模式|心眼[··][征劫冲]|心眼|焰羽)/g, cls: 'term-resource' },
   // 折枝 专属术语（长串优先 — 墨鹤领域需排在墨鹤之前）
   { re: /(墨鹤领域|墨鹤|白鹤|点睛|鹤影)/g, cls: 'term-resource' },
   // 卡提希娅 专属术语
   { re: /(风蚀效应|芙露德莉斯)/g, cls: 'term-resource' },
   { re: /(人权|神权|异权)/g, cls: 'term-resource' },
+  // 弗洛洛 专属术语（长串优先 — 谱曲终末需排在乐声/余响前）
+  { re: /(谱曲终末|往日深渊的圆舞曲)/g, cls: 'term-heavy' },
+  { re: /(指挥状态|定音|赫卡忒|乐声|余响)/g, cls: 'term-resource' },
   { re: /(形态之力)/g, cls: 'term-forte' }
 ];
 

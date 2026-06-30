@@ -17,6 +17,8 @@ import brant from './brant.js';
 import cantarella from './cantarella.js';
 import kakaro from './kakaro.js';
 import zhezhi from './zhezhi.js';
+import zanyan from './zanyan.js';
+import frolo from './frolo.js';
 
 // 轻量角色：仅标记 hasHeavy，无完整 mechanic 文件
 const LIGHTWEIGHT = {
@@ -28,7 +30,8 @@ const LIGHTWEIGHT = {
 const FULL = {
   '忌炎': jiyan, '守岸人': shorekeeper, '吟霖': yinlin, '安可': encore, '卡提希娅': cartethyia,
   '今汐': jinhsi, '长离': changli, '椿': camellia, '珂莱塔': carlotta, '菲比': phoebe,
-  '布兰特': brant, '坎特蕾拉': cantarella, '卡卡罗': kakaro, '折枝': zhezhi
+  '布兰特': brant, '坎特蕾拉': cantarella, '卡卡罗': kakaro, '折枝': zhezhi, '赞妮': zanyan,
+  '弗洛洛': frolo
 };
 
 const ALL = { ...LIGHTWEIGHT, ...FULL };

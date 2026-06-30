@@ -305,23 +305,31 @@ function renderTeam() {
         <span style="font-size:12px;font-weight:600">${displayName(t)}${frozen}${locked}${burstReady}${fReady ? '<span style="color:var(--gold);font-size:9px;margin-left:3px">✦</span>' : ''}</span>
         <span style="font-size:9px;color:${elemColor}">${t.element}</span>
       </div>
-      <div style="height:5px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden">
-        <div style="height:100%;width:${(hpPct*100).toFixed(1)}%;background:var(--green);transition:width .35s ease"></div>
+      <div style="display:flex;align-items:center;gap:6px;margin-top:2px">
+        <div style="flex:1;height:5px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden">
+          <div style="height:100%;width:${(hpPct*100).toFixed(1)}%;background:var(--green);transition:width .35s ease"></div>
+        </div>
+        <span style="font-size:9px;color:var(--muted);white-space:nowrap">HP ${t.hp}/${t.hpMax}</span>
       </div>
-      <div style="font-size:9px;color:var(--muted);margin-top:2px">HP ${t.hp}/${t.hpMax}</div>
-      <div style="height:3px;background:rgba(255,255,255,.08);border-radius:2px;margin-top:4px;overflow:hidden">
-        <div style="height:100%;width:${(enPct*100).toFixed(1)}%;background:var(--accent);transition:width .3s ease"></div>
+      <div style="display:flex;align-items:center;gap:6px;margin-top:4px">
+        <div style="flex:1;height:3px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden">
+          <div style="height:100%;width:${(enPct*100).toFixed(1)}%;background:var(--accent);transition:width .3s ease"></div>
+        </div>
+        <span style="font-size:9px;color:var(--accent);white-space:nowrap">能量 ${t.energy}/${t.energyMax}</span>
       </div>
-      <div style="font-size:9px;color:var(--accent);margin-top:1px">能量 ${t.energy}/${t.energyMax}</div>
-      ${f ? `<div style="height:3px;background:rgba(255,255,255,.08);border-radius:2px;margin-top:4px;overflow:hidden">
-        <div style="height:100%;width:${(fPct*100).toFixed(1)}%;background:${fReady ? 'var(--gold)' : '#c39bff'};transition:width .3s ease"></div>
-      </div>
-      <div style="font-size:9px;color:${fReady ? 'var(--gold)' : '#c39bff'};margin-top:1px">${f.resourceName} ${f.current}/${f.max}${fReady ? ' · 强化就绪!' : ''}</div>` : ''}
+      ${f ? `<div style="display:flex;align-items:center;gap:6px;margin-top:4px">
+        <div style="flex:1;height:3px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden">
+          <div style="height:100%;width:${(fPct*100).toFixed(1)}%;background:${fReady ? 'var(--gold)' : '#c39bff'};transition:width .3s ease"></div>
+        </div>
+        <span style="font-size:9px;color:${fReady ? 'var(--gold)' : '#c39bff'};white-space:nowrap">${f.resourceName} ${f.current}/${f.max}${fReady ? ' · 强化就绪!' : ''}</span>
+      </div>` : ''}
       ${renderCharacterBattleStatus(t)}
-      <div style="height:2px;background:rgba(255,255,255,.06);border-radius:2px;margin-top:3px;overflow:hidden">
-        <div style="height:100%;width:${(concertoPct*100).toFixed(1)}%;background:linear-gradient(90deg,#69b8ff,#c39bff);transition:width .3s ease"></div>
+      <div style="display:flex;align-items:center;gap:6px;margin-top:3px">
+        <div style="flex:1;height:2px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden">
+          <div style="height:100%;width:${(concertoPct*100).toFixed(1)}%;background:linear-gradient(90deg,#69b8ff,#c39bff);transition:width .3s ease"></div>
+        </div>
+        <span style="font-size:8px;color:var(--muted);white-space:nowrap">协奏 ${t.concerto || 0}/100${t.dodge ? ` · 闪避 ${(t.dodge*100).toFixed(0)}%` : ''}</span>
       </div>
-      <div style="font-size:8px;color:var(--muted);margin-top:1px">协奏 ${t.concerto || 0}/100${t.dodge ? ` · 闪避 ${(t.dodge*100).toFixed(0)}%` : ''}</div>
       ${renderWeaponStacks(t)}
       <div style="font-size:9px;color:${t.cd.skill > 0 ? 'var(--muted)' : 'var(--green)'};margin-top:2px">
         ${t.skillLockedTurns > 0 ? `技能封锁 ${t.skillLockedTurns}回` : (t.cd.skill > 0 ? `技能 CD ${t.cd.skill}回` : '技能就绪')}${(t.hasHeavy && t.cd.heavy > 0) ? ` · 重击 CD ${t.cd.heavy}回` : ''}
@@ -330,6 +338,26 @@ function renderTeam() {
       ${(() => {
         const badges = collectUnitBadges(t, b, { includeTeamGlobal: false });
         return badges.length ? `<div class="bf-status-row">${badges.map(renderBadge).join('')}</div>` : '';
+      })()}
+      ${(() => {
+        // ★ 召唤物 HP 条(赫卡忒等)·挂在主人卡片下方,不可点击切换
+        const summons = (b.summons || []).filter(s => s.alive && s.ownerIdx === i);
+        if (!summons.length) return '';
+        return summons.map(s => {
+          const sHpPct = Math.max(0, s.hp / s.hpMax);
+          return `<div class="bf-summon" style="margin-top:6px;padding:6px 8px;border:1.5px dashed var(--gold);border-radius:8px;background:rgba(155,109,255,.06);cursor:default" title="召唤物 · 不可切换 · 不可控制">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">
+              <span style="font-size:11px;font-weight:600;color:#9b6dff">🢀 ${s.name}</span>
+              <span style="font-size:9px;color:var(--muted)">召唤物 · ${s.duration>0?`持续 ${s.duration} 回合`:'永久'}</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px">
+              <div style="flex:1;height:4px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden">
+                <div style="height:100%;width:${(sHpPct*100).toFixed(1)}%;background:#9b6dff;transition:width .35s ease"></div>
+              </div>
+              <span style="font-size:9px;color:#c39bff;white-space:nowrap">HP ${s.hp}/${s.hpMax}</span>
+            </div>
+          </div>`;
+        }).join('');
       })()}
     </div>`;
   });

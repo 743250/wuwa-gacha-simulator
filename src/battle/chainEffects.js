@@ -51,14 +51,14 @@ export const CHAIN_BATTLE_EFFECTS = {
   ],
 
   // 1.4 · 椿（主C 湮灭 迅刀）
+  // 2 链（永生花 +120%）/ 3 链 atk +58%（含苞期间）/ 6 链（酣梦 ×2.5）已移入 camellia.js 状态机
   '椿': [
     [{ effect: 'cdmg', value: 0.28, label: '变奏后暴击伤害 +28%' }],
-    [{ effect: 'skillDmg', value: 1.2, label: '共鸣回路一日花倍率 +120%' }],
-    [{ effect: 'burstDmg', value: 0.50, label: '共鸣解放伤害 +50%' },
-     { effect: 'atk',      value: 0.58, label: '含苞状态攻击 +58%' }],
+    [],
+    [{ effect: 'burstDmg', value: 0.50, label: '共鸣解放伤害 +50%' }],
     [{ effect: 'teamNormalDmg', value: 0.25, label: '全队普攻伤害 +25%' }],
     [{ effect: 'variationDmg', value: 3.03, label: '变奏倍率 +303%' }],
-    [{ effect: 'skillDmg', value: 1.50, label: '酣梦倍率额外 +150%' }]
+    []
   ],
 
   // 2.0 · 珂莱塔（主C 冷凝 佩枪）
@@ -332,15 +332,16 @@ export const CHAIN_BATTLE_EFFECTS = {
     [{ effect: 'variationDmg', value: 5.0 }]
   ],
 
-  // 2.3 · 赞妮（主C 衍射 臂铠）— 光噪效应·灼焰形态·重斩连段
+  // 2.3 · 赞妮（主C 衍射 臂铠 · HP 核）— 灼焰形态·焰光·重斩·终绝将至之刻
+  // 3 链终绝加成 / 6 链续窗+致死不倒 由 zanyan.js 状态机控制，不在此注册
   '赞妮': [
-    [{ effect: 'elemDmg', value: 0.50, element: '衍射', label: '集中压制/破袭反击时衍射伤害 +50%' }],
+    [{ effect: 'elemDmg', value: 0.50, element: '衍射', label: '施放共鸣技能后衍射伤害 +50%（2 回合）' }],
     [{ effect: 'crate', value: 0.20, label: '暴击 +20%' },
-     { effect: 'skillDmg', value: 0.80, label: '集中压制/破袭反击倍率 +80%' }],
-    [{ effect: 'burstDmg', value: 0.50, label: '灼焰形态消耗焰光使解放最后一击 +50%' }],
-    [{ effect: 'teamAtk', value: 0.20, label: '变奏·即刻执行时全队攻击 +20%' }],
-    [{ effect: 'burstDmg', value: 0.70, label: '共鸣解放·重燃倍率 +120%' }],
-    [{ effect: 'heavyDmg', value: 0.40, label: '重斩·破晓/将明/终夜/闪裂倍率 +40%' }]
+     { effect: 'skillDmg', value: 0.80, label: '共鸣技能倍率 +80%' }],
+    [],
+    [{ effect: 'teamAtk', value: 0.20, label: '变奏·即刻执行时全队攻击 +20%（2 回合）' }],
+    [{ effect: 'burstDmg', value: 1.20, label: '共鸣解放·重燃倍率 +120%' }],
+    [{ effect: 'heavyDmg', value: 0.40, label: '重斩倍率 +40%' }]
   ],
 
   // 2.3 · 夏空（辅助 气动 佩枪）— 合奏音影·风蚀效应
@@ -364,12 +365,13 @@ export const CHAIN_BATTLE_EFFECTS = {
   ],
 
   // 2.5 · 弗洛洛（主C 湮灭 音感仪）— 乐声·指挥·赫卡忒
+  // 5 链减伤 / 6 链非登场增伤 / 2 链余响增益 / 3 链目标 atkDown 由 frolo.js 状态机处理
   '弗洛洛': [
     [{ effect: 'skillDmg', value: 0.80, label: '亡与死的乐章/梦呓伤害倍率 +80%' }],
-    [{ effect: 'burstDmg', value: 0.75, label: '谱曲终末伤害倍率 +75%' }],
-    [{ effect: 'skillDmg', value: 0.40, label: '声骸技能伤害加深 80%（折算）' }],
+    [{ effect: 'heavyDmg', value: 0.75, label: '谱曲终末（重击替换）伤害 +75%' }],
+    [{ effect: 'skillDmg', value: 0.80, label: '声骸技能伤害 +80%' }],
     [{ effect: 'teamAllDmg', value: 0.20, label: '声骸技能时全队全属性伤害 +20%' }],
-    [{ effect: 'allDmg', value: 0.15, label: '指挥状态减伤 30%' }],
+    [],
     [{ effect: 'elemDmg', value: 0.60, element: '湮灭', label: '指挥状态时湮灭伤害 +60%' }]
   ],
 
@@ -396,7 +398,7 @@ export const CHAIN_BATTLE_EFFECTS = {
   // 2.7 · 仇远（主C 气动 迅刀）— 淋漓醉墨·竹照·且从容
   '仇远': [
     [{ effect: 'crate', value: 0.20, label: '暴击 +20%' }],
-    [{ effect: 'teamAllDmg', value: 0.15, label: '全队声骸技能伤害加深 30%' }],
+    [{ effect: 'teamAllDmg', value: 0.30, label: '全队声骸技能伤害 +30%' }],
     [{ effect: 'burstDmg', value: 0.50, label: '解放倍率 +500%' }],
     [{ effect: 'atk', value: 0.20, label: '攻击 +20%' }],
     [{ effect: 'defPierce', value: 0.15, label: '无视目标 15% 防御' }],
@@ -406,11 +408,11 @@ export const CHAIN_BATTLE_EFFECTS = {
   // 2.8 · 千咲（主C 湮灭 长刃）— 虚无绞痕·电锯模式
   '千咲': [
     [{ effect: 'atk', value: 0.30, label: '附加虚无绞痕时攻击 +30%' }],
-    [{ effect: 'teamAllDmg', value: 0.30, label: '虚湮之线状态全属性伤害 +50%' }],
-    [{ effect: 'skillDmg', value: 0.60, label: '锯环疾攻/终结/闪反倍率 +120%' }],
+    [{ effect: 'teamAllDmg', value: 0.50, label: '虚湮之线状态全属性伤害 +50%' }],
+    [{ effect: 'skillDmg', value: 1.20, label: '锯环疾攻/终结/闪反倍率 +120%' }],
     [{ effect: 'allDmg', value: 0.15, label: '虚无绞痕→附加虚湮效应' }],
     [{ effect: 'burstDmg', value: 1.00, label: '共鸣解放·即刻·归无伤害 +100%' }],
-    [{ effect: 'allDmg', value: 0.30, label: '虚无绞痕·终焉：千咲伤害 +40%' }]
+    [{ effect: 'allDmg', value: 0.40, label: '虚无绞痕·终焉：千咲伤害 +40%' }]
   ],
 
   // 3.0 · 琳奈（副C 衍射 佩枪）— 颜料·流光·绮彩巡游
@@ -528,10 +530,9 @@ export const FORTE_BOOST = {
   '忌炎': { atChain: 6, bonus: 0.5 },
   '吟霖': { atChain: 6, bonus: 0.4 },
   '今汐': { atChain: 6, bonus: 0.4 },
-  '长离': { atChain: 6, bonus: 0.5 },
   '折枝': { atChain: 6, bonus: 0.4 },
   '相里要': { atChain: 6, bonus: 0.4 },
-  '椿': { atChain: 6, bonus: 0.5 },
+  // 椿 6 链酣梦 ×2.5 由 camellia.js 状态机控制，不走 FORTE_BOOST
   '珂莱塔': { atChain: 6, bonus: 0.5 },
   '洛可可': { atChain: 6, bonus: 0.3 },
   '菲比': { atChain: 6, bonus: 0.4 },
@@ -544,10 +545,10 @@ export const FORTE_BOOST = {
   '卡提希娅': { atChain: 6, bonus: 0.5 },
   '嘉贝莉娜': { atChain: 6, bonus: 0.5 },
   '卡卡罗': { atChain: 6, bonus: 0.5 },
-  '赞妮': { atChain: 6, bonus: 0.4 },
+  // 赞妮 6 链重斩 ×1.4 由 zanyan.js 状态机控制（heavyDmg + 0.4），不走 FORTE_BOOST
   '夏空': { atChain: 6, bonus: 0.3 },
   '露帕': { atChain: 6, bonus: 0.4 },
-  '弗洛洛': { atChain: 6, bonus: 0.5 },
+  '弗洛洛': { atChain: 6, bonus: 0.5 },  // 注：6 链 elemDmg +60% 已在 CHAIN_BATTLE_EFFECTS；FORTE_BOOST 此处保留但弗洛洛 FORTE 无 6 链倍率加成路径，实装时复核
   '奥古斯塔': { atChain: 6, bonus: 0.5 },
   '尤诺': { atChain: 6, bonus: 0.4 },
   '仇远': { atChain: 6, bonus: 0.5 },

@@ -19,7 +19,7 @@ import { fireEchoSetTrigger, fireEchoSetOnHitErosion, fireRoleEchoTriggers } fro
 import { tickStacks } from './stacks.js';
 import { applyTempStat, removeTempStat, computeStat, tickTempStats } from './tempStats.js';
 import { onUnitSwitchOut } from './forms.js';
-import { fireSwitchHook } from './switchHooks.js';
+import { fireSwitchHook, fireSwitchOutHook } from './switchHooks.js';
 import { applyEnemyPeriodicMechanic, applyEnemyThresholdMechanic, applyEnemyOnHitMechanic, applyEnemyDefendHook, canTargetEnemy } from './enemyMechanics.js';
 import { hasHeavyAttack } from './characters/index.js';
 import { fireCharacterHook } from './characters/index.js';
@@ -30,6 +30,17 @@ import { jiyanBurstRuiyi } from './characters/jiyan.js';
 import { encoreGainDisorder } from './characters/encore.js';
 import { cartethyiaEnterFurForm, cartethyiaBurstErosion, cartethyiaResolveMultiplier, cartethyiaErosionTick, cartethyiaErosionOnBreak, cartethyiaLethalShield } from './characters/cartethyia.js';
 import { zhezhiCraneAssist, zhezhiInkShield } from './characters/zhezhi.js';
+import { changliGainLihuo, changliResolveCost, changliMindEyeForm, changliSpendLihuo, changliInMindEye, changliEnterYanyu } from './characters/changli.js';
+import { chunResolveSkill, chunEnterHanbao, chunInHanbao, chunHanbaoMult, chunTick } from './characters/camellia.js';
+import { zanYanInBlaze, zanYanHpMult, zanYanResolveNormal, zanYanSpendFlameForSlash, zanYanEnterBlaze, zanYanRekindleMult, zanYanTick, zanYanOnLethal, zanYanOnBurst } from './characters/zanyan.js';
+import { furoloOnNormalHit, furoloOnSkillHit, furoloOnHeavyHit, furoloOnVariationHit, furoloResolveHeavy, furoloExecuteDirge, furoloCanBurst, furoloOnBurst, furoloTick } from './characters/frolo.js';
+
+// 行动花费薄入口：默认只看回合 AP；挂了 resolveCost 的角色（长离心眼态拿离火抵 AP）委托到角色文件。
+// 返回 { apCost: 实际要扣的回合 AP, lihuoCost: 要消耗的离火 }。
+function resolveActionCost(self, actionType, baseApCost) {
+  if (self?.name === '长离') return changliResolveCost(self, actionType, baseApCost);
+  return { apCost: baseApCost, lihuoCost: 0 };
+}
 
 export function getCombatTeamNames(teamNames = S.team) {
   const seen = new Set();
@@ -95,10 +106,13 @@ export function createBattle(teamNames, enemyNames, opts = {}) {
     burnTimer: {},              // 持续效果累计
     freezeOn: {},                // {teamIdx: turnsLeft}
     // 冥歌海墟 token 效果
-    wastesTokens: opts.wastesTokens || null
+    wastesTokens: opts.wastesTokens || null,
+    summons: []                   // 召唤物数组（赫卡忒等，不进 team，玩家不可控）
   };
   battle.log.push({ type: 'system', msg: `战斗开始！队伍 ${team.map(t=>t.name).join(' / ')} VS ${enemies.map(e=>e.name).join(' / ')}` });
   battle.log.push({ type: 'system', msg: `回合 1 · 当前出手：${team[0].name}` });
+  // ★ 角色战斗开始 hook(弗洛洛固有·八重奏送乐声/余响等)
+  team.forEach(t => fireCharacterHook(t, 'battleStart', { battle }));
   return battle;
 }
 
@@ -154,7 +168,8 @@ function createTeamUnit(roleName, idx) {
     ruiyi: 0,                               // 忌炎「锐意之势」当前层数（其他角色用不到）
     verdict: 0,                             // 吟霖「审判值」0-100（其他角色用不到）
     encoreDisorder: 0,                      // 安可「失序值」0-100（满后重击变白咩/黑咩特殊重击）
-    hasHeavy: hasHeavyAttack(roleName) // 是否有重击（opt-in，默认无重击）
+    hasHeavy: hasHeavyAttack(roleName), // 是否有重击（opt-in，默认无重击）
+    _isPlayerUnit: true                // 标记为玩家单位（召唤物挡刀路由用）
   };
   initForte(unit);
   applyChainBonuses(unit);
@@ -164,7 +179,7 @@ function createTeamUnit(roleName, idx) {
 
 // ===== 伤害计算 =====
 // dmgType: 'normal' | 'skill' | 'burst' | 'heavy'
-function calcDamage(attacker, defender, multiplier, dmgType) {
+export function calcDamage(attacker, defender, multiplier, dmgType) {
   // 武器触发器实时加成
   const wb = collectWeaponBonus(attacker, dmgType, { target: defender });
   // buff 中的 atkUp（守岸人 2 链等）
@@ -172,6 +187,10 @@ function calcDamage(attacker, defender, multiplier, dmgType) {
   // ★ 卡提希娅：HP 核 — 伤害基于生命值而非攻击力（倍率单独取，不复用 ACTION_MULTIPLIER）
   // HP/ATK ≈ 8.7×，所以 12%HP ≈ 100%ATK，22%HP ≈ 190%ATK，26%HP ≈ 225%ATK
   const CARTETHYIA_HP_MULT = { normal: 0.12, skill: 0.22, heavy: 0.26, burst: 0.462 };
+  // ★ 赞妮：HP 核（HP/ATK ≈ 24.6×，4%HP ≈ 100%ATK）
+  const ZAN_YAN_HP_MULT = { normal: 0.04, skill: 0.075, heavy: 0.09, burst: 0.16 };
+  // ★ 弗洛洛：HP 核（HP/ATK ≈ 24.6×，同赞妮档位）
+  const FUROLO_HP_MULT = { normal: 0.04, skill: 0.075, heavy: 0.09, burst: 0.16 };
   let baseStat;
   let hpMultOverride = null;
   if (attacker.name === '卡提希娅') {
@@ -181,6 +200,15 @@ function calcDamage(attacker, defender, multiplier, dmgType) {
     // burst 不走固定倍率覆写——第二次解放·看潮怒风哮之刃的倍率已在 doBurst 中
     // 按风蚀层数动态计算好（baseMain），此处不应再用硬编码值覆盖
     hpMultOverride = (dmgType === 'burst') ? null : (CARTETHYIA_HP_MULT[dmgType] ?? null);
+  } else if (attacker.name === '赞妮') {
+    baseStat = attacker.hp;
+    // burst 走重燃/终绝的独立倍率（由 doBurst 直接传 multiplier），这里不覆写
+    hpMultOverride = (dmgType === 'burst') ? null : (ZAN_YAN_HP_MULT[dmgType] ?? null);
+    // 灼焰形态内重斩走 heavy 类型但倍率 12%（由 doAttack 重斩路径传 multiplier，不在此覆写）
+  } else if (attacker.name === '弗洛洛') {
+    baseStat = attacker.hp;
+    // burst 不直接伤害（解放进入指挥状态）；谱曲终末/赫卡忒攻击等特殊倍率由调用方传 multiplier
+    hpMultOverride = (dmgType === 'burst') ? null : (FUROLO_HP_MULT[dmgType] ?? null);
   } else {
     baseStat = attacker.atk * (1 + wb.atkBonus + buffAtkUp);
   }
@@ -219,6 +247,10 @@ function calcDamage(attacker, defender, multiplier, dmgType) {
     if (dmgType === 'normal' || dmgType === 'skill') windowBonus *= 1.5;
     if (dmgType === 'heavy') windowBonus *= 1.8;
   }
+  // 椿含苞·酣梦：含苞期间普攻/技能 ×1.5（6 链 ×2.5）
+  if (attacker.name === '椿' && chunInHanbao(attacker) && (dmgType === 'normal' || dmgType === 'skill')) {
+    windowBonus *= chunHanbaoMult(attacker);
+  }
   // 卡提希娅气动侵蚀类 debuff
   let debuffBonus = 1;
   if (defender.debuffs) {
@@ -246,8 +278,9 @@ function calcDamage(attacker, defender, multiplier, dmgType) {
       }
     }
   }
-  // 防御穿透
-  const totalPierce = (attacker.pierceDef || 0) + wb.defPierce;
+  // 防御穿透（含焰羽等临时 pierceUp buff）
+  const pierceBuff = (attacker.buffs || []).reduce((a, b) => b.type === 'pierceUp' ? a + b.value : a, 0);
+  const totalPierce = (attacker.pierceDef || 0) + wb.defPierce + pierceBuff;
   const defEffective = defender.def * (1 - totalPierce);
   // 抗性
   const resistMult = resistMultiplier(attacker.element, defender);
@@ -270,8 +303,21 @@ let _currentBattle = null;
 export function setCurrentBattle(b) { _currentBattle = b; }
 export function getCurrentBattle() { return _currentBattle; }
 
-// 扣血（处理护盾、防御 buff、敌方特殊减伤）
-function dealDamage(target, dmg) {
+// 扣血（处理护盾、防御 buff、敌方特殊减伤、召唤物挡刀）
+export function dealDamage(target, dmg) {
+  // ★ 召唤物挡刀：target 是玩家单位且有存活挡刀召唤物时，优先打召唤物
+  // 赫卡忒等真召唤物走此路径，overflow 才打主人
+  if (target._isPlayerUnit && _currentBattle && _currentBattle.summons?.length) {
+    const ownerIdx = _currentBattle.team.indexOf(target);
+    const shielder = _currentBattle.summons.find(s =>
+      s.alive && s.ownerIdx === ownerIdx && typeof s.onOwnerDamaged === 'function'
+    );
+    if (shielder) {
+      const overflow = shielder.onOwnerDamaged(shielder, dmg, _currentBattle);
+      if (overflow <= 0) return 0;   // 全被召唤物吃掉
+      dmg = overflow;                 // overflow 继续打主人
+    }
+  }
   // 防御 buff（玩家角色）
   const defBuff = target.buffs?.find(b => b.type === 'defense');
   if (defBuff) dmg = Math.round(dmg * (1 - defBuff.value));
@@ -290,9 +336,84 @@ function dealDamage(target, dmg) {
       return 0;
     }
   }
+  // ★ 赞妮 6 链 · 当务之急？下班！：灼焰形态内致死不倒（每场 1 次，保留 1 点生命）
+  if (target.hp - dmg <= 0 && target.name === '赞妮') {
+    if (zanYanOnLethal(target, _currentBattle)) {
+      return 0;
+    }
+  }
   target.hp = Math.max(0, target.hp - dmg);
   if (target.hp <= 0) target.alive = false;
   return dmg;
+}
+
+// 召唤物受伤（独立路径，不走主人 defense/护盾，但走自身 defense buff）
+export function damageSummon(summon, dmg) {
+  const defBuff = summon.buffs?.find(b => b.type === 'defense');
+  if (defBuff) dmg = Math.round(dmg * (1 - defBuff.value));
+  summon.hp = Math.max(0, summon.hp - dmg);
+  if (summon.hp <= 0 && summon.alive) {
+    summon.alive = false;
+    summon.onDeath?.(summon, _currentBattle);
+  }
+  return dmg;
+}
+
+// 创建召唤物并加入 battle.summons
+export function spawnSummon(battle, summonDef) {
+  const summon = {
+    id: `${summonDef.id}_${Date.now()}`,
+    name: summonDef.name,
+    ownerIdx: summonDef.ownerIdx,
+    ownerName: summonDef.ownerName,
+    hp: summonDef.hp,
+    hpMax: summonDef.hp,
+    atk: summonDef.atk || 0,
+    def: summonDef.def || 0,
+    element: summonDef.element || '物理',
+    duration: summonDef.duration || 0,
+    alive: true,
+    buffs: [],
+    _isSummon: true,
+    onTurnStart: summonDef.onTurnStart || null,
+    onOwnerDamaged: summonDef.onOwnerDamaged || null,
+    onDeath: summonDef.onDeath || null,
+    ...summonDef.extra
+  };
+  battle.summons.push(summon);
+  battle.log.push({ type: 'summon', src: summonDef.ownerName, tgt: summonDef.name, msg: `${summonDef.ownerName} 召唤 ${summonDef.name}（HP ${summonDef.hp}，持续 ${summonDef.duration} 回合）` });
+  return summon;
+}
+
+// 移除召唤物（切人/死亡/主动退出）
+export function removeSummon(battle, summonId) {
+  const idx = battle.summons.findIndex(s => s.id === summonId);
+  if (idx < 0) return;
+  const s = battle.summons[idx];
+  s.alive = false;
+  battle.summons.splice(idx, 1);
+}
+
+// 回合开始时触发所有召唤物的 onTurnStart（主人回合开始时）
+export function tickSummons(battle, ownerIdx) {
+  for (const s of [...battle.summons]) {
+    if (!s.alive || s.ownerIdx !== ownerIdx) continue;
+    s.onTurnStart?.(s, battle);
+  }
+}
+
+// 回合结束时所有召唤物 duration - 1
+export function tickSummonsDuration(battle) {
+  for (const s of [...battle.summons]) {
+    if (!s.alive) continue;
+    s.duration -= 1;
+    if (s.duration <= 0) {
+      s.alive = false;
+      s.onDeath?.(s, battle);
+      battle.log.push({ type: 'mechanic', src: s.ownerName, msg: `${s.name} 持续结束，消散` });
+    }
+  }
+  battle.summons = battle.summons.filter(s => s.alive);
 }
 
 // 协奏值：满 100 切人时触发变奏/延奏（暂未实装变奏，只显示）
@@ -572,15 +693,26 @@ function handleAirStars(battle, enemy, helpers) {
 // 守岸人 5 链：normalSplit = 2，会额外打一个相邻敌人
 export function doAttack(battle, targetIdx) {
   _currentBattle = battle;
-  if (battle.finished || battle.ap < ACTION_COST.normal) return { ok: false, err: 'AP 不足' };
-  const self = battle.team[battle.active];
+  const self0 = battle.team[battle.active];
+  const cost = resolveActionCost(self0, 'normal', ACTION_COST.normal);
+  const inMindEye = changliInMindEye(self0);
+  if (battle.finished || battle.ap < cost.apCost) return { ok: false, err: 'AP 不足' };
+  const self = self0;
   if (!self || !self.alive) return { ok: false, err: '当前角色不可行动' };
   if (self.frozenTurns > 0) return { ok: false, err: `当前角色被冻结（${self.frozenTurns} 回合）` };
   const target = battle.enemies[targetIdx];
   if (!target || !target.alive) return { ok: false, err: '目标无效' };
-  const fEnh = forteEnhances(self, 'normal');
-  const mult = fEnh ? ACTION_MULTIPLIER.normal * fEnh.effectMult : ACTION_MULTIPLIER.normal;
-  const { dmg, crit } = calcDamage(self, target, mult, 'normal');
+  // 长离心眼·征：普攻变身为 180% 共鸣技能伤害
+  const meForm = changliMindEyeForm(self, 'normal');
+  // 赞妮灼焰形态：普攻键替换为重斩（HP×12%，消耗 20 焰光，heavy 类型）
+  const zyForm = zanYanResolveNormal(self, battle);
+  const fEnh = (meForm || zyForm) ? null : forteEnhances(self, 'normal');
+  let mult;
+  if (meForm) mult = meForm.mult;
+  else if (zyForm) mult = zyForm.mult;  // 重斩 HP×12%（6 链 ×1.4）
+  else mult = fEnh ? ACTION_MULTIPLIER.normal * fEnh.effectMult : ACTION_MULTIPLIER.normal;
+  const dmgType = meForm ? meForm.dmgType : (zyForm ? zyForm.dmgType : 'normal');
+  const { dmg, crit } = calcDamage(self, target, mult, dmgType);
   const real = dealDamage(target, dmg);
   reduceVibration(target, VIBRATION_DAMAGE.normal + (fEnh ? VIBRATION_DAMAGE.normalForteBonus : 0), battle, self);
   applyReflect(battle, self, target, real);
@@ -605,8 +737,10 @@ export function doAttack(battle, targetIdx) {
   }
   battle.log.push({
     type: 'attack', src: self.name, tgt: target.name, dmg: real, crit,
-    action: fEnh ? `${fEnh.resourceName}强化普攻` : '普攻'
+    action: meForm ? meForm.label : (zyForm ? zyForm.label : (fEnh ? `${fEnh.resourceName}强化普攻` : '普攻'))
   });
+  // 赞妮重斩消耗焰光（普攻键重斩路径）
+  if (zyForm) zanYanSpendFlameForSlash(self, battle);
   // ★ 守岸人 5 链：自动多打一个相邻敌人
   if ((self.normalSplit || 1) >= 2) {
     const aliveOthers = battle.enemies.filter(e => e.alive && e !== target);
@@ -622,10 +756,11 @@ export function doAttack(battle, targetIdx) {
       });
     }
   }
-  battle.ap -= ACTION_COST.normal;
+  battle.ap -= cost.apCost;
   self.energy = Math.min(self.energyMax, Math.round(self.energy + 12 * (1 + self.resonanceBonus)));
   gainConcerto(self, 8);
-  gainForte(self, 'normal');
+  if (self.name === '长离') { if (inMindEye) changliSpendLihuo(self, cost.lihuoCost, battle); else changliGainLihuo(self, 1, '普攻', battle); }
+  else gainForte(self, 'normal');
   if (fEnh) consumeForte(self);
   // 折枝墨鹤追击：己方普攻命中主目标时消耗 1 只墨鹤（不递归）
   zhezhiCraneAssist(battle, target);
@@ -640,6 +775,8 @@ export function doAttack(battle, targetIdx) {
   fireRoleEchoTriggers(self, 'normal_hit', target, battle);
   // 角色专属普攻 hook（卡提希娅决意/风蚀 · 安可失序 · 吟霖审判）
   fireCharacterHook(self, 'onAttack', { battle, target, helpers: { calcDamage, dealDamage } });
+  // ★ 弗洛洛普攻命中后加乐声+余响
+  if (self.name === '弗洛洛') furoloOnNormalHit(self, battle);
   finishIfBattleEnded(battle, 'win');
   return { ok: true };
 }
@@ -647,25 +784,38 @@ export function doAttack(battle, targetIdx) {
 // 共鸣技能：1 AP，CD 3 回合，单体 180% atk
 export function doSkill(battle, targetIdx) {
   _currentBattle = battle;
-  if (battle.finished || battle.ap < ACTION_COST.skill) return { ok: false, err: 'AP 不足' };
-  const self = battle.team[battle.active];
+  const self0 = battle.team[battle.active];
+  const cost = resolveActionCost(self0, 'skill', ACTION_COST.skill);
+  const inMindEye = changliInMindEye(self0);
+  if (battle.finished || battle.ap < cost.apCost) return { ok: false, err: 'AP 不足' };
+  const self = self0;
   if (!self || !self.alive) return { ok: false, err: '当前角色不可行动' };
   if (self.frozenTurns > 0) return { ok: false, err: `当前角色被冻结（${self.frozenTurns} 回合）` };
   if (self.skillLockedTurns > 0) return { ok: false, err: `技能被封锁中（${self.skillLockedTurns} 回合）` };
-  if (self.cd.skill > 0) return { ok: false, err: `技能冷却中（${self.cd.skill} 回合）` };
+  // 长离心眼·劫按白嫖处理，不吃冷却（见设计文档 §8）
+  if (self.cd.skill > 0 && !inMindEye) return { ok: false, err: `技能冷却中（${self.cd.skill} 回合）` };
   const target = battle.enemies[targetIdx];
   if (!target || !target.alive) return { ok: false, err: '目标无效' };
-  const fEnh = forteEnhances(self, 'skill');
-  const mult = fEnh && fEnh.effectMult ? ACTION_MULTIPLIER.skill * fEnh.effectMult : ACTION_MULTIPLIER.skill;
+  // 长离心眼·劫：技能变身为 200% 共鸣技能伤害
+  const meForm = changliMindEyeForm(self, 'skill');
+  // 椿永生花：满红椿·蕊 + 协奏≥50 时技能替换为永生花（进入含苞在伤害前，使永生花享受酣梦倍率）
+  const chunForm = chunResolveSkill(self, battle);
+  if (chunForm) chunEnterHanbao(self, battle, chunForm.isRefresh);
+  const fEnh = (meForm || chunForm) ? null : forteEnhances(self, 'skill');
+  let mult;
+  if (meForm) mult = meForm.mult;
+  else if (chunForm) mult = chunForm.mult;
+  else mult = (fEnh && fEnh.effectMult ? ACTION_MULTIPLIER.skill * fEnh.effectMult : ACTION_MULTIPLIER.skill);
   const { dmg, crit } = calcDamage(self, target, mult, 'skill');
   const real = dealDamage(target, dmg);
   reduceVibration(target, VIBRATION_DAMAGE.skill + (fEnh ? VIBRATION_DAMAGE.skillForteBonus : 0), battle, self);
   applyReflect(battle, self, target, real);
-  battle.ap -= ACTION_COST.skill;
-  self.cd.skill = Math.max(1, 3 - (self.skillCdReduce || 0));
+  battle.ap -= cost.apCost;
+  if (!inMindEye) self.cd.skill = Math.max(1, 3 - (self.skillCdReduce || 0));
   self.energy = Math.min(self.energyMax, Math.round(self.energy + (22 + self.energyRefund) * (1 + self.resonanceBonus)));
   gainConcerto(self, 18);
-  gainForte(self, 'skill');
+  if (self.name === '长离') { if (inMindEye) changliSpendLihuo(self, cost.lihuoCost, battle); else changliGainLihuo(self, 1, '共鸣技能', battle); }
+  else gainForte(self, 'skill');
 
   if (fEnh) consumeForte(self);
   // Step D：菲比 toggleForm dispatch —— 使用技能后 forte 满自动切换形态（史遗留未接）
@@ -694,10 +844,12 @@ export function doSkill(battle, targetIdx) {
   }
   battle.log.push({
     type: 'skill', src: self.name, tgt: target.name, dmg: real, crit,
-    action: fEnh ? `${fEnh.resourceName}强化技能` : '共鸣技能'
+    action: meForm ? meForm.label : (chunForm ? chunForm.label : (fEnh ? `${fEnh.resourceName}强化技能` : '共鸣技能'))
   });
   // 角色专属共鸣技能 hook（守岸人治疗 · 卡提希娅决意/风蚀 · 忌炎锐意 · 安可失序 · 吟霖审判 · 珂莱塔解离 · 折枝补货）
   fireCharacterHook(self, 'onSkill', { battle, target, helpers: { calcDamage, dealDamage } });
+  // ★ 弗洛洛技能命中后加乐声+余响
+  if (self.name === '弗洛洛') furoloOnSkillHit(self, battle);
   // 折枝墨鹤追击：共鸣技能命中主目标时消耗 1 只墨鹤（追击在补货之后，逻辑上仍是技能命中触发）
   zhezhiCraneAssist(battle, target);
   finishIfBattleEnded(battle, 'win');
@@ -707,10 +859,25 @@ export function doSkill(battle, targetIdx) {
 // 共鸣解放：3 AP，能量满，AOE，主目标 400% / 副目标 200%
 export function doBurst(battle) {
   _currentBattle = battle;
-  if (battle.finished || battle.ap < ACTION_COST.burst) return { ok: false, err: `AP 不足（需 ${ACTION_COST.burst}）` };
   const self = battle.team[battle.active];
   if (!self || !self.alive) return { ok: false, err: '当前角色不可行动' };
   if (self.frozenTurns > 0) return { ok: false, err: `当前角色被冻结（${self.frozenTurns} 回合）` };
+
+  // ★ 弗洛洛专属解放:0AP(能量上限为0) + 需定音状态 + 无直接伤害 + 进入指挥状态
+  if (self.name === '弗洛洛') {
+    if (!furoloCanBurst(self)) return { ok: false, err: '需处于定音状态(谱曲终末后)才能施放共鸣解放' };
+    const aliveEnemies = battle.enemies.filter(e => e.alive);
+    if (!aliveEnemies.length) return { ok: false, err: '没有目标' };
+    furoloOnBurst(self, { battle });
+    battle.log.push({
+      type: 'burst', src: self.name, results: [],
+      action: '共鸣解放 · 往日深渊的圆舞曲（进入指挥状态 · 赫卡忒召唤）'
+    });
+    finishIfBattleEnded(battle, 'win');
+    return { ok: true };
+  }
+
+  if (battle.finished || battle.ap < ACTION_COST.burst) return { ok: false, err: `AP 不足（需 ${ACTION_COST.burst}）` };
   if (self.energy < self.energyMax) return { ok: false, err: `能量不足（${self.energy}/${self.energyMax}）` };
   const aliveEnemies = battle.enemies.filter(e => e.alive);
   if (!aliveEnemies.length) return { ok: false, err: '没有目标' };
@@ -783,8 +950,16 @@ export function doBurst(battle) {
   }
 
   // ===== 非卡提希娅·原逻辑 =====
-  const baseMain = ACTION_MULTIPLIER.burstMain * (fEnh ? fEnh.effectMult : 1.0) * ruiyiMult;
-  const baseSide = ACTION_MULTIPLIER.burstSide * (fEnh ? fEnh.effectMult : 1.0) * ruiyiMult;
+  // 赞妮·重燃：HP 核，主目标 HP×16%（5 链 ×2.2 = HP×35.2%），副目标半额
+  let baseMain, baseSide;
+  if (self.name === '赞妮') {
+    const rekind = zanYanRekindleMult(self);  // 0.16 或 0.352（5 链）
+    baseMain = rekind;
+    baseSide = rekind * 0.5;
+  } else {
+    baseMain = ACTION_MULTIPLIER.burstMain * (fEnh ? fEnh.effectMult : 1.0) * ruiyiMult;
+    baseSide = ACTION_MULTIPLIER.burstSide * (fEnh ? fEnh.effectMult : 1.0) * ruiyiMult;
+  }
   const results = aliveEnemies.map(e => {
     const mult = (e === primary) ? baseMain : baseSide;
     const { dmg, crit } = calcDamage(self, e, mult, 'burst');
@@ -796,7 +971,8 @@ export function doBurst(battle) {
   battle.ap -= ACTION_COST.burst;
   self.energy = 0;
   gainConcerto(self, 30);
-  gainForte(self, 'burst');
+  if (self.name === '长离') { changliEnterYanyu(self, battle); changliGainLihuo(self, 3, '离火照丹心', battle); }
+  else gainForte(self, 'burst');
   if (fEnh) consumeForte(self);
   if (fEnh && fEnh.effectType === 'teamShield') {
     battle.team.forEach(t => {
@@ -855,12 +1031,21 @@ export function doBurst(battle) {
 // 重击：2 AP，CD 1，220% atk · 重击伤害类型 · 削破韧 25
 export function doHeavy(battle, targetIdx) {
   _currentBattle = battle;
-  if (battle.finished || battle.ap < ACTION_COST.heavy) return { ok: false, err: `AP 不足（需 ${ACTION_COST.heavy}）` };
-  const self = battle.team[battle.active];
+  const self0 = battle.team[battle.active];
+  const cost = resolveActionCost(self0, 'heavy', ACTION_COST.heavy);
+  const inMindEye = changliInMindEye(self0);
+  if (battle.finished || battle.ap < cost.apCost) return { ok: false, err: `AP 不足（需 ${cost.apCost}）` };
+  const self = self0;
   if (!self || !self.alive) return { ok: false, err: '当前角色不可行动' };
   if (!self.hasHeavy) return { ok: false, err: `${self.name} 没有重击` };
   if (self.frozenTurns > 0) return { ok: false, err: `当前角色被冻结（${self.frozenTurns} 回合）` };
-  if (self.cd.heavy > 0) return { ok: false, err: `重击冷却中（${self.cd.heavy} 回合）` };
+  // 长离心眼·冲按白嫖处理，不吃重击冷却
+  if (self.cd.heavy > 0 && !inMindEye) return { ok: false, err: `重击冷却中（${self.cd.heavy} 回合）` };
+
+  // 赞妮灼焰形态：重击按钮在灼焰形态下不可用（普攻键已替换为重斩，避免重复消耗焰光）
+  if (self.name === '赞妮' && zanYanInBlaze(self)) {
+    return { ok: false, err: '灼焰形态下重击不可用 · 普攻键已替换为重斩' };
+  }
 
   // 折枝重击「点睛」：消耗半数墨鹤转全队护盾，不造成伤害、不触发墨鹤追击
   if (self.name === '折枝') {
@@ -881,25 +1066,38 @@ export function doHeavy(battle, targetIdx) {
 
   const target = battle.enemies[targetIdx];
   if (!target || !target.alive) return { ok: false, err: '目标无效' };
+
+  // ★ 弗洛洛谱曲终末:满6乐声时重击替换为谱曲终末(HP×20% AOE,消耗乐声,进入定音)
+  const furoloDirgeForm = (self.name === '弗洛洛') ? furoloResolveHeavy(self, battle) : null;
+  if (self.name === '弗洛洛' && !furoloDirgeForm) {
+    return { ok: false, err: '乐声未满 6 枚,无法施放谱曲终末(弗洛洛重击仅在满乐声时可用)' };
+  }
+
+  // 安可特殊重击：失序值满时，重击改为白咩·失控之炎 / 黑咩·暴走之炎
   // 安可特殊重击：失序值满时，重击改为白咩·失控之炎 / 黑咩·暴走之炎
   // 官方归类为共鸣解放伤害，因此这里用 dmgType='burst' 结算，但仍消耗 2 AP 和重击 CD。
   const isEncore = self.name === '安可';
   const encoreBlack = isEncore && (self.encoreBlackTurns || 0) > 0;
   const encoreSpecial = isEncore && (self.encoreDisorder || 0) >= 100;
-  const heavyMult = encoreSpecial
-    ? (encoreBlack ? 4.5 : 3.5) * (1 + (self.heavyBonus || 0))
-    : ACTION_MULTIPLIER.heavy;
-  const heavyType = encoreSpecial ? 'burst' : 'heavy';
+  // 长离心眼·冲：重击变身为 400% 共鸣技能伤害
+  const meForm = changliMindEyeForm(self, 'heavy');
+  const heavyMult = furoloDirgeForm
+    ? furoloDirgeForm.mult
+    : (meForm
+        ? meForm.mult
+        : (encoreSpecial ? (encoreBlack ? 4.5 : 3.5) * (1 + (self.heavyBonus || 0)) : ACTION_MULTIPLIER.heavy));
+  const heavyType = furoloDirgeForm ? furoloDirgeForm.dmgType : (meForm ? meForm.dmgType : (encoreSpecial ? 'burst' : 'heavy'));
   const { dmg, crit } = calcDamage(self, target, heavyMult, heavyType);
   const real = dealDamage(target, dmg);
   reduceVibration(target, encoreSpecial ? VIBRATION_DAMAGE.heavySpecial : VIBRATION_DAMAGE.heavy, battle, self);
   applyReflect(battle, self, target, real);
-  battle.ap -= ACTION_COST.heavy;
-  self.cd.heavy = 1;
+  battle.ap -= cost.apCost;
+  if (!inMindEye) self.cd.heavy = 1;
   battle._heavyUsedThisTurn = true;  // ★ 弹反判定：本回合使用了重击
   self.energy = Math.min(self.energyMax, Math.round(self.energy + 15 * (1 + self.resonanceBonus)));
   gainConcerto(self, 14);
-  gainForte(self, 'heavy');
+  if (self.name === '长离') { if (inMindEye) changliSpendLihuo(self, cost.lihuoCost, battle); else changliGainLihuo(self, 1, '重击', battle); }
+  else gainForte(self, 'heavy');
   fireTrigger(self, 'heavy_hit', { battle, target });
   // 触发声骸套装 5 件条件型（重击命中 / 普攻或重击命中 / 重击或技能命中）
   fireEchoSetTrigger(self, 'heavy_hit', battle);
@@ -909,7 +1107,15 @@ export function doHeavy(battle, targetIdx) {
   fireEchoSetOnHitErosion(self, target, battle);
   // 触发角色专属声骸套装 5 件
   fireRoleEchoTriggers(self, 'heavy_hit', target, battle);
-  let heavyAction = '重击';
+  let heavyAction = meForm ? meForm.label : '重击';
+  // ★ 弗洛洛谱曲终末:消耗乐声 + 进入定音 + 2链+14余响 + 4链团队buff
+  if (furoloDirgeForm) {
+    heavyAction = furoloDirgeForm.label;
+    furoloExecuteDirge(self, battle);
+  } else if (self.name === '弗洛洛') {
+    // 普通重击命中后加乐声+余响(理论上弗洛洛只有谱曲终末路径,这里防御性处理)
+    furoloOnHeavyHit(self, battle);
+  }
   if (isEncore) {
     if (encoreSpecial) {
       heavyAction = encoreBlack ? '黑咩·暴走之炎（失序满）' : '白咩·失控之炎（失序满）';
@@ -992,6 +1198,8 @@ export function doSwitch(battle, toIdx) {
     onUnitSwitchOut(prev, battle);
     // 离场角色的 outro 武器被动（如停驻之烟：延奏后下场角色攻击+10%）
     fireTrigger(prev, 'outro', { battle });
+    // ★ 弗洛洛切人退场：指挥状态结束 + 赫卡忒消失（按 from.name 查找的 switchOut hook）
+    fireSwitchOutHook({ from: prev, to: target, battle });
   }
   // 入场角色变奏：对当前主目标造成一段伤害
   const aliveEnemies = battle.enemies.filter(e => e.alive);
@@ -1027,6 +1235,8 @@ export function doSwitch(battle, toIdx) {
   battle.log.push({ type: 'switch', src: target.name, action: '切换上场' });
   // Step E：统一切人入场钩子（忌炎锐意/通变、今汐谪仙/韶光、卡提希娅 2 链风蚀、安可变奏失序）
   fireSwitchHook({ from: prev, to: target, battle, ctx: { variationTarget } });
+  // ★ 弗洛洛变奏入场命中后加乐声+余响
+  if (target.name === '弗洛洛' && variationTarget) furoloOnVariationHit(target, battle);
   finishIfBattleEnded(battle, 'win');
   return { ok: true };
 }
@@ -1189,6 +1399,31 @@ export function endTurn(battle) {
     // 雷霆墙锁定衰减
     if (t._wallLocked > 0) t._wallLocked--;
     fireCharacterHook(t, 'turnCleanup', { battle });
+    // ★ 弗洛洛指挥状态 tick(同步主人 commandTurns 与赫卡忒 duration)
+    if (t.name === '弗洛洛') furoloTick(t, battle);
+    // 赞妮灼焰形态 tick：回合数 -1、焰光 +10、形态结束时触发终绝将至之刻
+    if (t.name === '赞妮') {
+      const zyTick = zanYanTick(t, battle);
+      if (zyTick && zyTick.pendingFinal && t.alive) {
+        const primary = battle.enemies.find(e => e.alive);
+        if (primary) {
+          const aliveEnemies = battle.enemies.filter(e => e.alive);
+          const results = aliveEnemies.map(e => {
+            const isMain = (e === primary);
+            const m = isMain ? zyTick.mult : zyTick.mult * 0.5;
+            const { dmg, crit } = calcDamage(t, e, m, 'burst');
+            const real = dealDamage(e, dmg);
+            reduceVibration(e, VIBRATION_DAMAGE.burst, battle, t);
+            return { tgt: e.name, dmg: real, crit, primary: isMain };
+          });
+          battle.log.push({
+            type: 'burst', src: t.name, results,
+            action: `共鸣解放 · 终绝将至之刻（HP × ${(zyTick.mult*100).toFixed(1)}% · 消耗焰光 ${t.zanYanFlameConsumed || 0}）`
+          });
+          finishIfBattleEnded(battle, 'win');
+        }
+      }
+    }
     tickStacks(battle, t);     // Step B：统一衰减 Stack（卡提希娅决意 / 忌炎锐意无衰减直接 no-op）
     tickWeaponTriggers(t);
   });
@@ -1254,7 +1489,11 @@ export function endTurn(battle) {
   if (!(battle.team[battle.active].alive && battle.team[battle.active].frozenTurns === 0)) {
     battle.active = nextActive;
   }
+  // ★ 召唤物 duration 递减（所有召唤物 -1 回合，归零则消失）
+  tickSummonsDuration(battle);
   battle.log.push({ type: 'system', msg: `—— 回合 ${battle.turn} —— 当前出手：${battle.team[battle.active].name}` });
+  // ★ 新回合开始：当前出场角色的召唤物自动行动（赫卡忒等）
+  if (battle.summons?.length) tickSummons(battle, battle.active);
 
   // 安全上限
   if (battle.turn > 25) {

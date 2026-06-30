@@ -12,8 +12,8 @@ import { computeBattleStats, calcBP, expToNext, weaponToNext } from '../battle/s
 import { getMeta } from '../battle/template.js';
 import { WEAPON_DATA } from '../equip/weapons.js';
 import { levelUpRole, levelUpRoleMax, levelUpWeapon, levelUpWeaponMax, refineWeapon, equipWeapon, unequipWeapon, getEquippableWeapons, totalExp } from '../equip/actions.js';
-import { generateEcho, equipEcho, unequipSlot, getEquippableEchoes, calcTotalCost, levelUpEcho, levelUpEchoMax, recycleEcho, toggleEchoLock, dataBankCostCap, echoToNext } from '../equip/echoActions.js';
-import { ECHO_CATALOG, ECHO_SETS, getSetById, getEchoById, formatEchoStatValue, formatSetBonus } from '../data/echoes.js';
+import { equipEcho, unequipSlot, getEquippableEchoes, calcTotalCost, levelUpEcho, levelUpEchoMax, recycleEcho, toggleEchoLock, dataBankCostCap, echoToNext } from '../equip/echoActions.js';
+import { ECHO_SETS, getSetById, getEchoById, formatEchoStatValue, formatSetBonus } from '../data/echoes.js';
 import { getForte } from '../battle/forte.js';
 import { getOverrideMeta, hasChainOverride } from '../battle/chains.js';
 import { attachTermTips } from './terms.js';
@@ -237,7 +237,7 @@ export function render() {
   $('cOs').textContent = S.oscillated;
   $('cAgHint').textContent = `可换 ${Math.floor(S.afterglow / 8)} 抽`;
   $('cOsHint').textContent = `可换 ${Math.floor(S.oscillated / 70)} 抽`;
-  const tides = [['radiant', '浮金波纹'], ['forging', '铸潮波纹'], ['lustrous', '唤声波纹']];
+  const tides = [['radiant', '浮金波纹'], ['forging', '铸潮波纹'], ['lustrous', '唤声涡纹']];
   // 联动期：把联动波纹也加入兑换列表（#7 #9）
   if (isCollabActive()) {
     tides.push(['dream', '捕梦波纹'], ['mirage', '铭影波纹']);
@@ -539,7 +539,7 @@ function renderRoleTabContent(tabId, preview = false) {
             </div>`;
           }).join('')}
         </div>
-        <div style="font-size:10px;color:var(--muted);text-align:center;margin-top:10px">数据坞 LV ${S.dataBankLevel} · COST 上限 ${cap} · 持有 ${S.echos.length} 个声骸</div>
+        <div style="font-size:10px;color:var(--muted);text-align:center;margin-top:10px">声骸 COST 上限 ${cap} · 持有 ${S.echos.length} 个声骸</div>
       </div>
       ${selEcho ? (() => {
         const e = selEcho;
@@ -820,14 +820,7 @@ window.__openEchoPicker = (roleName, slot) => {
   openModal({
     title: `选择声骸 · 槽位 ${slot+1} · 总 COST ${used}/${cap}`,
     body: `<div style="max-height:60vh;overflow-y:auto;display:flex;flex-direction:column;gap:6px">
-      ${items || '<div style="color:var(--dim);font-size:12px;text-align:center;padding:20px">无可装备的声骸。前往仓库获取声骸。</div>'}
-      <div style="margin-top:8px;padding:8px;border:1px dashed var(--line2);border-radius:8px;text-align:center">
-        <div style="font-size:10px;color:var(--muted);margin-bottom:6px">生成新声骸（测试用 · 后续接入无音区产出）</div>
-        <select id="echoGenSel" style="font-size:11px;padding:3px 6px;background:var(--bg2);color:var(--text);border:1px solid var(--line2);border-radius:4px;max-width:60%">
-          ${ECHO_CATALOG.map(e => `<option value="${e.id}">COST${e.cost} · ${e.name} (${e.element})</option>`).join('')}
-        </select>
-        <button class="mbtn gold" style="font-size:10px;margin-left:6px" onclick="window.__echoGenerate()">生成</button>
-      </div>
+      ${items || '<div style="color:var(--dim);font-size:12px;text-align:center;padding:20px">无可装备的声骸。前往「冒险 · 副本 · 无音区」战斗掉落获取。</div>'}
     </div>`,
     actions: [{ label: '关闭', cls: '', fn: () => {} }]
   });
@@ -905,16 +898,6 @@ window.__echoToggleLock = (id) => {
   toggleEchoLock(id);
   closeModal();
   render();
-};
-window.__echoGenerate = () => {
-  const sel = document.getElementById('echoGenSel');
-  if (!sel) return;
-  const e = generateEcho(sel.value);
-  if (e) {
-    msg(`生成 ${e.name}`, false);
-    closeModal();
-    render();
-  }
 };
 
 
