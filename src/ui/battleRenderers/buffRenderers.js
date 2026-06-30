@@ -70,11 +70,16 @@ export const BUFF_RENDERERS = {
     cls: 'atk', icon: '⚔',
     label(buf, t) { return `全队 重击伤害 +${pct(buf.value)}`; },
     tip: '<b>重击伤害加成</b><br>作用于所有存活队员的重击。'
+  },
+  elemAllUp: {
+    cls: 'field', icon: '🌐',
+    label(buf, t) { return `全队 全属性伤害 +${pct(buf.value)}`; },
+    tip: '<b>全属性伤害加成</b><br>作用于所有存活队员的所有元素伤害。'
   }
 };
 
 // TEAM_BUFF_TYPES: 去重白名单 — 全队 buff 在顶部 stripe 只显示一次
-export const TEAM_BUFF_TYPES = new Set(['critUp', 'cdmgUp', 'atkUp', 'heavyDmgUp', 'healOverTime']);
+export const TEAM_BUFF_TYPES = new Set(['critUp', 'cdmgUp', 'atkUp', 'heavyDmgUp', 'healOverTime', 'elemAllUp']);
 
 // ============ 敌人机制提取器 ============
 // 每个 extractor 读 enemy 上的 _xxx 标志位返回 badge 数组（空数组表示无此状态）

@@ -139,7 +139,7 @@ describe('battle/characters/frolo — 弗洛洛状态机', () => {
     });
 
     it('定音后解放: 0AP, 进入指挥状态, 召唤赫卡忒', () => {
-      const battle = quickBattle();
+      const battle = quickBattle(null, [{ name: '飞廉之猩', scale: 1 }]);
       const f = getFurolo(battle);
       // 进定音: 2 普攻(2AP) + 重击(2AP) = 4 AP 全消耗
       combat.doAttack(battle, firstEnemy(battle));
@@ -166,7 +166,7 @@ describe('battle/characters/frolo — 弗洛洛状态机', () => {
     });
 
     it('解放后定音标志已清除, 不能再次解放', () => {
-      const battle = quickBattle();
+      const battle = quickBattle(null, [{ name: '飞廉之猩', scale: 1 }]);
       const f = getFurolo(battle);
       combat.doAttack(battle, firstEnemy(battle));
       combat.doAttack(battle, firstEnemy(battle));
@@ -182,7 +182,7 @@ describe('battle/characters/frolo — 弗洛洛状态机', () => {
   // ===== 赫卡忒挡刀 =====
   describe('赫卡忒挡刀', () => {
     it('弗洛洛受伤时由赫卡忒承担, overflow 才打弗洛洛', () => {
-      const battle = quickBattle();
+      const battle = quickBattle(null, [{ name: '飞廉之猩', scale: 1 }]);
       const f = getFurolo(battle);
       // 进指挥状态
       combat.doAttack(battle, firstEnemy(battle));
@@ -205,7 +205,7 @@ describe('battle/characters/frolo — 弗洛洛状态机', () => {
     });
 
     it('赫卡忒 HP 归零时死亡, 指挥状态立即结束', () => {
-      const battle = quickBattle();
+      const battle = quickBattle(null, [{ name: '飞廉之猩', scale: 1 }]);
       const f = getFurolo(battle);
       combat.doAttack(battle, firstEnemy(battle));
       combat.doAttack(battle, firstEnemy(battle));
@@ -225,7 +225,7 @@ describe('battle/characters/frolo — 弗洛洛状态机', () => {
   // ===== 赫卡忒自动攻击 =====
   describe('赫卡忒自动攻击', () => {
     it('回合开始时赫卡忒自动攻击, 弗洛洛 +1 乐声 +2/3 余响', () => {
-      const battle = quickBattle();
+      const battle = quickBattle(null, [{ name: '飞廉之猩', scale: 1 }]);
       const f = getFurolo(battle);
       // 进指挥状态
       combat.doAttack(battle, firstEnemy(battle));
@@ -272,7 +272,7 @@ describe('battle/characters/frolo — 弗洛洛状态机', () => {
     });
 
     it('施放谱曲终末后 +14 余响', () => {
-      const battle = quickBattle();
+      const battle = quickBattle(null, [{ name: '飞廉之猩', scale: 1 }]);
       const f = getFurolo(battle);
       combat.doAttack(battle, firstEnemy(battle));
       combat.doAttack(battle, firstEnemy(battle));
@@ -287,7 +287,7 @@ describe('battle/characters/frolo — 弗洛洛状态机', () => {
   // ===== 切人退出指挥状态 =====
   describe('切人退场', () => {
     it('切人时赫卡忒消失, 指挥状态结束', () => {
-      const battle = quickBattle();
+      const battle = quickBattle(null, [{ name: '飞廉之猩', scale: 1 }]);
       const f = getFurolo(battle);
       combat.doAttack(battle, firstEnemy(battle));
       combat.doAttack(battle, firstEnemy(battle));

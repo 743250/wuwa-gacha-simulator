@@ -167,7 +167,7 @@ function furoloC6EchoPhantom(self, battle) {
   const target = battle.enemies.find(e => e.alive);
   if (!target) return;
   // HP×8% 等效(官方 216.42% ATK,HP核折算 ≈ HP×8%)
-  const { dmg } = calcDamage(self, target, 0.08, 'skill');
+  const { dmg } = calcDamage(self, target, 0.08, 'skill', { explicitHpMult: true });
   const real = dealDamage(target, dmg);
   furoloGainEchoes(self, 8, battle);
   battle.log.push({
@@ -295,7 +295,7 @@ function furoloHecateTurnStart(summon, battle) {
   // 6 链:强化攻击倍率 +24%
   const finalMult = isAugment && owner.chain >= 6 ? mult * 1.24 : mult;
   // 赫卡忒用 owner 的属性计算(继承)
-  const { dmg } = calcDamage(owner, target, finalMult, 'burst');
+  const { dmg } = calcDamage(owner, target, finalMult, 'burst', { explicitHpMult: true });
   const real = dealDamage(target, dmg);
   // 加乐声+余响给主人
   furoloGainNotes(owner, 1, battle);
@@ -388,18 +388,41 @@ export function furoloTick(self, battle) {
 }
 
 // ── 徽章收集(战斗 UI 状态行) ──
+// 返回 badge 对象数组 { key, cls, icon, label, tip }，与 collectUnitBadges 协议一致
 export function furoloCollectBadges(self) {
   if (self.name !== '弗洛洛') return [];
-  const badges = [];
+  const out = [];
   const notes = self.furoloNotes || 0;
   const echoes = self.furoloEchoes || 0;
-  badges.push(`<span style="color:var(--gold)">乐声 ${notes}/${NOTES_MAX}</span>`);
-  badges.push(`<span style="color:#c39bff">余响 ${echoes}/${ECHOES_MAX}</span>`);
-  if (self.furoloDirge) badges.push(`<span style="color:var(--accent)">定音</span>`);
-  if ((self.furoloCommandTurns || 0) > 0) {
-    badges.push(`<span style="color:#9b6dff">指挥 ${self.furoloCommandTurns}回</span>`);
+  out.push({
+    key: `frolo-notes-${self.name}`,
+    cls: 'field', icon: '🎵',
+    label: `乐声 ${notes}/${NOTES_MAX}`,
+    tip: '<b>乐声</b><br>弗洛洛专属资源。普攻/技能/重击/变奏各 +1 枚，满 6 枚时重击替换为谱曲终末。'
+  });
+  out.push({
+    key: `frolo-echoes-${self.name}`,
+    cls: 'crit', icon: '✦',
+    label: `余响 ${echoes}/${ECHOES_MAX}`,
+    tip: '<b>余响</b><br>弗洛洛奏回路资源。每层使谱曲终末倍率 +20%，满 24 层时倍率额外 ×3.0；每层暴伤 +2.5%。'
+  });
+  if (self.furoloDirge) {
+    out.push({
+      key: `frolo-dirge-${self.name}`,
+      cls: 'burst', icon: '🎯',
+      label: '定音',
+      tip: '<b>定音</b><br>谱曲终末后进入的状态，可施放共鸣解放（不消耗 AP）。'
+    });
   }
-  return badges;
+  if ((self.furoloCommandTurns || 0) > 0) {
+    out.push({
+      key: `frolo-cmd-${self.name}`,
+      cls: 'atk', icon: '指挥',
+      label: `指挥 ${self.furoloCommandTurns}回`, dur: self.furoloCommandTurns,
+      tip: '<b>指挥状态</b><br>共鸣解放后进入，持续 3 回合。弗洛洛攻击 +120%，赫卡忒自动攻击并挡刀。'
+    });
+  }
+  return out;
 }
 
 export default {

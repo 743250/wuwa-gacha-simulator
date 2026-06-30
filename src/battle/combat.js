@@ -179,7 +179,7 @@ function createTeamUnit(roleName, idx) {
 
 // ===== 伤害计算 =====
 // dmgType: 'normal' | 'skill' | 'burst' | 'heavy'
-export function calcDamage(attacker, defender, multiplier, dmgType) {
+export function calcDamage(attacker, defender, multiplier, dmgType, opts = {}) {
   // 武器触发器实时加成
   const wb = collectWeaponBonus(attacker, dmgType, { target: defender });
   // buff 中的 atkUp（守岸人 2 链等）
@@ -207,8 +207,10 @@ export function calcDamage(attacker, defender, multiplier, dmgType) {
     // 灼焰形态内重斩走 heavy 类型但倍率 12%（由 doAttack 重斩路径传 multiplier，不在此覆写）
   } else if (attacker.name === '弗洛洛') {
     baseStat = attacker.hp;
-    // burst 不直接伤害（解放进入指挥状态）；谱曲终末/赫卡忒攻击等特殊倍率由调用方传 multiplier
-    hpMultOverride = (dmgType === 'burst') ? null : (FUROLO_HP_MULT[dmgType] ?? null);
+    // 普攻/技能/重击/变奏走固定 HP 倍率覆写（调用方传 ACTION_MULTIPLIER.* 的 ATK 倍率，这里换成 HP 倍率）
+    // 谱曲终末/赫卡忒攻击/6链追击等特殊倍率由调用方通过 opts.explicitHpMult=true 传真实 HP 倍率，不再覆写
+    // burst 路径弗洛洛无直接伤害，亦不覆写
+    hpMultOverride = (opts.explicitHpMult || dmgType === 'burst') ? null : (FUROLO_HP_MULT[dmgType] ?? null);
   } else {
     baseStat = attacker.atk * (1 + wb.atkBonus + buffAtkUp);
   }
@@ -281,7 +283,12 @@ export function calcDamage(attacker, defender, multiplier, dmgType) {
   // 防御穿透（含焰羽等临时 pierceUp buff）
   const pierceBuff = (attacker.buffs || []).reduce((a, b) => b.type === 'pierceUp' ? a + b.value : a, 0);
   const totalPierce = (attacker.pierceDef || 0) + wb.defPierce + pierceBuff;
-  const defEffective = defender.def * (1 - totalPierce);
+  const defEffective = defender.def * (1 - Math.min(1, totalPierce));
+  // ★ 防御免伤率（官方公式：防守方防御力 / (800 + 8×攻击方等级 + 防守方防御力)）
+  //   攻击方等级越高，免伤率越低（等级压制效果）；防御穿透直接减少参与计算的防御力
+  const atkLv = attacker.level || 1;
+  const mitigation = defEffective / (800 + 8 * atkLv + defEffective);
+  const defMult = 1 - mitigation;
   // 抗性
   const resistMult = resistMultiplier(attacker.element, defender);
   const vibrMult = vibrationMultiplier(defender);
@@ -292,9 +299,8 @@ export function calcDamage(attacker, defender, multiplier, dmgType) {
   const effectiveCdmg = attacker.cdmg + cdmgBuff;
   const isCrit = Math.random() < totalCrate;
   const critMult = isCrit ? effectiveCdmg : 1.0;
-  let dmg = (atkRaw + 50) * typeBonus * elemBonus * resistMult * vibrMult * critMult * windowBonus * debuffBonus;
-  dmg = Math.max(50, dmg - defEffective * 0.4);
-  dmg = Math.round(dmg);
+  let dmg = (atkRaw + 50) * typeBonus * elemBonus * defMult * resistMult * vibrMult * critMult * windowBonus * debuffBonus;
+  dmg = Math.max(1, Math.round(dmg));
   return { dmg, crit: isCrit, resistMult, vibrMult };
 }
 
@@ -1087,7 +1093,7 @@ export function doHeavy(battle, targetIdx) {
         ? meForm.mult
         : (encoreSpecial ? (encoreBlack ? 4.5 : 3.5) * (1 + (self.heavyBonus || 0)) : ACTION_MULTIPLIER.heavy));
   const heavyType = furoloDirgeForm ? furoloDirgeForm.dmgType : (meForm ? meForm.dmgType : (encoreSpecial ? 'burst' : 'heavy'));
-  const { dmg, crit } = calcDamage(self, target, heavyMult, heavyType);
+  const { dmg, crit } = calcDamage(self, target, heavyMult, heavyType, { explicitHpMult: !!furoloDirgeForm });
   const real = dealDamage(target, dmg);
   reduceVibration(target, encoreSpecial ? VIBRATION_DAMAGE.heavySpecial : VIBRATION_DAMAGE.heavy, battle, self);
   applyReflect(battle, self, target, real);

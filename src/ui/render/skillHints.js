@@ -946,27 +946,27 @@ export const SKILL_HINTS = {
         {
           icon: '⚔', name: '普攻 · 生与死的乐章', cost: '1 AP',
           color: 'var(--text)',
-          desc: `对主目标造成弗洛洛最大生命 <span class="tip" data-tip='${normalTip}'><b style="color:var(--text)">${normalDmg}</b></span> 的<b class="term-normal">湮灭伤害</b>。命中后获得 1 枚<b class="term-resource">乐声</b>、3 层<b class="term-resource">余响</b>。${chain>=6?'<br><span style="color:var(--gold)">[6 链]</span> 施放时召唤赫卡忒施放重世幻象·赫卡忒追击，造成弗洛洛最大生命 8% 的湮灭伤害（视为声骸技能伤害），获得 8 层余响。':''}`
+          desc: `对主目标造成 <span class="tip" data-tip='${normalTip}'><b style="color:var(--text)">${normalDmg}</b> 点</span><b class="term-normal">湮灭伤害</b>。命中后获得 1 枚<b class="term-resource">乐声</b>、3 层<b class="term-resource">余响</b>。${chain>=6?'<br><span style="color:var(--gold)">[6 链]</span> 施放时召唤赫卡忒施放重世幻象·赫卡忒追击，造成弗洛洛最大生命 8% 的湮灭伤害，并获得 8 层余响。':''}`
         },
         {
           icon: '✦', name: '共鸣技能 · 稍纵即逝的梦呓', cost: '1 AP · CD 3 回合',
           color: 'var(--accent)',
-          desc: `对主目标造成弗洛洛最大生命 <span class="tip" data-tip='${skillTip}'><b style="color:var(--accent)">${skillDmg}</b></span> 的<b class="term-skill">湮灭伤害</b>。命中后获得 1 枚<b class="term-resource">乐声</b>、5 层<b class="term-resource">余响</b>。${chain>=1?'<br><span style="color:var(--gold)">[1 链]</span> 伤害倍率提升 80%。':''}${chain>=6?'<br><span style="color:var(--gold)">[6 链]</span> 施放时召唤赫卡忒施放重世幻象·赫卡忒追击。':''}`
+          desc: `对主目标造成 <span class="tip" data-tip='${skillTip}'><b style="color:var(--accent)">${skillDmg}</b> 点</span><b class="term-skill">湮灭伤害</b>。命中后获得 1 枚<b class="term-resource">乐声</b>、5 层<b class="term-resource">余响</b>。${chain>=1?'<br><span style="color:var(--gold)">[1 链]</span> 伤害倍率提升 80%。':''}${chain>=6?'<br><span style="color:var(--gold)">[6 链]</span> 施放时召唤赫卡忒施放重世幻象·赫卡忒追击。':''}`
         },
         {
           icon: '🎼', name: '谱曲终末（重击替换）', cost: '2 AP · CD 1 回合 · 需 6 乐声',
           color: '#ff6b9d',
-          desc: `乐声满 6 枚时，重击替换为谱曲终末。对主目标造成弗洛洛最大生命 <span class="tip" data-tip='${dirgeTip}'><b style="color:#ff6b9d">${dirgeDmg}</b></span> 的<b class="term-skill">湮灭范围伤害</b>（视为共鸣技能伤害及声骸技能伤害）。施放时消耗全部 6 枚乐声。每层<b class="term-resource">余响</b>使本次伤害倍率提升 20%（2 链为 35%），余响满 24 层时倍率额外 ×3.0。施放后进入<b class="term-state">定音</b>状态。${chain>=2?'<br><span style="color:var(--gold)">[2 链]</span> 基础倍率提升 75%，余响增伤效果提升 75%，施放后获得 14 层余响。':''}${chain>=4?'<br><span style="color:var(--gold)">[4 链]</span> 施放时全队全属性伤害提升 20%，持续 4 回合。':''}`
+          desc: `乐声满 6 枚时，重击替换为谱曲终末。对主目标造成 <span class="tip" data-tip='${dirgeTip}'><b style="color:#ff6b9d">${dirgeDmg}</b> 点</span><b class="term-skill">湮灭范围伤害</b>。施放时消耗全部 6 枚乐声。每层<b class="term-resource">余响</b>使本次伤害倍率提升 20%（2 链为 35%），余响满 24 层时倍率额外 ×3.0。施放后进入<b class="term-state">定音</b>状态。${chain>=2?'<br><span style="color:var(--gold)">[2 链]</span> 基础倍率提升 75%，余响增伤效果提升 75%，施放后获得 14 层余响。':''}${chain>=4?'<br><span style="color:var(--gold)">[4 链]</span> 施放时全队全属性伤害提升 20%，持续 4 回合。':''}`
         },
         {
           icon: '⚡', name: '共鸣解放 · 往日深渊的圆舞曲', cost: '0 AP · 需定音状态',
           color: 'var(--gold)',
-          desc: `不消耗 AP（弗洛洛共鸣能量上限为 0）。需处于<b class="term-state">定音</b>状态。施放后退出定音，进入<b class="term-state">指挥状态</b>，持续 3 回合。指挥状态期间：弗洛洛攻击力提升 120%，本人可正常行动；召唤<b class="term-resource">赫卡忒</b>（生命值等于弗洛洛生命值，继承属性），赫卡忒每回合自动攻击，造成<span class="tip" data-tip='${hecastTip}'>弗洛洛最大生命 12% / 24%</span>的湮灭伤害；弗洛洛受到的伤害优先由赫卡忒承担，溢出部分由弗洛洛承担；赫卡忒生命值归零时指挥状态立即结束。${chain>=5?'<br><span style="color:var(--gold)">[5 链]</span> 指挥状态期间赫卡忒及弗洛洛受到的伤害降低 30%。':''}${chain>=6?'<br><span style="color:var(--gold)">[6 链]</span> 弗洛洛为登场角色时湮灭伤害加成提升 60%；为非登场角色时，目标受到赫卡忒和弗洛洛的伤害提升 40%。':''}`
+          desc: `弗洛洛处于<b class="term-state">定音</b>状态时可施放，不消耗 AP。进入<b class="term-state">指挥状态</b>，持续 3 回合，期间弗洛洛攻击力提升 120% 并召唤<b class="term-resource">赫卡忒</b><span class="tip" data-tip='${hecastTip}'>协助战斗</span>。${chain>=5?'<span style="color:var(--gold)">[5 链]</span> 指挥状态期间赫卡忒及弗洛洛受到的伤害降低 30%。':''}${chain>=6?'<span style="color:var(--gold)">[6 链]</span> 弗洛洛为登场角色时湮灭伤害加成提升 60%；为非登场角色时，目标受到赫卡忒和弗洛洛的伤害提升 40%。':''}`
         },
         {
           icon: '🎵', name: '变奏入场 · 致命组歌', cost: '切换上场时触发',
           color: '#c39bff',
-          desc: `切换上场时，对主目标造成弗洛洛最大生命 <span class="tip" data-tip='${varTip}'><b style="color:var(--accent)">${varDmg}</b></span> 的<b class="term-variation">湮灭伤害</b>。获得 1 枚<b class="term-resource">乐声</b>、2 层<b class="term-resource">余响</b>。指挥状态期间，此变奏替换为永生组歌，伤害倍率提升至弗洛洛最大生命 6.6%。`
+          desc: `切换上场时，对主目标造成 <span class="tip" data-tip='${varTip}'><b style="color:var(--accent)">${varDmg}</b> 点</span><b class="term-variation">湮灭伤害</b>。获得 1 枚<b class="term-resource">乐声</b>、2 层<b class="term-resource">余响</b>。指挥状态期间，此变奏替换为永生组歌，伤害倍率提升至弗洛洛最大生命 6.6%。`
         }
       ];
     },
