@@ -681,14 +681,19 @@ function renderRoleModal(preview = _currentRolePreview) {
       <div class="role-content" id="roleContent">${content}</div>
     </div>`;
 
+  const box = document.getElementById('modalBox');
+  const wasRoleModal = box && box.classList.contains('role-modal');
+  const savedScroll = wasRoleModal ? box.scrollTop : 0;
   openModal({
     title: '',
     body,
     className: 'role-modal',
+    keepScroll: wasRoleModal,
     actions: [
       { cls: 'mbtn', label: '关闭', fn: () => {} }
     ]
   });
+  if (wasRoleModal) box.scrollTop = savedScroll;
 }
 
 // 安可技能页：共鸣解放文案白咩/黑咩版本切换（只刷新当前角色页）

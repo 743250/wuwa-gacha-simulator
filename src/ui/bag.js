@@ -291,6 +291,8 @@ window.__bagEchoDetail = (id, fromRole = false) => {
   _echoDetailFromRole = !!fromRole;
   const e = S.echos.find(x => x.id === id);
   if (!e) return;
+  const box = document.getElementById('modalBox');
+  const wasSameEcho = box && box.dataset.echoId === String(id);
   const set = getSetById(Array.isArray(e.set) ? e.set[0] : e.set);
   const subRows = (e.subStats && e.subStats.length
     ? e.subStats.map((s, idx) => {
@@ -312,6 +314,7 @@ window.__bagEchoDetail = (id, fromRole = false) => {
   const nextCost = canLevel ? echoToNext(e) : 0;
   openModal({
     title: `${e.name} · LV ${e.level} · COST ${e.cost}`,
+    keepScroll: wasSameEcho,
     body: `<div style="font-size:11px;color:var(--muted);margin-bottom:8px">COST ${e.cost} · ${e.element} · ${set?.name || '无套装'}</div>
 <div style="font-size:11px;color:var(--muted);margin-bottom:4px">主词条</div>
 <div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid var(--line);margin-bottom:8px">
@@ -340,6 +343,7 @@ ${set ? `<div style="margin-top:8px;padding-top:6px;border-top:1px dashed var(--
       { label: '关闭', cls: '', fn: () => { if (_echoDetailFromRole && typeof window.__reopenRoleEchoTab === 'function') window.__reopenRoleEchoTab(); } }
     ]
   });
+  if (box) box.dataset.echoId = String(id);
 };
 
 window.__bagEchoLevelUp = (id) => {

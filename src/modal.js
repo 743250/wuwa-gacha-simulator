@@ -1,8 +1,9 @@
 // 通用弹窗
 import { $ } from './state.js';
 
-export function openModal({ title, body, qty, actions, className = '' }) {
+export function openModal({ title, body, qty, actions, className = '', keepScroll = false }) {
   const box = $('modalBox');
+  const savedScroll = keepScroll ? box.scrollTop : 0;
   box.className = `modal-box ${className}`.trim();
   let html = `<h3>${title}</h3><div class="desc">${body}</div>`;
   if (qty) {
@@ -30,6 +31,7 @@ export function openModal({ title, body, qty, actions, className = '' }) {
     inp.oninput = () => { const n = +inp.value; if (n > qty.max) inp.value = qty.max; if (n < qty.min) inp.value = qty.min; };
   }
   $('modal').classList.add('on');
+  if (keepScroll) box.scrollTop = savedScroll;
 }
 
 export function closeModal() {
