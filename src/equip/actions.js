@@ -111,6 +111,78 @@ export function levelUpWeaponMax(weaponName) {
   return count;
 }
 
+// 喂料升级：把另一把武器当作经验包，喂给目标武器
+// 被喂武器按累计突破石的 60% 折成 weapon_book 入账（模拟器占位公式），目标武器随后逐级消耗升级
+// 不装、自己不能喂自己；满级目标武器拒绝；被喂武器已装备/已精炼存在则拒绝
+// 返回 { ok, err, target, feed, books_gained, levels_gained, final_level }
+export function levelUpWeaponWithFeed(targetName, feedName) {
+  const target = S.weapons[targetName];
+  const feed = S.weapons[feedName];
+  if (!target || !feed) return { ok: false, err: '武器不存在' };
+  if (targetName === feedName) return { ok: false, err: '不能把武器喂给自己' };
+  if (target.level >= 90) return { ok: false, err: '目标武器已满级' };
+  if (feed.equippedBy) return { ok: false, err: '被喂武器已装备，无法作为材料' };
+  if ((feed.spareRefine || 0) > 0) return { ok: false, err: '被喂武器含精炼次数，无法作为材料（请先精炼或拆解）' };
+
+  // 累计突破石：sum(weaponToNext(w) for w in 1..feed.level)
+  let cumulative = 0;
+  for (let lv = 1; lv <= feed.level; lv++) {
+    cumulative += Math.max(1, Math.floor((lv + 5) / 25));
+  }
+  const bookRefund = Math.max(1, Math.round(cumulative * 0.6));
+  S.materials.weapon_book = (S.materials.weapon_book || 0) + bookRefund;
+  delete S.weapons[feedName];
+
+  let levelsGained = 0;
+  while (target.level < 90) {
+    const cost = weaponToNext(target);
+    if (S.materials.weapon_book < cost) break;
+    S.materials.weapon_book -= cost;
+    target.level++;
+    levelsGained++;
+  }
+  if (levelsGained > 0) {
+    progressTask('d_upgrade', 1);
+    if (target.level >= 90) progressTask('p_weapon90', 1);
+  }
+  return {
+    ok: true,
+    target: targetName,
+    feed: feedName,
+    books_gained: bookRefund,
+    levels_gained: levelsGained,
+    final_level: target.level
+  };
+}
+
+export function previewWeaponFeed(targetName, feedName) {
+  const target = S.weapons[targetName];
+  const feed = S.weapons[feedName];
+  if (!target || !feed) return { ok: false, err: '武器不存在' };
+  if (targetName === feedName) return { ok: false, err: '不能把武器喂给自己' };
+  if (target.level >= 90) return { ok: false, err: '目标武器已满级' };
+  if (feed.equippedBy) return { ok: false, err: '被喂武器已装备，无法作为材料' };
+  if ((feed.spareRefine || 0) > 0) return { ok: false, err: '被喂武器含精炼次数，无法作为材料' };
+
+  let cumulative = 0;
+  for (let lv = 1; lv <= feed.level; lv++) {
+    cumulative += Math.max(1, Math.floor((lv + 5) / 25));
+  }
+  const bookRefund = Math.max(1, Math.round(cumulative * 0.6));
+  // 估算能升几级
+  let lvl = target.level;
+  let books = bookRefund;
+  let est = 0;
+  while (lvl < 90) {
+    const cost = Math.max(1, Math.floor((lvl + 5) / 25));
+    if (books < cost) break;
+    books -= cost;
+    lvl++;
+    est++;
+  }
+  return { ok: true, target: targetName, feed: feedName, books_gained: bookRefund, est_levels: est, final_level: lvl };
+}
+
 export function refineWeapon(weaponName, count = 1) {
   const w = S.weapons[weaponName];
   if (!w) return { ok: false, err: '没有这把武器' };

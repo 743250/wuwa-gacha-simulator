@@ -97,6 +97,10 @@ export const shopCatalog = {
       astrite: 380, exp_super: 12, weapon_book: 50, crystal_solvent: 4,
       desc: '380 星声 + 特级促剂 ×12 + 武器石 ×50 + 结晶溶剂 ×4<br>常驻 · 每月可购买 1 次',
       limit: 1 },
+    { id: 'rg_echo_pack', name: '声骸调谐 · 月度补给', price: 30, type: 'green', regular: true,
+      astrite: 0, echo_tuner: 20, exp_super: 4,
+      desc: '声骸调谐器 ×20 + 特级促剂 ×4<br>常驻 · 每月可购买 1 次',
+      limit: 1 },
 
     // ---- 新手成长礼包（真·永久限购一次）----
     { id: 'newbie_basic', name: '新旅启程礼包', price: 6, type: 'green',
@@ -177,6 +181,7 @@ export function applyShopItem(it) {
   if (it.exp_high) S.materials.exp_high = (S.materials.exp_high || 0) + it.exp_high;
   if (it.exp_super) S.materials.exp_super = (S.materials.exp_super || 0) + it.exp_super;
   if (it.weapon_book) S.materials.weapon_book = (S.materials.weapon_book || 0) + it.weapon_book;
+  if (it.echo_tuner) S.materials.echo_tuner = (S.materials.echo_tuner || 0) + it.echo_tuner;
   if (it.crystal_solvent) S.materials.crystal_solvent = (S.materials.crystal_solvent || 0) + it.crystal_solvent;
   // 先约电台
   if (it.unlocksPodcast) unlockPaid();
@@ -201,6 +206,7 @@ function formatShopReward(it) {
   if (it.exp_mid) parts.push(`中级促剂×${it.exp_mid}`);
   if (it.exp_low) parts.push(`初级促剂×${it.exp_low}`);
   if (it.weapon_book) parts.push(`武器石×${it.weapon_book}`);
+  if (it.echo_tuner) parts.push(`调谐器×${it.echo_tuner}`);
   if (it.crystal_solvent) parts.push(`结晶溶剂×${it.crystal_solvent}`);
   if (it.days) parts.push(`30 天每日 ${it.dailyAstrite || 90} 星声`);
   return parts.join(' · ');

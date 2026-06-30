@@ -398,8 +398,11 @@ export const ECHO_SETS = [
 // ==================== 主词条池 ====================
 
 /**
- * COST 4 主属性池 (5★ Lv.15 数值)
- * 来源: 文档第五节 + encore.moe API 交叉核验
+ * 主词条池 — 数值代表 Lv25 满级值（模拟器占位锚点）
+ *
+ * 注：encore.moe API 未公开声骸 LevelUpGroup 逐级数值表，无权威 per-level 源。
+ * 这里把现有数字标定为 Lv25 满级值，1→25 级用线性插值（见 mainStatAtLevel）。
+ * 该公式是模拟器占位，非官方曲线。如拿到官方逐级表，替换 mainStatAtLevel 即可。
  */
 export const MAIN_STAT_POOL = {
   4: [
@@ -459,6 +462,17 @@ export const LEVEL_EXP = [
 
 export const MAX_LEVEL_EXP = 540000;
 export const MAX_LEVEL_COST = 270000;
+
+// 声骸主词条在指定等级的数值（线性插值占位公式：满级值 × level / 25）
+// 鸣潮声骸满级 25；encore.moe 未公开逐级表，此处为模拟器近似公式，非官方曲线。
+// 1 级 = 满值的 4%，25 级 = 满值。固定值型（无浮点）取整。
+const FLAT_MAIN_KEYS = new Set();
+export const ECHO_MAX_LEVEL = 25;
+export function mainStatAtLevel(statDef, level, maxLevel = ECHO_MAX_LEVEL) {
+  const ratio = Math.max(1, level) / maxLevel;
+  const v = statDef.value * ratio;
+  return FLAT_MAIN_KEYS.has(statDef.key) ? Math.round(v) : Math.round(v * 1000) / 1000;
+}
 
 // ==================== 套装ID查找辅助 ====================
 

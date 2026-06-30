@@ -158,6 +158,7 @@ function applyReward(r) {
   if (r.exp_high)            S.materials.exp_high = (S.materials.exp_high || 0) + r.exp_high;
   if (r.exp_super)           S.materials.exp_super= (S.materials.exp_super|| 0) + r.exp_super;
   if (r.weapon_book)         S.materials.weapon_book = (S.materials.weapon_book || 0) + r.weapon_book;
+  if (r.echo_tuner)         S.materials.echo_tuner   = (S.materials.echo_tuner   || 0) + r.echo_tuner;
   if (r.crystal_solvent)     S.materials.crystal_solvent = (S.materials.crystal_solvent || 0) + r.crystal_solvent;
   if (r.condensed_waveplate) {
     const cur = S.materials.condensed_waveplate || 0;

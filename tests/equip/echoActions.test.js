@@ -6,7 +6,9 @@ import {
   dataBankCostCap, generateEcho, calcTotalCost,
   equipEcho, unequipEcho, unequipSlot, getEquippableEchoes,
   echoToNext, levelUpEcho, levelUpEchoMax, recycleEcho, toggleEchoLock,
+  levelUpEchoWithFeed, previewEchoFeed, mainStatAtLevel,
 } from '../../src/equip/echoActions.js';
+import { mainStatAtLevel as mainStatFn } from '../../src/data/echoes.js';
 import { ECHO_CATALOG, getEchoById } from '../../src/data/echoes.js';
 
 describe('equip/echoActions', () => {
@@ -212,7 +214,8 @@ describe('equip/echoActions', () => {
       const e = generateEcho(ECHO_CATALOG[0].id);
       e.exp = 50000;
       const before = S.materials.exp_super;
-      expect(recycleEcho(e.id)).toBe(true);
+      const res = recycleEcho(e.id);
+      expect(res.ok).toBe(true);
       expect(S.echos.find(x => x.id === e.id)).toBeUndefined();
       // 50000 * 0.8 / 20000 = 2
       expect(S.materials.exp_super).toBe(before + 2);
@@ -223,14 +226,14 @@ describe('equip/echoActions', () => {
       const c1 = ECHO_CATALOG.find(e => e.cost === 1);
       const e = generateEcho(c1.id);
       equipEcho('忌炎', 0, e.id);
-      expect(recycleEcho(e.id)).toBe(false);
+      expect(recycleEcho(e.id).ok).toBe(false);
     });
 
     it('recycle rejects locked echo', () => {
       const e = generateEcho(ECHO_CATALOG[0].id);
       toggleEchoLock(e.id);
       expect(e.lock).toBe(true);
-      expect(recycleEcho(e.id)).toBe(false);
+      expect(recycleEcho(e.id).ok).toBe(false);
     });
 
     it('toggleEchoLock flips lock state', () => {
@@ -240,6 +243,62 @@ describe('equip/echoActions', () => {
       expect(e.lock).toBe(true);
       toggleEchoLock(e.id);
       expect(e.lock).toBe(false);
+    });
+  });
+
+  describe('mainStatAtLevel / leveled value scaling', () => {
+    it('Lv1 = 1/25 of max, Lv25 = full', () => {
+      const def = { key: 'crate', value: 0.22 };
+      expect(mainStatFn(def, 25)).toBeCloseTo(0.22, 4);
+      expect(mainStatFn(def, 1)).toBeGreaterThan(def.value * 0.03);
+      expect(mainStatFn(def, 1)).toBeLessThan(def.value * 0.05);
+    });
+    it('generateEcho initializes mainStat at Lv1 ratio and stores maxValue', () => {
+      const e = generateEcho(ECHO_CATALOG[0].id);
+      expect(e.mainStat.maxValue).toBeGreaterThan(0);
+      expect(e.mainStat.value).toBeLessThan(e.mainStat.maxValue);
+    });
+    it('levelUpEcho scales mainStat value with level', () => {
+      const e = generateEcho(ECHO_CATALOG[0].id);
+      const v1 = e.mainStat.value;
+      for (let i = 0; i < 4; i++) levelUpEcho(e.id);
+      expect(e.level).toBe(5);
+      expect(e.mainStat.value).toBeGreaterThan(v1);
+    });
+  });
+
+  describe('levelUpEchoWithFeed', () => {
+    it('rejects feeding equipped / locked / self', () => {
+      const a = generateEcho(ECHO_CATALOG[0].id);
+      const b = generateEcho(ECHO_CATALOG[0].id);
+      a.exp = 50000;
+      expect(levelUpEchoWithFeed(a.id, a.id).ok).toBe(false);
+
+      S.roles['忌炎'].equipEchoes = [null, null, null, null, null];
+      equipEcho('忌炎', 0, b.id);
+      expect(levelUpEchoWithFeed(a.id, b.id).ok).toBe(false);
+
+      const c = generateEcho(ECHO_CATALOG[0].id);
+      toggleEchoLock(c.id);
+      c.exp = 50000;
+      expect(levelUpEchoWithFeed(a.id, c.id).ok).toBe(false);
+    });
+    it('rejects feeding a non-invested echo (zero exp return)', () => {
+      const a = generateEcho(ECHO_CATALOG[0].id);
+      const b = generateEcho(ECHO_CATALOG[0].id);
+      // both fresh, no exp gained; level up loop will still consume but exp gained = 0
+      const res = levelUpEchoWithFeed(a.id, b.id);
+      expect(res.ok).toBe(false);
+    });
+    it('removes feed, refunds 80% exp_super, gains levels on target', () => {
+      const a = generateEcho(ECHO_CATALOG[0].id);
+      const b = generateEcho(ECHO_CATALOG[0].id);
+      b.exp = 50000; // 80% / 20000 = 2 exp_super = 40000 exp
+      const res = levelUpEchoWithFeed(a.id, b.id);
+      expect(res.ok).toBe(true);
+      expect(S.echos.find(x => x.id === b.id)).toBeUndefined();
+      expect(a.level).toBeGreaterThan(1);
+      expect(res.levels_gained).toBeGreaterThan(0);
     });
   });
 });

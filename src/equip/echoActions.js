@@ -1,8 +1,9 @@
 // 声骸养成动作：生成 / 装备 / 卸下 / 升级 / 分解
 // 核心原则：不实现声骸主动技能，纯粹作为数据加成工具
 import { S, msg, pick } from '../state.js';
-import { ECHO_CATALOG, ECHO_SETS, MAIN_STAT_POOL, SUB_STAT_POOL, LEVEL_EXP, MAX_LEVEL_EXP, getEchoById, getSetById } from '../data/echoes.js';
+import { ECHO_CATALOG, ECHO_SETS, MAIN_STAT_POOL, SUB_STAT_POOL, LEVEL_EXP, MAX_LEVEL_EXP, getEchoById, getSetById, mainStatAtLevel, ECHO_MAX_LEVEL } from '../data/echoes.js';
 import { totalExp, consumeExp } from './actions.js';
+import { EXP_VALUES } from '../battle/stats.js';
 
 // 数据坞等级 → COST 上限映射
 // 默认 8 级 = COST 12，满级 10 = COST 12（鸣潮官方 21 级满 = COST 12）
@@ -78,7 +79,7 @@ export function generateEcho(echoId) {
     element: data.element,
     level: 1,
     exp: 0,
-    mainStat: { key: mainDef.key, label: mainDef.label, value: mainDef.value },
+    mainStat: { key: mainDef.key, label: mainDef.label, value: mainStatAtLevel(mainDef, 1), maxValue: mainDef.value },
     subStats,
     lock: false,
     equippedBy: null,
@@ -183,6 +184,12 @@ export function levelUpEcho(echoId) {
   const echo = S.echos.find(e => e.id === echoId);
   if (!echo) return false;
   if (echo.level >= 25) { msg('声骸已满级'); return false; }
+  // 旧存档兼容：回填 maxValue（按 COST + 主词条类型查 MAIN_STAT_POOL）
+  if (echo.mainStat && echo.mainStat.maxValue == null) {
+    const pool = MAIN_STAT_POOL[echo.cost];
+    const def = pool && pool.find(s => s.key === echo.mainStat.key);
+    if (def) echo.mainStat.maxValue = def.value;
+  }
   const cost = echoToNext(echo);
   if (totalExp() < cost) {
     msg(`经验不足（需 ${cost.toLocaleString()}）`);
@@ -191,6 +198,10 @@ export function levelUpEcho(echoId) {
   consumeExp(cost);
   echo.level++;
   echo.exp += cost;
+  // 主词条随等级线性上涨（占位公式：满级值 × Lv/25）
+  if (echo.mainStat && echo.mainStat.maxValue != null) {
+    echo.mainStat.value = mainStatAtLevel({ value: echo.mainStat.maxValue }, echo.level);
+  }
   // 每 5 级（5/10/15/20/25）激活下一个未解锁副词条槽位
   if (echo.level % 5 === 0) {
     const nextLocked = echo.subStats.find(s => !s.unlocked);
@@ -213,42 +224,119 @@ export function levelUpEchoMax(echoId) {
   return count;
 }
 
+// 喂料升级：把另一个声骸当作经验包，喂给目标声骸
+// 被喂声骸的累计经验按 80% 折成特级共鸣促剂入账（与分解口径一致），目标声骸随后逐级消耗升级
+// 不装、未锁定、自己不能喂自己；满级目标声骸拒绝；被喂声骸未升级时折算为 0（无经验产出）
+// 返回 { ok, err, target, feed, exp_gained, levels_gained }
+export function levelUpEchoWithFeed(targetId, feedId) {
+  const target = S.echos.find(e => e.id === targetId);
+  const feed = S.echos.find(e => e.id === feedId);
+  if (!target || !feed) return { ok: false, err: '声骸不存在' };
+  if (target.id === feed.id) return { ok: false, err: '不能把声骸喂给自己' };
+  if (target.level >= 25) return { ok: false, err: '目标声骸已满级' };
+  if (feed.equippedBy) return { ok: false, err: '被喂声骸已装备，无法作为材料' };
+  if (feed.lock) return { ok: false, err: '被喂声骸已锁定，无法作为材料' };
+
+  const expRefund = Math.floor(feed.exp * 0.8 / EXP_VALUES.exp_super);
+  if (expRefund <= 0) {
+    return { ok: false, err: '该声骸未投入经验，喂料无收益（请先分解或丢弃）' };
+  }
+  S.materials.exp_super = (S.materials.exp_super || 0) + expRefund;
+  S.echos = S.echos.filter(e => e.id !== feedId);
+
+  const beforeLevel = target.level;
+  let levelsGained = 0;
+  while (target.level < 25) {
+    const cost = echoToNext(target);
+    if (totalExp() < cost) break;
+    if (!levelUpEcho(targetId)) break;
+    levelsGained++;
+  }
+  return {
+    ok: true,
+    target: target.name,
+    feed: feed.name,
+    exp_gained: expRefund * EXP_VALUES.exp_super,
+    exp_super_count: expRefund,
+    levels_gained: levelsGained,
+    final_level: target.level,
+    level_cap_reached: target.level >= 25 && beforeLevel < 25
+  };
+}
+
+// 预览喂料收益（不改变状态）
+export function previewEchoFeed(targetId, feedId) {
+  const target = S.echos.find(e => e.id === targetId);
+  const feed = S.echos.find(e => e.id === feedId);
+  if (!target || !feed) return { ok: false, err: '声骸不存在' };
+  if (target.id === feedId) return { ok: false, err: '不能把声骸喂给自己' };
+  if (target.level >= 25) return { ok: false, err: '目标声骸已满级' };
+  if (feed.equippedBy) return { ok: false, err: '被喂声骸已装备，无法作为材料' };
+  if (feed.lock) return { ok: false, err: '被喂声骸已锁定，无法作为材料' };
+  const expRefund = Math.floor(feed.exp * 0.8 / EXP_VALUES.exp_super);
+  if (expRefund <= 0) return { ok: false, err: '该声骸未投入经验，喂料无收益' };
+  const expTotal = expRefund * EXP_VALUES.exp_super;
+  // 估算能升几级
+  let lvl = target.level;
+  let expLeft = expTotal;
+  let est = 0;
+  while (lvl < 25 && expLeft > 0) {
+    const phase = LEVEL_EXP.find(p => lvl >= p.from && lvl < p.to);
+    if (!phase) break;
+    const stepExp = Math.ceil(phase.exp / (phase.to - phase.from));
+    if (expLeft < stepExp) break;
+    expLeft -= stepExp;
+    lvl++;
+    est++;
+  }
+  return { ok: true, target: target.name, feed: feed.name, exp_gained: expTotal, exp_super_count: expRefund, est_levels: est, final_level: lvl };
+}
+
 // 分解声骸：返还部分经验 + 调谐器
 // 已投入经验按 75% 返还（接近官方返还比例，向下取整到 20000 经验 / 1 特级促剂）
 // 未升级（无投入经验）时按 COST 档给基础经验瓶，避免分解空手而归
 // 调谐器返还：COST4=3 / COST3=2 / COST1=1，已升级声骸额外 +1（每 10 级）
+// 返回结构化结果 { ok, err, returns: [{key,label,n}], parts: [string] }
+//  - 不实际执行，仅在调用方确认后再 commit，预览用 previewRecycleEcho
 const ECHO_BASE_EXP_REFUND = { 1: { exp_mid: 1 }, 3: { exp_high: 1 }, 4: { exp_super: 1 } };
 const ECHO_TUNER_REFUND = { 1: 1, 3: 2, 4: 3 };
-export function recycleEcho(echoId) {
+
+// 计算分解返还，不改变状态
+export function previewRecycleEcho(echoId) {
   const echo = S.echos.find(e => e.id === echoId);
-  if (!echo) return false;
-  if (echo.equippedBy) { msg('已装备的声骸无法分解'); return false; }
-  if (echo.lock) { msg('已锁定的声骸无法分解'); return false; }
-  const parts = [];
+  if (!echo) return { ok: false, err: '声骸不存在' };
+  if (echo.equippedBy) return { ok: false, err: '已装备的声骸无法分解' };
+  if (echo.lock) return { ok: false, err: '已锁定的声骸无法分解' };
+
+  const returns = [];
   if (echo.exp > 0) {
     const refund = Math.floor(echo.exp * 0.8 / 20000);
-    if (refund > 0) {
-      S.materials.exp_super = (S.materials.exp_super || 0) + refund;
-      parts.push(`特级共鸣促剂 ×${refund}`);
-    }
+    if (refund > 0) returns.push({ key: 'exp_super', label: '特级共鸣促剂', n: refund });
   } else {
     const base = ECHO_BASE_EXP_REFUND[echo.cost] || { exp_low: 1 };
-    for (const [k, n] of Object.entries(base)) {
-      S.materials[k] = (S.materials[k] || 0) + n;
-    }
+    const [[k, n]] = Object.entries(base);
     const label = base.exp_super ? '特级共鸣促剂' : base.exp_high ? '高级共鸣促剂' : base.exp_mid ? '中级共鸣促剂' : '初级共鸣促剂';
-    parts.push(`${label} ×${Object.values(base)[0]}`);
+    returns.push({ key: k, label, n });
   }
   const tunerBase = ECHO_TUNER_REFUND[echo.cost] || 1;
   const tunerBonus = Math.floor((echo.level || 1) / 10);
   const tunerTotal = tunerBase + tunerBonus;
-  if (tunerTotal > 0) {
-    S.materials.echo_tuner = (S.materials.echo_tuner || 0) + tunerTotal;
-    parts.push(`声骸调谐器 ×${tunerTotal}`);
+  if (tunerTotal > 0) returns.push({ key: 'echo_tuner', label: '声骸调谐器', n: tunerTotal });
+
+  return { ok: true, returns };
+}
+
+// 执行分解（即旧 recycleEcho 行为，但返回 preview 同结构结果）
+export function recycleEcho(echoId) {
+  const preview = previewRecycleEcho(echoId);
+  if (!preview.ok) { if (preview.err) msg(preview.err); return preview; }
+  for (const r of preview.returns) {
+    S.materials[r.key] = (S.materials[r.key] || 0) + r.n;
   }
+  const parts = preview.returns.map(r => `${r.label} ×${r.n}`);
   msg('返还 ' + parts.join(' · '), false);
   S.echos = S.echos.filter(e => e.id !== echoId);
-  return true;
+  return preview;
 }
 
 // 锁定/解锁
