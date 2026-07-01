@@ -2,7 +2,7 @@
 // 重构：拆 4 个区独立刷新，避免每次行动整页 innerHTML 重绘导致的"UI 一直变"
 // 增强：buff 突出显示 + 入场动画 + 顶部 toast 队列
 import { S, $, msg } from '../state.js';
-import { startEncounter, doAttack, doSkill, doHeavy, doBurst, doSwitch, doDebris, endTurn, getCombatTeamNames } from '../battle/combat.js';
+import { startEncounter, doAttack, doSkill, doHeavy, doBurst, doSwitch, doDebris, endTurn, getCombatTeamNames, canAttack, canSkill, canHeavy, canBurst } from '../battle/combat.js';
 import { renderCharacterBattleStatus } from '../battle/characters/index.js';
 import { ELEMENT_COLOR } from '../battle/elements.js';
 import { collectUnitBadges, collectEnemyBadges, renderBadge } from './battleRenderers/buffRenderers.js';
@@ -396,26 +396,14 @@ function renderActions() {
     const hasTarget = enemyIdx >= 0;
     const notFrozen = cur && cur.alive && cur.frozenTurns === 0;
     const skillReady = cur && cur.cd.skill === 0 && (cur.skillLockedTurns || 0) === 0;
-    const canAtk = notFrozen && b.ap >= 1 && hasTarget;
-    const canSkill = notFrozen && skillReady && b.ap >= 1 && hasTarget;
+    const canAtk = canAttack(cur, b, enemyIdx).ok;
+    const canSkill = canSkill(cur, b, enemyIdx).ok;
     const isZhezhi = cur.name === '折枝';
     const zhezhiDianjingReady = isZhezhi && (cur.zhezhiFieldTurns || 0) > 0 && (cur.zhezhiCranes || 0) > 0;
-    const canHeavy = (() => {
-      if (!cur.hasHeavy || !notFrozen || cur.cd.heavy > 0 || b.ap < 2) return false;
-      if (!hasTarget && !zhezhiDianjingReady) return false;
-      // 赞妮灼焰形态：普攻键已替换为重斩，重击不可用
-      if (cur.name === '赞妮' && (cur.zanYanFormTurns || 0) > 0) return false;
-      // 折枝点睛：需墨鹤领域 + 至少 1 只墨鹤
-      if (cur.name === '折枝' && !(cur.zhezhiFieldTurns > 0 && cur.zhezhiCranes > 0)) return false;
-      // 弗洛洛谱曲终末：需满 6 乐声
-      if (cur.name === '弗洛洛' && (cur.furoloNotes || 0) < 6) return false;
-      return true;
-    })();
+    const canHeavyOk = canHeavy(cur, b, enemyIdx).ok;
     const isFurolo = cur.name === '弗洛洛';
     const furoloBurstReady = isFurolo && !!cur.furoloDirge;
-    const canBurst = notFrozen && aliveEnemyCount > 0 && (
-      isFurolo ? furoloBurstReady : (cur.energy >= cur.energyMax && b.ap >= 3)
-    );
+    const canBurstOk = canBurst(cur, b).ok;
 
     const blocker = (() => {
       if (cur && !cur.alive) return '当前角色已倒下，请切换队员';
@@ -441,7 +429,7 @@ function renderActions() {
     html += `<button class="bbtn" style="${litStyle(canAtk, 'var(--text)')}" onclick="window.__bAtk(${enemyIdx})" ${!canAtk ? 'disabled' : ''} title="100% 攻击 · +12 能量 · 削破韧 8">⚔ 普攻<br><span style="font-size:9px;opacity:.7">1 AP</span></button>`;
     html += `<button class="bbtn" style="${litStyle(canSkill, 'var(--accent)')}" onclick="window.__bSkill(${enemyIdx})" ${!canSkill ? 'disabled' : ''} title="180% 攻击 · CD 3 回合 · +22 能量 · 削破韧 20">✦ 技能<br><span style="font-size:9px;opacity:.7">1 AP${cur.cd.skill > 0 ? ' · CD'+cur.cd.skill : ''}</span></button>`;
     if (showHeavy) {
-      html += `<button class="bbtn" style="${litStyle(canHeavy, '#ff8c5e')}" onclick="window.__bHeavy(${enemyIdx})" ${!canHeavy ? 'disabled' : ''} title="220% 攻击 · 重击伤害类型 · CD 1 回合 · +15 能量 · 削破韧 25">💢 重击<br><span style="font-size:9px;opacity:.7">2 AP${cur.cd.heavy > 0 ? ' · CD'+cur.cd.heavy : ''}</span></button>`;
+      html += `<button class="bbtn" style="${litStyle(canHeavyOk, '#ff8c5e')}" onclick="window.__bHeavy(${enemyIdx})" ${!canHeavyOk ? 'disabled' : ''} title="220% 攻击 · 重击伤害类型 · CD 1 回合 · +15 能量 · 削破韧 25">💢 重击<br><span style="font-size:9px;opacity:.7">2 AP${cur.cd.heavy > 0 ? ' · CD'+cur.cd.heavy : ''}</span></button>`;
     }
     const burstHint = isFurolo
       ? '弗洛洛 · 0 AP · 需定音状态 · 进入指挥状态 + 赫卡忒召唤'
@@ -449,7 +437,7 @@ function renderActions() {
     const burstSub = isFurolo
       ? (furoloBurstReady ? '定音 · 可解放' : '需定音')
       : `3 AP · ${cur.energy}/${cur.energyMax}`;
-    html += `<button class="bbtn" style="${litStyle(canBurst, 'var(--gold)')}" onclick="window.__bBurst()" ${!canBurst ? 'disabled' : ''} title="${burstHint}">⚡ 解放<br><span style="font-size:9px;opacity:.7">${burstSub}</span></button>`;
+    html += `<button class="bbtn" style="${litStyle(canBurstOk, 'var(--gold)')}" onclick="window.__bBurst()" ${!canBurstOk ? 'disabled' : ''} title="${burstHint}">⚡ 解放<br><span style="font-size:9px;opacity:.7">${burstSub}</span></button>`;
     html += '</div>';
     // 残骸投掷按钮（聚械机偶特殊动作 · 0 AP）
     const hasDebris = b.enemies.some(e => e.alive && e._debrisReady);

@@ -695,19 +695,90 @@ function handleAirStars(battle, enemy, helpers) {
 
 // ===== 玩家动作 =====
 
+// 统一前置判定：UI 和 doXxx 共用，避免两处不同步导致"按钮亮但点不了"
+// 返回 { ok: bool, err?: string }，err 用于 UI 提示和 doXxx 早退
+
+export function canAttack(self, battle, targetIdx) {
+  if (!self || !self.alive) return { ok: false, err: '当前角色不可行动' };
+  if (self.frozenTurns > 0) return { ok: false, err: `当前角色被冻结（${self.frozenTurns} 回合）` };
+  const cost = resolveActionCost(self, 'normal', ACTION_COST.normal);
+  if (battle.finished || battle.ap < cost.apCost) return { ok: false, err: 'AP 不足' };
+  const target = battle.enemies[targetIdx];
+  if (!target || !target.alive) return { ok: false, err: '目标无效' };
+  return { ok: true };
+}
+
+export function canSkill(self, battle, targetIdx) {
+  if (!self || !self.alive) return { ok: false, err: '当前角色不可行动' };
+  if (self.frozenTurns > 0) return { ok: false, err: `当前角色被冻结（${self.frozenTurns} 回合）` };
+  if (self.skillLockedTurns > 0) return { ok: false, err: `技能被封锁中（${self.skillLockedTurns} 回合）` };
+  const inMindEye = changliInMindEye(self);
+  if (self.cd.skill > 0 && !inMindEye) return { ok: false, err: `技能冷却中（${self.cd.skill} 回合）` };
+  const cost = resolveActionCost(self, 'skill', ACTION_COST.skill);
+  if (battle.finished || battle.ap < cost.apCost) return { ok: false, err: 'AP 不足' };
+  const target = battle.enemies[targetIdx];
+  if (!target || !target.alive) return { ok: false, err: '目标无效' };
+  return { ok: true };
+}
+
+export function canHeavy(self, battle, targetIdx) {
+  if (!self || !self.alive) return { ok: false, err: '当前角色不可行动' };
+  if (!self.hasHeavy) return { ok: false, err: `${self.name} 没有重击` };
+  if (self.frozenTurns > 0) return { ok: false, err: `当前角色被冻结（${self.frozenTurns} 回合）` };
+  const inMindEye = changliInMindEye(self);
+  if (self.cd.heavy > 0 && !inMindEye) return { ok: false, err: `重击冷却中（${self.cd.heavy} 回合）` };
+  const cost = resolveActionCost(self, 'heavy', ACTION_COST.heavy);
+  if (battle.finished || battle.ap < cost.apCost) return { ok: false, err: `AP 不足（需 ${cost.apCost}）` };
+
+  // 赞妮灼焰形态：普攻键已替换为重斩，重击不可用
+  if (self.name === '赞妮' && zanYanInBlaze(self)) {
+    return { ok: false, err: '灼焰形态下重击不可用 · 普攻键已替换为重斩' };
+  }
+  // 折枝重击「点睛」：消耗半数墨鹤转全队护盾，不需要目标
+  if (self.name === '折枝') {
+    if (!self.zhezhiFieldTurns || self.zhezhiFieldTurns <= 0) return { ok: false, err: '墨鹤领域未展开' };
+    if (!self.zhezhiCranes || self.zhezhiCranes <= 0) return { ok: false, err: '无墨鹤可消耗' };
+    return { ok: true };
+  }
+  // 弗洛洛谱曲终末：需满 6 乐声
+  if (self.name === '弗洛洛' && (self.furoloNotes || 0) < 6) {
+    return { ok: false, err: '乐声未满 6 枚，无法施放谱曲终末' };
+  }
+  const target = battle.enemies[targetIdx];
+  if (!target || !target.alive) return { ok: false, err: '目标无效' };
+  return { ok: true };
+}
+
+export function canBurst(self, battle) {
+  if (!self || !self.alive) return { ok: false, err: '当前角色不可行动' };
+  if (self.frozenTurns > 0) return { ok: false, err: `当前角色被冻结（${self.frozenTurns} 回合）` };
+
+  // 弗洛洛专属：0AP，需定音状态
+  if (self.name === '弗洛洛') {
+    if (!furoloCanBurst(self)) return { ok: false, err: '需处于定音状态(谱曲终末后)才能施放共鸣解放' };
+    const aliveEnemies = battle.enemies.filter(e => e.alive);
+    if (!aliveEnemies.length) return { ok: false, err: '没有目标' };
+    return { ok: true };
+  }
+
+  if (battle.finished || battle.ap < ACTION_COST.burst) return { ok: false, err: `AP 不足（需 ${ACTION_COST.burst}）` };
+  if (self.energy < self.energyMax) return { ok: false, err: `能量不足（${self.energy}/${self.energyMax}）` };
+  const aliveEnemies = battle.enemies.filter(e => e.alive);
+  if (!aliveEnemies.length) return { ok: false, err: '没有目标' };
+  return { ok: true };
+}
+
 // 普攻：1 AP，单体，100% atk
 // 守岸人 5 链：normalSplit = 2，会额外打一个相邻敌人
 export function doAttack(battle, targetIdx) {
   _currentBattle = battle;
   const self0 = battle.team[battle.active];
+  const check = canAttack(self0, battle, targetIdx);
+  if (!check.ok) return check;
+  const self = self0;
   const cost = resolveActionCost(self0, 'normal', ACTION_COST.normal);
   const inMindEye = changliInMindEye(self0);
-  if (battle.finished || battle.ap < cost.apCost) return { ok: false, err: 'AP 不足' };
-  const self = self0;
-  if (!self || !self.alive) return { ok: false, err: '当前角色不可行动' };
-  if (self.frozenTurns > 0) return { ok: false, err: `当前角色被冻结（${self.frozenTurns} 回合）` };
   const target = battle.enemies[targetIdx];
-  if (!target || !target.alive) return { ok: false, err: '目标无效' };
   // 长离心眼·征：普攻变身为 180% 共鸣技能伤害
   const meForm = changliMindEyeForm(self, 'normal');
   // 赞妮灼焰形态：普攻键替换为重斩（HP×12%，消耗 20 焰光，heavy 类型）
@@ -791,17 +862,12 @@ export function doAttack(battle, targetIdx) {
 export function doSkill(battle, targetIdx) {
   _currentBattle = battle;
   const self0 = battle.team[battle.active];
+  const check = canSkill(self0, battle, targetIdx);
+  if (!check.ok) return check;
+  const self = self0;
   const cost = resolveActionCost(self0, 'skill', ACTION_COST.skill);
   const inMindEye = changliInMindEye(self0);
-  if (battle.finished || battle.ap < cost.apCost) return { ok: false, err: 'AP 不足' };
-  const self = self0;
-  if (!self || !self.alive) return { ok: false, err: '当前角色不可行动' };
-  if (self.frozenTurns > 0) return { ok: false, err: `当前角色被冻结（${self.frozenTurns} 回合）` };
-  if (self.skillLockedTurns > 0) return { ok: false, err: `技能被封锁中（${self.skillLockedTurns} 回合）` };
-  // 长离心眼·劫按白嫖处理，不吃冷却（见设计文档 §8）
-  if (self.cd.skill > 0 && !inMindEye) return { ok: false, err: `技能冷却中（${self.cd.skill} 回合）` };
   const target = battle.enemies[targetIdx];
-  if (!target || !target.alive) return { ok: false, err: '目标无效' };
   // 长离心眼·劫：技能变身为 200% 共鸣技能伤害
   const meForm = changliMindEyeForm(self, 'skill');
   // 椿永生花：满红椿·蕊 + 协奏≥50 时技能替换为永生花（进入含苞在伤害前，使永生花享受酣梦倍率）
@@ -866,14 +932,11 @@ export function doSkill(battle, targetIdx) {
 export function doBurst(battle) {
   _currentBattle = battle;
   const self = battle.team[battle.active];
-  if (!self || !self.alive) return { ok: false, err: '当前角色不可行动' };
-  if (self.frozenTurns > 0) return { ok: false, err: `当前角色被冻结（${self.frozenTurns} 回合）` };
+  const check = canBurst(self, battle);
+  if (!check.ok) return check;
 
   // ★ 弗洛洛专属解放:0AP(能量上限为0) + 需定音状态 + 无直接伤害 + 进入指挥状态
   if (self.name === '弗洛洛') {
-    if (!furoloCanBurst(self)) return { ok: false, err: '需处于定音状态(谱曲终末后)才能施放共鸣解放' };
-    const aliveEnemies = battle.enemies.filter(e => e.alive);
-    if (!aliveEnemies.length) return { ok: false, err: '没有目标' };
     furoloOnBurst(self, { battle });
     battle.log.push({
       type: 'burst', src: self.name, results: [],
@@ -883,10 +946,7 @@ export function doBurst(battle) {
     return { ok: true };
   }
 
-  if (battle.finished || battle.ap < ACTION_COST.burst) return { ok: false, err: `AP 不足（需 ${ACTION_COST.burst}）` };
-  if (self.energy < self.energyMax) return { ok: false, err: `能量不足（${self.energy}/${self.energyMax}）` };
   const aliveEnemies = battle.enemies.filter(e => e.alive);
-  if (!aliveEnemies.length) return { ok: false, err: '没有目标' };
   // 主目标 = 当前选中（targetIdx），若死/无效则取第一只活着的
   const targetIdx = (typeof battle.targetIdx === 'number') ? battle.targetIdx : -1;
   const primary = (battle.enemies[targetIdx] && battle.enemies[targetIdx].alive) ? battle.enemies[targetIdx] : aliveEnemies[0];
@@ -1038,25 +1098,14 @@ export function doBurst(battle) {
 export function doHeavy(battle, targetIdx) {
   _currentBattle = battle;
   const self0 = battle.team[battle.active];
+  const check = canHeavy(self0, battle, targetIdx);
+  if (!check.ok) return check;
+  const self = self0;
   const cost = resolveActionCost(self0, 'heavy', ACTION_COST.heavy);
   const inMindEye = changliInMindEye(self0);
-  if (battle.finished || battle.ap < cost.apCost) return { ok: false, err: `AP 不足（需 ${cost.apCost}）` };
-  const self = self0;
-  if (!self || !self.alive) return { ok: false, err: '当前角色不可行动' };
-  if (!self.hasHeavy) return { ok: false, err: `${self.name} 没有重击` };
-  if (self.frozenTurns > 0) return { ok: false, err: `当前角色被冻结（${self.frozenTurns} 回合）` };
-  // 长离心眼·冲按白嫖处理，不吃重击冷却
-  if (self.cd.heavy > 0 && !inMindEye) return { ok: false, err: `重击冷却中（${self.cd.heavy} 回合）` };
-
-  // 赞妮灼焰形态：重击按钮在灼焰形态下不可用（普攻键已替换为重斩，避免重复消耗焰光）
-  if (self.name === '赞妮' && zanYanInBlaze(self)) {
-    return { ok: false, err: '灼焰形态下重击不可用 · 普攻键已替换为重斩' };
-  }
 
   // 折枝重击「点睛」：消耗半数墨鹤转全队护盾，不造成伤害、不触发墨鹤追击
   if (self.name === '折枝') {
-    if (!self.zhezhiFieldTurns || self.zhezhiFieldTurns <= 0) return { ok: false, err: '墨鹤领域未展开' };
-    if (!self.zhezhiCranes || self.zhezhiCranes <= 0) return { ok: false, err: '无墨鹤可消耗' };
     const handled = zhezhiInkShield(self, battle);
     if (handled) {
       battle.ap -= ACTION_COST.heavy;
@@ -1071,15 +1120,10 @@ export function doHeavy(battle, targetIdx) {
   }
 
   const target = battle.enemies[targetIdx];
-  if (!target || !target.alive) return { ok: false, err: '目标无效' };
 
   // ★ 弗洛洛谱曲终末:满6乐声时重击替换为谱曲终末(HP×20% AOE,消耗乐声,进入定音)
   const furoloDirgeForm = (self.name === '弗洛洛') ? furoloResolveHeavy(self, battle) : null;
-  if (self.name === '弗洛洛' && !furoloDirgeForm) {
-    return { ok: false, err: '乐声未满 6 枚,无法施放谱曲终末(弗洛洛重击仅在满乐声时可用)' };
-  }
 
-  // 安可特殊重击：失序值满时，重击改为白咩·失控之炎 / 黑咩·暴走之炎
   // 安可特殊重击：失序值满时，重击改为白咩·失控之炎 / 黑咩·暴走之炎
   // 官方归类为共鸣解放伤害，因此这里用 dmgType='burst' 结算，但仍消耗 2 AP 和重击 CD。
   const isEncore = self.name === '安可';
