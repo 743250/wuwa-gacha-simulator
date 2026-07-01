@@ -82,7 +82,8 @@ export function createBattle(teamNames, enemyNames, opts = {}) {
   const missing = [];
   const enemies = expectedEnemies.map((n, idx) => {
     // 副本池：enemyLevel 控制 HP/ATK/DEF 等级缩放，enemyScale 控制额外倍率
-    const scale = opts.enemyStatScale || opts.enemyScale || 1.0;
+    // opts.enemyScales[idx] 支持 per-enemy scale（无音区小怪量级压缩用）
+    const scale = opts.enemyScales?.[idx] ?? opts.enemyStatScale ?? opts.enemyScale ?? 1.0;
     const spawnOpts = opts.enemyLevel ? { enemyLevel: opts.enemyLevel, hp: scale, atk: scale, def: 1.0 } : scale;
     const e = spawnEnemy(n, spawnOpts);
     if (e) e.idx = idx + 100;

@@ -14,9 +14,6 @@ import { growthRatioTo90 } from '../data/enemies-growth.js';
 //   debris_stun, bubble_heal, flight_tide, dreamless,          ← 新增
 //   blade_turrets                                              ← 新增
 
-// 副本池中的世界 BOSS 缩放（模拟战训/无音区等，非正式讨伐）
-const POOL_BOSS_SCALE = 0.10;
-
 export function formatEnemyMechanic(mechanic, opts = {}) {
   const m = mechanic;
   if (!m || m.type === 'none') return '';
@@ -589,11 +586,6 @@ export function getBossLevel(bossName) {
   return 40;
 }
 
-// 世界等级倍率
-export function worldTierMult(tier) {
-  return { 1: 0.30, 2: 0.40, 3: 0.50 }[tier] || 0.30;
-}
-
 // 按敌人名生成战斗实例
 // 支持三种模式：
 //   1. levelScale (旧版兼容，直接乘)
@@ -608,10 +600,9 @@ export function spawnEnemy(name, opts = 1.0) {
   let enemyLv = 90;
 
   if (typeof opts === 'number') {
-    // 副本池（模拟战训等）：世界 BOSS 额外缩放到训练强度
-    const poolScale = isWorldBoss ? POOL_BOSS_SCALE : 1.0;
-    hpMult = opts * poolScale;
-    atkMult = opts * poolScale;
+    // 兼容旧接口：number 参数直接当 scale 用（不再对世界 BOSS 额外压缩）
+    hpMult = opts;
+    atkMult = opts;
     defMult = opts;
   } else if (opts && (opts.worldTier || opts.bossLevel)) {
     // 世界 BOSS 讨伐战：等级由三档机制决定（30-120），统一走 GrowthRates 非线性缩放

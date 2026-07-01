@@ -2,7 +2,7 @@
 
 > 立项日期：2026-07-01
 > 状态：计划已确认，等子代理核实关卡配置后实施
-> 关联文档：[echo-system.md](echo-system.md) · [敌人数值统一缩放方案.md](敌人数值统一缩放方案.md) · [../../sources/mechanics/tacet-field-mechanics.md](../../sources/mechanics/tacet-field-mechanics.md)
+> 关联文档：[echo-system.md](echo-system.md) · [../dungeons/README.md](../dungeons/README.md) · [../../sources/mechanics/tacet-field-mechanics.md](../../sources/mechanics/tacet-field-mechanics.md)
 
 ---
 

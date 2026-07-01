@@ -15,79 +15,75 @@
 // import S 以便后续 helpers 使用
 import { S } from '../state.js';
 import { phases } from '../data/phases.js';
+import { ENEMIES } from './enemies.js';
 // 注：副本敌人强度不随版本变化（官方设计如此）
 // 注：副本敌人等级由 SOL3 三档世界等级（getDungeonEnemyLevel）决定，副本对象不再带 enemyLevel 字段
 //     （旧 enemyLevel 字段从不被战斗读取，已于 2026-07 清理）
 
 export const DUNGEONS = [
   // ===== 模拟战训（角色经验）=====
-  // 40 波片 Lv30：杂兵组合,敌人等级随玩家等级微调
+  // 设计：养成料速刷场，不出世界 BOSS。新手本纯小怪群，凝缩档精英+稀有BOSS（scale 压到精英量级）
+  // 等级由世界等级三档统一控制（索拉Ⅰ 30-60 / Ⅱ 60-90 / Ⅲ 90-120），不用 scale 压等级
   {
     id: 'sim_exp_1', type: 'exp', name: '模拟战训·共鸣经验', cost: 40,
     enemies: ['火鬃狼×3', '惊蛰猎手×1'],
     encounterPool: [
       { enemies: ['火鬃狼×3', '惊蛰猎手×1'], enemyScale: 1.0, weight: 4, tag: '残象群' },
-      { enemies: ['幽翎火×2'], enemyScale: 1.1, weight: 3, tag: '幽影残响' },
+      { enemies: ['幽翎火×2'], enemyScale: 1.0, weight: 3, tag: '幽影残响' },
       { enemies: ['碎獠猪×2', '咔嚓嚓×1'], enemyScale: 1.0, weight: 3, tag: '热熔冲锋' },
-      { enemies: ['雷鬃狼×2', '呼咻咻×1'], enemyScale: 1.05, weight: 3, tag: '雷风小队' },
+      { enemies: ['雷鬃狼×2', '呼咻咻×1'], enemyScale: 1.0, weight: 3, tag: '雷风小队' },
       { enemies: ['咕咕河豚×2', '阿嗞嗞×1'], enemyScale: 1.0, weight: 3, tag: '冰光幻象' },
-      { enemies: ['呜咔咔×2'], enemyScale: 1.1, weight: 2, tag: '湮灭发条' },
-      { enemies: ['聚械机偶'], enemyScale: 0.45, weight: 1, tag: '机械训练靶' }
+      { enemies: ['呜咔咔×2'], enemyScale: 1.0, weight: 2, tag: '湮灭发条' }
     ],
     drops: { exp_high: 5, exp_mid: 5 },                  // 55k exp，~31 次满级（~5.2 天）
     minLevel: 1, desc: '高级×5 中级×5 · 40 波片'
   },
-  // 80 波片 Lv70：精英 + BOSS 混合,凝缩双倍档
+  // 80 波片 凝缩档：精英为主，BOSS 稀有遭遇但 scale 压到精英量级（不卡关）
   {
     id: 'sim_exp_2', type: 'exp', name: '模拟战训·共鸣经验（凝缩）', cost: 80,
-    enemies: ['燎照之骑'],
+    enemies: ['紫羽鹭', '青羽鹭'],
     encounterPool: [
-      { enemies: ['紫羽鹭', '青羽鹭'], enemyScale: 0.9, weight: 3, tag: '双鹭疾袭' },
-      { enemies: ['绿熔蜥×2'], enemyScale: 0.95, weight: 3, tag: '焰蜥群' },
-      { enemies: ['坚岩斗士'], enemyScale: 0.85, weight: 2, tag: '巨岩护腕' },
-      { enemies: ['奏谕乐师', '巡哨机傀'], enemyScale: 0.9, weight: 2, tag: '湮冷双形' },
-      { enemies: ['磐石守卫'], enemyScale: 0.85, weight: 2, tag: '光岩守护' },
-      { enemies: ['燎照之骑'], enemyScale: 1.05, weight: 1, tag: '热熔骑士' },
-      { enemies: ['飞廉之猩'], enemyScale: 1.05, weight: 1, tag: '气动强敌' },
-      { enemies: ['朔雷之鳞'], enemyScale: 1.0, weight: 1, tag: '导电强敌' },
-      { enemies: ['无常凶鹭'], enemyScale: 1.15, weight: 1, tag: '湮灭飞行' },
-      { enemies: ['无妄者'], enemyScale: 1.05, weight: 1, tag: '护盾强敌' }
+      { enemies: ['紫羽鹭', '青羽鹭'], enemyScale: 1.0, weight: 4, tag: '双鹭疾袭' },
+      { enemies: ['绿熔蜥×3'], enemyScale: 1.0, weight: 4, tag: '焰蜥群' },
+      { enemies: ['坚岩斗士', '磐石守卫×2'], enemyScale: 1.0, weight: 3, tag: '巨岩护腕' },
+      { enemies: ['奏谕乐师', '巡哨机傀×2'], enemyScale: 1.0, weight: 3, tag: '湮冷双形' },
+      // 稀有遭遇：怒涛级 BOSS，scale 0.35 拉到精英量级（Lv90 实际约 28 万，和精英持平）
+      { enemies: ['燎照之骑'], enemyScale: 0.35, weight: 1, tag: '热熔骑士·稀遇' },
+      { enemies: ['飞廉之猩'], enemyScale: 0.35, weight: 1, tag: '气动强敌·稀遇' },
+      { enemies: ['朔雷之鳞'], enemyScale: 0.35, weight: 1, tag: '导电强敌·稀遇' }
     ],
     drops: { exp_super: 4, exp_high: 4 },                // 112k exp，凝缩双倍档
-    minLevel: 40, enemyScale: 1.5, desc: '特级×4 高级×4 · 80 波片（凝缩）'
+    minLevel: 40, desc: '特级×4 高级×4 · 80 波片（凝缩）'
   },
 
   // ===== 锻造挑战（武器/技能材料 · 官方名 Forgery Challenge）=====
-  // 40 波片 Lv40：构造体 + 杂兵混编
+  // 设计：和经验本对称，构造体/机械怪为主，打硬目标体感。新手本不出世界 BOSS
   {
     id: 'tacet_1', type: 'weapon', name: '锻造挑战·武器养成', cost: 40,
-    enemies: ['聚械机偶'],
+    enemies: ['巡哨机傀×3'],
     encounterPool: [
-      { enemies: ['聚械机偶'], enemyScale: 0.75, weight: 4, tag: '机械核心' },
-      { enemies: ['异构武装'], enemyScale: 0.9, weight: 3, tag: '构造体护盾' },
-      { enemies: ['云闪之鳞'], enemyScale: 1.05, weight: 2, tag: '导电突进' },
-      { enemies: ['巡哨机傀×2'], enemyScale: 0.9, weight: 3, tag: '冰属玩偶' },
-      { enemies: ['坚岩斗士', '碎獠猪×2'], enemyScale: 0.85, weight: 2, tag: '巨岩护腕' },
-      { enemies: ['紫羽鹭', '雷鬃狼×2'], enemyScale: 0.95, weight: 2, tag: '雷羽群' },
-      { enemies: ['幽翎火×2', '惊蛰猎手×1'], enemyScale: 1.25, weight: 2, tag: '混编残响' }
+      { enemies: ['巡哨机傀×3'], enemyScale: 1.0, weight: 4, tag: '机械核心' },
+      { enemies: ['巡哨机傀×2', '咔嚓嚓×2'], enemyScale: 1.0, weight: 3, tag: '冰属玩偶' },
+      { enemies: ['坚岩斗士', '碎獠猪×2'], enemyScale: 1.0, weight: 3, tag: '巨岩护腕' },
+      { enemies: ['紫羽鹭', '雷鬃狼×3'], enemyScale: 1.0, weight: 3, tag: '雷羽群' },
+      { enemies: ['幽翎火×2', '惊蛰猎手×1'], enemyScale: 1.0, weight: 3, tag: '混编残响' }
     ],
     drops: { weapon_book: 16 },
-    minLevel: 20, enemyScale: 1.3, desc: '武器石×16 · 40 波片'
+    minLevel: 20, desc: '武器石×16 · 40 波片'
   },
-  // 80 波片 Lv80：周本影 + 高阶精英
+  // 80 波片 凝缩档：精英混编 + 怒涛级 BOSS 影（scale 0.5 拉到精英偏高量级），不出海啸级
   {
     id: 'tacet_2', type: 'weapon', name: '锻造挑战·武器养成（凝缩·双倍）', cost: 80,
-    enemies: ['赫卡忒'],
+    enemies: ['无归的谬误'],
     encounterPool: [
-      { enemies: ['赫卡忒'], enemyScale: 1.8, weight: 3, tag: '湮灭周本影' },
-      { enemies: ['无归的谬误'], enemyScale: 1.65, weight: 3, tag: '数据封锁' },
-      { enemies: ['异构武装'], enemyScale: 1.45, weight: 2, tag: '冷凝护盾' },
-      { enemies: ['鸣式·利维亚坦'], enemyScale: 1.55, weight: 1, tag: '鸣式残响' },
-      { enemies: ['磐石守卫', '绿熔蜥×2'], enemyScale: 1.3, weight: 2, tag: '光焰混编' },
-      { enemies: ['奏谕乐师', '紫羽鹭×2'], enemyScale: 1.35, weight: 2, tag: '湮雷混编' }
+      { enemies: ['磐石守卫', '绿熔蜥×2'], enemyScale: 1.0, weight: 4, tag: '光焰混编' },
+      { enemies: ['奏谕乐师', '紫羽鹭×2'], enemyScale: 1.0, weight: 4, tag: '湮雷混编' },
+      // 怒涛级 BOSS 影：scale 0.5 拉到精英偏高量级（Lv90 实际约 40-50 万）
+      { enemies: ['无归的谬误'], enemyScale: 0.5, weight: 3, tag: '数据封锁·影' },
+      { enemies: ['异构武装'], enemyScale: 0.5, weight: 3, tag: '冷凝护盾·影' }
     ],
     drops: { weapon_book: 32 },
-    minLevel: 40, enemyScale: 1.8, desc: '武器石×32 · 80 波片（凝缩）'
+    minLevel: 40, desc: '武器石×32 · 80 波片（凝缩）'
   },
 
   // ===== 无音区（声骸 · 官方名 Tacet Field · 60 波片）=====
@@ -159,19 +155,19 @@ export const DUNGEONS = [
     id: 'silent_havoc_new', type: 'echo', name: '无音区·幽夜隐匿之帷', cost: 60, version: '2.0',
     enemies: ['罗蕾莱'],
     drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'havoc_new', echo_count: 1, echo_tuner: 1 },
-    minLevel: 40, enemyScale: 1.6, desc: '罗蕾莱 · 幽夜隐匿之帷 · 60 波片'
+    minLevel: 40, desc: '罗蕾莱 · 幽夜隐匿之帷 · 60 波片'
   },
   {
     id: 'silent_coord', type: 'echo', name: '无音区·高天共奏之曲', cost: 60, version: '2.0',
     enemies: ['赫卡忒'],
     drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'coord', echo_count: 1, echo_tuner: 1 },
-    minLevel: 40, enemyScale: 1.6, desc: '赫卡忒 · 高天共奏之曲 · 60 波片'
+    minLevel: 40, desc: '赫卡忒 · 高天共奏之曲 · 60 波片'
   },
   {
     id: 'silent_energy_new', type: 'echo', name: '无音区·无惧浪涛之勇', cost: 60, version: '2.0',
     enemies: ['叹息古龙'],
     drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'energy_new', echo_count: 1, echo_tuner: 1 },
-    minLevel: 40, enemyScale: 1.6, desc: '叹息古龙 · 无惧浪涛之勇 · 60 波片'
+    minLevel: 40, desc: '叹息古龙 · 无惧浪涛之勇 · 60 波片'
   },
 
   // ===== 2.0+ 角色专属 6 套 =====
@@ -209,7 +205,7 @@ export const DUNGEONS = [
     id: 'silent_cantarella_void', type: 'echo', name: '无音区·坎特蕾拉·虚湮', cost: 60, version: '2.2',
     enemies: ['共鸣回响·鸣式·利维亚坦'],
     drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'cantarella_void', echo_count: 1, echo_tuner: 1 },
-    minLevel: 40, enemyScale: 1.45, desc: '利维亚坦 · 命理崩毁之弦 · 60 波片'
+    minLevel: 40, desc: '利维亚坦 · 命理崩毁之弦 · 60 波片'
   },
   {
     id: 'silent_brant_path', type: 'echo', name: '无音区·布兰特·长路启航', cost: 60, version: '2.2',
@@ -294,31 +290,31 @@ export const DUNGEONS = [
     id: 'world_ju_xie_ji_ou', type: 'worldBoss', name: '聚械机偶', cost: 60,
     enemies: ['聚械机偶'],
     drops: { exp_high: 3, exp_mid: 2, weapon_book: 10, astrite: 20 },
-    minLevel: 30, enemyScale: 1.6, desc: '高级×3 中级×2 · 武器石×10 · 星声+20'
+    minLevel: 30, desc: '高级×3 中级×2 · 武器石×10 · 星声+20'
   },
   {
     id: 'world_fei_lian_zhi_xing', type: 'worldBoss', name: '飞廉之猩', cost: 60,
     enemies: ['飞廉之猩'],
     drops: { exp_high: 3, exp_mid: 2, weapon_book: 10, astrite: 20 },
-    minLevel: 30, enemyScale: 1.6, desc: '高级×3 中级×2 · 武器石×10 · 星声+20'
+    minLevel: 30, desc: '高级×3 中级×2 · 武器石×10 · 星声+20'
   },
   {
     id: 'world_shuo_lei_zhi_lin', type: 'worldBoss', name: '朔雷之鳞', cost: 60,
     enemies: ['朔雷之鳞'],
     drops: { exp_high: 3, exp_mid: 2, weapon_book: 10, astrite: 20 },
-    minLevel: 30, enemyScale: 1.6, desc: '高级×3 中级×2 · 武器石×10 · 星声+20'
+    minLevel: 30, desc: '高级×3 中级×2 · 武器石×10 · 星声+20'
   },
   {
     id: 'world_yun_shan_zhi_lin', type: 'worldBoss', name: '云闪之鳞', cost: 60,
     enemies: ['云闪之鳞'],
     drops: { exp_high: 3, exp_mid: 2, weapon_book: 10, astrite: 20 },
-    minLevel: 30, enemyScale: 1.6, desc: '高级×3 中级×2 · 武器石×10 · 星声+20'
+    minLevel: 30, desc: '高级×3 中级×2 · 武器石×10 · 星声+20'
   },
   {
     id: 'world_liao_zhao_zhi_qi', type: 'worldBoss', name: '燎照之骑', cost: 60,
     enemies: ['燎照之骑'],
     drops: { exp_high: 3, exp_mid: 2, weapon_book: 10, astrite: 20 },
-    minLevel: 30, enemyScale: 1.55, desc: '高级×3 中级×2 · 武器石×10 · 星声+20'
+    minLevel: 30, desc: '高级×3 中级×2 · 武器石×10 · 星声+20'
   },
 
   // Tier 2 — 推荐 40+，中级世界BOSS（base HP 34000-40000）
@@ -326,37 +322,37 @@ export const DUNGEONS = [
     id: 'world_ai_sheng_shi', type: 'worldBoss', name: '哀声鸷', cost: 60,
     enemies: ['哀声鸷'],
     drops: { exp_high: 3, exp_mid: 2, weapon_book: 12, astrite: 20 },
-    minLevel: 40, enemyScale: 1.45, desc: '高级×3 中级×2 · 武器石×12 · 星声+20'
+    minLevel: 40, desc: '高级×3 中级×2 · 武器石×12 · 星声+20'
   },
   {
     id: 'world_wu_chang_xiong_lu', type: 'worldBoss', name: '无常凶鹭', cost: 60,
     enemies: ['无常凶鹭'],
     drops: { exp_high: 3, exp_mid: 2, weapon_book: 12, astrite: 20 },
-    minLevel: 40, enemyScale: 1.5, desc: '高级×3 中级×2 · 武器石×12 · 星声+20'
+    minLevel: 40, desc: '高级×3 中级×2 · 武器石×12 · 星声+20'
   },
   {
     id: 'world_hui_ying_jun_shi', type: 'worldBoss', name: '辉萤军势', cost: 60,
     enemies: ['辉萤军势'],
     drops: { exp_high: 3, exp_mid: 2, weapon_book: 12, astrite: 20 },
-    minLevel: 40, enemyScale: 1.5, desc: '高级×3 中级×2 · 武器石×12 · 星声+20'
+    minLevel: 40, desc: '高级×3 中级×2 · 武器石×12 · 星声+20'
   },
   {
     id: 'world_luo_lei_lai', type: 'worldBoss', name: '罗蕾莱', cost: 60,
     enemies: ['罗蕾莱'],
     drops: { exp_high: 3, exp_mid: 2, weapon_book: 12, astrite: 20 },
-    minLevel: 40, enemyScale: 1.55, desc: '高级×3 中级×2 · 武器石×12 · 星声+20'
+    minLevel: 40, desc: '高级×3 中级×2 · 武器石×12 · 星声+20'
   },
   {
     id: 'world_rong_yao_shi_xiang', type: 'worldBoss', name: '荣耀狮像', cost: 60,
     enemies: ['荣耀狮像'],
     drops: { exp_high: 3, exp_mid: 2, weapon_book: 12, astrite: 20 },
-    minLevel: 40, enemyScale: 1.45, desc: '高级×3 中级×2 · 武器石×12 · 星声+20'
+    minLevel: 40, desc: '高级×3 中级×2 · 武器石×12 · 星声+20'
   },
   {
     id: 'world_wu_wang_zhe', type: 'worldBoss', name: '无妄者', cost: 60,
     enemies: ['无妄者'],
     drops: { exp_high: 3, exp_mid: 2, weapon_book: 12, astrite: 20 },
-    minLevel: 40, enemyScale: 1.45, desc: '高级×3 中级×2 · 武器石×12 · 星声+20'
+    minLevel: 40, desc: '高级×3 中级×2 · 武器石×12 · 星声+20'
   },
 
   // Tier 3 — 推荐 50+，高级世界BOSS（base HP ≥ 40000）
@@ -364,37 +360,37 @@ export const DUNGEONS = [
     id: 'world_yi_gou_wu_zhuang', type: 'worldBoss', name: '异构武装', cost: 60,
     enemies: ['异构武装'],
     drops: { exp_super: 1, exp_high: 2, weapon_book: 14, astrite: 20 },
-    minLevel: 50, enemyScale: 1.55, desc: '特级×1 高级×2 · 武器石×14 · 星声+20'
+    minLevel: 50, desc: '特级×1 高级×2 · 武器石×14 · 星声+20'
   },
   {
     id: 'world_wu_gui_de_miu_wu', type: 'worldBoss', name: '无归的谬误', cost: 60,
     enemies: ['无归的谬误'],
     drops: { exp_super: 1, exp_high: 2, weapon_book: 14, astrite: 20 },
-    minLevel: 50, enemyScale: 1.6, desc: '特级×1 高级×2 · 武器石×14 · 星声+20'
+    minLevel: 50, desc: '特级×1 高级×2 · 武器石×14 · 星声+20'
   },
   {
     id: 'world_hai_zhi_nv', type: 'worldBoss', name: '海之女', cost: 60,
     enemies: ['海之女'],
     drops: { exp_super: 1, exp_high: 2, weapon_book: 14, astrite: 20 },
-    minLevel: 50, enemyScale: 1.55, desc: '特级×1 高级×2 · 武器石×14 · 星声+20'
+    minLevel: 50, desc: '特级×1 高级×2 · 武器石×14 · 星声+20'
   },
   {
     id: 'world_ming_zhong_zhi_gui', type: 'worldBoss', name: '鸣钟之龟', cost: 60,
     enemies: ['鸣钟之龟'],
     drops: { exp_super: 1, exp_high: 2, weapon_book: 14, astrite: 20 },
-    minLevel: 50, enemyScale: 1.55, desc: '特级×1 高级×2 · 武器石×14 · 星声+20'
+    minLevel: 50, desc: '特级×1 高级×2 · 武器石×14 · 星声+20'
   },
   {
     id: 'world_tan_xi_gu_long', type: 'worldBoss', name: '叹息古龙', cost: 60,
     enemies: ['叹息古龙'],
     drops: { exp_super: 1, exp_high: 2, weapon_book: 14, astrite: 20 },
-    minLevel: 55, enemyScale: 1.5, desc: '特级×1 高级×2 · 武器石×14 · 星声+20'
+    minLevel: 55, desc: '特级×1 高级×2 · 武器石×14 · 星声+20'
   },
   {
     id: 'world_meng_yan_ya_dang', type: 'worldBoss', name: '梦魇亚当·重锤', cost: 60,
     enemies: ['梦魇亚当·重锤'],
     drops: { exp_super: 1, exp_high: 2, weapon_book: 14, astrite: 20 },
-    minLevel: 55, enemyScale: 1.35, desc: '特级×1 高级×2 · 武器石×14 · 星声+20'
+    minLevel: 55, desc: '特级×1 高级×2 · 武器石×14 · 星声+20'
   }
 ];
 
@@ -408,7 +404,7 @@ export const WEEKLY_BOSS = [
       { enemies: ['罗蕾莱'], enemyScale: 2.5, weight: 1, tag: '导电护盾' }
     ],
     drops: { exp_high: 8, weapon_book: 14 },
-    minLevel: 40, enemyScale: 2.5, desc: '高级×8 · 武器石×14 · 周限 3 次'
+    minLevel: 40, desc: '高级×8 · 武器石×14 · 周限 3 次'
   },
   {
     id: 'boss_imperator', type: 'weekly', name: '战歌重奏·无冠者', cost: 60, weeklyLimit: true,
@@ -417,7 +413,7 @@ export const WEEKLY_BOSS = [
       { enemies: ['无冠者'], enemyScale: 2.5, weight: 1, tag: '湮灭狂暴' }
     ],
     drops: { exp_high: 8, weapon_book: 14 },
-    minLevel: 40, enemyScale: 2.5, desc: '高级×8 · 武器石×14 · 周限 3 次'
+    minLevel: 40, desc: '高级×8 · 武器石×14 · 周限 3 次'
   },
   {
     id: 'boss_hecate', type: 'weekly', name: '战歌重奏·赫卡忒', cost: 60, weeklyLimit: true,
@@ -426,7 +422,7 @@ export const WEEKLY_BOSS = [
       { enemies: ['赫卡忒'], enemyScale: 2.8, weight: 1, tag: '幻象召唤' }
     ],
     drops: { exp_super: 4, exp_high: 6, weapon_book: 16 },
-    minLevel: 60, enemyScale: 2.8, desc: '特级×4 · 高级×6 · 武器石×16 · 周限 3 次'
+    minLevel: 60, desc: '特级×4 · 高级×6 · 武器石×16 · 周限 3 次'
   }
 ];
 
@@ -444,6 +440,52 @@ export function flattenEnemies(enemyStrs) {
     for (let i = 0; i < parsed.count; i++) result.push(parsed.name);
   });
   return result;
+}
+
+// 无音区精英+小怪混编：按守关 BOSS 元素从敌人库抽同元素 Elite + Common
+// 官方设定：每个无音区 = 1 守关BOSS + 1-2 精英 + 若干小怪，同套装同元素
+// 见 docs/sources/mechanics/tacet-fields-official.md
+// 返回 [{ name, scale }] 数组（小怪 scale 0.5 压量级，不抢 BOSS 戏）
+export function rollEchoMinions(bossName, seed) {
+  const boss = ENEMIES[bossName];
+  if (!boss) return [];
+  const elem = boss.element;
+  const elite = [];
+  const common = [];
+  for (const [name, data] of Object.entries(ENEMIES)) {
+    if (name === bossName) continue;
+    if (data.element !== elem) continue;
+    if (data.class === 'Elite') elite.push(name);
+    else if (data.class === null || data.class === 'Common') common.push(name);
+  }
+  // 用确定性 seed 避免同一关每次打小怪阵容乱跳
+  const rng = mulberry32(seed || hashString(bossName));
+  const out = [];
+  if (elite.length) {
+    const n = elite.length >= 2 ? 2 : 1;
+    for (let i = 0; i < n && elite.length; i++) {
+      const idx = Math.floor(rng() * elite.length);
+      out.push({ name: elite.splice(idx, 1)[0], scale: 0.6 });
+    }
+  }
+  if (common.length) {
+    const n = 2 + Math.floor(rng() * 2); // 2-3 只小怪
+    for (let i = 0; i < n && common.length; i++) {
+      const idx = Math.floor(rng() * common.length);
+      out.push({ name: common.splice(idx, 1)[0], scale: 0.5 });
+    }
+  }
+  return out;
+}
+
+// 确定性 PRNG（mulberry32）
+function mulberry32(a) {
+  return function () {
+    a |= 0; a = (a + 0x6D2B79F5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
 }
 
 function hashString(s) {

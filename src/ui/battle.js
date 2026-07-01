@@ -6,7 +6,7 @@ import { startEncounter, doAttack, doSkill, doHeavy, doBurst, doSwitch, doDebris
 import { renderCharacterBattleStatus } from '../battle/characters/index.js';
 import { ELEMENT_COLOR } from '../battle/elements.js';
 import { collectUnitBadges, collectEnemyBadges, renderBadge } from './battleRenderers/buffRenderers.js';
-import { flattenEnemies, DUNGEONS, canUseWeeklyBoss, consumeWeeklyBoss, getWeeklyBossUsed, WEEKLY_BOSS_LIMIT, getDungeonEncounter, getSol3Level, getSol3Config, getWorldBossSpawnOpts, getDungeonEnemyLevel, onBattleResult } from '../battle/dungeon.js';
+import { flattenEnemies, DUNGEONS, canUseWeeklyBoss, consumeWeeklyBoss, getWeeklyBossUsed, WEEKLY_BOSS_LIMIT, getDungeonEncounter, getSol3Level, getSol3Config, getWorldBossSpawnOpts, getDungeonEnemyLevel, onBattleResult, rollEchoMinions } from '../battle/dungeon.js';
 import { spendStamina } from '../daily/stamina.js';
 import { generateEcho } from '../equip/echoActions.js';
 import { getEchoesBySet } from '../data/echoes.js';
@@ -50,6 +50,17 @@ export function startDungeonBattle(dungeonId) {
     const bossName = enemyNames[0];
     const spawnOpts = getWorldBossSpawnOpts(bossName);
     battleOpts = { enemyStatScale: spawnOpts };
+  } else if (d.type === 'echo') {
+    // 无音区：守关 BOSS + 按元素抽取的精英/小怪混编（官方设定）
+    const bossName = enemyNames[0];
+    const finalScale = (encounter.enemyScale || d.enemyScale || 1.0);
+    const enemyLevel = getDungeonEnemyLevel(d);
+    const minions = rollEchoMinions(bossName);
+    const allNames = [bossName, ...minions.map(m => m.name)];
+    const scales = [finalScale, ...minions.map(m => m.scale)];
+    battleOpts = { enemyScales: scales, enemyLevel };
+    enemyNames.length = 0;
+    allNames.forEach(n => enemyNames.push(n));
   } else {
     const finalScale = (encounter.enemyScale || d.enemyScale || 1.0);
     const enemyLevel = getDungeonEnemyLevel(d);
