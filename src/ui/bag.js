@@ -4,7 +4,7 @@ import { usePotion, useAllPotions, POTIONS, buyStaminaWithAstrite } from '../dai
 import { WEAPON_BOX_OPTIONS } from '../data/podcast-rewards.js';
 import { openModal, closeModal } from '../modal.js';
 import { levelUpEcho, levelUpEchoMax, recycleEcho, previewRecycleEcho, toggleEchoLock, unequipEcho, echoToNext, ECHO_COST_CAP, retuneEchoSubStat, levelUpEchoWithFeed, previewEchoFeed } from '../equip/echoActions.js';
-import { getSetById, formatEchoStatValue, formatSetBonus } from '../data/echoes.js';
+import { getSetById, formatEchoStatValue, formatSetBonus, getSubStatRange } from '../data/echoes.js';
 import { totalExp } from '../equip/actions.js';
 
 export function renderBag() {
@@ -302,12 +302,22 @@ window.__bagEchoDetail = (id, fromRole = false) => {
             <span style="color:var(--dim)">—</span></div>`;
         }
         const tuner = S.materials.echo_tuner || 0;
-        return `<div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;padding:2px 0;border-bottom:1px dashed var(--line)">
-          <span style="color:var(--muted)">${s.label}</span>
-          <span style="display:flex;align-items:center;gap:6px">
-            <span style="color:var(--gold)">${formatEchoStatValue(s.key, s.value)}</span>
-            <button class="mbtn" style="font-size:9px;padding:1px 5px" onclick="window.__bagEchoRetune(${e.id},${idx})" ${tuner < 1 ? 'disabled' : ''}>调谐</button>
-          </span></div>`;
+        const rng = getSubStatRange(s.key, s.value);
+        // 区间 + 百分位：让玩家看清这条 roll 得好不好（越接近 max 越好）
+        const rangeLine = rng
+          ? `<div style="font-size:9px;color:var(--dim);text-align:right;line-height:1.3">
+               区间 ${rng.minStr}~${rng.maxStr}${rng.pct != null ? ` · <span style="color:${rng.pct >= 66 ? 'var(--green)' : rng.pct >= 33 ? 'var(--gold)' : 'var(--muted)'}">${rng.pct}%</span>` : ''}
+             </div>`
+          : '';
+        return `<div style="border-bottom:1px dashed var(--line);padding:3px 0">
+          <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px">
+            <span style="color:var(--muted)">${s.label}</span>
+            <span style="display:flex;align-items:center;gap:6px">
+              <span style="color:var(--gold)">${formatEchoStatValue(s.key, s.value)}</span>
+              <button class="mbtn" style="font-size:9px;padding:1px 5px" onclick="window.__bagEchoRetune(${e.id},${idx})" ${tuner < 1 ? 'disabled' : ''}>调谐</button>
+            </span>
+          </div>
+          ${rangeLine}</div>`;
       }).join('')
     : '<div style="color:var(--dim);font-size:11px">无副词条</div>');
   const canLevel = e.level < 25;
@@ -488,7 +498,10 @@ window.__bagEchoRetune = (id, idx) => {
   if (!e) return;
   const r = retuneEchoSubStat(id, idx);
   if (!r.ok) { msg(r.err); return; }
-  msg(`${e.name} · ${r.label} 调谐：${formatEchoStatValue(e.subStats[idx].key, r.oldVal)} → ${formatEchoStatValue(e.subStats[idx].key, r.newVal)}`, false);
+  const key = e.subStats[idx].key;
+  const rng = getSubStatRange(key, r.newVal);
+  const pctTxt = rng && rng.pct != null ? `（区间 ${rng.minStr}~${rng.maxStr} · ${rng.pct}%）` : '';
+  msg(`${e.name} · ${r.label} 调谐：${formatEchoStatValue(key, r.oldVal)} → ${formatEchoStatValue(key, r.newVal)}${pctTxt}`, false);
   window.__bagEchoDetail(id, _echoDetailFromRole);
   renderBag();
   window.__render();

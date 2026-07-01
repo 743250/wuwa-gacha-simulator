@@ -35,7 +35,12 @@ export function computeBattleStats(roleName) {
     defPierce: 0,
     elemAllBonus: 0,
     weapon: null,
-    weaponTriggers: []
+    weaponTriggers: [],
+    // 攻击% / 固定攻击 累加器：所有来源先加总，最后统一应用一次
+    // 官方公式：攻击 = (角色基础+武器基础) × (1+攻击%总和) + 固定攻击
+    // （修复旧版逐条 atk*=(1+v) 连乘导致的数值虚高）
+    _atkPctSum: 0,
+    _atkFlatSum: 0
   };
 
   // 真实数值角色的突破加成（守岸人：治疗 +21.6%）
@@ -67,6 +72,10 @@ export function computeBattleStats(roleName) {
     ec.bonuses.forEach(b => applyBonus(stats, b));
     stats.echoStats = { setBonuses: ec.setBonuses, mainStats: ec.mainStats, subStats: ec.subStats };
   }
+
+  // 统一应用攻击% / 固定攻击（此时 stats.atk = 角色基础 + 武器基础攻击）
+  // 攻击% 全部相加后乘一次（不再逐条连乘），再加固定攻击
+  stats.atk = Math.round(stats.atk * (1 + stats._atkPctSum) + stats._atkFlatSum);
 
   return stats;
 }
@@ -239,7 +248,7 @@ function setBonusToBonus(sb) {
 function applyBonus(stats, b) {
   switch (b.type) {
     case 'atk':
-    case 'atk_pct':       stats.atk = Math.round(stats.atk * (1 + b.value)); break;
+    case 'atk_pct':       stats._atkPctSum += b.value; break;   // 累加,最后统一乘
     case 'hp':            stats.hp = Math.round(stats.hp * (1 + b.value)); break;
     case 'def':
     case 'def_pct':       stats.def = Math.round(stats.def * (1 + b.value)); break;
@@ -261,7 +270,7 @@ function applyBonus(stats, b) {
     case 'team_atk':      stats.teamAtkBonus += b.value; break;
     case 'resonance':     stats.resonanceBonus += b.value; break;
     case 'def_pierce':    stats.defPierce += b.value; break;
-    case 'atk_flat':     stats.atk += b.value; break;
+    case 'atk_flat':     stats._atkFlatSum += b.value; break;   // 累加,最后统一加
     case 'hp_flat':       stats.hp += b.value; break;
     case 'def_flat':      stats.def += b.value; break;
     case 'resonance_efficiency':  stats.resonanceEfficiency = (stats.resonanceEfficiency || 0) + b.value; break;

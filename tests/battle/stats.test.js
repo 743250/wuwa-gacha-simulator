@@ -213,4 +213,30 @@ describe('battle/stats', () => {
       }
     });
   });
+
+  // ===== 攻击% 相加不连乘（防止回归到逐条 atk*=(1+v)）=====
+  describe('atk_pct 累加语义', () => {
+    it('多来源攻击% 应相加后统一乘一次，而非逐条连乘', async () => {
+      const { generateEcho, equipEcho, levelUpEchoMax } = await import('../../src/equip/echoActions.js');
+      resetState({ team: ['忌炎'], roles: { '忌炎': { level: 90 } } });
+      S.echos = []; S.echoNextId = 1;
+      S.materials.exp_super = 999999;
+      const base = stats.computeBattleStats('忌炎').atk;
+      let slot = 0;
+      for (let t = 0; t < 300 && slot < 5; t++) {
+        const e = generateEcho('scorpion'); // COST1 物理
+        levelUpEchoMax(e.id); S.materials.exp_super += 999999;
+        if (equipEcho('忌炎', slot, e.id).ok) slot++;
+      }
+      const ec = stats.echoContrib('忌炎');
+      let pctSum = 0, flatSum = 0;
+      for (const b of ec.bonuses) {
+        if (b.type === 'atk_pct' || b.type === 'atk') pctSum += b.value;
+        if (b.type === 'atk_flat') flatSum += b.value;
+      }
+      const actual = stats.computeBattleStats('忌炎').atk;
+      const expectedAdd = Math.round(base * (1 + pctSum) + flatSum);
+      expect(actual).toBe(expectedAdd);
+    });
+  });
 });

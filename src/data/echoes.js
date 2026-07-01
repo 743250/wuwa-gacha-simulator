@@ -506,6 +506,22 @@ export function formatEchoStatValue(key, value) {
   return (value * 100).toFixed(1) + '%';
 }
 
+// 副词条调谐区间：返回该词条的 min~max 理论范围 + 当前值在区间内的百分位
+// 用于 UI 展示"这条 roll 得好不好"。value 为 null 时只返回区间。
+// 返回 { min, max, minStr, maxStr, pct } —— pct 为 0~100，null 表示无当前值
+export function getSubStatRange(key, value = null) {
+  const def = SUB_STAT_POOL.find(s => s.key === key);
+  if (!def) return null;
+  const minStr = formatEchoStatValue(key, def.min);
+  const maxStr = formatEchoStatValue(key, def.max);
+  let pct = null;
+  if (value != null && def.max > def.min) {
+    pct = Math.round(((value - def.min) / (def.max - def.min)) * 100);
+    pct = Math.max(0, Math.min(100, pct));
+  }
+  return { min: def.min, max: def.max, minStr, maxStr, pct };
+}
+
 const SET_BONUS_TYPE_LABEL = {
   elem_dmg:           (b) => `${b.elem ?? ''}伤害加成`,
   elem_dmg_cond:      (b) => `${b.elem ?? ''}伤害加成`,

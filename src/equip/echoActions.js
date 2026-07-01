@@ -4,6 +4,7 @@ import { S, msg, pick } from '../state.js';
 import { ECHO_CATALOG, ECHO_SETS, MAIN_STAT_POOL, SUB_STAT_POOL, LEVEL_EXP, MAX_LEVEL_EXP, getEchoById, getSetById, mainStatAtLevel, ECHO_MAX_LEVEL } from '../data/echoes.js';
 import { totalExp, consumeExp } from './actions.js';
 import { EXP_VALUES } from '../battle/stats.js';
+import { progressTask } from '../podcast/core.js';
 
 // 声骸 COST 上限：固定 12（满配 4+4+3+1）
 // 注：官方有数据坞等级系统逐步开放 COST 上限，模拟器取消该养成线，直接给满配
@@ -205,6 +206,11 @@ export function levelUpEcho(echoId) {
     const nextLocked = echo.subStats.find(s => !s.unlocked);
     if (nextLocked) nextLocked.unlocked = true;
   }
+  // 电台任务：声骸升级（一键满级/喂料会循环调本函数，逐级累计）
+  // d_upgrade 每日"升级角色/武器/声骸"；w_echo/p_echo 声骸累计升级次数
+  progressTask('d_upgrade', 1);
+  progressTask('w_echo', 1);
+  progressTask('p_echo', 1);
   return true;
 }
 
