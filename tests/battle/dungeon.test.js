@@ -217,13 +217,15 @@ describe('SOL3 world level', () => {
     expect(getSol3Level()).toBe(1);
   });
 
-  it('should have 3 levels with increasing multipliers', () => {
+  it('should have 3 levels with increasing level ranges and drop multipliers', () => {
     expect(Object.keys(SOL3_LEVELS).length).toBe(3);
     const l1 = SOL3_LEVELS[1];
     const l2 = SOL3_LEVELS[2];
     const l3 = SOL3_LEVELS[3];
-    expect(l2.worldTierMult).toBeGreaterThan(l1.worldTierMult);
-    expect(l3.worldTierMult).toBeGreaterThan(l2.worldTierMult);
+    expect(l2.levelMin).toBeGreaterThan(l1.levelMin);
+    expect(l3.levelMin).toBeGreaterThan(l2.levelMin);
+    expect(l2.levelMax).toBeGreaterThan(l1.levelMax);
+    expect(l3.levelMax).toBeGreaterThan(l2.levelMax);
     expect(l2.dropMult).toBeGreaterThan(l1.dropMult);
     expect(l3.dropMult).toBeGreaterThan(l2.dropMult);
   });
@@ -238,13 +240,15 @@ describe('SOL3 world level', () => {
   it('getSol3Config with no arg uses current level', () => {
     setSol3Level(2);
     const cfg = getSol3Config();
-    expect(cfg.worldTierMult).toBe(0.4);
     expect(cfg.dropMult).toBe(2.0);
+    expect(cfg.levelMin).toBe(60);
+    expect(cfg.levelMax).toBe(90);
   });
 
   it('getSol3Config with explicit level overrides', () => {
     const cfg = getSol3Config(3);
-    expect(cfg.worldTierMult).toBe(0.5);
+    expect(cfg.levelMin).toBe(90);
+    expect(cfg.levelMax).toBe(120);
   });
 
   it('SOL3 multiplier applied correctly in drops', () => {

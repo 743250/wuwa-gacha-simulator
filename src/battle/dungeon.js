@@ -106,63 +106,63 @@ export const DUNGEONS = [
     enemies: ['辉萤军势'],
     enemyLevel: 50,
     drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'frost', echo_count: 1, echo_tuner: 1 },
-    minLevel: 1, enemyScale: 1.5, desc: '辉萤军势 · 凝夜白霜 · 60 波片'
+    minLevel: 1, desc: '辉萤军势 · 凝夜白霜 · 60 波片'
   },
   {
     id: 'silent_fire', type: 'echo', name: '无音区·熔山裂谷', cost: 60, version: '1.0',
     enemies: ['燎照之骑'],
     enemyLevel: 50,
     drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'fire', echo_count: 1, echo_tuner: 1 },
-    minLevel: 1, enemyScale: 1.5, desc: '燎照之骑 · 熔山裂谷 · 60 波片'
+    minLevel: 1, desc: '燎照之骑 · 熔山裂谷 · 60 波片'
   },
   {
     id: 'silent_thunder', type: 'echo', name: '无音区·彻空冥雷', cost: 60, version: '1.0',
     enemies: ['朔雷之鳞'],
     enemyLevel: 50,
     drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'thunder', echo_count: 1, echo_tuner: 1 },
-    minLevel: 1, enemyScale: 1.5, desc: '朔雷之鳞 · 彻空冥雷 · 60 波片'
+    minLevel: 1, desc: '朔雷之鳞 · 彻空冥雷 · 60 波片'
   },
   {
     id: 'silent_wind', type: 'echo', name: '无音区·啸谷长风', cost: 60, version: '1.0',
     enemies: ['飞廉之猩'],
     enemyLevel: 50,
     drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'wind', echo_count: 1, echo_tuner: 1 },
-    minLevel: 1, enemyScale: 1.5, desc: '飞廉之猩 · 啸谷长风 · 60 波片'
+    minLevel: 1, desc: '飞廉之猩 · 啸谷长风 · 60 波片'
   },
   {
     id: 'silent_spectro', type: 'echo', name: '无音区·浮星祛暗', cost: 60, version: '1.0',
     enemies: ['哀声鸷'],
     enemyLevel: 50,
     drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'spectro', echo_count: 1, echo_tuner: 1 },
-    minLevel: 1, enemyScale: 1.5, desc: '哀声鸷 · 浮星祛暗 · 60 波片'
+    minLevel: 1, desc: '哀声鸷 · 浮星祛暗 · 60 波片'
   },
   {
     id: 'silent_havoc', type: 'echo', name: '无音区·沉日劫明', cost: 60, version: '1.0',
     enemies: ['无冠者'],
     enemyLevel: 50,
     drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'havoc', echo_count: 1, echo_tuner: 1 },
-    minLevel: 1, enemyScale: 1.5, desc: '无冠者 · 沉日劫明 · 60 波片'
+    minLevel: 1, desc: '无冠者 · 沉日劫明 · 60 波片'
   },
   {
     id: 'silent_heal', type: 'echo', name: '无音区·隐世回光', cost: 60, version: '1.0',
     enemies: ['无归的谬误'],
     enemyLevel: 50,
     drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'heal', echo_count: 1, echo_tuner: 1 },
-    minLevel: 1, enemyScale: 1.5, desc: '无归的谬误 · 隐世回光 · 60 波片'
+    minLevel: 1, desc: '无归的谬误 · 隐世回光 · 60 波片'
   },
   {
     id: 'silent_energy', type: 'echo', name: '无音区·轻云出月', cost: 60, version: '1.0',
     enemies: ['无常凶鹭'],
     enemyLevel: 50,
     drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'energy', echo_count: 1, echo_tuner: 1 },
-    minLevel: 1, enemyScale: 1.5, desc: '无常凶鹭 · 轻云出月 · 60 波片'
+    minLevel: 1, desc: '无常凶鹭 · 轻云出月 · 60 波片'
   },
   {
     id: 'silent_atk', type: 'echo', name: '无音区·不绝余音', cost: 60, version: '1.0',
     enemies: ['聚械机偶'],
     enemyLevel: 50,
     drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'atk', echo_count: 1, echo_tuner: 1 },
-    minLevel: 1, enemyScale: 1.5, desc: '聚械机偶 · 不绝余音 · 60 波片'
+    minLevel: 1, desc: '聚械机偶 · 不绝余音 · 60 波片'
   },
 
   // ===== 2.0 通用 3 套 =====
@@ -194,35 +194,35 @@ export const DUNGEONS = [
     enemies: ['异构武装'],
     enemyLevel: 80,
     drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'carlotta_skill', echo_count: 1, echo_tuner: 1 },
-    minLevel: 40, enemyScale: 1.5, desc: '异构武装 · 凌冽决断之心 · 60 波片'
+    minLevel: 40, desc: '异构武装 · 凌冽决断之心 · 60 波片'
   },
   {
     id: 'silent_phoebe_lightnoise', type: 'echo', name: '无音区·菲比·光噪长眠', cost: 60, version: '2.1',
     enemies: ['梦魇·哀声鸷'],
     enemyLevel: 80,
     drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'phoebe_lightnoise', echo_count: 1, echo_tuner: 1 },
-    minLevel: 40, enemyScale: 1.5, desc: '梦魇·哀声鸷 · 此间永驻之光 · 60 波片'
+    minLevel: 40, desc: '梦魇·哀声鸷 · 此间永驻之光 · 60 波片'
   },
   {
     id: 'silent_cartethyia_wind', type: 'echo', name: '无音区·卡提希娅·流云', cost: 60, version: '2.4',
     enemies: ['共鸣回响·芙露德莉斯'],
     enemyLevel: 80,
     drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'cartethyia_wind', echo_count: 1, echo_tuner: 1 },
-    minLevel: 50, enemyScale: 1.5, desc: '芙露德莉斯 · 流云逝尽之空 · 60 波片'
+    minLevel: 50, desc: '芙露德莉斯 · 流云逝尽之空 · 60 波片'
   },
   {
     id: 'silent_cartethyia_glory', type: 'echo', name: '无音区·卡提希娅·荣光', cost: 60, version: '2.4',
     enemies: ['共鸣回响·芙露德莉斯'],
     enemyLevel: 80,
     drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'cartethyia_glory', echo_count: 1, echo_tuner: 1 },
-    minLevel: 50, enemyScale: 1.5, desc: '芙露德莉斯 · 愿戴荣光之旅 · 60 波片'
+    minLevel: 50, desc: '芙露德莉斯 · 愿戴荣光之旅 · 60 波片'
   },
   {
     id: 'silent_brant_burst', type: 'echo', name: '无音区·布兰特·奔狼', cost: 60, version: '2.1',
     enemies: ['荣耀狮像'],
     enemyLevel: 80,
     drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'brant_burst', echo_count: 1, echo_tuner: 1 },
-    minLevel: 40, enemyScale: 1.5, desc: '荣耀狮像 · 奔狼燎原之焰 · 60 波片'
+    minLevel: 40, desc: '荣耀狮像 · 奔狼燎原之焰 · 60 波片'
   },
   {
     id: 'silent_cantarella_void', type: 'echo', name: '无音区·坎特蕾拉·虚湮', cost: 60, version: '2.2',
@@ -237,21 +237,21 @@ export const DUNGEONS = [
     enemyLevel: 80,
     // 长路启航 + 斑驳粉饰同源辛吉勒姆，50/50 掉
     drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: ['brant_path', 'brant_mottle'], echo_count: 1, echo_tuner: 1 },
-    minLevel: 40, enemyScale: 1.5, desc: '辛吉勒姆 · 长路启航/斑驳粉饰 · 60 波片'
+    minLevel: 40, desc: '辛吉勒姆 · 长路启航/斑驳粉饰 · 60 波片'
   },
   {
     id: 'silent_feixue_snow', type: 'echo', name: '无音区·绯雪·落日堤屿', cost: 60, version: '2.5',
     enemies: ['格洛犸图'],
     enemyLevel: 80,
     drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'feixue_snow', echo_count: 1, echo_tuner: 1 },
-    minLevel: 50, enemyScale: 1.5, desc: '格洛犸图 · 雪落无声之愿 · 60 波片'
+    minLevel: 50, desc: '格洛犸图 · 雪落无声之愿 · 60 波片'
   },
   {
     id: 'silent_lumera_chord', type: 'echo', name: '无音区·洛瑟菈·剪心辑梦', cost: 60, version: '2.5',
     enemies: ['无铭探索者'],
     enemyLevel: 80,
     drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'lumera_chord', echo_count: 1, echo_tuner: 1 },
-    minLevel: 50, enemyScale: 1.5, desc: '无铭探索者 · 剪心辑梦之影 · 60 波片'
+    minLevel: 50, desc: '无铭探索者 · 剪心辑梦之影 · 60 波片'
   },
 
   // ===== 2.6+ 新增 9 套（子代理未确认独立关卡，按套装归属配置）=====
@@ -260,63 +260,63 @@ export const DUNGEONS = [
     enemies: ['梦魇·赫卡忒'],
     enemyLevel: 80,
     drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'lost_dream', echo_count: 1, echo_tuner: 1 },
-    minLevel: 50, enemyScale: 1.5, desc: '梦魇·赫卡忒 · 失序彼岸之梦 · 60 波片'
+    minLevel: 50, desc: '梦魇·赫卡忒 · 失序彼岸之梦 · 60 波片'
   },
   {
     id: 'silent_glory_forge', type: 'echo', name: '无音区·荣斗铸锋之冠', cost: 60, version: '2.6',
     enemies: ['伪作的神王'],
     enemyLevel: 80,
     drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'glory_forge', echo_count: 1, echo_tuner: 1 },
-    minLevel: 50, enemyScale: 1.5, desc: '伪作的神王 · 荣斗铸锋之冠 · 60 波片'
+    minLevel: 50, desc: '伪作的神王 · 荣斗铸锋之冠 · 60 波片'
   },
   {
     id: 'silent_sync_law', type: 'echo', name: '无音区·息界同调之律', cost: 60, version: '2.6',
     enemies: ['共鸣回响·芬莱克'],
     enemyLevel: 80,
     drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'sync_law', echo_count: 1, echo_tuner: 1 },
-    minLevel: 50, enemyScale: 1.5, desc: '芬莱克 · 息界同调之律 · 60 波片'
+    minLevel: 50, desc: '芬莱克 · 息界同调之律 · 60 波片'
   },
   {
     id: 'silent_hunt_shadow', type: 'echo', name: '无音区·焚羽猎魔之影', cost: 60, version: '2.6',
     enemies: ['共鸣回响·鸣式·利维亚坦'],
     enemyLevel: 80,
     drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'hunt_shadow', echo_count: 1, echo_tuner: 1 },
-    minLevel: 50, enemyScale: 1.5, desc: '利维亚坦 · 焚羽猎魔之影 · 60 波片'
+    minLevel: 50, desc: '利维亚坦 · 焚羽猎魔之影 · 60 波片'
   },
   {
     id: 'silent_backlight_vow', type: 'echo', name: '无音区·逆光跃彩之约', cost: 60, version: '2.6',
     enemies: ['海维夏'],
     enemyLevel: 80,
     drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'backlight_vow', echo_count: 1, echo_tuner: 1 },
-    minLevel: 50, enemyScale: 1.5, desc: '海维夏 · 逆光跃彩之约 · 60 波片'
+    minLevel: 50, desc: '海维夏 · 逆光跃彩之约 · 60 波片'
   },
   {
     id: 'silent_star_ring', type: 'echo', name: '无音区·星构寻辉之环', cost: 60, version: '2.6',
     enemies: ['炉芯机骸'],
     enemyLevel: 80,
     drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'star_ring', echo_count: 1, echo_tuner: 1 },
-    minLevel: 50, enemyScale: 1.5, desc: '炉芯机骸 · 星构寻辉之环 · 60 波片'
+    minLevel: 50, desc: '炉芯机骸 · 星构寻辉之环 · 60 波片'
   },
   {
     id: 'silent_gold_truth', type: 'echo', name: '无音区·流金溯真之式', cost: 60, version: '2.6',
     enemies: ['海维夏'],
     enemyLevel: 80,
     drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'gold_truth', echo_count: 1, echo_tuner: 1 },
-    minLevel: 50, enemyScale: 1.5, desc: '海维夏 · 流金溯真之式 · 60 波片'
+    minLevel: 50, desc: '海维夏 · 流金溯真之式 · 60 波片'
   },
   {
     id: 'silent_echo_wish', type: 'echo', name: '无音区·听唤语义之愿', cost: 60, version: '2.6',
     enemies: ['无铭探索者'],
     enemyLevel: 80,
     drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'echo_wish', echo_count: 1, echo_tuner: 1 },
-    minLevel: 50, enemyScale: 1.5, desc: '无铭探索者 · 听唤语义之愿 · 60 波片'
+    minLevel: 50, desc: '无铭探索者 · 听唤语义之愿 · 60 波片'
   },
   {
     id: 'silent_ghost_nightmare', type: 'echo', name: '无音区·碎梦亡鬼之魇', cost: 60, version: '2.6',
     enemies: ['共鸣回响·梦魇亚当·重锤'],
     enemyLevel: 80,
     drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'ghost_nightmare', echo_count: 1, echo_tuner: 1 },
-    minLevel: 50, enemyScale: 1.5, desc: '梦魇亚当·重锤 · 碎梦亡鬼之魇 · 60 波片'
+    minLevel: 50, desc: '梦魇亚当·重锤 · 碎梦亡鬼之魇 · 60 波片'
   },
 
   // ===== 世界BOSS（60 波片 · 无次数限制 · 大世界探索）=====
@@ -566,13 +566,13 @@ export function resetWeeklyBossIfNeeded(today) {
 // ===== 世界BOSS（60 波片 · 无次数限制 · 改为波片闸门）=====
 // 旧的日限 3 次逻辑已取消，世界 BOSS 和其它副本一样用波片消耗控制频率
 
-// ===== 索拉世界等级（SOL3 Phase · 简化 3 档）=====
-// 模拟器抽象：官方 SOL3 Phase 1-8 → 模拟器 1-3 档
-// 世界等级决定 BOSS 取 Lv90 基准的百分比
+// ===== 世界等级（3 档 · 三档等级区间机制）=====
+// Ⅰ=30-60 / Ⅱ=60-90 / Ⅲ=90-120，每副本独立追踪等级
+// 初始=本档下限 · 胜利 +10 · 失败 -20 · 切档重置到新档下限
 export const SOL3_LEVELS = {
-  1: { name: '索拉Ⅰ', worldTierMult: 0.30, dropMult: 1.0 },
-  2: { name: '索拉Ⅱ', worldTierMult: 0.40, dropMult: 2.0 },
-  3: { name: '索拉Ⅲ', worldTierMult: 0.50, dropMult: 3.0 }
+  1: { name: '世界等级 1', levelMin: 30, levelMax: 60, dropMult: 1.0 },
+  2: { name: '世界等级 2', levelMin: 60, levelMax: 90, dropMult: 2.0 },
+  3: { name: '世界等级 3', levelMin: 90, levelMax: 120, dropMult: 3.0 }
 };
 
 export function getSol3Level() {
@@ -583,6 +583,12 @@ export function setSol3Level(lv) {
   const l = Math.max(1, Math.min(3, lv));
   if (!S.materials) S.materials = {};
   S.materials.sol3Level = l;
+  // 切档重置所有副本等级到新档下限
+  if (!S.dungeonLevels) S.dungeonLevels = {};
+  const min = SOL3_LEVELS[l].levelMin;
+  for (const id of Object.keys(S.dungeonLevels)) {
+    S.dungeonLevels[id] = min;
+  }
   return l;
 }
 
@@ -590,30 +596,39 @@ export function getSol3Config(lv) {
   return SOL3_LEVELS[lv || getSol3Level()] || SOL3_LEVELS[1];
 }
 
-// ===== 世界 BOSS 讨伐等级 =====
-export function getBossLevel(bossName) {
-  if (!S.bossLevels) S.bossLevels = {};
-  return S.bossLevels[bossName] || 40;
+// 副本等级追踪
+export function getDungeonEnemyLevel(d) {
+  if (!d) return SOL3_LEVELS[getSol3Level()].levelMin;
+  if (!S.dungeonLevels) S.dungeonLevels = {};
+  const tier = SOL3_LEVELS[getSol3Level()];
+  const cur = S.dungeonLevels[d.id];
+  if (cur == null) return tier.levelMin;
+  // 钳到当前档位区间（防切档后越界）
+  return Math.max(tier.levelMin, Math.min(tier.levelMax, cur));
 }
 
-export function increaseBossLevel(bossName) {
-  if (!S.bossLevels) S.bossLevels = {};
-  const cur = S.bossLevels[bossName] || 40;
-  S.bossLevels[bossName] = Math.min(90, cur + 10);
-  return S.bossLevels[bossName];
+export function onBattleResult(d, result) {
+  if (!d || !result) return;
+  if (!S.dungeonLevels) S.dungeonLevels = {};
+  const tier = SOL3_LEVELS[getSol3Level()];
+  const cur = S.dungeonLevels[d.id] ?? tier.levelMin;
+  let next = cur;
+  if (result === 'win') next = cur + 10;
+  else if (result === 'lose') next = cur - 20;
+  S.dungeonLevels[d.id] = Math.max(tier.levelMin, Math.min(tier.levelMax, next));
+  return S.dungeonLevels[d.id];
 }
 
-export function decreaseBossLevel(bossName) {
-  if (!S.bossLevels) S.bossLevels = {};
-  const cur = S.bossLevels[bossName] || 40;
-  S.bossLevels[bossName] = Math.max(40, cur - 20);
-  return S.bossLevels[bossName];
-}
-
-// 获取世界 BOSS 的 spawnEnemy 参数
+// 获取世界 BOSS 的 spawnEnemy 参数（沿用旧接口，内部走三档等级）
 export function getWorldBossSpawnOpts(bossName) {
   const tier = getSol3Level();
-  const level = getBossLevel(bossName);
-  const tierMult = SOL3_LEVELS[tier]?.worldTierMult || 0.30;
-  return { worldTier: tier, bossLevel: level, tierMult };
+  const d = DUNGEONS.find(x => x.enemies?.[0] === bossName);
+  const level = d ? getDungeonEnemyLevel(d) : SOL3_LEVELS[tier].levelMin;
+  return { worldTier: tier, bossLevel: level };
+}
+
+// 旧接口保留兼容（increaseBossLevel/decreaseBossLevel/getBossLevel 已废弃，但暂留避免 import 报错）
+export function getBossLevel(bossName) {
+  const d = DUNGEONS.find(x => x.enemies?.[0] === bossName);
+  return d ? getDungeonEnemyLevel(d) : SOL3_LEVELS[getSol3Level()].levelMin;
 }

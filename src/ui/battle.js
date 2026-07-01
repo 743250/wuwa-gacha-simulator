@@ -6,7 +6,7 @@ import { startEncounter, doAttack, doSkill, doHeavy, doBurst, doSwitch, doDebris
 import { renderCharacterBattleStatus } from '../battle/characters/index.js';
 import { ELEMENT_COLOR } from '../battle/elements.js';
 import { collectUnitBadges, collectEnemyBadges, renderBadge } from './battleRenderers/buffRenderers.js';
-import { flattenEnemies, DUNGEONS, canUseWeeklyBoss, consumeWeeklyBoss, getWeeklyBossUsed, WEEKLY_BOSS_LIMIT, getDungeonEncounter, getSol3Level, getSol3Config, getWorldBossSpawnOpts, increaseBossLevel, decreaseBossLevel } from '../battle/dungeon.js';
+import { flattenEnemies, DUNGEONS, canUseWeeklyBoss, consumeWeeklyBoss, getWeeklyBossUsed, WEEKLY_BOSS_LIMIT, getDungeonEncounter, getSol3Level, getSol3Config, getWorldBossSpawnOpts, getDungeonEnemyLevel, onBattleResult } from '../battle/dungeon.js';
 import { spendStamina } from '../daily/stamina.js';
 import { generateEcho } from '../equip/echoActions.js';
 import { getEchoesBySet } from '../data/echoes.js';
@@ -44,18 +44,15 @@ export function startDungeonBattle(dungeonId) {
   const encounter = getDungeonEncounter(d, S.today);
   const sol3 = getSol3Config(getSol3Level());
   const enemyNames = flattenEnemies(encounter.enemies);
-  // 世界 BOSS 使用讨伐等级系统（tierMult 已含 SOL3 联动）
+  // 三档机制：所有副本（含世界 BOSS）的敌人等级由 getDungeonEnemyLevel 决定
   let battleOpts;
   if (d.type === 'worldBoss') {
-    const bossName = enemyNames[0]; // 世界 BOSS 副本只有 1 个敌人
+    const bossName = enemyNames[0];
     const spawnOpts = getWorldBossSpawnOpts(bossName);
     battleOpts = { enemyStatScale: spawnOpts };
   } else {
-    // 副本敌人：基础等级 × SOL3 档位系数（索拉Ⅰ ×0.30 / Ⅱ ×0.40 / Ⅲ ×0.50）
-    // SOL3 越高，敌人等级越高，掉落也越好（dropMult 已在 sol3 里）
     const finalScale = (encounter.enemyScale || d.enemyScale || 1.0);
-    const baseLevel = encounter.enemyLevel || d.enemyLevel || d.minLevel || 40;
-    const enemyLevel = Math.max(1, Math.round(baseLevel * sol3.worldTierMult / 0.30));
+    const enemyLevel = getDungeonEnemyLevel(d);
     battleOpts = { enemyScale: finalScale, enemyLevel };
   }
   const battle = startEncounter({ team: names, enemies: enemyNames, options: battleOpts });
@@ -602,12 +599,11 @@ window.__bEndTurn = () => {
   refreshAll();
 };
 window.__bClose = () => {
-  // 世界 BOSS：失败时降低讨伐等级
+  // 三档机制：失败 -20 级
   const pd = pendingDungeon;
-  if (pd && pd.kind === 'dungeon' && pd.d.type === 'worldBoss' && currentBattle && currentBattle.result === 'lose') {
-    const bossName = pd.d.enemies?.[0] || pd.d.name;
-    const newLv = decreaseBossLevel(bossName);
-    msg(`${bossName} 讨伐等级降至 Lv${newLv}`, false);
+  if (pd && pd.kind === 'dungeon' && currentBattle && currentBattle.result === 'lose') {
+    const newLv = onBattleResult(pd.d, 'lose');
+    msg(`${pd.d.name} 敌人等级降至 Lv${newLv}`, false);
   }
   hideBattleScreen();
   rerenderAfterBattle();
@@ -666,15 +662,14 @@ window.__bSettle = () => {
       progressTask('p_weeklyboss', 1);
     }
     msg('获得 ' + rewardText.join(' · '), false);
-    // 世界 BOSS：更新讨伐等级
-    if (pd.d.type === 'worldBoss' && currentBattle) {
-      const bossName = pd.d.enemies?.[0] || pd.d.name;
+    // 三档机制：所有副本胜负都调整敌人等级
+    if (currentBattle) {
       if (currentBattle.result === 'win') {
-        const newLv = increaseBossLevel(bossName);
-        msg(`🏆 ${bossName} 讨伐等级提升至 Lv${newLv}`, false);
+        const newLv = onBattleResult(pd.d, 'win');
+        msg(`🏆 ${pd.d.name} 敌人等级提升至 Lv${newLv}`, false);
       } else if (currentBattle.result === 'lose') {
-        const newLv = decreaseBossLevel(bossName);
-        msg(`${bossName} 讨伐等级降至 Lv${newLv}`, false);
+        const newLv = onBattleResult(pd.d, 'lose');
+        msg(`${pd.d.name} 敌人等级降至 Lv${newLv}`, false);
       }
     }
   } else if (pd.kind === 'abyss') {

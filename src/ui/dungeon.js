@@ -1,6 +1,6 @@
 // 副本面板（左 Tab 切换五类副本）
 import { S, $ } from '../state.js';
-import { DUNGEONS, WEEKLY_BOSS, parseEnemyStr, getWeeklyBossUsed, WEEKLY_BOSS_LIMIT, canUseWeeklyBoss, getDungeonEncounter, getSol3Level, getSol3Config, setSol3Level, SOL3_LEVELS, getBossLevel, getWorldBossSpawnOpts, isDungeonUnlocked, currentVersion } from '../battle/dungeon.js';
+import { DUNGEONS, WEEKLY_BOSS, parseEnemyStr, getWeeklyBossUsed, WEEKLY_BOSS_LIMIT, canUseWeeklyBoss, getDungeonEncounter, getSol3Level, getSol3Config, setSol3Level, SOL3_LEVELS, getDungeonEnemyLevel, isDungeonUnlocked, currentVersion } from '../battle/dungeon.js';
 import { getCombatTeamNames } from '../battle/combat.js';
 import { ENEMIES, formatEnemyMechanic } from '../battle/enemies.js';
 import { ELEMENT_COLOR } from '../battle/elements.js';
@@ -66,14 +66,11 @@ function formatMechanics(enemyStrs) {
 function renderDungeonCard(d, canAfford, isWeekly = false) {
   const encounter = getDungeonEncounter(d, S.today);
   const minLv = d.minLevel ? `<span>推荐 ${d.minLevel}+</span>` : '';
-  const poolSize = d.encounterPool?.length || 1;
   const enemyHtml = formatEnemies(encounter.enemies);
   const mechanicHtml = formatMechanics(encounter.enemies);
   const dropHtml = formatDrops(d.drops);
   const isWorldBoss = d.type === 'worldBoss';
-  const bossName = isWorldBoss ? (d.enemies?.[0] || d.name) : null;
-  const bossLv = bossName ? getBossLevel(bossName) : null;
-  const spawnOpts = bossName ? getWorldBossSpawnOpts(bossName) : null;
+  const curLv = getDungeonEnemyLevel(d);
   const costLine = d.cost > 0 ? `<b>${d.cost}</b> 波片` : '不耗波片';
   const disabledLabel = S.stamina < d.cost
     ? `缺 ${d.cost - S.stamina} 体力`
@@ -88,15 +85,10 @@ function renderDungeonCard(d, canAfford, isWeekly = false) {
       <button class="mbtn gold" onclick="window.__startDungeon('${d.id}')" ${!canAfford ? 'disabled' : ''}>${canAfford ? '挑战' : disabledLabel}</button>
     </div>
     <div class="dng-encounter">
-      <div class="dng-label">今日敌情</div>
+      <div class="dng-label">${isWorldBoss ? '讨伐目标' : '守关 BOSS'}</div>
       <div class="dng-enemies">${enemyHtml}</div>
       ${mechanicHtml ? `<div class="dng-mechanics">${mechanicHtml}</div>` : ''}
-      ${isWorldBoss && spawnOpts
-        ? `<div class="dng-pool">讨伐等级 <b style="color:var(--gold)">Lv${bossLv}</b> · ${SOL3_LEVELS[spawnOpts.worldTier]?.name || '索拉Ⅰ'} · 强度 ×${(spawnOpts.tierMult * bossLv / 90).toFixed(2)}（Lv90基准）</div>`
-        : (d.encounterPool && d.encounterPool.length
-          ? `<div class="dng-pool">${encounter.tag} · 敌池 ${poolSize} 组 · 敌强 ×${encounter.enemyScale.toFixed(2)} · 隔日刷新</div>`
-          : `<div class="dng-pool">固定敌情 · 敌强 ×${encounter.enemyScale.toFixed(2)}</div>`)
-      }
+      <div class="dng-pool">敌人等级 <b style="color:var(--gold)">Lv${curLv}</b></div>
     </div>
     <div class="dng-drops">
       <div class="dng-label">奖励</div>
@@ -161,7 +153,7 @@ export function renderDungeon() {
     const active = Number(lv) === curSol3;
     html += `<button class="mbtn ${active ? 'gold' : ''}" style="font-size:10px;padding:4px 10px" onclick="window.__setSol3(${lv})" ${active ? 'disabled' : ''}>${cfg.name}</button>`;
   });
-  html += `<span style="font-size:10px;color:var(--muted)">BOSS取Lv90的 ×${((curSol3Cfg.worldTierMult||0.3)*100).toFixed(0)}% · 掉落 ×${curSol3Cfg.dropMult.toFixed(1)}</span>`;
+  html += `<span style="font-size:10px;color:var(--muted)">Lv${curSol3Cfg.levelMin}-${curSol3Cfg.levelMax} · 掉落 ×${curSol3Cfg.dropMult.toFixed(1)}</span>`;
   html += '</div>';
 
   // 左右布局：左侧 Tab + 右侧卡片

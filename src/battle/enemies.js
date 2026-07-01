@@ -552,17 +552,12 @@ export function spawnEnemy(name, opts = 1.0) {
     atkMult = opts * poolScale;
     defMult = opts;
   } else if (opts && (opts.worldTier || opts.bossLevel)) {
-    // ★ 世界 BOSS 讨伐战：直接取官方 Lv90 数值 × 世界等级 × 讨伐等级（不缩放）
-    // 新版世界 BOSS 缩放
-    const tier = opts.worldTier || 1;
+    // 世界 BOSS 讨伐战：等级由三档机制决定（30-120），统一走 GrowthRates 非线性缩放
     const level = opts.bossLevel || 40;
     enemyLv = level;
-    const tierMult = worldTierMult(tier);
-    const levelRatio = level / 90;
-    hpMult = tierMult * levelRatio;
-    atkMult = tierMult * levelRatio;
-    // DEF 按通用公式查表
-    defMult = 1.0; // DEF 不用 scale，直接用 defForLevel
+    hpMult = 1.0;
+    atkMult = 1.0;
+    defMult = 1.0;
   } else if (opts && typeof opts.hp === 'number') {
     // 细粒度 scale
     hpMult = opts.hp ?? opts.all ?? 1;
@@ -578,12 +573,17 @@ export function spawnEnemy(name, opts = 1.0) {
   const bossLv = (opts && opts.bossLevel) ? opts.bossLevel : 90;
   // 非世界 BOSS 也支持按 level 缩放 DEF（defForLevel 通用公式）
   const useDef = isWorldBoss ? defForLevel(bossLv) : Math.round(data.def * defMult);
-  // 副本敌人按官方 GrowthRates 非线性曲线缩放（Lv90 为基准）
+  // 所有敌人均按官方 GrowthRates 非线性曲线缩放（Lv90 为基准）
   // 公式：实际值 = 基础值 × growthRatioTo90(level)
+  // 三档机制下：副本敌人用 enemyLevel，世界 BOSS 用 bossLevel
   let finalHp = data.hp * hpMult;
   let finalAtk = data.atk * atkMult;
-  if (!isWorldBoss && opts && typeof opts === 'object' && opts.enemyLevel) {
-    const ratio = growthRatioTo90(opts.enemyLevel);
+  const lvForScale = (opts && typeof opts === 'object')
+    ? (opts.enemyLevel || (opts.bossLevel ? undefined : undefined))
+    : undefined;
+  if (opts && typeof opts === 'object' && (opts.enemyLevel || opts.bossLevel)) {
+    const lv = opts.enemyLevel || opts.bossLevel;
+    const ratio = growthRatioTo90(lv);
     finalHp = data.hp * hpMult * ratio.hp;
     finalAtk = data.atk * atkMult * ratio.atk;
   }
