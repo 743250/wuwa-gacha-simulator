@@ -1,6 +1,6 @@
 // 副本面板（左 Tab 切换五类副本）
 import { S, $ } from '../state.js';
-import { DUNGEONS, WEEKLY_BOSS, parseEnemyStr, getWeeklyBossUsed, WEEKLY_BOSS_LIMIT, canUseWeeklyBoss, getDungeonEncounter, getSol3Level, getSol3Config, setSol3Level, SOL3_LEVELS, getBossLevel, getWorldBossSpawnOpts } from '../battle/dungeon.js';
+import { DUNGEONS, WEEKLY_BOSS, parseEnemyStr, getWeeklyBossUsed, WEEKLY_BOSS_LIMIT, canUseWeeklyBoss, getDungeonEncounter, getSol3Level, getSol3Config, setSol3Level, SOL3_LEVELS, getBossLevel, getWorldBossSpawnOpts, isDungeonUnlocked, currentVersion } from '../battle/dungeon.js';
 import { getCombatTeamNames } from '../battle/combat.js';
 import { ENEMIES, formatEnemyMechanic } from '../battle/enemies.js';
 import { ELEMENT_COLOR } from '../battle/elements.js';
@@ -172,7 +172,7 @@ export function renderDungeon() {
   DUNGEON_GROUPS.forEach(g => {
     const active = _dungeonTab === g.key;
     const color = g.key === 'weekly' ? 'var(--gold)' : g.key === 'boss' ? '#ff8c5e' : 'var(--accent)';
-    const count = DUNGEONS.filter(d => d.type === g.type).length;
+    const count = DUNGEONS.filter(d => d.type === g.type && isDungeonUnlocked(d)).length;
     html += `<div onclick="window.__dungeonSwitchTab('${g.key}')" style="cursor:pointer;border:2px solid ${active ? color : 'var(--line)'};border-radius:10px;padding:9px 6px;text-align:center;background:${active ? 'rgba(245,207,107,.06)' : 'rgba(255,255,255,.02)'};transition:.15s">
       <div style="font-size:12px;font-weight:700;letter-spacing:2px;color:${active ? color : 'var(--text)'}">${g.label}</div>
       <div style="font-size:9px;color:var(--muted);margin-top:2px">${g.key === 'weekly' ? `剩余 ${weeklyLeft}/${WEEKLY_BOSS_LIMIT}` : `${count} 个副本`}</div>
@@ -184,7 +184,7 @@ export function renderDungeon() {
   html += '<div style="flex:1;min-width:0;overflow-y:auto;max-height:55vh">';
   const group = DUNGEON_GROUPS.find(g => g.key === _dungeonTab);
   if (group) {
-    const list = DUNGEONS.filter(d => d.type === group.type);
+    const list = DUNGEONS.filter(d => d.type === group.type && isDungeonUnlocked(d));
     if (list.length) {
       list.forEach(d => {
         const isWeekly = !!d.weeklyLimit;

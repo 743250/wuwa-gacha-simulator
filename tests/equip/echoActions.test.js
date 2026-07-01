@@ -3,7 +3,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { S } from '../../src/state.js';
 import { resetState } from '../helpers.js';
 import {
-  dataBankCostCap, generateEcho, calcTotalCost,
+  ECHO_COST_CAP, generateEcho, calcTotalCost,
   equipEcho, unequipEcho, unequipSlot, getEquippableEchoes,
   echoToNext, levelUpEcho, levelUpEchoMax, recycleEcho, toggleEchoLock,
   levelUpEchoWithFeed, previewEchoFeed, mainStatAtLevel,
@@ -19,26 +19,15 @@ describe('equip/echoActions', () => {
     });
     S.echos = [];
     S.echoNextId = 1;
-    S.dataBankLevel = 8;
     S.materials.exp_super = 100;
     S.materials.exp_high = 100;
     S.materials.exp_mid = 100;
     S.materials.exp_low = 100;
   });
 
-  describe('dataBankCostCap', () => {
-    it('level 8/9/10 = 12', () => {
-      expect(dataBankCostCap(8)).toBe(12);
-      expect(dataBankCostCap(9)).toBe(12);
-      expect(dataBankCostCap(10)).toBe(12);
-    });
-    it('level 7 = 11', () => {
-      expect(dataBankCostCap(7)).toBe(11);
-    });
-    it('lower levels scale down', () => {
-      expect(dataBankCostCap(0)).toBe(10);
-      expect(dataBankCostCap(3)).toBe(11);
-      expect(dataBankCostCap(6)).toBe(12);
+  describe('ECHO_COST_CAP', () => {
+    it('固定为 12（满配 4+4+3+1）', () => {
+      expect(ECHO_COST_CAP).toBe(12);
     });
   });
 

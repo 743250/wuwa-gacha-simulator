@@ -92,7 +92,7 @@ describe('battle/chains', () => {
       // 忌炎 0-chain
       S.roles['忌炎'].chain = 0;
       const names = ['忌炎', '守岸人', '安可'];
-      const b0 = createBattle(names, ['幼狼']);
+      const b0 = createBattle(names, ['火鬃狼']);
       const unit0 = b0?.team?.find(t => t.name === '忌炎');
 
       resetState({
@@ -106,7 +106,7 @@ describe('battle/chains', () => {
 
       // 忌炎 6-chain
       S.roles['忌炎'].chain = 6;
-      const b6 = createBattle(['忌炎', '守岸人', '安可'], ['幼狼']);
+      const b6 = createBattle(['忌炎', '守岸人', '安可'], ['火鬃狼']);
       const unit6 = b6?.team?.find(t => t.name === '忌炎');
 
       expect(unit0).toBeTruthy();

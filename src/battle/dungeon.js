@@ -22,15 +22,15 @@ export const DUNGEONS = [
   // 40 波片 Lv30：杂兵组合,敌人等级随玩家等级微调
   {
     id: 'sim_exp_1', type: 'exp', name: '模拟战训·共鸣经验', cost: 40,
-    enemies: ['幼狼×3', '飞兽×1'],
+    enemies: ['火鬃狼×3', '惊蛰猎手×1'],
     enemyLevel: 30,
     encounterPool: [
-      { enemies: ['幼狼×3', '飞兽×1'], enemyScale: 1.0, weight: 4, tag: '残象群' },
-      { enemies: ['古老幽灵×2'], enemyScale: 1.1, weight: 3, tag: '幽影残响' },
-      { enemies: ['剑齿野猪×2', '咔嚓×1'], enemyScale: 1.0, weight: 3, tag: '热熔冲锋' },
-      { enemies: ['导电掠食者×2', '拂拂×1'], enemyScale: 1.05, weight: 3, tag: '雷风小队' },
-      { enemies: ['吞吞×2', '折折×1'], enemyScale: 1.0, weight: 3, tag: '冰光幻象' },
-      { enemies: ['滴答×2'], enemyScale: 1.1, weight: 2, tag: '湮灭发条' },
+      { enemies: ['火鬃狼×3', '惊蛰猎手×1'], enemyScale: 1.0, weight: 4, tag: '残象群' },
+      { enemies: ['幽翎火×2'], enemyScale: 1.1, weight: 3, tag: '幽影残响' },
+      { enemies: ['碎獠猪×2', '咔嚓嚓×1'], enemyScale: 1.0, weight: 3, tag: '热熔冲锋' },
+      { enemies: ['雷鬃狼×2', '呼咻咻×1'], enemyScale: 1.05, weight: 3, tag: '雷风小队' },
+      { enemies: ['咕咕河豚×2', '阿嗞嗞×1'], enemyScale: 1.0, weight: 3, tag: '冰光幻象' },
+      { enemies: ['呜咔咔×2'], enemyScale: 1.1, weight: 2, tag: '湮灭发条' },
       { enemies: ['聚械机偶'], enemyScale: 0.45, weight: 1, tag: '机械训练靶' }
     ],
     drops: { exp_high: 5, exp_mid: 5 },                  // 55k exp，~31 次满级（~5.2 天）
@@ -43,10 +43,10 @@ export const DUNGEONS = [
     enemyLevel: 70,
     encounterPool: [
       { enemies: ['紫羽鹭', '青羽鹭'], enemyScale: 0.9, weight: 3, tag: '双鹭疾袭' },
-      { enemies: ['碧焰蜥×2'], enemyScale: 0.95, weight: 3, tag: '焰蜥群' },
-      { enemies: ['石壁护腕'], enemyScale: 0.85, weight: 2, tag: '巨岩护腕' },
-      { enemies: ['鼓手', '自走傀儡斥候'], enemyScale: 0.9, weight: 2, tag: '湮冷双形' },
-      { enemies: ['坚岩守护者'], enemyScale: 0.85, weight: 2, tag: '光岩守护' },
+      { enemies: ['绿熔蜥×2'], enemyScale: 0.95, weight: 3, tag: '焰蜥群' },
+      { enemies: ['坚岩斗士'], enemyScale: 0.85, weight: 2, tag: '巨岩护腕' },
+      { enemies: ['奏谕乐师', '巡哨机傀'], enemyScale: 0.9, weight: 2, tag: '湮冷双形' },
+      { enemies: ['磐石守卫'], enemyScale: 0.85, weight: 2, tag: '光岩守护' },
       { enemies: ['燎照之骑'], enemyScale: 1.05, weight: 1, tag: '热熔骑士' },
       { enemies: ['飞廉之猩'], enemyScale: 1.05, weight: 1, tag: '气动强敌' },
       { enemies: ['朔雷之鳞'], enemyScale: 1.0, weight: 1, tag: '导电强敌' },
@@ -67,10 +67,10 @@ export const DUNGEONS = [
       { enemies: ['聚械机偶'], enemyScale: 0.75, weight: 4, tag: '机械核心' },
       { enemies: ['异构武装'], enemyScale: 0.9, weight: 3, tag: '构造体护盾' },
       { enemies: ['云闪之鳞'], enemyScale: 1.05, weight: 2, tag: '导电突进' },
-      { enemies: ['自走傀儡斥候×2'], enemyScale: 0.9, weight: 3, tag: '冰属玩偶' },
-      { enemies: ['石壁护腕', '剑齿野猪×2'], enemyScale: 0.85, weight: 2, tag: '巨岩护腕' },
-      { enemies: ['紫羽鹭', '导电掠食者×2'], enemyScale: 0.95, weight: 2, tag: '雷羽群' },
-      { enemies: ['古老幽灵×2', '飞兽×1'], enemyScale: 1.25, weight: 2, tag: '混编残响' }
+      { enemies: ['巡哨机傀×2'], enemyScale: 0.9, weight: 3, tag: '冰属玩偶' },
+      { enemies: ['坚岩斗士', '碎獠猪×2'], enemyScale: 0.85, weight: 2, tag: '巨岩护腕' },
+      { enemies: ['紫羽鹭', '雷鬃狼×2'], enemyScale: 0.95, weight: 2, tag: '雷羽群' },
+      { enemies: ['幽翎火×2', '惊蛰猎手×1'], enemyScale: 1.25, weight: 2, tag: '混编残响' }
     ],
     drops: { weapon_book: 16 },
     minLevel: 20, enemyScale: 1.3, desc: '武器石×16 · 40 波片'
@@ -85,162 +85,238 @@ export const DUNGEONS = [
       { enemies: ['无归的谬误'], enemyScale: 1.65, weight: 3, tag: '数据封锁' },
       { enemies: ['异构武装'], enemyScale: 1.45, weight: 2, tag: '冷凝护盾' },
       { enemies: ['鸣式·利维亚坦'], enemyScale: 1.55, weight: 1, tag: '鸣式残响' },
-      { enemies: ['坚岩守护者', '碧焰蜥×2'], enemyScale: 1.3, weight: 2, tag: '光焰混编' },
-      { enemies: ['鼓手', '紫羽鹭×2'], enemyScale: 1.35, weight: 2, tag: '湮雷混编' }
+      { enemies: ['磐石守卫', '绿熔蜥×2'], enemyScale: 1.3, weight: 2, tag: '光焰混编' },
+      { enemies: ['奏谕乐师', '紫羽鹭×2'], enemyScale: 1.35, weight: 2, tag: '湮雷混编' }
     ],
     drops: { weapon_book: 32 },
     minLevel: 40, enemyScale: 1.8, desc: '武器石×32 · 80 波片（凝缩）'
   },
 
   // ===== 无音区（声骸 · 官方名 Tacet Field · 60 波片）=====
-  // 模拟器抽象：声骸 → 星声 + 武器石 + 高级促剂
+  // 设计：每关固定 BOSS + 固定套装，按版本解锁
+  // 1.0 = 9 套基础；2.0 = +6 套；2.x = +16 套（含角色专属）
+  // 详见 docs/sources/mechanics/tacet-fields-official.md
+  //
+  // 模拟器抽象：声骸 → 星声 + 武器石 + 高级促剂 + 调谐器
   // 注：星声产出折半（v0.2 校准），避免主线副本越打越富
-  // 60 波片 Lv50：杂兵 + 精英 + 偶现 BOSS
+
+  // ===== 1.0 基础 9 套（每个 BOSS 对应一套声骸）=====
   {
-    id: 'silent_1', type: 'echo', name: '无音区·常规', cost: 60,
-    enemies: ['古老幽灵×2', '幻象×1'],
+    id: 'silent_frost', type: 'echo', name: '无音区·凝夜白霜', cost: 60, version: '1.0',
+    enemies: ['辉萤军势'],
     enemyLevel: 50,
-    encounterPool: [
-      { enemies: ['古老幽灵×2', '幻象×1'], enemyScale: 1.0, weight: 4, tag: '声骸残响' },
-      { enemies: ['飞兽×2', '幼狼×2'], enemyScale: 1.1, weight: 3, tag: '野外残象群' },
-      { enemies: ['哀声鸷'], enemyScale: 0.85, weight: 2, tag: '衍射飞行' },
-      { enemies: ['辉萤军势'], enemyScale: 0.8, weight: 2, tag: '冷凝群体' },
-      { enemies: ['青羽鹭×2', '拂拂×1'], enemyScale: 0.95, weight: 3, tag: '风翼群' },
-      { enemies: ['吞吞×2', '自走傀儡斥候'], enemyScale: 0.9, weight: 2, tag: '冰属玩偶群' },
-      { enemies: ['碧焰蜥×2', '咔嚓×2'], enemyScale: 0.95, weight: 2, tag: '焰蜥混编' },
-      { enemies: ['鼓手', '滴答×2'], enemyScale: 0.9, weight: 2, tag: '湮灭乐师' }
-    ],
-    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: ['frost','fire','thunder','wind','spectro','havoc','heal','energy','atk'], echo_count: 1, echo_tuner: 1 },
-    minLevel: 1, desc: '特级×1 高级×2 · 武器石×12 · 星声+10 · 声骸×1 · 60 波片'
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'frost', echo_count: 1, echo_tuner: 1 },
+    minLevel: 1, enemyScale: 1.5, desc: '辉萤军势 · 凝夜白霜 · 60 波片'
   },
-  // 60 波片 Lv70：BOSS + 精英组合
   {
-    id: 'silent_2', type: 'echo', name: '无音区·高阶', cost: 60,
-    enemies: ['无妄者', '飞廉之猩'],
-    enemyLevel: 70,
-    encounterPool: [
-      { enemies: ['无妄者', '飞廉之猩'], enemyScale: 1.1, weight: 3, tag: '双强敌' },
-      { enemies: ['无常凶鹭'], enemyScale: 1.4, weight: 3, tag: '湮灭压制' },
-      { enemies: ['海之女'], enemyScale: 1.25, weight: 2, tag: '反弹潮汐' },
-      { enemies: ['叹息古龙'], enemyScale: 1.35, weight: 2, tag: '热熔龙息' },
-      { enemies: ['角'], enemyScale: 1.15, weight: 1, tag: '岁主残响' },
-      { enemies: ['伤痕·梦魇形态'], enemyScale: 1.05, weight: 1, tag: '湮灭梦魇' },
-      { enemies: ['梦魇亚当·重锤'], enemyScale: 1.25, weight: 1, tag: '联动重锤' },
-      { enemies: ['石壁护腕', '坚岩守护者'], enemyScale: 1.2, weight: 2, tag: '巨岩双守' },
-      { enemies: ['紫羽鹭', '青羽鹭', '碧焰蜥'], enemyScale: 1.15, weight: 2, tag: '三色精英' }
-    ],
-    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: ['havoc_new','coord','energy_new','lost_dream','glory_forge','sync_law'], echo_count: 1, echo_tuner: 2 },
-    minLevel: 40, enemyScale: 1.6, desc: '特级×1 高级×2 · 武器石×12 · 星声+10 · 声骸×1 · 60 波片'
+    id: 'silent_fire', type: 'echo', name: '无音区·熔山裂谷', cost: 60, version: '1.0',
+    enemies: ['燎照之骑'],
+    enemyLevel: 50,
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'fire', echo_count: 1, echo_tuner: 1 },
+    minLevel: 1, enemyScale: 1.5, desc: '燎照之骑 · 熔山裂谷 · 60 波片'
+  },
+  {
+    id: 'silent_thunder', type: 'echo', name: '无音区·彻空冥雷', cost: 60, version: '1.0',
+    enemies: ['朔雷之鳞'],
+    enemyLevel: 50,
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'thunder', echo_count: 1, echo_tuner: 1 },
+    minLevel: 1, enemyScale: 1.5, desc: '朔雷之鳞 · 彻空冥雷 · 60 波片'
+  },
+  {
+    id: 'silent_wind', type: 'echo', name: '无音区·啸谷长风', cost: 60, version: '1.0',
+    enemies: ['飞廉之猩'],
+    enemyLevel: 50,
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'wind', echo_count: 1, echo_tuner: 1 },
+    minLevel: 1, enemyScale: 1.5, desc: '飞廉之猩 · 啸谷长风 · 60 波片'
+  },
+  {
+    id: 'silent_spectro', type: 'echo', name: '无音区·浮星祛暗', cost: 60, version: '1.0',
+    enemies: ['哀声鸷'],
+    enemyLevel: 50,
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'spectro', echo_count: 1, echo_tuner: 1 },
+    minLevel: 1, enemyScale: 1.5, desc: '哀声鸷 · 浮星祛暗 · 60 波片'
+  },
+  {
+    id: 'silent_havoc', type: 'echo', name: '无音区·沉日劫明', cost: 60, version: '1.0',
+    enemies: ['无冠者'],
+    enemyLevel: 50,
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'havoc', echo_count: 1, echo_tuner: 1 },
+    minLevel: 1, enemyScale: 1.5, desc: '无冠者 · 沉日劫明 · 60 波片'
+  },
+  {
+    id: 'silent_heal', type: 'echo', name: '无音区·隐世回光', cost: 60, version: '1.0',
+    enemies: ['无归的谬误'],
+    enemyLevel: 50,
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'heal', echo_count: 1, echo_tuner: 1 },
+    minLevel: 1, enemyScale: 1.5, desc: '无归的谬误 · 隐世回光 · 60 波片'
+  },
+  {
+    id: 'silent_energy', type: 'echo', name: '无音区·轻云出月', cost: 60, version: '1.0',
+    enemies: ['无常凶鹭'],
+    enemyLevel: 50,
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'energy', echo_count: 1, echo_tuner: 1 },
+    minLevel: 1, enemyScale: 1.5, desc: '无常凶鹭 · 轻云出月 · 60 波片'
+  },
+  {
+    id: 'silent_atk', type: 'echo', name: '无音区·不绝余音', cost: 60, version: '1.0',
+    enemies: ['聚械机偶'],
+    enemyLevel: 50,
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'atk', echo_count: 1, echo_tuner: 1 },
+    minLevel: 1, enemyScale: 1.5, desc: '聚械机偶 · 不绝余音 · 60 波片'
   },
 
-  // ===== 2.0+ 角色专属套 · 对应无音区副本（60 波片）=====
-  // 每副本对应一套角色专属声骸，掉落按套装筛选并生成 1 个 COST 声骸入库。
-  // 注：因模拟器未把部分新声骸补入 ECHO_CATALOG（如辛吉勒姆/达妮娅/无铭探索者/莳植熊蜂等），
-  //     套内 catalog 为空时这几个副本仅产出经验/武器石，留作占位直到 catalog 完整。
-  // 卡提希娅 ID 16「流云逝尽之空」
+  // ===== 2.0 通用 3 套 =====
   {
-    id: 'silent_cartethyia_wind', type: 'echo', name: '无音区·卡提希娅·流云', cost: 60,
-    enemies: ['飞廉之猩'],
-    enemyLevel: 80,
-    encounterPool: [
-      { enemies: ['飞廉之猩'], enemyScale: 1.0, weight: 3, tag: '气动残响' },
-      { enemies: ['云闪之鳞'], enemyScale: 1.05, weight: 2, tag: '雷鳞护盾' }
-    ],
-    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'cartethyia_wind', echo_count: 1, echo_tuner: 1 },
-    minLevel: 50, enemyScale: 1.5, desc: '特级×1 高级×2 · 武器石×12 · 星声+10 · +流云之举声骸 · 60 波片'
+    id: 'silent_havoc_new', type: 'echo', name: '无音区·幽夜隐匿之帷', cost: 60, version: '2.0',
+    enemies: ['罗蕾莱'],
+    enemyLevel: 70,
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'havoc_new', echo_count: 1, echo_tuner: 1 },
+    minLevel: 40, enemyScale: 1.6, desc: '罗蕾莱 · 幽夜隐匿之帷 · 60 波片'
   },
-  // 卡提希娅 ID 17「愿戴荣光之旅」
   {
-    id: 'silent_cartethyia_glory', type: 'echo', name: '无音区·卡提希娅·荣光', cost: 60,
-    enemies: ['飞廉之猩'],
-    enemyLevel: 80,
-    encounterPool: [
-      { enemies: ['飞廉之猩'], enemyScale: 1.0, weight: 3, tag: '气动残响' }
-    ],
-    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'cartethyia_glory', echo_count: 1, echo_tuner: 1 },
-    minLevel: 50, enemyScale: 1.5, desc: '特级×1 高级×2 · 武器石×12 · 星声+10 · +荣光之旅声骸 · 60 波片'
+    id: 'silent_coord', type: 'echo', name: '无音区·高天共奏之曲', cost: 60, version: '2.0',
+    enemies: ['赫卡忒'],
+    enemyLevel: 70,
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'coord', echo_count: 1, echo_tuner: 1 },
+    minLevel: 40, enemyScale: 1.6, desc: '赫卡忒 · 高天共奏之曲 · 60 波片'
   },
-  // 珂莱塔 ID 10「凌冽决断之心」
   {
-    id: 'silent_carlotta_skill', type: 'echo', name: '无音区·珂莱塔·凌冽决断', cost: 60,
-    enemies: ['聚械机偶'],
+    id: 'silent_energy_new', type: 'echo', name: '无音区·无惧浪涛之勇', cost: 60, version: '2.0',
+    enemies: ['叹息古龙'],
+    enemyLevel: 70,
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'energy_new', echo_count: 1, echo_tuner: 1 },
+    minLevel: 40, enemyScale: 1.6, desc: '叹息古龙 · 无惧浪涛之勇 · 60 波片'
+  },
+
+  // ===== 2.0+ 角色专属 6 套 =====
+  {
+    id: 'silent_carlotta_skill', type: 'echo', name: '无音区·珂莱塔·凌冽决断', cost: 60, version: '2.0',
+    enemies: ['异构武装'],
     enemyLevel: 80,
-    encounterPool: [
-      { enemies: ['聚械机偶'], enemyScale: 0.9, weight: 3, tag: '机械核心' },
-      { enemies: ['辉萤军势'], enemyScale: 1.0, weight: 2, tag: '冷凝群体' }
-    ],
     drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'carlotta_skill', echo_count: 1, echo_tuner: 1 },
-    minLevel: 40, enemyScale: 1.45, desc: '特级×1 高级×2 · 武器石×12 · 星声+10 · +凌冽决断声骸 · 60 波片'
+    minLevel: 40, enemyScale: 1.5, desc: '异构武装 · 凌冽决断之心 · 60 波片'
   },
-  // 菲比 ID 11「此间永驻之光」
   {
-    id: 'silent_phoebe_lightnoise', type: 'echo', name: '无音区·菲比·光噪长眠', cost: 60,
-    enemies: ['哀声鸷'],
+    id: 'silent_phoebe_lightnoise', type: 'echo', name: '无音区·菲比·光噪长眠', cost: 60, version: '2.1',
+    enemies: ['梦魇·哀声鸷'],
     enemyLevel: 80,
-    encounterPool: [
-      { enemies: ['哀声鸷'], enemyScale: 1.0, weight: 3, tag: '衍射飞行' },
-      { enemies: ['无冠者'], enemyScale: 1.1, weight: 2, tag: '湮灭护盾' }
-    ],
     drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'phoebe_lightnoise', echo_count: 1, echo_tuner: 1 },
-    minLevel: 40, enemyScale: 1.45, desc: '特级×1 高级×2 · 武器石×12 · 星声+10 · +此间永驻声骸 · 60 波片'
+    minLevel: 40, enemyScale: 1.5, desc: '梦魇·哀声鸷 · 此间永驻之光 · 60 波片'
   },
-  // 布兰特 ID 18「奔狼燎原之焰」
   {
-    id: 'silent_brant_burst', type: 'echo', name: '无音区·布兰特·奔狼', cost: 60,
-    enemies: ['燎照之骑'],
+    id: 'silent_cartethyia_wind', type: 'echo', name: '无音区·卡提希娅·流云', cost: 60, version: '2.4',
+    enemies: ['共鸣回响·芙露德莉斯'],
     enemyLevel: 80,
-    encounterPool: [
-      { enemies: ['燎照之骑'], enemyScale: 1.0, weight: 3, tag: '焰骑残响' },
-      { enemies: ['巨龙·热熔'], enemyScale: 1.10, weight: 2, tag: '熔龙吐息' }
-    ],
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'cartethyia_wind', echo_count: 1, echo_tuner: 1 },
+    minLevel: 50, enemyScale: 1.5, desc: '芙露德莉斯 · 流云逝尽之空 · 60 波片'
+  },
+  {
+    id: 'silent_cartethyia_glory', type: 'echo', name: '无音区·卡提希娅·荣光', cost: 60, version: '2.4',
+    enemies: ['共鸣回响·芙露德莉斯'],
+    enemyLevel: 80,
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'cartethyia_glory', echo_count: 1, echo_tuner: 1 },
+    minLevel: 50, enemyScale: 1.5, desc: '芙露德莉斯 · 愿戴荣光之旅 · 60 波片'
+  },
+  {
+    id: 'silent_brant_burst', type: 'echo', name: '无音区·布兰特·奔狼', cost: 60, version: '2.1',
+    enemies: ['荣耀狮像'],
+    enemyLevel: 80,
     drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'brant_burst', echo_count: 1, echo_tuner: 1 },
-    minLevel: 40, enemyScale: 1.5, desc: '特级×1 高级×2 · 武器石×12 · 星声+10 · +奔狼燎原声骸 · 60 波片'
+    minLevel: 40, enemyScale: 1.5, desc: '荣耀狮像 · 奔狼燎原之焰 · 60 波片'
   },
-  // 坎特蕾拉 ID 23「命理崩毁之弦」（3件套结构）
   {
-    id: 'silent_cantarella_void', type: 'echo', name: '无音区·坎特蕾拉·虚湮', cost: 60,
-    enemies: ['无常凶鹭'],
+    id: 'silent_cantarella_void', type: 'echo', name: '无音区·坎特蕾拉·虚湮', cost: 60, version: '2.2',
+    enemies: ['共鸣回响·鸣式·利维亚坦'],
     enemyLevel: 80,
-    encounterPool: [
-      { enemies: ['无常凶鹭'], enemyScale: 1.0, weight: 3, tag: '湮灭飞行' }
-    ],
     drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'cantarella_void', echo_count: 1, echo_tuner: 1 },
-    minLevel: 40, enemyScale: 1.45, desc: '特级×1 高级×2 · 武器石×12 · 星声+10 · +命理崩毁声骸 · 60 波片'
+    minLevel: 40, enemyScale: 1.45, desc: '利维亚坦 · 命理崩毁之弦 · 60 波片'
   },
-  // 布兰特 ID 27「长路启航之星」 + ID 28「斑驳粉饰之沫」合用同区
   {
-    id: 'silent_brant_path', type: 'echo', name: '无音区·布兰特·长路启航', cost: 60,
-    enemies: ['燎照之骑'],
+    id: 'silent_brant_path', type: 'echo', name: '无音区·布兰特·长路启航', cost: 60, version: '2.2',
+    enemies: ['辛吉勒姆'],
     enemyLevel: 80,
-    encounterPool: [
-      { enemies: ['燎照之骑'], enemyScale: 1.0, weight: 3, tag: '焰骑残响' }
-    ],
-    // 掉落长路启航 + 斑驳粉饰（两套同源布兰特，50/50 概率）
+    // 长路启航 + 斑驳粉饰同源辛吉勒姆，50/50 掉
     drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: ['brant_path', 'brant_mottle'], echo_count: 1, echo_tuner: 1 },
-    minLevel: 40, enemyScale: 1.5, desc: '特级×1 高级×2 · 武器石×12 · 星声+10 · +长路启航/斑驳粉饰声骸 · 60 波片'
+    minLevel: 40, enemyScale: 1.5, desc: '辛吉勒姆 · 长路启航/斑驳粉饰 · 60 波片'
   },
-  // 绯雪 ID 30「雪落无声之愿」
   {
-    id: 'silent_feixue_snow', type: 'echo', name: '无音区·绯雪·落日堤屿', cost: 60,
-    enemies: ['辉萤军势'],
+    id: 'silent_feixue_snow', type: 'echo', name: '无音区·绯雪·落日堤屿', cost: 60, version: '2.5',
+    enemies: ['格洛犸图'],
     enemyLevel: 80,
-    encounterPool: [
-      { enemies: ['辉萤军势'], enemyScale: 1.0, weight: 3, tag: '冷凝群体' },
-      { enemies: ['朔雷之鳞'], enemyScale: 0.95, weight: 2, tag: '导电突进' }
-    ],
     drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'feixue_snow', echo_count: 1, echo_tuner: 1 },
-    minLevel: 50, enemyScale: 1.5, desc: '特级×1 高级×2 · 武器石×12 · 星声+10 · +雪落无声声骸 · 60 波片'
+    minLevel: 50, enemyScale: 1.5, desc: '格洛犸图 · 雪落无声之愿 · 60 波片'
   },
-  // 洛瑟菈 ID 31「剪心辑梦之影」
   {
-    id: 'silent_lumera_chord', type: 'echo', name: '无音区·洛瑟菈·剪心辑梦', cost: 60,
-    enemies: ['无冠者'],
+    id: 'silent_lumera_chord', type: 'echo', name: '无音区·洛瑟菈·剪心辑梦', cost: 60, version: '2.5',
+    enemies: ['无铭探索者'],
     enemyLevel: 80,
-    encounterPool: [
-      { enemies: ['无冠者'], enemyScale: 1.0, weight: 3, tag: '湮灭护盾' }
-    ],
     drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'lumera_chord', echo_count: 1, echo_tuner: 1 },
-    minLevel: 50, enemyScale: 1.5, desc: '特级×1 高级×2 · 武器石×12 · 星声+10 · +剪心辑梦声骸 · 60 波片'
+    minLevel: 50, enemyScale: 1.5, desc: '无铭探索者 · 剪心辑梦之影 · 60 波片'
+  },
+
+  // ===== 2.6+ 新增 9 套（子代理未确认独立关卡，按套装归属配置）=====
+  {
+    id: 'silent_lost_dream', type: 'echo', name: '无音区·失序彼岸之梦', cost: 60, version: '2.6',
+    enemies: ['梦魇·赫卡忒'],
+    enemyLevel: 80,
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'lost_dream', echo_count: 1, echo_tuner: 1 },
+    minLevel: 50, enemyScale: 1.5, desc: '梦魇·赫卡忒 · 失序彼岸之梦 · 60 波片'
+  },
+  {
+    id: 'silent_glory_forge', type: 'echo', name: '无音区·荣斗铸锋之冠', cost: 60, version: '2.6',
+    enemies: ['伪作的神王'],
+    enemyLevel: 80,
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'glory_forge', echo_count: 1, echo_tuner: 1 },
+    minLevel: 50, enemyScale: 1.5, desc: '伪作的神王 · 荣斗铸锋之冠 · 60 波片'
+  },
+  {
+    id: 'silent_sync_law', type: 'echo', name: '无音区·息界同调之律', cost: 60, version: '2.6',
+    enemies: ['共鸣回响·芬莱克'],
+    enemyLevel: 80,
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'sync_law', echo_count: 1, echo_tuner: 1 },
+    minLevel: 50, enemyScale: 1.5, desc: '芬莱克 · 息界同调之律 · 60 波片'
+  },
+  {
+    id: 'silent_hunt_shadow', type: 'echo', name: '无音区·焚羽猎魔之影', cost: 60, version: '2.6',
+    enemies: ['共鸣回响·鸣式·利维亚坦'],
+    enemyLevel: 80,
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'hunt_shadow', echo_count: 1, echo_tuner: 1 },
+    minLevel: 50, enemyScale: 1.5, desc: '利维亚坦 · 焚羽猎魔之影 · 60 波片'
+  },
+  {
+    id: 'silent_backlight_vow', type: 'echo', name: '无音区·逆光跃彩之约', cost: 60, version: '2.6',
+    enemies: ['海维夏'],
+    enemyLevel: 80,
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'backlight_vow', echo_count: 1, echo_tuner: 1 },
+    minLevel: 50, enemyScale: 1.5, desc: '海维夏 · 逆光跃彩之约 · 60 波片'
+  },
+  {
+    id: 'silent_star_ring', type: 'echo', name: '无音区·星构寻辉之环', cost: 60, version: '2.6',
+    enemies: ['炉芯机骸'],
+    enemyLevel: 80,
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'star_ring', echo_count: 1, echo_tuner: 1 },
+    minLevel: 50, enemyScale: 1.5, desc: '炉芯机骸 · 星构寻辉之环 · 60 波片'
+  },
+  {
+    id: 'silent_gold_truth', type: 'echo', name: '无音区·流金溯真之式', cost: 60, version: '2.6',
+    enemies: ['海维夏'],
+    enemyLevel: 80,
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'gold_truth', echo_count: 1, echo_tuner: 1 },
+    minLevel: 50, enemyScale: 1.5, desc: '海维夏 · 流金溯真之式 · 60 波片'
+  },
+  {
+    id: 'silent_echo_wish', type: 'echo', name: '无音区·听唤语义之愿', cost: 60, version: '2.6',
+    enemies: ['无铭探索者'],
+    enemyLevel: 80,
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'echo_wish', echo_count: 1, echo_tuner: 1 },
+    minLevel: 50, enemyScale: 1.5, desc: '无铭探索者 · 听唤语义之愿 · 60 波片'
+  },
+  {
+    id: 'silent_ghost_nightmare', type: 'echo', name: '无音区·碎梦亡鬼之魇', cost: 60, version: '2.6',
+    enemies: ['共鸣回响·梦魇亚当·重锤'],
+    enemyLevel: 80,
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'ghost_nightmare', echo_count: 1, echo_tuner: 1 },
+    minLevel: 50, enemyScale: 1.5, desc: '梦魇亚当·重锤 · 碎梦亡鬼之魇 · 60 波片'
   },
 
   // ===== 世界BOSS（60 波片 · 无次数限制 · 大世界探索）=====
@@ -386,7 +462,7 @@ export const WEEKLY_BOSS = [
   }
 ];
 
-// 解析敌人字符串 "幼狼×3" → { name, count }
+// 解析敌人字符串 "火鬃狼×3" → { name, count }
 export function parseEnemyStr(str) {
   const m = str.match(/^(.+?)(?:×(\d+))?$/);
   if (!m) return { name: str, count: 1 };
@@ -426,6 +502,25 @@ export function currentVersion(today = S.today) {
     || phases.slice().reverse().find(x => today >= x.start)
     || phases[0];
   return p?.v || '1.0';
+}
+
+// 版本比较：a >= b（如 '2.4' >= '2.0'）
+function versionGte(a, b) {
+  const pa = String(a).split('.').map(Number);
+  const pb = String(b).split('.').map(Number);
+  for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
+    const ai = pa[i] || 0;
+    const bi = pb[i] || 0;
+    if (ai > bi) return true;
+    if (ai < bi) return false;
+  }
+  return true;
+}
+
+// 判断关卡是否在当前版本已解锁
+export function isDungeonUnlocked(d, today = S.today) {
+  if (!d.version) return true;
+  return versionGte(currentVersion(today), d.version);
 }
 
 export function getDungeonEncounter(d, today = S.today) {

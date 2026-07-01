@@ -38,12 +38,12 @@ export const WASTES_TOKENS = [
 // ===== 关卡配置（5 关渐进）=====
 const STAGES = [
   {
-    id: 'w1', name: '冥歌海墟·浅滩', enemies: ['幼狼×3', '飞兽×1'],
+    id: 'w1', name: '冥歌海墟·浅滩', enemies: ['火鬃狼×3', '惊蛰猎手×1'],
     baseScore: 1000, enemyScale: 1.3,
     desc: '残象浅滩 · 入门积分'
   },
   {
-    id: 'w2', name: '冥歌海墟·暗流', enemies: ['古老幽灵×2', '幻象×1'],
+    id: 'w2', name: '冥歌海墟·暗流', enemies: ['幽翎火×2', '幻象×1'],
     baseScore: 1200, enemyScale: 1.5,
     desc: '幽影涌动 · 需要一定练度'
   },

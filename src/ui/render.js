@@ -12,7 +12,7 @@ import { computeBattleStats, calcBP, expToNext, weaponToNext } from '../battle/s
 import { getMeta } from '../battle/template.js';
 import { WEAPON_DATA } from '../equip/weapons.js';
 import { levelUpRole, levelUpRoleMax, levelUpWeapon, levelUpWeaponMax, refineWeapon, equipWeapon, unequipWeapon, getEquippableWeapons, totalExp, levelUpWeaponWithFeed, previewWeaponFeed } from '../equip/actions.js';
-import { equipEcho, unequipSlot, getEquippableEchoes, calcTotalCost, levelUpEcho, levelUpEchoMax, recycleEcho, retuneEchoSubStat, levelUpEchoWithFeed, previewEchoFeed, toggleEchoLock, dataBankCostCap, echoToNext } from '../equip/echoActions.js';
+import { equipEcho, unequipSlot, getEquippableEchoes, calcTotalCost, levelUpEcho, levelUpEchoMax, recycleEcho, retuneEchoSubStat, levelUpEchoWithFeed, previewEchoFeed, toggleEchoLock, ECHO_COST_CAP, echoToNext } from '../equip/echoActions.js';
 import { ECHO_SETS, getSetById, getEchoById, formatEchoStatValue, formatSetBonus } from '../data/echoes.js';
 import { getForte } from '../battle/forte.js';
 import { getOverrideMeta, hasChainOverride } from '../battle/chains.js';
@@ -493,7 +493,7 @@ function renderRoleTabContent(tabId, preview = false) {
     }
     const slots = Array.isArray(o.equipEchoes) ? o.equipEchoes : [null, null, null, null, null];
     const totalCost = calcTotalCost(n);
-    const cap = dataBankCostCap(S.dataBankLevel);
+    const cap = ECHO_COST_CAP;
     const setCount = {};
     slots.forEach(id => {
       if (id == null) return;
@@ -773,7 +773,7 @@ window.__doUnequip = (n) => {
 const ECHO_PICKER_STATE = { sort: 'set', q: '' };
 window.__openEchoPicker = (roleName, slot) => {
   const equippable = getEquippableEchoes(roleName);
-  const cap = dataBankCostCap(S.dataBankLevel);
+  const cap = ECHO_COST_CAP;
   const used = calcTotalCost(roleName);
   const cur = (Array.isArray(S.roles[roleName]?.equipEchoes) ? S.roles[roleName].equipEchoes : [])[slot];
   const curCost = cur != null ? (S.echos.find(e => e.id === cur)?.cost || 0) : 0;

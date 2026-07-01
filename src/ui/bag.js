@@ -3,7 +3,7 @@ import { S, $, msg } from '../state.js';
 import { usePotion, useAllPotions, POTIONS, buyStaminaWithAstrite } from '../daily/stamina.js';
 import { WEAPON_BOX_OPTIONS } from '../data/podcast-rewards.js';
 import { openModal, closeModal } from '../modal.js';
-import { levelUpEcho, levelUpEchoMax, recycleEcho, previewRecycleEcho, toggleEchoLock, unequipEcho, echoToNext, dataBankCostCap, retuneEchoSubStat, levelUpEchoWithFeed, previewEchoFeed } from '../equip/echoActions.js';
+import { levelUpEcho, levelUpEchoMax, recycleEcho, previewRecycleEcho, toggleEchoLock, unequipEcho, echoToNext, ECHO_COST_CAP, retuneEchoSubStat, levelUpEchoWithFeed, previewEchoFeed } from '../equip/echoActions.js';
 import { getSetById, formatEchoStatValue, formatSetBonus } from '../data/echoes.js';
 import { totalExp } from '../equip/actions.js';
 
@@ -169,7 +169,7 @@ export function renderBag() {
 
   // 声骸仓库
   const echos = S.echos || [];
-  const cap = dataBankCostCap(S.dataBankLevel);
+  const cap = ECHO_COST_CAP;
   html += `<div style="font-size:10px;color:var(--muted);letter-spacing:2px;margin:14px 0 6px;display:flex;justify-content:space-between;align-items:baseline">
     <span>声 骸 仓 库 (${echos.length})</span>
     <span style="font-size:9px;color:var(--gold)">COST 上限 ${cap}</span>

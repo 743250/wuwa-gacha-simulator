@@ -46,7 +46,7 @@ describe('battle/combat — integration', () => {
     });
 
     it('burst kills single enemy', () => {
-      const battle = quickBattle(null, [{ name: '幼狼', scale: 0.1 }]); // weak enemy
+      const battle = quickBattle(null, [{ name: '火鬃狼', scale: 0.01 }]); // weak enemy
       const self = battle.team[battle.active];
       self.energy = self.energyMax;
 
@@ -62,8 +62,8 @@ describe('battle/combat — integration', () => {
   describe('multi-enemy', () => {
     it('burst hits all enemies with split damage', () => {
       const battle = quickBattle(null, [
-        { name: '幼狼', scale: 1 },
-        { name: '幼狼', scale: 1 },
+        { name: '火鬃狼', scale: 1 },
+        { name: '火鬃狼', scale: 1 },
       ]);
       const self = battle.team[battle.active];
       self.energy = self.energyMax;
@@ -82,8 +82,8 @@ describe('battle/combat — integration', () => {
 
     it('doAttack on dead enemy finds next target', () => {
       const battle = quickBattle(null, [
-        { name: '幼狼', scale: 0.1 },
-        { name: '幼狼', scale: 0.1 },
+        { name: '火鬃狼', scale: 0.1 },
+        { name: '火鬃狼', scale: 0.1 },
       ]);
       // Kill first enemy
       battle.enemies[0].hp = 0;
@@ -134,7 +134,7 @@ describe('battle/combat — integration', () => {
     });
 
     it('variation damage on switch', () => {
-      const battle = quickBattle(null, [{ name: '幼狼', scale: 0.5 }]);
+      const battle = quickBattle(null, [{ name: '火鬃狼', scale: 0.5 }]);
       const target = firstEnemy(battle);
       const enemyHpBefore = battle.enemies[target].hp;
 
@@ -196,8 +196,8 @@ describe('battle/combat — integration', () => {
 
     it('burst hits all enemies with valid damage records', () => {
       const battle = quickBattle(null, [
-        { name: '幼狼', scale: 0.5 },
-        { name: '幼狼', scale: 0.5 },
+        { name: '火鬃狼', scale: 0.5 },
+        { name: '火鬃狼', scale: 0.5 },
       ]);
       const self = battle.team[battle.active];
       self.energy = self.energyMax;

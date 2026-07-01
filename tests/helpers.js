@@ -50,7 +50,7 @@ export function resetState(overrides = {}) {
  */
 export function quickBattle(teamNames, enemies) {
   const tn = teamNames || S.team;
-  const enemySpecs = enemies || [{ name: '幼狼', scale: 1 }];
+  const enemySpecs = enemies || [{ name: '火鬃狼', scale: 1 }];
   const enemyNames = [];
   const opts = { enemyScale: 1 };
   for (const e of enemySpecs) {

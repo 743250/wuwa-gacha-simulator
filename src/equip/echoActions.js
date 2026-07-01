@@ -5,15 +5,9 @@ import { ECHO_CATALOG, ECHO_SETS, MAIN_STAT_POOL, SUB_STAT_POOL, LEVEL_EXP, MAX_
 import { totalExp, consumeExp } from './actions.js';
 import { EXP_VALUES } from '../battle/stats.js';
 
-// 数据坞等级 → COST 上限映射
-// 默认 8 级 = COST 12，满级 10 = COST 12（鸣潮官方 21 级满 = COST 12）
-// 模拟器简化为 8/9/10 三档对应 11/12/12
-export function dataBankCostCap(level) {
-  if (level >= 9) return 12;
-  if (level >= 8) return 12;
-  if (level >= 7) return 11;
-  return 10 + Math.floor(level / 3);
-}
+// 声骸 COST 上限：固定 12（满配 4+4+3+1）
+// 注：官方有数据坞等级系统逐步开放 COST 上限，模拟器取消该养成线，直接给满配
+export const ECHO_COST_CAP = 12;
 
 function rand(min, max) { return Math.random() * (max - min) + min; }
 
@@ -122,7 +116,7 @@ export function equipEcho(roleName, slot, echoId) {
   // 已在本角色其他槽位时，calcTotalCost 已计入 echo.cost，需扣除避免重复
   const selfAlreadyEquipped = echo.equippedBy === roleName;
   const newTotal = calcTotalCost(roleName) - oldCost - (selfAlreadyEquipped ? echo.cost : 0) + echo.cost;
-  const cap = dataBankCostCap(S.dataBankLevel);
+  const cap = ECHO_COST_CAP;
   if (newTotal > cap) {
     return { ok: false, err: `总 COST ${newTotal} 超过上限 ${cap}` };
   }

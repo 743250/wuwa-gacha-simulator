@@ -27,6 +27,7 @@
 |---|---|---|
 | 声骸系统集成 | [echo-system.md](echo-system.md) | 计划阶段,待实施 |
 | 战斗机制抽象重构（破韧/Stack/Form/TempStat/SwitchHook） | [combat-abstractions.md](combat-abstractions.md) | 计划阶段,逐步实施 |
+| 无音区与声骸系统翻新 | [tacet-field-refactor.md](tacet-field-refactor.md) | 计划已确认,等子代理核实关卡后实施 |
 
 ## 版本缩放
 

@@ -44,15 +44,18 @@ export function startDungeonBattle(dungeonId) {
   const encounter = getDungeonEncounter(d, S.today);
   const sol3 = getSol3Config(getSol3Level());
   const enemyNames = flattenEnemies(encounter.enemies);
-  // 世界 BOSS 使用讨伐等级系统
+  // 世界 BOSS 使用讨伐等级系统（tierMult 已含 SOL3 联动）
   let battleOpts;
   if (d.type === 'worldBoss') {
     const bossName = enemyNames[0]; // 世界 BOSS 副本只有 1 个敌人
     const spawnOpts = getWorldBossSpawnOpts(bossName);
     battleOpts = { enemyStatScale: spawnOpts };
   } else {
+    // 副本敌人：基础等级 × SOL3 档位系数（索拉Ⅰ ×0.30 / Ⅱ ×0.40 / Ⅲ ×0.50）
+    // SOL3 越高，敌人等级越高，掉落也越好（dropMult 已在 sol3 里）
     const finalScale = (encounter.enemyScale || d.enemyScale || 1.0);
-    const enemyLevel = encounter.enemyLevel || d.enemyLevel || d.minLevel || 40;
+    const baseLevel = encounter.enemyLevel || d.enemyLevel || d.minLevel || 40;
+    const enemyLevel = Math.max(1, Math.round(baseLevel * sol3.worldTierMult / 0.30));
     battleOpts = { enemyScale: finalScale, enemyLevel };
   }
   const battle = startEncounter({ team: names, enemies: enemyNames, options: battleOpts });

@@ -328,13 +328,13 @@ describe('parseEnemyStr / flattenEnemies', () => {
   });
 
   it('parses multiple enemies', () => {
-    const p = parseEnemyStr('幼狼×3');
-    expect(p.name).toBe('幼狼');
+    const p = parseEnemyStr('火鬃狼×3');
+    expect(p.name).toBe('火鬃狼');
     expect(p.count).toBe(3);
   });
 
   it('flattens enemy strings', () => {
-    const flat = flattenEnemies(['幼狼×3', '飞兽×1']);
-    expect(flat).toEqual(['幼狼', '幼狼', '幼狼', '飞兽']);
+    const flat = flattenEnemies(['火鬃狼×3', '惊蛰猎手×1']);
+    expect(flat).toEqual(['火鬃狼', '火鬃狼', '火鬃狼', '惊蛰猎手']);
   });
 });

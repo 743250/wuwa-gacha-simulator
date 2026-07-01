@@ -80,7 +80,6 @@ describe('battle/stats', () => {
       });
       S.echos = [];
       S.echoNextId = 1;
-      S.dataBankLevel = 8;
     });
 
     it('returns null when role has no echoes', () => {

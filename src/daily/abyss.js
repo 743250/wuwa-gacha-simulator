@@ -24,8 +24,8 @@ import { STAR_CRITERIA, getAbyssTemperatureForVersion, getAbyssEnvironment } fro
 
 // 稳定区 4 关：满星合计 800 星声 → 4 × 200
 const STABLE_FLOORS = [
-  { id: 's1', zone: 'stable', name: '稳定区·第 1 关', enemies: ['幼狼×3','飞兽×1'],       baseReward: 200, oneShot: true },
-  { id: 's2', zone: 'stable', name: '稳定区·第 2 关', enemies: ['古老幽灵×2'],            baseReward: 200, oneShot: true },
+  { id: 's1', zone: 'stable', name: '稳定区·第 1 关', enemies: ['火鬃狼×3','惊蛰猎手×1'],       baseReward: 200, oneShot: true },
+  { id: 's2', zone: 'stable', name: '稳定区·第 2 关', enemies: ['幽翎火×2'],            baseReward: 200, oneShot: true },
   { id: 's3', zone: 'stable', name: '稳定区·第 3 关', enemies: ['飞廉之猩'],              baseReward: 200, oneShot: true },
   { id: 's4', zone: 'stable', name: '稳定区·第 4 关', enemies: ['聚械机偶'],              baseReward: 200, oneShot: true }
 ];
@@ -49,14 +49,14 @@ const EXPERIMENT_FLOORS = [
 //   左塔 55×4=220 · 右塔 60×4=240 · 中塔 85×4=340 = 800
 
 const HAZARD_LEFT = [
-  { id: 'hl1', floor: 1, tower: 'left',  towerName: '回音之塔', zone: 'hazard', name: '回音之塔·第 1 层', enemies: ['幼狼×3'],               baseReward: 55, towerScale: 0.90 },
-  { id: 'hl2', floor: 2, tower: 'left',  towerName: '回音之塔', zone: 'hazard', name: '回音之塔·第 2 层', enemies: ['古老幽灵×2'],            baseReward: 55, towerScale: 0.90 },
-  { id: 'hl3', floor: 3, tower: 'left',  towerName: '回音之塔', zone: 'hazard', name: '回音之塔·第 3 层', enemies: ['飞兽×2','幼狼×2'],        baseReward: 55, towerScale: 0.90 },
+  { id: 'hl1', floor: 1, tower: 'left',  towerName: '回音之塔', zone: 'hazard', name: '回音之塔·第 1 层', enemies: ['火鬃狼×3'],               baseReward: 55, towerScale: 0.90 },
+  { id: 'hl2', floor: 2, tower: 'left',  towerName: '回音之塔', zone: 'hazard', name: '回音之塔·第 2 层', enemies: ['幽翎火×2'],            baseReward: 55, towerScale: 0.90 },
+  { id: 'hl3', floor: 3, tower: 'left',  towerName: '回音之塔', zone: 'hazard', name: '回音之塔·第 3 层', enemies: ['惊蛰猎手×2','火鬃狼×2'],        baseReward: 55, towerScale: 0.90 },
   { id: 'hl4', floor: 4, tower: 'left',  towerName: '回音之塔', zone: 'hazard', name: '回音之塔·第 4 层', enemies: ['海之女'],                baseReward: 55, towerScale: 0.90 }
 ];
 
 const HAZARD_RIGHT = [
-  { id: 'hr1', floor: 1, tower: 'right', towerName: '残响之塔', zone: 'hazard', name: '残响之塔·第 1 层', enemies: ['幻象×1','幼狼×2'],        baseReward: 60, towerScale: 1.00 },
+  { id: 'hr1', floor: 1, tower: 'right', towerName: '残响之塔', zone: 'hazard', name: '残响之塔·第 1 层', enemies: ['幻象×1','火鬃狼×2'],        baseReward: 60, towerScale: 1.00 },
   { id: 'hr2', floor: 2, tower: 'right', towerName: '残响之塔', zone: 'hazard', name: '残响之塔·第 2 层', enemies: ['云闪之鳞'],              baseReward: 60, towerScale: 1.00 },
   { id: 'hr3', floor: 3, tower: 'right', towerName: '残响之塔', zone: 'hazard', name: '残响之塔·第 3 层', enemies: ['荣耀狮像'],              baseReward: 60, towerScale: 1.00 },
   { id: 'hr4', floor: 4, tower: 'right', towerName: '残响之塔', zone: 'hazard', name: '残响之塔·第 4 层', enemies: ['梦魇亚当·重锤'],        baseReward: 60, towerScale: 1.00 }

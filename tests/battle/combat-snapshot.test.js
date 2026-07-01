@@ -26,7 +26,7 @@ describe('combat endTurn snapshots', () => {
   // ================================================================
   it('风蚀每回合结算：HP 单调下降且差值 = atk x stacks x 0.3', () => {
     // 构造战斗，敌方无特殊机制避免干扰
-    const battle = combat.createBattle(['忌炎', '安可', '守岸人'], ['幼狼'], { enemyScale: 1.0 });
+    const battle = combat.createBattle(['忌炎', '安可', '守岸人'], ['火鬃狼'], { enemyScale: 1.0 });
     const enemy = battle.enemies[0];
     expect(enemy).toBeTruthy();
 
@@ -65,7 +65,7 @@ describe('combat endTurn snapshots', () => {
   // 测试 2：压制持续 2 回合
   // ================================================================
   it('压制持续 2 回合：第 1/2 回合跳过行动，第 3 回合恢复', () => {
-    const battle = combat.createBattle(['忌炎', '安可', '守岸人'], ['幼狼'], { enemyScale: 1.0 });
+    const battle = combat.createBattle(['忌炎', '安可', '守岸人'], ['火鬃狼'], { enemyScale: 1.0 });
     const enemy = battle.enemies[0];
 
     // 拉高 HP + 归零 ATK，避免随机暴击导致敌人死亡干扰时序断言
@@ -112,7 +112,7 @@ describe('combat endTurn snapshots', () => {
   // 测试 3：压制期间风蚀仍结算（刚修的 bug）
   // ================================================================
   it('压制期间风蚀仍结算：suppressed > 0 时风蚀照样扣血', () => {
-    const battle = combat.createBattle(['忌炎', '安可', '守岸人'], ['幼狼'], { enemyScale: 1.0 });
+    const battle = combat.createBattle(['忌炎', '安可', '守岸人'], ['火鬃狼'], { enemyScale: 1.0 });
     const enemy = battle.enemies[0];
 
     // 同时设置压制和风蚀

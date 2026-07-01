@@ -46,7 +46,7 @@ describe('battle/combat', () => {
   // ===== createBattle() =====
   describe('createBattle()', () => {
     it('creates a valid battle structure', () => {
-      const battle = quickBattle(null, [{ name: '幼狼', scale: 1 }]);
+      const battle = quickBattle(null, [{ name: '火鬃狼', scale: 1 }]);
       expect(battle).toBeTruthy();
       expect(battle.turn).toBe(1);
       expect(battle.ap).toBe(4);
@@ -59,7 +59,7 @@ describe('battle/combat', () => {
 
     it('returns null for empty team', () => {
       S.team = [null, null, null];
-      const battle = combat.createBattle([], ['幼狼']);
+      const battle = combat.createBattle([], ['火鬃狼']);
       expect(battle).toBeNull();
     });
 
@@ -128,8 +128,8 @@ describe('battle/combat', () => {
   describe('doBurst()', () => {
     it('consumes 3 AP and full energy for AOE', () => {
       const battle = quickBattle(null, [
-        { name: '幼狼', scale: 1 },
-        { name: '幼狼', scale: 1 },
+        { name: '火鬃狼', scale: 1 },
+        { name: '火鬃狼', scale: 1 },
       ]);
       const self = battle.team[battle.active];
       self.energy = self.energyMax; // fill energy
