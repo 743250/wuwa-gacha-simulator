@@ -4,10 +4,10 @@
 //   弗洛洛是"攒乐声+余响 → 谱曲终末核爆 → 定音解锁解放 → 指挥状态赫卡忒持续压制"的循环主C。
 //
 //   乐声 (0-6):普攻第3段/技能/重击/变奏各+1,战斗开始+4(固有·八重奏)。满6时重击替换为谱曲终末。
-//   余响 (0-24):全动作积累,战斗开始+10。每层谱曲终末倍率+20%,满24层×3.0;每层暴伤+2.5%(固有·八重奏)。
+//   余响 (0-24):全动作积累,战斗开始+10。每层谱曲终末倍率+60%(2链+105%),纯线性无满层突跳;每层暴伤+2.5%(固有·八重奏)。
 //   谱曲终末:HP×20% AOE,消耗6乐声,基于余响增伤,进入定音。视为声骸技能/共鸣技能伤害。
 //   定音:谱曲终末后进入,解锁共鸣解放(0AP,对应官方"能量上限为0")。
-//   指挥状态(3回合):解放后进入,攻击+120%,弗洛洛自由行动,赫卡忒自动攻击+挡刀。
+//   指挥状态(3回合):解放后进入,暴击伤害+120%,弗洛洛自由行动,赫卡忒自动攻击+挡刀。
 //   赫卡忒:HP=弗洛洛HP×1.0,每回合自动攻击HP×12%(+1乐声+2余响),每第2次后强化HP×24%(+1乐声+3余响)。
 //          主人受伤优先由赫卡忒承担,overflow打主人;HP归零则消失,指挥状态立即结束。
 //
@@ -28,8 +28,7 @@ const NOTES_MAX = 6;
 const ECHOES_MAX = 24;
 const NOTES_START = 4;        // 战斗开始送4乐声(固有·八重奏)
 const ECHOES_START = 10;      // 战斗开始送10余响(固有·八重奏)
-const ECHOES_PER_NOTE_BONUS = 0.20;  // 每层余响谱曲终末+20%
-const ECHOES_FULL_MULT = 3.0;        // 满24层×3.0
+const ECHOES_PER_NOTE_BONUS = 0.60;  // 每层余响谱曲终末+60%（2链 ×1.75 → +105%）。原"每层+20%·满24层×3.0"已平滑为线性每层+60%，避免 23→24 层突跳；满 24 层总倍率与原值近似。
 const ECHOES_PER_LAYER_CDMG = 0.025; // 每层余响+2.5%暴伤(固有·八重奏)
 
 const NORMAL_HP_MULT = 0.04;
@@ -40,7 +39,7 @@ const VARIATION_HP_MULT = 0.033;     // 致命组歌 HP×3.3%
 const VARIATION_COMMAND_MULT = 0.066;// 永生组歌 HP×6.6%
 
 const COMMAND_DURATION = 3;
-const COMMAND_ATK_BONUS = 1.20;      // 指挥状态攻击+120%
+const COMMAND_CDMG_BONUS = 1.20;     // 指挥状态暴击伤害+120%
 const HECASTE_AUTO_HP_MULT = 0.12;   // 赫卡忒自动 HP×12%
 const HECASTE_AUGMENT_HP_MULT = 0.24;// 赫卡忒强化 HP×24%
 
@@ -191,25 +190,24 @@ export function furoloResolveHeavy(self, battle) {
   if ((self.furoloNotes || 0) < NOTES_MAX) return null;
   return {
     mult: furoloDirgeMult(self),
-    dmgType: 'skill',  // 谱曲终末视为共鸣技能伤害 + 声骸技能
+    dmgType: 'heavy',  // 谱曲终末是重击替换,归类为重击伤害(2链 heavyDmg +75% 生效,1链 skillDmg 不误伤)
     label: '谱曲终末',
     isDirge: true
   };
 }
 
-// ── 谱曲终末倍率(HP×20% × (1 + 余响层数×每层加成) × 满层倍率) ──
+// ── 谱曲终末倍率(HP×20% × (1 + 余响层数×每层加成)) ──
+// 平滑曲线：每层 +60%（2链 +105%），无"满24层×3.0"突跳。
+// 满24层 0链 = 1+24×0.60 = 15.4（原 17.4，略低）；2链 = 26.2（原 27.3）。中间层比原高 3 倍多。
 export function furoloDirgeMult(self) {
   let baseMult = DIRGE_HP_MULT;
   // 2 链:谱曲终末倍率 +75%
   if (self.chain >= 2) baseMult *= 1.75;
-  // 余响增伤:每层 +20%(2链时 +35%),满24层 ×3.0
+  // 余响增伤:每层 +60%(2链时 +105%),纯线性无满层突跳
   const perLayer = self.chain >= 2 ? ECHOES_PER_NOTE_BONUS * 1.75 : ECHOES_PER_NOTE_BONUS;
   const echoes = self.furoloEchoes || 0;
   const echoBonus = 1 + echoes * perLayer;
-  let mult = baseMult * echoBonus;
-  // 满24层 ×3.0
-  if (echoes >= ECHOES_MAX) mult *= ECHOES_FULL_MULT;
-  return mult;
+  return baseMult * echoBonus;
 }
 
 // ── 谱曲终末结算(消耗乐声,进入定音,4链团队buff,2链+14余响) ──
@@ -255,9 +253,9 @@ export function furoloOnBurst(self, ctx) {
   // 进入指挥状态
   self.furoloCommandTurns = COMMAND_DURATION;
   self.furoloHecateAttacks = 0;
-  // 攻击 +120% buff
+  // 暴击伤害 +120% buff
   self.buffs = (self.buffs || []).filter(b => b.src !== '弗洛洛指挥状态');
-  self.buffs.push({ type: 'atkUp', value: COMMAND_ATK_BONUS, duration: COMMAND_DURATION, src: '弗洛洛指挥状态' });
+  self.buffs.push({ type: 'cdmgUp', value: COMMAND_CDMG_BONUS, duration: COMMAND_DURATION, src: '弗洛洛指挥状态' });
   // 5 链:减伤 30% buff(赫卡忒和弗洛洛均受益)
   if (self.chain >= 5) {
     self.buffs.push({ type: 'defense', value: 0.30, duration: COMMAND_DURATION, src: '弗洛洛5链' });
@@ -285,7 +283,7 @@ export function furoloOnBurst(self, ctx) {
   self.furoloHecateSummonId = hecate.id;
   battle.log.push({
     type: 'mechanic', src: self.name,
-    msg: `指挥状态展开 · 持续 ${COMMAND_DURATION} 回合 · 攻击 +120% · 赫卡忒召唤（HP ${hecate.hp}）`
+    msg: `指挥状态展开 · 持续 ${COMMAND_DURATION} 回合 · 暴击伤害 +120% · 赫卡忒召唤（HP ${hecate.hp}）`
   });
 }
 
@@ -354,7 +352,7 @@ function furoloHecateOnDeath(summon, battle) {
   owner.buffs = (owner.buffs || []).filter(b => b.src !== '弗洛洛指挥状态' && b.src !== '弗洛洛5链');
   battle.log.push({
     type: 'mechanic', src: owner.name,
-    msg: '赫卡忒消散 · 指挥状态立即结束 · 失去攻击 +120% 与赫卡忒攻击'
+    msg: '赫卡忒消散 · 指挥状态立即结束 · 失去暴击伤害 +120% 与赫卡忒攻击'
   });
 }
 
@@ -420,7 +418,7 @@ export function furoloCollectBadges(self) {
     key: `frolo-echoes-${self.name}`,
     cls: 'crit', icon: '✦',
     label: `余响 ${echoes}/${ECHOES_MAX}`,
-    tip: '<b>余响</b><br>弗洛洛奏回路资源。每层使谱曲终末倍率 +20%，满 24 层时倍率额外 ×3.0；每层暴伤 +2.5%。'
+    tip: '<b>余响</b><br>弗洛洛奏回路资源。每层使谱曲终末倍率线性 +60%（2 链 +105%）；每层暴伤 +2.5%。'
   });
   if (self.furoloDirge) {
     out.push({
@@ -435,7 +433,7 @@ export function furoloCollectBadges(self) {
       key: `frolo-cmd-${self.name}`,
       cls: 'atk', icon: '指挥',
       label: `指挥 ${self.furoloCommandTurns}回`, dur: self.furoloCommandTurns,
-      tip: '<b>指挥状态</b><br>共鸣解放后进入，持续 3 回合。弗洛洛攻击 +120%，赫卡忒自动攻击并挡刀。'
+      tip: '<b>指挥状态</b><br>共鸣解放后进入，持续 3 回合。弗洛洛暴击伤害 +120%，赫卡忒自动攻击并挡刀。'
     });
   }
   return out;

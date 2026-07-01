@@ -891,11 +891,11 @@ export const SKILL_HINTS = {
       const normalMult = 0.04 * (chain >= 1 ? 1.80 : 1);   // 普攻 HP×4%（1链+80%）
       const skillMult  = 0.075 * (chain >= 1 ? 1.80 : 1);  // 技能 HP×7.5%（1链+80%）
       const heavyMult  = 0.09;                              // 普通重击 HP×9%
-      // 谱曲终末:HP×20% × (1 + 余响层数×0.20[2链×0.35]) × 满24层×3.0
+      // 谱曲终末:HP×20% × (1 + 余响层数×0.60[2链×1.05])，平滑无满层突跳
       // 展示满 24 层余响时的伤害数值
-      const perLayer = chain >= 2 ? 0.35 : 0.20;
+      const perLayer = chain >= 2 ? 1.05 : 0.60;
       const dirgeBase = 0.20 * (chain >= 2 ? 1.75 : 1);
-      const dirgeFull = dirgeBase * (1 + 24 * perLayer) * 3.0;
+      const dirgeFull = dirgeBase * (1 + 24 * perLayer);
       const hecastAutoMult = 0.12;
       const hecastAugMult = 0.24 * (chain >= 6 ? 1.24 : 1);
       const varMult = 0.033;
@@ -956,12 +956,12 @@ export const SKILL_HINTS = {
         {
           icon: '🎼', name: '谱曲终末（重击替换）', cost: '2 AP · CD 1 回合 · 需 6 乐声',
           color: '#ff6b9d',
-          desc: `乐声满 6 枚时，重击替换为谱曲终末。对主目标造成 <span class="tip" data-tip='${dirgeTip}'><b style="color:#ff6b9d">${dirgeDmg}</b> 点</span><b class="term-skill">湮灭范围伤害</b>。施放时消耗全部 6 枚乐声。每层<b class="term-resource">余响</b>使本次伤害倍率提升 20%（2 链为 35%），余响满 24 层时倍率额外 ×3.0。施放后进入<b class="term-state">定音</b>状态。${chain>=2?'<br><span style="color:var(--gold)">[2 链]</span> 基础倍率提升 75%，余响增伤效果提升 75%，施放后获得 14 层余响。':''}${chain>=4?'<br><span style="color:var(--gold)">[4 链]</span> 施放时全队全属性伤害提升 20%，持续 4 回合。':''}`
+          desc: `乐声满 6 枚时，重击替换为谱曲终末。对主目标造成 <span class="tip" data-tip='${dirgeTip}'><b style="color:#ff6b9d">${dirgeDmg}</b> 点</span><b class="term-skill">湮灭范围伤害</b>。施放时消耗全部 6 枚乐声。每层<b class="term-resource">余响</b>使本次伤害倍率线性提升 60%（2 链为 105%）。施放后进入<b class="term-state">定音</b>状态。${chain>=2?'<br><span style="color:var(--gold)">[2 链]</span> 基础倍率提升 75%，余响增伤效果提升 75%，施放后获得 14 层余响。':''}${chain>=4?'<br><span style="color:var(--gold)">[4 链]</span> 施放时全队全属性伤害提升 20%，持续 4 回合。':''}`
         },
         {
           icon: '⚡', name: '共鸣解放 · 往日深渊的圆舞曲', cost: '0 AP · 需定音状态',
           color: 'var(--gold)',
-          desc: `弗洛洛处于<b class="term-state">定音</b>状态时可施放，不消耗 AP。进入<b class="term-state">指挥状态</b>，持续 3 回合，期间弗洛洛攻击力提升 120% 并召唤<b class="term-resource">赫卡忒</b><span class="tip" data-tip='${hecastTip}'>协助战斗</span>。${chain>=5?'<span style="color:var(--gold)">[5 链]</span> 指挥状态期间赫卡忒及弗洛洛受到的伤害降低 30%。':''}${chain>=6?'<span style="color:var(--gold)">[6 链]</span> 弗洛洛为登场角色时湮灭伤害加成提升 60%；为非登场角色时，目标受到赫卡忒和弗洛洛的伤害提升 40%。':''}`
+          desc: `弗洛洛处于<b class="term-state">定音</b>状态时可施放，不消耗 AP。进入<b class="term-state">指挥状态</b>，持续 3 回合，期间弗洛洛暴击伤害提升 120% 并召唤<b class="term-resource">赫卡忒</b><span class="tip" data-tip='${hecastTip}'>协助战斗</span>。${chain>=5?'<span style="color:var(--gold)">[5 链]</span> 指挥状态期间赫卡忒及弗洛洛受到的伤害降低 30%。':''}${chain>=6?'<span style="color:var(--gold)">[6 链]</span> 弗洛洛为登场角色时湮灭伤害加成提升 60%；为非登场角色时，目标受到赫卡忒和弗洛洛的伤害提升 40%。':''}`
         },
         {
           icon: '🎵', name: '变奏入场 · 致命组歌', cost: '切换上场时触发',
@@ -971,7 +971,7 @@ export const SKILL_HINTS = {
       ];
     },
     forteName: '余响 / 乐声',
-    forteDesc: '<span style="color:var(--gold);font-size:11px">▸ 共鸣回路 · 新世界狂想曲</span><br>· <b class="term-resource">乐声</b>（上限 6 枚）：普攻、共鸣技能、重击、变奏入场各获得 1 枚，战斗开始时获得 4 枚（固有·八重奏）。乐声满 6 枚时，重击替换为<b class="term-heavy">谱曲终末</b>。<br>· <b class="term-resource">余响</b>（上限 24 层）：各种招式命中时积累，战斗开始时获得 10 层（固有·八重奏）。每层余响使谱曲终末伤害倍率提升 20%（2 链为 35%），余响满 24 层时倍率额外 ×3.0；每层余响使弗洛洛暴击伤害提升 2.5%。<br>· <b class="term-state">定音</b>：施放谱曲终末后进入，方可施放共鸣解放。<br>· <b class="term-state">指挥状态</b>（持续 3 回合）：施放共鸣解放后进入，弗洛洛攻击力提升 120%，召唤赫卡忒协助战斗。<br><br><span style="color:var(--gold);font-size:11px">▸ 赫卡忒</span><br>生命值等于弗洛洛生命值，继承弗洛洛属性。每回合自动攻击，造成弗洛洛最大生命 12% 的湮灭伤害，命中后获得 1 枚乐声及 2 层余响；每第 2 次自动攻击后施放强化攻击·赫卡忒，造成弗洛洛最大生命 24% 的湮灭伤害，额外获得 1 枚乐声及 3 层余响。弗洛洛受到的伤害优先由赫卡忒承担，溢出部分由弗洛洛承担。赫卡忒生命值归零时消散，指挥状态立即结束。切换其他角色时赫卡忒随之消散。'
+    forteDesc: '<span style="color:var(--gold);font-size:11px">▸ 共鸣回路 · 新世界狂想曲</span><br>· <b class="term-resource">乐声</b>（上限 6 枚）：普攻、共鸣技能、重击、变奏入场各获得 1 枚，战斗开始时获得 4 枚（固有·八重奏）。乐声满 6 枚时，重击替换为<b class="term-heavy">谱曲终末</b>。<br>· <b class="term-resource">余响</b>（上限 24 层）：各种招式命中时积累，战斗开始时获得 10 层（固有·八重奏）。每层余响使谱曲终末伤害倍率线性提升 60%（2 链为 105%）；每层余响使弗洛洛暴击伤害提升 2.5%。<br>· <b class="term-state">定音</b>：施放谱曲终末后进入，方可施放共鸣解放。<br>· <b class="term-state">指挥状态</b>（持续 3 回合）：施放共鸣解放后进入，弗洛洛暴击伤害提升 120%，召唤赫卡忒协助战斗。<br><br><span style="color:var(--gold);font-size:11px">▸ 赫卡忒</span><br>生命值等于弗洛洛生命值，继承弗洛洛属性。每回合自动攻击，造成弗洛洛最大生命 12% 的湮灭伤害，命中后获得 1 枚乐声及 2 层余响；每第 2 次自动攻击后施放强化攻击·赫卡忒，造成弗洛洛最大生命 24% 的湮灭伤害，额外获得 1 枚乐声及 3 层余响。弗洛洛受到的伤害优先由赫卡忒承担，溢出部分由弗洛洛承担。赫卡忒生命值归零时消散，指挥状态立即结束。切换其他角色时赫卡忒随之消散。'
   },
 
   // 2.6 · 奥古斯塔（主C 导电 长刃）— 以众愿为冕

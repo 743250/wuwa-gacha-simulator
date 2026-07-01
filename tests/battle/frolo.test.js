@@ -269,7 +269,8 @@ describe('battle/characters/frolo — 弗洛洛状态机', () => {
     });
 
     it('指挥状态期间弗洛洛和赫卡忒都获得 defense buff', () => {
-      const battle = quickBattle(null, [{ name: '飞廉之猩', scale: 1 }]);
+      // 用 scale:5 把 BOSS 拉厚,避免谱曲终末一击秒杀导致 burst 时已无目标
+      const battle = quickBattle(null, [{ name: '飞廉之猩', scale: 5 }]);
       const f = getFurolo(battle);
       combat.doAttack(battle, firstEnemy(battle));
       combat.doAttack(battle, firstEnemy(battle));

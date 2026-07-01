@@ -91,7 +91,7 @@ export const FORTE = {
     // 余响由 frolo.js 状态机控制（普攻+3/技能+5/重击+4/变奏+2/谱曲终末+6/赫卡忒自动+2/强化+3/战斗开始+10）
     gainPerNormal: 0, gainPerSkill: 0, gainPerBurst: 0, gainPerHeavy: 0,
     effectType: 'furoloEchoes',
-    desc: '余响上限 24 层。每层使谱曲终末倍率 +20%（2 链 +35%），满 24 层 ×3.0；每层暴伤 +2.5%（固有·八重奏）。战斗开始 +10 层。'
+    desc: '余响上限 24 层。每层使谱曲终末倍率线性 +60%（2 链 +105%）；每层暴伤 +2.5%（固有·八重奏）。战斗开始 +10 层。'
   },
   '安可': {
     kind: 'gauge', resourceName: '失序值', max: 100,
