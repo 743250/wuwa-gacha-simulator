@@ -203,17 +203,17 @@ export function calcDamage(attacker, defender, multiplier, dmgType, opts = {}) {
   if (attacker.name === '卡提希娅') {
     // 决意增伤
     const resolveMult = cartethyiaResolveMultiplier(attacker);
-    baseStat = attacker.hpMax * resolveMult;
+    baseStat = computeStat(attacker, 'hpMax', attacker.hpMax) * resolveMult;
     // burst 不走固定倍率覆写——第二次解放·看潮怒风哮之刃的倍率已在 doBurst 中
     // 按风蚀层数动态计算好（baseMain），此处不应再用硬编码值覆盖
     hpMultOverride = (dmgType === 'burst') ? null : (CARTETHYIA_HP_MULT[dmgType] ?? null);
   } else if (attacker.name === '赞妮') {
-    baseStat = attacker.hpMax;
+    baseStat = computeStat(attacker, 'hpMax', attacker.hpMax);
     // burst 走重燃/终绝的独立倍率（由 doBurst 直接传 multiplier），这里不覆写
     hpMultOverride = (dmgType === 'burst') ? null : (ZAN_YAN_HP_MULT[dmgType] ?? null);
     // 灼焰形态内重斩走 heavy 类型但倍率 12%（由 doAttack 重斩路径传 multiplier，不在此覆写）
   } else if (attacker.name === '弗洛洛') {
-    baseStat = attacker.hpMax;
+    baseStat = computeStat(attacker, 'hpMax', attacker.hpMax);
     // 普攻/技能/重击/变奏走固定 HP 倍率覆写（调用方传 ACTION_MULTIPLIER.* 的 ATK 倍率，这里换成 HP 倍率）
     // 谱曲终末/赫卡忒攻击/6链追击等特殊倍率由调用方通过 opts.explicitHpMult=true 传真实 HP 倍率，不再覆写
     // burst 路径弗洛洛无直接伤害，亦不覆写

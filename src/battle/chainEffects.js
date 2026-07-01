@@ -98,7 +98,7 @@ export const CHAIN_BATTLE_EFFECTS = {
     [{ effect: 'cdmg', value: 0.80, label: '余火 10 点 × 8% = 暴击伤害 +80%' }],
     [{ effect: 'atk', value: 1.50, label: '攻击 +150%' }],
     [{ effect: 'burstDmg', value: 1.30, label: '共鸣解放伤害 +130%' }],
-    [{ effect: 'teamAllDmg', value: 0.20, label: '声骸技能后全队伤害 +20%' }],
+    [{ effect: 'teamAllDmg', value: 0.20, label: '共鸣解放后全队伤害 +20%' }],
     [{ effect: 'skillDmg', value: 1.50, label: '共鸣技能伤害 +150%' }],
     [{ effect: 'allDmg', value: 0.60, label: '永恒位格自身伤害 +60%' },
      { effect: 'elemDmg', value: 0.35, element: '热熔', label: '余火 10 点 × 3.5% = 热熔加深 +35%' }]
@@ -212,7 +212,7 @@ export const CHAIN_BATTLE_EFFECTS = {
   // 4★ 角色
   '莫特斐': [
     [{ effect: 'burstDmg', value: 0.50, label: '解放期间协同伤害 +50%' }],
-    [{ effect: 'energyRefund', value: 10, label: '声骸技能额外回 10 能量' }],
+    [{ effect: 'energyRefund', value: 10, label: '共鸣技能额外回 10 能量' }],
     [{ effect: 'burstDmg', value: 0.30, label: '预热宣叙调：加强音暴伤 +30%' }],
     [{ effect: 'burstDmg', value: 0.40, label: '解放伤害 +40%' }],
     [{ effect: 'skillDmg', value: 0.50, label: '共鸣技能协同伤害 +50%' }],
@@ -369,8 +369,8 @@ export const CHAIN_BATTLE_EFFECTS = {
   '弗洛洛': [
     [{ effect: 'skillDmg', value: 0.80, label: '亡与死的乐章/梦呓伤害倍率 +80%' }],
     [{ effect: 'heavyDmg', value: 0.75, label: '谱曲终末（重击替换）伤害 +75%' }],
-    [{ effect: 'skillDmg', value: 0.80, label: '声骸技能伤害 +80%' }],
-    [{ effect: 'teamAllDmg', value: 0.20, label: '声骸技能时全队全属性伤害 +20%' }],
+    [{ effect: 'heavyDmg', value: 0.80, label: '谱曲终末伤害 +80%' }],
+    [{ effect: 'teamAllDmg', value: 0.20, label: '谱曲终末时全队全属性伤害 +20%' }],
     [],
     [{ effect: 'elemDmg', value: 0.60, element: '湮灭', label: '指挥状态时湮灭伤害 +60%' }]
   ],
@@ -398,7 +398,7 @@ export const CHAIN_BATTLE_EFFECTS = {
   // 2.7 · 仇远（主C 气动 迅刀）— 淋漓醉墨·竹照·且从容
   '仇远': [
     [{ effect: 'crate', value: 0.20, label: '暴击 +20%' }],
-    [{ effect: 'teamAllDmg', value: 0.30, label: '全队声骸技能伤害 +30%' }],
+    [{ effect: 'teamAllDmg', value: 0.30, label: '竹照时全队全属性伤害 +30%' }],
     [{ effect: 'burstDmg', value: 0.50, label: '解放倍率 +500%' }],
     [{ effect: 'atk', value: 0.20, label: '攻击 +20%' }],
     [{ effect: 'defPierce', value: 0.15, label: '无视目标 15% 防御' }],
@@ -460,7 +460,7 @@ export const CHAIN_BATTLE_EFFECTS = {
     [{ effect: 'skillDmg', value: 0.70, label: '普攻/闪反/技能倍率 +70%' }],
     [{ effect: 'skillDmg', value: 0.60, label: '共鸣回路·我即语义倍率 +120%' }],
     [{ effect: 'skillDmg', value: 0.25, label: '「天赋？」上限 4 层强化' }],
-    [{ effect: 'teamAtk', value: 0.20, label: '声骸技能时全队攻击 +20%' }],
+    [{ effect: 'teamAtk', value: 0.20, label: '共鸣技能时全队攻击 +20%' }],
     [{ effect: 'burstDmg', value: 0.30, label: '共鸣解放伤害 +30%' }],
     [{ effect: 'allDmg', value: 0.30, label: '目标受西格莉卡伤害 +30%' }]
   ],
