@@ -20,7 +20,9 @@ function randomStatValue(def) {
 
 // 生成新声骸
 // cost 决定主词条池，元素决定 COST3 属性词条池
-export function generateEcho(echoId) {
+// preferSetId：声骸可属多套装时优先归属的套装 id（无音区按目标套装掉落用）；
+//   仅当该 id 确实在声骸的 set 列表内才生效，否则回退首位套装
+export function generateEcho(echoId, preferSetId = null) {
   const data = typeof echoId === 'string' ? getEchoById(echoId) : echoId;
   if (!data) return null;
   const mainPool = MAIN_STAT_POOL[data.cost];
@@ -61,8 +63,10 @@ export function generateEcho(echoId) {
     return { key: def.key, label: def.label, value, locked: false, unlocked: i < INIT_UNLOCKED };
   });
 
-  // set 字段可能是数组（鸣钟之龟），用第一项作为主套装
-  const setId = Array.isArray(data.set) ? data.set[0] : data.set;
+  // set 字段可能是数组（多套装声骸），默认取首位；
+  // 若传入 preferSetId 且该声骸确实归属此套装，则优先归到目标套装（修掉落归属错位）
+  const setList = Array.isArray(data.set) ? data.set : [data.set];
+  const setId = (preferSetId && setList.includes(preferSetId)) ? preferSetId : setList[0];
 
   const echo = {
     id: S.echoNextId++,

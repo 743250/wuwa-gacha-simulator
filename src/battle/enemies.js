@@ -509,6 +509,68 @@ export const ENEMIES = {
     resist: res('湮灭'),
     mechanic: { type: 'none' },
     description: '被鸣式·利维亚坦召唤', isMinion: true
+  },
+
+  // ===== 无音区专属 BOSS（encore.moe Lv90 官方值 · 2.1+ 声骸套装守关）=====
+  '梦魇·哀声鸷': { // encore Lv90 · 梦魇精英 · 衍射
+    hp: 774546, atk: 5193, def: 800, element: '衍射', class: 'Elite',
+    resist: res('衍射'), mechanic: { type: 'none' },
+    description: '梦魇形态哀声鸷。此间永驻之光（菲比）声骸守关 BOSS'
+  },
+  '共鸣回响·芙露德莉斯': { // encore Lv90 · 灾厄级 · 气动
+    hp: 1402316, atk: 4188, def: 800, element: '气动', class: 'Calamity',
+    resist: res('气动'), mechanic: { type: 'aero_erosion', cycle: 4 },
+    description: '灾厄级气动 BOSS。流云逝尽之空 / 愿戴荣光之旅（卡提希娅）声骸守关'
+  },
+  '共鸣回响·鸣式·利维亚坦': { // encore Lv90 · 灾厄级 · 气动
+    hp: 1402316, atk: 2513, def: 800, element: '气动', class: 'Calamity',
+    resist: res('气动'), mechanic: { type: 'minion', cycle: 4 },
+    description: '灾厄级鸣式 BOSS。命理崩毁之弦 / 焚羽猎魔之影声骸守关。每 4 回合召唤鸣式残响'
+  },
+  '辛吉勒姆': { // encore Lv90 · 灾厄级 · 衍射
+    hp: 1301349, atk: 4188, def: 800, element: '衍射', class: 'Calamity',
+    resist: res('衍射'), mechanic: { type: 'none' },
+    description: '灾厄级衍射 BOSS。长路启航之星 / 斑驳粉饰之沫（布兰特）声骸守关'
+  },
+  '格洛犸图': { // encore Lv90 · 精英 · 冷凝
+    hp: 220631, atk: 5026, def: 800, element: '冷凝', class: 'Elite',
+    resist: res('冷凝'), mechanic: { type: 'none' },
+    description: '精英冷凝构造体。雪落无声之愿（绯雪）声骸守关 BOSS'
+  },
+  '无铭探索者': { // encore Lv90 · 领主级 · 气动
+    hp: 1040986, atk: 4188, def: 800, element: '气动', class: 'Overlord',
+    resist: res('气动'), mechanic: { type: 'none' },
+    description: '领主级气动 BOSS。剪心辑梦之影 / 听唤语义之愿声骸守关'
+  },
+  '梦魇·赫卡忒': { // encore Lv90 · 灾厄级 · 湮灭
+    hp: 1213938, atk: 5863, def: 800, element: '湮灭', class: 'Calamity',
+    resist: res('湮灭'), mechanic: { type: 'minion', cycle: 4 },
+    description: '梦魇形态赫卡忒。失序彼岸之梦声骸守关。每 4 回合召唤幻象'
+  },
+  '伪作的神王': { // encore Lv90 · 领主级 · 导电
+    hp: 1213938, atk: 5863, def: 800, element: '导电', class: 'Overlord',
+    resist: res('导电'), mechanic: { type: 'shield', threshold: 0.5, value: 30000 },
+    description: '领主级导电 BOSS。荣斗铸锋之冠声骸守关。HP≤50% 生成护盾'
+  },
+  '共鸣回响·芬莱克': { // encore Lv90 · 领主级 · 气动
+    hp: 1215340, atk: 5863, def: 800, element: '气动', class: 'Overlord',
+    resist: res('气动'), mechanic: { type: 'none' },
+    description: '领主级气动 BOSS。息界同调之律声骸守关'
+  },
+  '海维夏': { // encore Lv90 · 领主级 · 衍射
+    hp: 774546, atk: 4188, def: 800, element: '衍射', class: 'Overlord',
+    resist: res('衍射'), mechanic: { type: 'none' },
+    description: '领主级衍射 BOSS。逆光跃彩之约 / 流金溯真之式声骸守关'
+  },
+  '炉芯机骸': { // encore Lv90 · 领主级 · 热熔
+    hp: 1040986, atk: 4188, def: 800, element: '热熔', class: 'Overlord',
+    resist: res('热熔'), mechanic: { type: 'enrage', threshold: 0.3, atkBonus: 0.5 },
+    description: '领主级热熔机械 BOSS。星构寻辉之环声骸守关。HP≤30% 狂暴'
+  },
+  '共鸣回响·梦魇亚当·重锤': { // encore Lv90 · 领主级 · 物理
+    hp: 1040986, atk: 5026, def: 800, element: '物理', class: 'Overlord',
+    resist: res('物理'), mechanic: { type: 'none' },
+    description: '领主级物理 BOSS。碎梦亡鬼之魇声骸守关'
   }
 };
 

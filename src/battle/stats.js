@@ -119,11 +119,15 @@ export function echoContrib(roleName) {
     if (n >= 5 && set.bonus5) setBonuses.push({ setId, name: set.name, tier: 5, ...set.bonus5 });
     // 3 件套结构（如 cantarella_void）：set.tier=3 时 n>=3 激活 bonus5
     if (set.tier === 3 && n >= 3 && set.bonus5) setBonuses.push({ setId, name: set.name, tier: 3, ...set.bonus5 });
+    // 1 件套结构（ghost_nightmare 碎梦亡鬼之魇）：set.tier=1 时 n>=1 激活 bonus5
+    if (set.tier === 1 && n >= 1 && set.bonus5) setBonuses.push({ setId, name: set.name, tier: 1, ...set.bonus5 });
   }
-  // 套装 bonus 转 panel bonus
+  // 套装 bonus 转 panel bonus（部分套装一条效果映射多个面板字段 → 返回数组）
   for (const sb of setBonuses) {
     const b = setBonusToBonus(sb);
-    if (b) bonuses.push(b);
+    if (!b) continue;
+    if (Array.isArray(b)) bonuses.push(...b);
+    else bonuses.push(b);
   }
 
   return { atkFlat: 0, bonuses, setBonuses, mainStats, subStats };
@@ -199,6 +203,34 @@ function setBonusToBonus(sb) {
     brant_mottle_cond: () => null,    // 触发型：添加聚爆 → 热熔+10% + 延奏接力25% (运行时)
     feixue_snow_cond: () => null,     // 触发型：霜渐→落雪→爆发/接力 (运行时)
     lumera_chord_cond: () => null,    // 触发型：震谐/集谐偏移 → 全队谐度破坏+20点 (运行时)
+
+    // ===== 2.6 九套：模拟器无护盾/声骸技能/谐度/偏谐值触发系统，
+    //       沿用 elem_dmg_cond 的静态折半(×0.5)口径计入面板。
+    //       能映射到面板字段的按满效果×0.5 给；纯声骸技能伤害/暴击、谐度点数无对应字段，诚实忽略。=====
+    // 失序彼岸之梦：能量为0时 暴击+20% / 声骸技能伤害+35%（暴击折半入面板，声骸技能无字段忽略）
+    lost_dream_cond: () => ({ type: 'crate', value: sb.value * 0.5, source: `声骸套装·${sb.name}(预估)` }),
+    // 荣斗铸锋之冠：获盾时 攻击+6%/暴伤+4% 可叠5层（无护盾系统，按满5层×0.5 折半入面板）
+    glory_forge_cond: () => [
+      { type: 'atk_pct', value: sb.value * (sb.stacks || 5) * 0.5, source: `声骸套装·${sb.name}(预估)` },
+      { type: 'cdmg', value: (sb.cdmg || 0) * (sb.stacks || 5) * 0.5, source: `声骸套装·${sb.name}(预估)` },
+    ],
+    // 息界同调之律：声骸技能时 重击+30% / 全队声骸技能+4%叠4层（重击折半入面板，声骸技能无字段忽略）
+    sync_law_cond: () => ({ type: 'heavy_pct', value: sb.value * 0.5, source: `声骸套装·${sb.name}(预估)` }),
+    // 焚羽猎魔之影：双效果时 热熔+16%（重击/声骸技能暴击无字段忽略，热熔折半入面板）
+    hunt_shadow_cond: () => ({ type: 'elem_dmg', element: sb.elem, value: (sb.valueAlt || 0) * 0.5, source: `声骸套装·${sb.name}(预估)` }),
+    // 逆光跃彩之约：延奏后下一变奏角色攻击+15%（接力型，不计入本人面板，类比 atk_next_flat）
+    backlight_vow_cond: () => null,
+    // 星构寻辉之环：治疗时按偏谐值全队攻击+，上限25%（无治疗/偏谐触发系统，忽略）
+    star_ring_cond: () => null,
+    // 流金溯真之式：普攻时衍射+10%叠3层（按满3层×0.5 折半入面板）
+    gold_truth_cond: () => ({ type: 'elem_dmg', element: sb.elem, value: sb.value * (sb.stacks || 3) * 0.5, source: `声骸套装·${sb.name}(预估)` }),
+    // 听唤语义之愿：声骸技能时 声骸技能暴击+20% / 自身气动+15%（暴击无字段忽略，气动折半入面板）
+    echo_wish_cond: () => ({ type: 'elem_dmg', element: sb.elem, value: (sb.valueAlt || 0) * 0.5, source: `声骸套装·${sb.name}(预估)` }),
+    // 碎梦亡鬼之魇(1件套)：骇破偏移时 普攻+35%/重击+35%（无骇破系统，折半入面板）
+    ghost_nightmare_cond: () => [
+      { type: 'normal_pct', value: sb.value * 0.5, source: `声骸套装·${sb.name}(预估)` },
+      { type: 'heavy_pct', value: sb.value * 0.5, source: `声骸套装·${sb.name}(预估)` },
+    ],
   };
   const fn = map[sb.type];
   return fn ? fn() : null;

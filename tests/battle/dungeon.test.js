@@ -3,6 +3,8 @@
 import { describe, it, expect } from 'vitest';
 import { DUNGEONS, WEEKLY_BOSS, SOL3_LEVELS, getSol3Config, setSol3Level, getSol3Level, getDungeonEncounter, flattenEnemies, parseEnemyStr, WEEKLY_BOSS_LIMIT, getWeeklyBossUsed, canUseWeeklyBoss, consumeWeeklyBoss, resetWeeklyBossIfNeeded } from '../../src/battle/dungeon.js';
 import { ENEMIES } from '../../src/battle/enemies.js';
+import { createBattle } from '../../src/battle/combat.js';
+import { resetState as setupState } from '../helpers.js';
 import { expToNext, EXP_VALUES, weaponToNext } from '../../src/battle/stats.js';
 import { S, state0, DAY } from '../../src/state.js';
 
@@ -102,36 +104,56 @@ describe('DUNGEONS data integrity', () => {
     });
   });
 
-  it('every dungeon has valid enemies in ENEMIES table', () => {
+  it('every dungeon references enemies that exist in ENEMIES table', () => {
+    // 根因防护：副本引用不存在的敌人 → spawnEnemy 返回 null → createBattle 返回 null
+    //   → 玩家点"挑战"报"战斗创建失败"。2026-07 无音区 12 个 BOSS 缺失即此类。
+    //   固定 enemies 和 encounterPool 里的所有敌人都必须在 ENEMIES 表中。
+    const dangling = [];
     allDungeons.forEach(d => {
-      const flat = flattenEnemies(d.enemies);
-      flat.forEach(name => {
-        // weekly/weeklyShort 类型的敌人可能在 ENEMIES 中，也可能没有（如部分 boss）
-        if (!ENEMIES[name]) {
-          // 只在敌人表显式缺失时报 warning 级
-          // 部分 encounterPool 中的敌人可能不在主 enemies 配置里（如特定的剧情 BOSS）
-          // 这些会由 spawnEnemy 返回 null 并被 combat.js 处理
-        }
+      const pools = d.encounterPool
+        ? d.encounterPool.flatMap(p => p.enemies)
+        : (d.enemies || []);
+      flattenEnemies(pools).forEach(name => {
+        if (!ENEMIES[name]) dangling.push(`${d.id} → ${name}`);
       });
     });
+    expect(dangling, `副本引用了不存在的敌人:\n${dangling.join('\n')}`).toEqual([]);
   });
 
-  it('encounter pools reference valid enemies when possible', () => {
+  it('encounter pools reference valid enemies', () => {
+    const dangling = [];
     allDungeons.filter(d => d.encounterPool).forEach(d => {
       d.encounterPool.forEach(enc => {
-        const flat = flattenEnemies(enc.enemies);
-        // 不强制每个都在 ENEMIES 里（灵活设计），但至少名字非空
-        flat.forEach(name => {
+        flattenEnemies(enc.enemies).forEach(name => {
           expect(name.length).toBeGreaterThan(0);
+          if (!ENEMIES[name]) dangling.push(`${d.id} → ${name}`);
         });
       });
     });
+    expect(dangling, `encounterPool 引用了不存在的敌人:\n${dangling.join('\n')}`).toEqual([]);
   });
 
   it('every dungeon has valid cost (non-negative)', () => {
     allDungeons.forEach(d => {
       expect(d.cost).toBeGreaterThanOrEqual(0);
     });
+  });
+});
+
+// ===== 4b. 端到端：每个副本都能真正开战（最强根因防护）=====
+// 直接调 createBattle，覆盖"敌人缺失/spawnEnemy 返回 null/数量不匹配"等所有导致
+// "战斗创建失败"的路径。比静态引用检查更强：任何让 createBattle 返回 null 的改动都会红。
+describe('every dungeon can create a battle', () => {
+  const allDungeons = [...DUNGEONS, ...WEEKLY_BOSS];
+
+  it.each(allDungeons.map(d => [d.id, d]))('createBattle succeeds for %s', (_id, d) => {
+    setupState({ team: ['忌炎'], roles: { '忌炎': { level: 90 } } });
+    // 走和 UI 相同的取敌路径：encounterPool → getDungeonEncounter → flatten
+    const encounter = getDungeonEncounter(d, S.today);
+    const enemyNames = flattenEnemies(encounter.enemies);
+    const battle = createBattle(['忌炎'], enemyNames, { enemyScale: encounter.enemyScale || 1 });
+    expect(battle, `${d.id} 战斗创建失败（敌人: ${enemyNames.join('/')}）`).not.toBeNull();
+    expect(battle.enemies.length).toBe(enemyNames.length);
   });
 });
 

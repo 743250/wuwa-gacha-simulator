@@ -79,15 +79,21 @@ export function createBattle(teamNames, enemyNames, opts = {}) {
   }
 
   const expectedEnemies = (enemyNames || []).filter(Boolean);
+  const missing = [];
   const enemies = expectedEnemies.map((n, idx) => {
     // 副本池：enemyLevel 控制 HP/ATK/DEF 等级缩放，enemyScale 控制额外倍率
     const scale = opts.enemyStatScale || opts.enemyScale || 1.0;
     const spawnOpts = opts.enemyLevel ? { enemyLevel: opts.enemyLevel, hp: scale, atk: scale, def: 1.0 } : scale;
     const e = spawnEnemy(n, spawnOpts);
     if (e) e.idx = idx + 100;
+    else missing.push(n);
     return e;
   }).filter(Boolean);
-  if (enemies.length === 0 || enemies.length !== expectedEnemies.length) return null;
+  if (enemies.length === 0 || enemies.length !== expectedEnemies.length) {
+    // 具体报出哪些敌人名不在 ENEMIES 表（软引用悬空是"战斗创建失败"的头号原因）
+    console.warn(`[createBattle] 战斗创建失败：以下敌人不在 ENEMIES 表 → ${missing.join('、')}（期望敌人: ${expectedEnemies.join('、')}）`);
+    return null;
+  }
 
   const battle = {
     turn: 1,

@@ -57,7 +57,7 @@ export function startDungeonBattle(dungeonId) {
   }
   const battle = startEncounter({ team: names, enemies: enemyNames, options: battleOpts });
   if (!battle) {
-    msg('战斗创建失败：队伍或敌人配置异常');
+    msg(`战斗创建失败：敌人「${enemyNames.join('、')}」配置异常（详见控制台）`);
     return;
   }
   currentBattle = battle;
@@ -636,19 +636,20 @@ window.__bSettle = () => {
     if (drops.echo_tuner) { S.materials.echo_tuner += drops.echo_tuner; rewardText.push(`声骸调谐器 ×${drops.echo_tuner}`); }
     if (drops.astrite) { S.astrite += drops.astrite; rewardText.push(`星声 +${drops.astrite}`); }
     // 声骸掉落：按套装筛选并生成 echo（echo_set 支持数组 → 多套随机选一）
+    // pool 存 { echo, setId } 对，掉落时把声骸归到该无音区目标套装（多套装声骸不再错位）
     if (drops.echo_set) {
       const setIds = Array.isArray(drops.echo_set) ? drops.echo_set : [drops.echo_set];
       const pool = [];
       for (const sid of setIds) {
         const part = getEchoesBySet(sid);
-        if (part.length) pool.push(...part);
+        for (const echo of part) pool.push({ echo, setId: sid });
       }
       if (pool.length) {
         const n = drops.echo_count || 1;
         const rolled = [];
         for (let i = 0; i < n; i++) {
           const pick = pool[Math.floor(Math.random() * pool.length)];
-          const e = generateEcho(pick.id);
+          const e = generateEcho(pick.echo.id, pick.setId);
           if (e) rolled.push(e.name);
         }
         if (rolled.length) rewardText.push(`声骸 ×${rolled.length}: ${rolled.join(' · ')}`);
