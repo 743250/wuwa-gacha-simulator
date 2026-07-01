@@ -1,46 +1,32 @@
 // 共鸣链 → 战斗效果（逻辑层）
 // 数据层见 chainEffects.js
 //
-// ★ 文案数据：src/data/chains-extracted.json 由 scripts/extract-chains.cjs 从
-//   库街区官方 API（/wiki/core/catalogue/item/getEntryDetail）批量抓取，
-//   含 10 个核心角色的官方共鸣链 title / desc / summary（已染色）。
+// ★ 文案唯一来源：src/data/seq.js（模拟器版共鸣链文案）。
+//   官方原文备份在 docs/sources/chains/chains-extracted.json，仅作历史参考，
+//   不在运行时 import。
 // ★ 战斗折算：CHAIN_BATTLE_EFFECTS（chainEffects.js）是结构化机制覆盖，
-//   未在 CHAIN_BATTLE_EFFECTS 中列出的角色，战斗折算仍走文案正则（parseChainLine 兜底分支）。
+//   未在 CHAIN_BATTLE_EFFECTS 中列出的角色，战斗折算走文案正则（parseChainLine）。
 
 import { seqText } from '../data/seq.js';
 import { getMeta } from './template.js';
-import OFFICIAL_CHAINS from '../data/chains-extracted.json' with { type: 'json' };
 import { CHAIN_BATTLE_EFFECTS, FALLBACK_CHAIN, FORTE_BOOST } from './chainEffects.js';
 
-// 守岸人 1-6 链结构化机制（库街区官方文案 · API: /wiki/core/catalogue/item/getEntryDetail id=1286814658335739904）
-// 数值与文案均为国服官方原文，只在末尾补 summary（一句话 UI 摘要）。
-// 兼容旧调用：把 CHAIN_BATTLE_EFFECTS 转回旧的 [{effect,value,label}] 形式给 parseChainLine 用
+// 把 CHAIN_BATTLE_EFFECTS 转回 [{effect,value,label}] 形式给 parseChainLine 用
+// label 缺失时用 seq.js 对应链文案去标签兜底
 function overrideToEffects(roleName, idx) {
   const arr = CHAIN_BATTLE_EFFECTS[roleName];
   if (!arr) return null;
-  const entry = OFFICIAL_CHAINS[roleName]?.[idx];
+  const seqEntry = seqText[roleName]?.[idx];
+  const fallbackText = seqEntry ? (seqEntry[1] || seqEntry[0] || '') : '';
   const effs = arr[idx] || [];
   return effs.map(e => ({
     ...e,
-    label: e.label || stripTags(entry?.summary || '')
+    label: e.label || stripTags(fallbackText)
   }));
 }
 
 function stripTags(html) {
   return String(html || '').replace(/<[^>]+>/g, '');
-}
-
-// 给外部 UI 用：取链的 title / summary / desc（来自官方文案）
-export function getOverrideMeta(roleName, idx) {
-  return OFFICIAL_CHAINS[roleName]?.[idx] || null;
-}
-// 是否有完整官方文案（10 个核心角色都有）
-export function hasChainOverride(roleName) {
-  return !!OFFICIAL_CHAINS[roleName];
-}
-// 是否有结构化战斗折算（10 个核心角色 全部有）
-export function hasChainBattleEffects(roleName) {
-  return !!CHAIN_BATTLE_EFFECTS[roleName];
 }
 
 
@@ -472,14 +458,4 @@ export function getEnergyRefund(unit) {
   return getChainEffects(unit.name, unit.chain)
     .filter(e => e.effect === 'energyRefund')
     .reduce((sum, e) => sum + e.value, 0);
-}
-
-export function getChainLabels(roleName) {
-  return Array.from({ length: 6 }, (_, i) => {
-    // 覆写优先：直接用结构化 summary（含 HTML 高亮）
-    const meta = getOverrideMeta(roleName, i);
-    if (meta) return meta.summary;
-    const effects = parseChainLine(roleName, i);
-    return effects.map(e => e.label).join(' · ');
-  });
 }

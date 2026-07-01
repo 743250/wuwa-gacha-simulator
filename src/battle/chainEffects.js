@@ -2,7 +2,8 @@
 // 由 chains.js 导入使用。
 //
 // 说明：
-// · 共鸣链官方文案（chains-extracted.json）作为 UI 展示与提示语
+// · 共鸣链 UI 文案来自 src/data/seq.js（模拟器版），官方原文备份在
+//   docs/sources/chains/chains-extracted.json，不在运行时 import
 // · 这里只列战斗折算的【模拟器可用字段】，把"层数 / 状态 / 触发 / CD"统一近似为
 //   永久 buff 或一次性强化，以贴合 AP 回合制
 // · 守岸人/忌炎/吟霖/安可 单独走 combat.js 的特殊路径

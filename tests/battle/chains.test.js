@@ -58,32 +58,6 @@ describe('battle/chains', () => {
     });
   });
 
-  // ===== getOverrideMeta() =====
-  describe('getOverrideMeta()', () => {
-    it('returns metadata for known characters', () => {
-      const meta = chains.getOverrideMeta('忌炎', 0);
-      expect(meta).toBeTruthy();
-      expect(meta).toHaveProperty('title');
-      expect(meta).toHaveProperty('summary');
-    });
-
-    it('returns null for unknown characters', () => {
-      expect(chains.getOverrideMeta('不存在', 0)).toBeNull();
-    });
-  });
-
-  // ===== hasChainOverride() / hasChainBattleEffects() =====
-  describe('hasChainOverride()', () => {
-    it('returns true for extracted characters', () => {
-      expect(chains.hasChainOverride('忌炎')).toBe(true);
-      expect(chains.hasChainOverride('守岸人')).toBe(true);
-    });
-
-    it('returns boolean for unknown characters', () => {
-      expect(typeof chains.hasChainOverride('不存在')).toBe('boolean');
-    });
-  });
-
   // ===== chain effects modify battle unit stats =====
   describe('chain stat impact', () => {
     it('chain=0 vs chain=6 gives different unit stats after createBattle', async () => {
@@ -117,22 +91,6 @@ describe('battle/chains', () => {
         (unit0.skillCdReduce || 0) !== (unit6.skillCdReduce || 0) ||
         (unit0.jiyanRuiyiCap || 0) !== (unit6.jiyanRuiyiCap || 0);
       expect(hasDiff).toBe(true);
-    });
-  });
-
-  // ===== getChainLabels() — UI labels =====
-  describe('getChainLabels()', () => {
-    it('returns 6 labels for known characters', () => {
-      const labels = chains.getChainLabels('忌炎');
-      expect(labels).toHaveLength(6);
-      expect(typeof labels[0]).toBe('string');
-      expect(labels[0].length).toBeGreaterThan(0);
-    });
-
-    it('returns HTML content for extracted characters', () => {
-      const labels = chains.getChainLabels('忌炎');
-      const hasHtml = labels.some(l => l.includes('<b class='));
-      expect(hasHtml).toBe(true);
     });
   });
 

@@ -15,11 +15,10 @@ import { levelUpRole, levelUpRoleMax, levelUpWeapon, levelUpWeaponMax, refineWea
 import { equipEcho, unequipSlot, getEquippableEchoes, calcTotalCost, levelUpEcho, levelUpEchoMax, recycleEcho, retuneEchoSubStat, levelUpEchoWithFeed, previewEchoFeed, toggleEchoLock, ECHO_COST_CAP, echoToNext } from '../equip/echoActions.js';
 import { ECHO_SETS, getSetById, getEchoById, formatEchoStatValue, formatSetBonus } from '../data/echoes.js';
 import { getForte } from '../battle/forte.js';
-import { getOverrideMeta, hasChainOverride } from '../battle/chains.js';
-import { attachTermTips } from './terms.js';
+import { attachTermTips, highlightChainTerms } from './terms.js';
 import { msg } from '../state.js';
 import { escJs } from './render/utils.js';
-import { renderWeaponDetail, highlightChainTerms } from './render/weaponDetail.js';
+import { renderWeaponDetail } from './render/weaponDetail.js';
 import { makeSkillLines } from './render/skillLines.js';
 import { SKILL_HINTS } from './render/skillHints.js';
 
@@ -580,16 +579,10 @@ function renderRoleTabContent(tabId, preview = false) {
   }
   if (tabId === 'chain') {
     const canUp = !preview && o.spare > 0 && o.chain < 6;
-    const usingOverride = hasChainOverride(base);
-    const seqLines = usingOverride
-      ? Array.from({ length: 6 }, (_, i) => {
-          const meta = getOverrideMeta(base, i) || {};
-          return {
-            name: meta.title || (`第 ${i+1} 链`),
-            desc: attachTermTips(meta.desc || '')
-          };
-        })
-      : (seqText[base] || []).map(s => ({ name: s[0], desc: attachTermTips(highlightChainTerms(s[1])) }));
+    const seqLines = (seqText[base] || []).map(s => ({
+      name: s[0],
+      desc: attachTermTips(highlightChainTerms(s[1]))
+    }));
     return `
       ${previewNote}
       <div style="font-size:11px;color:var(--muted);letter-spacing:.5px;text-align:center;margin:0 0 8px">

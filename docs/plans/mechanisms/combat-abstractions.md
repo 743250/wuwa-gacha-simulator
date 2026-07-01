@@ -173,4 +173,3 @@
 
 - 每步都跑 `npx vitest run` —— 失败立刻回退该步
 - 旧字段保留一个过渡版本（如 `_stunned` 同时存在），所有迁移完成后统一清理
-- `chains.before-port.js` `forte.before-port.js` 已是这种翻新风格的样板，参考同样手法
