@@ -135,6 +135,8 @@ export function furoloOnNormalHit(self, battle) {
   if (self.name !== '弗洛洛') return;
   furoloGainNotes(self, 1, battle);
   furoloGainEchoes(self, 3, battle);
+  // 指挥状态期间:赫卡忒协同攻击(弗洛洛每次攻击都触发)
+  if (furoloInCommand(self)) furoloHecateAssist(self, battle);
   // 6 链重世追击:普攻第3段后召唤赫卡忒追击
   if (self.chain >= 6) furoloC6EchoPhantom(self, battle);
 }
@@ -144,6 +146,8 @@ export function furoloOnSkillHit(self, battle) {
   if (self.name !== '弗洛洛') return;
   furoloGainNotes(self, 1, battle);
   furoloGainEchoes(self, 5, battle);
+  // 指挥状态期间:赫卡忒协同攻击
+  if (furoloInCommand(self)) furoloHecateAssist(self, battle);
   if (self.chain >= 6) furoloC6EchoPhantom(self, battle);
 }
 
@@ -152,6 +156,8 @@ export function furoloOnHeavyHit(self, battle) {
   if (self.name !== '弗洛洛') return;
   furoloGainNotes(self, 1, battle);
   furoloGainEchoes(self, 4, battle);
+  // 指挥状态期间:赫卡忒协同攻击(谱曲终末也会触发)
+  if (furoloInCommand(self)) furoloHecateAssist(self, battle);
 }
 
 // ── 变奏入场后加乐声 ──
@@ -159,6 +165,8 @@ export function furoloOnVariationHit(self, battle) {
   if (self.name !== '弗洛洛') return;
   furoloGainNotes(self, 1, battle);
   furoloGainEchoes(self, 2, battle);
+  // 指挥状态期间:赫卡忒协同攻击
+  if (furoloInCommand(self)) furoloHecateAssist(self, battle);
 }
 
 // ── 6 链重世幻象追击(普攻第3段/技能后召唤赫卡忒追击 HP×8%) ──
@@ -281,11 +289,13 @@ export function furoloOnBurst(self, ctx) {
   });
 }
 
-// ── 赫卡忒每回合自动攻击 ──
-function furoloHecateTurnStart(summon, battle) {
-  if (!summon.alive) return;
-  const owner = battle.team[summon.ownerIdx];
-  if (!owner || !owner.alive) return;
+// ── 赫卡忒协同攻击（弗洛洛普攻时触发，对应官方"指令·普攻"） ──
+// 每 2 次后替换为强化攻击·赫卡忒
+export function furoloHecateAssist(owner, battle) {
+  if (owner.name !== '弗洛洛') return;
+  if (!owner.furoloHecateSummonId) return;
+  const summon = (battle.summons || []).find(s => s.id === owner.furoloHecateSummonId && s.alive);
+  if (!summon) return;
   const target = battle.enemies.find(e => e.alive);
   if (!target) return;
   summon._attackCount = (summon._attackCount || 0) + 1;
@@ -302,7 +312,7 @@ function furoloHecateTurnStart(summon, battle) {
   furoloGainEchoes(owner, isAugment ? 3 : 2, battle);
   battle.log.push({
     type: 'mechanic', src: '赫卡忒',
-    msg: `${isAugment ? '强化攻击' : '自动攻击'} · HP×${(finalMult*100).toFixed(1)}%（${real} 伤害）· 弗洛洛 +1 乐声 +${isAugment ? 3 : 2} 余响`
+    msg: `${isAugment ? '强化攻击' : '协同攻击'} · HP×${(finalMult*100).toFixed(1)}%（${real} 伤害）· 弗洛洛 +1 乐声 +${isAugment ? 3 : 2} 余响`
   });
   // 3 链:强化攻击命中目标攻击 -20%(2回合)
   if (isAugment && owner.chain >= 3) {
@@ -313,6 +323,12 @@ function furoloHecateTurnStart(summon, battle) {
       msg: '3 链 · 强化攻击命中 · 目标攻击 -20%（2 回合）'
     });
   }
+}
+
+// ── 赫卡忒回合开始 hook(保留挡刀,不再自动攻击) ──
+function furoloHecateTurnStart(summon, battle) {
+  // 协同攻击改为由弗洛洛普攻触发(furoloOnNormalHit → furoloHecateAssist)
+  // 此处保留 hook 占位,不做任何攻击动作
 }
 
 // ── 赫卡忒挡刀(主人受伤前拦截) ──

@@ -222,23 +222,43 @@ describe('battle/characters/frolo — 弗洛洛状态机', () => {
     });
   });
 
-  // ===== 赫卡忒自动攻击 =====
-  describe('赫卡忒自动攻击', () => {
-    it('回合开始时赫卡忒自动攻击, 弗洛洛 +1 乐声 +2/3 余响', () => {
+  // ===== 赫卡忒协同攻击（弗洛洛普攻触发） =====
+  describe('赫卡忒协同攻击', () => {
+    it('指挥状态期间弗洛洛普攻触发赫卡忒协同攻击', () => {
       const battle = quickBattle(null, [{ name: '飞廉之猩', scale: 1 }]);
       const f = getFurolo(battle);
-      // 进指挥状态
+      // 进指挥状态: 2 普攻 + 重击(谱曲终末) + 解放
       combat.doAttack(battle, firstEnemy(battle));
       combat.doAttack(battle, firstEnemy(battle));
       combat.doHeavy(battle, firstEnemy(battle));
       combat.doBurst(battle);
       const hecate = battle.summons.find(s => s.name === '赫卡忒');
-      const enemyHpBefore = battle.enemies[firstEnemy(battle)].hp;
-      // 结束回合 -> 下回合开始时 tickSummons 触发赫卡忒攻击
+      expect(hecate._attackCount || 0).toBe(0);
+      const enemy = battle.enemies[firstEnemy(battle)];
+      const enemyHpBefore = enemy.hp;
+      // 新回合有 AP, 普攻触发赫卡忒协同
       combat.endTurn(battle);
-      // 敌人血量下降（赫卡忒打了）
-      const enemy = battle.enemies.find(e => e.alive);
-      if (enemy) expect(enemy.hp).toBeLessThan(enemyHpBefore);
+      combat.doAttack(battle, firstEnemy(battle));
+      expect(hecate._attackCount).toBe(1);
+      expect(enemy.hp).toBeLessThan(enemyHpBefore);
+    });
+
+    it('每 2 次协同后替换为强化攻击·赫卡忒', () => {
+      const battle = quickBattle(null, [{ name: '飞廉之猩', scale: 1 }]);
+      const f = getFurolo(battle);
+      combat.doAttack(battle, firstEnemy(battle));
+      combat.doAttack(battle, firstEnemy(battle));
+      combat.doHeavy(battle, firstEnemy(battle));
+      combat.doBurst(battle);
+      const hecate = battle.summons.find(s => s.name === '赫卡忒');
+      // 第 1 次（普通协同）
+      combat.endTurn(battle);
+      combat.doAttack(battle, firstEnemy(battle));
+      expect(hecate._attackCount).toBe(1);
+      // 第 2 次 → 强化攻击
+      combat.endTurn(battle);
+      combat.doAttack(battle, firstEnemy(battle));
+      expect(hecate._attackCount).toBe(2);
     });
   });
 

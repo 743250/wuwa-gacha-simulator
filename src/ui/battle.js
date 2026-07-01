@@ -400,8 +400,22 @@ function renderActions() {
     const canSkill = notFrozen && skillReady && b.ap >= 1 && hasTarget;
     const isZhezhi = cur.name === '折枝';
     const zhezhiDianjingReady = isZhezhi && (cur.zhezhiFieldTurns || 0) > 0 && (cur.zhezhiCranes || 0) > 0;
-    const canHeavy = cur.hasHeavy && notFrozen && cur.cd.heavy === 0 && b.ap >= 2 && (hasTarget || zhezhiDianjingReady);
-    const canBurst = notFrozen && cur.energy >= cur.energyMax && b.ap >= 3 && aliveEnemyCount > 0;
+    const canHeavy = (() => {
+      if (!cur.hasHeavy || !notFrozen || cur.cd.heavy > 0 || b.ap < 2) return false;
+      if (!hasTarget && !zhezhiDianjingReady) return false;
+      // 赞妮灼焰形态：普攻键已替换为重斩，重击不可用
+      if (cur.name === '赞妮' && (cur.zanYanFormTurns || 0) > 0) return false;
+      // 折枝点睛：需墨鹤领域 + 至少 1 只墨鹤
+      if (cur.name === '折枝' && !(cur.zhezhiFieldTurns > 0 && cur.zhezhiCranes > 0)) return false;
+      // 弗洛洛谱曲终末：需满 6 乐声
+      if (cur.name === '弗洛洛' && (cur.furoloNotes || 0) < 6) return false;
+      return true;
+    })();
+    const isFurolo = cur.name === '弗洛洛';
+    const furoloBurstReady = isFurolo && !!cur.furoloDirge;
+    const canBurst = notFrozen && aliveEnemyCount > 0 && (
+      isFurolo ? furoloBurstReady : (cur.energy >= cur.energyMax && b.ap >= 3)
+    );
 
     const blocker = (() => {
       if (cur && !cur.alive) return '当前角色已倒下，请切换队员';
@@ -429,7 +443,13 @@ function renderActions() {
     if (showHeavy) {
       html += `<button class="bbtn" style="${litStyle(canHeavy, '#ff8c5e')}" onclick="window.__bHeavy(${enemyIdx})" ${!canHeavy ? 'disabled' : ''} title="220% 攻击 · 重击伤害类型 · CD 1 回合 · +15 能量 · 削破韧 25">💢 重击<br><span style="font-size:9px;opacity:.7">2 AP${cur.cd.heavy > 0 ? ' · CD'+cur.cd.heavy : ''}</span></button>`;
     }
-    html += `<button class="bbtn" style="${litStyle(canBurst, 'var(--gold)')}" onclick="window.__bBurst()" ${!canBurst ? 'disabled' : ''} title="主目标 400% · 副目标 200% · AOE · 需能量满 · 削破韧 30">⚡ 解放<br><span style="font-size:9px;opacity:.7">3 AP · ${cur.energy}/${cur.energyMax}</span></button>`;
+    const burstHint = isFurolo
+      ? '弗洛洛 · 0 AP · 需定音状态 · 进入指挥状态 + 赫卡忒召唤'
+      : '主目标 400% · 副目标 200% · AOE · 需能量满 · 削破韧 30';
+    const burstSub = isFurolo
+      ? (furoloBurstReady ? '定音 · 可解放' : '需定音')
+      : `3 AP · ${cur.energy}/${cur.energyMax}`;
+    html += `<button class="bbtn" style="${litStyle(canBurst, 'var(--gold)')}" onclick="window.__bBurst()" ${!canBurst ? 'disabled' : ''} title="${burstHint}">⚡ 解放<br><span style="font-size:9px;opacity:.7">${burstSub}</span></button>`;
     html += '</div>';
     // 残骸投掷按钮（聚械机偶特殊动作 · 0 AP）
     const hasDebris = b.enemies.some(e => e.alive && e._debrisReady);
