@@ -397,7 +397,7 @@ function renderActions() {
     const notFrozen = cur && cur.alive && cur.frozenTurns === 0;
     const skillReady = cur && cur.cd.skill === 0 && (cur.skillLockedTurns || 0) === 0;
     const canAtk = canAttack(cur, b, enemyIdx).ok;
-    const canSkill = canSkill(cur, b, enemyIdx).ok;
+    const canSkillOk = canSkill(cur, b, enemyIdx).ok;
     const isZhezhi = cur.name === '折枝';
     const zhezhiDianjingReady = isZhezhi && (cur.zhezhiFieldTurns || 0) > 0 && (cur.zhezhiCranes || 0) > 0;
     const canHeavyOk = canHeavy(cur, b, enemyIdx).ok;
@@ -427,7 +427,7 @@ function renderActions() {
       ? `border-color:${color};color:${color}${color==='var(--gold)'?';background:rgba(245,207,107,.08)':''}`
       : `border-color:var(--line);color:var(--dim);background:rgba(255,255,255,.02);opacity:.4;cursor:not-allowed`;
     html += `<button class="bbtn" style="${litStyle(canAtk, 'var(--text)')}" onclick="window.__bAtk(${enemyIdx})" ${!canAtk ? 'disabled' : ''} title="100% 攻击 · +12 能量 · 削破韧 8">⚔ 普攻<br><span style="font-size:9px;opacity:.7">1 AP</span></button>`;
-    html += `<button class="bbtn" style="${litStyle(canSkill, 'var(--accent)')}" onclick="window.__bSkill(${enemyIdx})" ${!canSkill ? 'disabled' : ''} title="180% 攻击 · CD 3 回合 · +22 能量 · 削破韧 20">✦ 技能<br><span style="font-size:9px;opacity:.7">1 AP${cur.cd.skill > 0 ? ' · CD'+cur.cd.skill : ''}</span></button>`;
+    html += `<button class="bbtn" style="${litStyle(canSkillOk, 'var(--accent)')}" onclick="window.__bSkill(${enemyIdx})" ${!canSkillOk ? 'disabled' : ''} title="180% 攻击 · CD 3 回合 · +22 能量 · 削破韧 20">✦ 技能<br><span style="font-size:9px;opacity:.7">1 AP${cur.cd.skill > 0 ? ' · CD'+cur.cd.skill : ''}</span></button>`;
     if (showHeavy) {
       html += `<button class="bbtn" style="${litStyle(canHeavyOk, '#ff8c5e')}" onclick="window.__bHeavy(${enemyIdx})" ${!canHeavyOk ? 'disabled' : ''} title="220% 攻击 · 重击伤害类型 · CD 1 回合 · +15 能量 · 削破韧 25">💢 重击<br><span style="font-size:9px;opacity:.7">2 AP${cur.cd.heavy > 0 ? ' · CD'+cur.cd.heavy : ''}</span></button>`;
     }
