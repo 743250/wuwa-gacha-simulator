@@ -25,7 +25,7 @@ import { hasHeavyAttack, fireCharacterHook, queryCharacterHook, getCharacterMech
 import { ACTION_COST, ACTION_MULTIPLIER, VIBRATION_DAMAGE } from './balance.js';
 // 返回值参与倍率/控制流的 hook 仍保留具名调用（fireCharacterHook 会丢弃返回值）。
 import { cartethyiaEnterFurForm, cartethyiaBurstErosion, cartethyiaResolveMultiplier, cartethyiaErosionTick, cartethyiaErosionOnBreak, cartethyiaLethalShield } from './characters/cartethyia.js';
-import { zanYanInBlaze, zanYanResolveNormal, zanYanSpendFlameForSlash, zanYanEnterBlaze, zanYanRekindleMult, zanYanTick, zanYanOnLethal, zanYanOnBurst } from './characters/zanyan.js';
+import { zanYanInBlaze, zanYanEnterBlaze, zanYanRekindleMult, zanYanTick, zanYanOnLethal, zanYanOnBurst } from './characters/zanyan.js';
 
 // 行动花费薄入口：默认只看回合 AP；挂了 resolveCost hook 的角色（长离心眼态拿离火抵 AP）走 queryCharacterHook。
 // 返回 { apCost: 实际要扣的回合 AP, lihuoCost: 要消耗的离火 }。
@@ -747,7 +747,7 @@ export function doAttack(battle, targetIdx) {
   // 长离心眼·征：普攻变身为 180% 共鸣技能伤害
   const meForm = queryCharacterHook(self, 'mindEyeForm', 'normal');
   // 赞妮灼焰形态：普攻键替换为重斩（HP×12%，消耗 20 焰光，heavy 类型）
-  const zyForm = zanYanResolveNormal(self, battle);
+  const zyForm = queryCharacterHook(self, 'resolveNormal', battle);
   const fEnh = (meForm || zyForm) ? null : forteEnhances(self, 'normal');
   let mult;
   if (meForm) mult = meForm.mult;
@@ -782,7 +782,7 @@ export function doAttack(battle, targetIdx) {
     action: meForm ? meForm.label : (zyForm ? zyForm.label : (fEnh ? `${fEnh.resourceName}强化普攻` : '普攻'))
   });
   // 赞妮重斩消耗焰光（普攻键重斩路径）
-  if (zyForm) zanYanSpendFlameForSlash(self, battle);
+  if (zyForm) queryCharacterHook(self, 'spendFlameForSlash', battle);
   // ★ 守岸人 5 链：自动多打一个相邻敌人
   if ((self.normalSplit || 1) >= 2) {
     const aliveOthers = battle.enemies.filter(e => e.alive && e !== target);
