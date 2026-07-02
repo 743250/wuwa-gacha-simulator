@@ -2,11 +2,11 @@
 import { S, $ } from '../state.js';
 import { activePhase, activeBanners, cur, poolKind, isCollabActive } from '../gacha/core.js';
 import { seqText } from '../data/seq.js';
-import { standard5, fourAll, weapons as characterWeapons } from '../data/chars.js';
+import { standard5 } from '../data/chars.js';
 import { openModal, closeModal } from '../modal.js';
 import { upgrade } from '../gacha/core.js';
 import { saveState } from '../save.js';
-import { computeBattleStats, calcBP, expToNext, weaponToNext } from '../battle/stats.js';
+import { expToNext, weaponToNext } from '../battle/stats.js';
 import { getMeta } from '../battle/template.js';
 import { WEAPON_DATA } from '../equip/weapons.js';
 import { levelUpRole, levelUpRoleMax, levelUpWeapon, levelUpWeaponMax, refineWeapon, equipWeapon, unequipWeapon, getEquippableWeapons, totalExp, levelUpWeaponWithFeed, previewWeaponFeed } from '../equip/actions.js';
@@ -25,6 +25,7 @@ import { renderPullPanel } from './render/pullPanel.js';
 import { renderExchangeList } from './render/exchangeList.js';
 import { renderWaveList } from './render/waveList.js';
 import { renderShopPanel } from './render/shopPanel.js';
+import { makePreviewRole, getRoleForModal, computeRoleStatsForModal, calcRoleBPForModal } from './render/rolePreview.js';
 
 export function render() {
   const aps = activePhase(), bs = activeBanners(), b = cur();
@@ -62,46 +63,6 @@ export function render() {
   renderRoles();
   // 每次渲染后自动存档（防抖 1 秒）
   saveState();
-}
-
-function roleRarity(n) {
-  return standard5.includes(n) || Object.prototype.hasOwnProperty.call(characterWeapons, n) ? 5 : (fourAll.includes(n) ? 4 : 5);
-}
-
-function makePreviewRole(n) {
-  return {
-    n,
-    r: roleRarity(n),
-    owned: 0,
-    chain: 0,
-    spare: 0,
-    bought: 0,
-    pulled: 0,
-    level: 90,
-    exp: 0,
-    equipWeapon: null,
-    skillLevels: { 普攻: 1, 技能: 1, 解放: 1, 回路: 1 },
-    preview: true
-  };
-}
-
-function getRoleForModal(n) {
-  return S.roles[n] || makePreviewRole(n);
-}
-
-function withPreviewRole(n, fn) {
-  if (S.roles[n]) return fn();
-  S.roles[n] = makePreviewRole(n);
-  try { return fn(); }
-  finally { delete S.roles[n]; }
-}
-
-function computeRoleStatsForModal(n) {
-  return withPreviewRole(n, () => computeBattleStats(n));
-}
-
-function calcRoleBPForModal(n) {
-  return withPreviewRole(n, () => calcBP(n));
 }
 
 function renderRoles() {
