@@ -24,7 +24,6 @@ import { applyEnemyPeriodicMechanic, applyEnemyThresholdMechanic, applyEnemyOnHi
 import { hasHeavyAttack, fireCharacterHook, queryCharacterHook, getCharacterMechanic } from './characters/index.js';
 import { ACTION_COST, ACTION_MULTIPLIER, VIBRATION_DAMAGE } from './balance.js';
 // 返回值参与倍率/控制流的 hook 仍保留具名调用（fireCharacterHook 会丢弃返回值）。
-import { jiyanBurstRuiyi } from './characters/jiyan.js';
 import { cartethyiaEnterFurForm, cartethyiaBurstErosion, cartethyiaResolveMultiplier, cartethyiaErosionTick, cartethyiaErosionOnBreak, cartethyiaLethalShield } from './characters/cartethyia.js';
 import { zanYanInBlaze, zanYanHpMult, zanYanResolveNormal, zanYanSpendFlameForSlash, zanYanEnterBlaze, zanYanRekindleMult, zanYanTick, zanYanOnLethal, zanYanOnBurst } from './characters/zanyan.js';
 
@@ -919,7 +918,7 @@ export function doBurst(battle) {
   const primary = (battle.enemies[targetIdx] && battle.enemies[targetIdx].alive) ? battle.enemies[targetIdx] : aliveEnemies[0];
   const fEnh = forteEnhances(self, 'burst');
   // ★ 忌炎「锐意之势」：消耗所有锐意，每层 +100%（6 链 +120%）解放伤害
-  const { ruiyiMult } = jiyanBurstRuiyi(self, battle);
+  const { ruiyiMult = 1.0 } = queryCharacterHook(self, 'burstRuiyi', battle) || {};
   // ===== 卡提希娅双阶段解放 =====
   if (self.name === '卡提希娅') {
     const inFurForm = (self.cartethyiaFurTurns || 0) > 0;
