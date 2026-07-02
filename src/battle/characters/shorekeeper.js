@@ -73,6 +73,10 @@ export function shorekeeperOnBurst(self, ctx) {
   shorekeeperBurstRefund(self, ctx.battle);
 }
 
+export function shorekeeperSkipGenericBurstHeal(self) {
+  return self.name === '守岸人';
+}
+
 export default {
   name: '守岸人',
   hasHeavy: false,
@@ -80,5 +84,6 @@ export default {
   onSkill: shorekeeperOnSkill,
   starfield: shorekeeperStarfield,
   burstRefund: shorekeeperBurstRefund,
-  onBurst: shorekeeperOnBurst
+  onBurst: shorekeeperOnBurst,
+  skipGenericBurstHeal: shorekeeperSkipGenericBurstHeal
 };

@@ -1074,7 +1074,7 @@ export function doBurst(battle) {
   });
 
   // 其他治疗/辅助位（非守岸人）：解放时一次性治疗全队
-  if ((self.type === '辅助' || self.type === '治疗') && self.name !== '守岸人') {
+  if ((self.type === '辅助' || self.type === '治疗') && !queryCharacterHook(self, 'skipGenericBurstHeal')) {
     const healAmt = Math.round(self.atk * 1.5 * (1 + (self.healBonus || 0)));
     battle.team.forEach(t => {
       if (t.alive) {
