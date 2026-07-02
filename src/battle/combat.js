@@ -25,7 +25,7 @@ import { hasHeavyAttack, fireCharacterHook, queryCharacterHook, getCharacterMech
 import { ACTION_COST, ACTION_MULTIPLIER, VIBRATION_DAMAGE } from './balance.js';
 // 返回值参与倍率/控制流的 hook 仍保留具名调用（fireCharacterHook 会丢弃返回值）。
 import { cartethyiaEnterFurForm, cartethyiaBurstErosion, cartethyiaResolveMultiplier, cartethyiaErosionTick, cartethyiaErosionOnBreak, cartethyiaLethalShield } from './characters/cartethyia.js';
-import { zanYanTick, zanYanOnLethal } from './characters/zanyan.js';
+import { zanYanTick } from './characters/zanyan.js';
 
 // 行动花费薄入口：默认只看回合 AP；挂了 resolveCost hook 的角色（长离心眼态拿离火抵 AP）走 queryCharacterHook。
 // 返回 { apCost: 实际要扣的回合 AP, lihuoCost: 要消耗的离火 }。
@@ -321,8 +321,8 @@ export function dealDamage(target, dmg) {
     }
   }
   // ★ 赞妮 6 链 · 当务之急？下班！：灼焰形态内致死不倒（每场 1 次，保留 1 点生命）
-  if (target.hp - dmg <= 0 && target.name === '赞妮') {
-    if (zanYanOnLethal(target, _currentBattle)) {
+  if (target.hp - dmg <= 0) {
+    if (queryCharacterHook(target, 'onLethal', _currentBattle)) {
       return 0;
     }
   }
