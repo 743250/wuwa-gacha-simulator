@@ -2,7 +2,6 @@
 import { S, $ } from '../state.js';
 import { activePhase, activeBanners, cur, poolKind, isCollabActive } from '../gacha/core.js';
 import { seqText } from '../data/seq.js';
-import { standard5 } from '../data/chars.js';
 import { openModal, closeModal } from '../modal.js';
 import { upgrade } from '../gacha/core.js';
 import { saveState } from '../save.js';
@@ -27,6 +26,7 @@ import { renderWaveList } from './render/waveList.js';
 import { renderShopPanel } from './render/shopPanel.js';
 import { makePreviewRole, getRoleForModal, computeRoleStatsForModal, calcRoleBPForModal } from './render/rolePreview.js';
 import { renderRoleList } from './render/roleList.js';
+import { registerStandardRolePreview } from './render/standardRolePreview.js';
 
 export function render() {
   const aps = activePhase(), bs = activeBanners(), b = cur();
@@ -86,14 +86,7 @@ export function openRolePreview(n) {
 
 window.openRolePreview = openRolePreview;
 
-window.__openStandardRolePreview = () => {
-  const buttons = standard5.map(n => `<button class="mbtn gold" style="margin:4px;min-width:90px" onclick="window.openRolePreview('${escJs(n)}')">${n}</button>`).join('');
-  openModal({
-    title: '常驻五星角色预览',
-    body: `<div style="color:var(--muted);font-size:12px;margin-bottom:10px">这些角色都可能从当前角色池抽到，可先查看技能与共鸣链。</div><div style="text-align:center">${buttons}</div>`,
-    actions: [{ label: '关闭', cls: '', fn: () => {} }]
-  });
-};
+registerStandardRolePreview();
 
 // 重新打开角色面板（在弹窗被自动关闭后用，例如激活共鸣链）
 function reopenRoleModal() {
