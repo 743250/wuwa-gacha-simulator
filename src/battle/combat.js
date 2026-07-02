@@ -21,14 +21,13 @@ import { applyTempStat, removeTempStat, computeStat, tickTempStats } from './tem
 import { onUnitSwitchOut } from './forms.js';
 import { fireSwitchHook, fireSwitchOutHook } from './switchHooks.js';
 import { applyEnemyPeriodicMechanic, applyEnemyThresholdMechanic, applyEnemyOnHitMechanic, applyEnemyDefendHook, canTargetEnemy } from './enemyMechanics.js';
-import { hasHeavyAttack, fireCharacterHook, queryCharacterHook } from './characters/index.js';
+import { hasHeavyAttack, fireCharacterHook, queryCharacterHook, getCharacterMechanic } from './characters/index.js';
 import { ACTION_COST, ACTION_MULTIPLIER, VIBRATION_DAMAGE } from './balance.js';
 // 返回值参与倍率/控制流的 hook 仍保留具名调用（fireCharacterHook 会丢弃返回值）；
-// encoreGainDisorder 仍用于安可特殊重击；zhezhiCraneAssist/InkShield 是全队/重击专用入口。
+// encoreGainDisorder 仍用于安可特殊重击。
 import { jiyanBurstRuiyi } from './characters/jiyan.js';
 import { encoreGainDisorder } from './characters/encore.js';
 import { cartethyiaEnterFurForm, cartethyiaBurstErosion, cartethyiaResolveMultiplier, cartethyiaErosionTick, cartethyiaErosionOnBreak, cartethyiaLethalShield } from './characters/cartethyia.js';
-import { zhezhiCraneAssist, zhezhiInkShield } from './characters/zhezhi.js';
 import { chunResolveSkill, chunEnterHanbao, chunInHanbao, chunHanbaoMult, chunTick } from './characters/camellia.js';
 import { zanYanInBlaze, zanYanHpMult, zanYanResolveNormal, zanYanSpendFlameForSlash, zanYanEnterBlaze, zanYanRekindleMult, zanYanTick, zanYanOnLethal, zanYanOnBurst } from './characters/zanyan.js';
 import { furoloOnNormalHit, furoloOnSkillHit, furoloOnHeavyHit, furoloOnVariationHit, furoloResolveHeavy, furoloExecuteDirge, furoloCanBurst, furoloOnBurst, furoloTick } from './characters/frolo.js';
@@ -41,6 +40,12 @@ function resolveActionCost(self, actionType, baseApCost) {
   return { apCost: baseApCost, lihuoCost: 0 };
 }
 
+function fireCraneAssist(battle, target) {
+  const zhezhi = battle.team.find(t => t.alive && t.name === '折枝');
+  if (!zhezhi) return;
+  const fn = getCharacterMechanic('折枝')?.craneAssist;
+  if (typeof fn === 'function') fn(battle, target);
+}
 
 export function getCombatTeamNames(teamNames = S.team) {
   const seen = new Set();
@@ -846,7 +851,7 @@ export function doAttack(battle, targetIdx) {
   gainForte(self, 'normal');
   if (fEnh) consumeForte(self);
   // 折枝墨鹤追击：己方普攻命中主目标时消耗 1 只墨鹤（不递归）
-  zhezhiCraneAssist(battle, target);
+  fireCraneAssist(battle, target);
   // 触发武器被动：普攻命中
   fireTrigger(self, 'normal_hit', { battle, target });
   // 触发声骸套装 5 件条件型（普攻命中叠层 / 持续 buff）
@@ -928,7 +933,7 @@ export function doSkill(battle, targetIdx) {
   // ★ 弗洛洛技能命中后加乐声+余响
   if (self.name === '弗洛洛') furoloOnSkillHit(self, battle);
   // 折枝墨鹤追击：共鸣技能命中主目标时消耗 1 只墨鹤（追击在补货之后，逻辑上仍是技能命中触发）
-  zhezhiCraneAssist(battle, target);
+  fireCraneAssist(battle, target);
   finishIfBattleEnded(battle, 'win');
   return { ok: true };
 }
@@ -1075,7 +1080,7 @@ export function doBurst(battle) {
     consumeConcerto(self, battle);
   }
   // 折枝墨鹤追击：解放 AOE 只对主目标触发一次（不因 AOE 多次消耗）
-  if (self.name !== '折枝') zhezhiCraneAssist(battle, primary);
+  if (self.name !== '折枝') fireCraneAssist(battle, primary);
   battle.log.push({
     type: 'burst', src: self.name, results,
     action: fEnh ? `${fEnh.resourceName}强化解放` : '共鸣解放'
@@ -1110,7 +1115,7 @@ export function doHeavy(battle, targetIdx) {
 
   // 折枝重击「点睛」：消耗半数墨鹤转全队护盾，不造成伤害、不触发墨鹤追击
   if (self.name === '折枝') {
-    const handled = zhezhiInkShield(self, battle);
+    const handled = queryCharacterHook(self, 'inkShield', battle);
     if (handled) {
       battle.ap -= ACTION_COST.heavy;
       self.cd.heavy = 2;
