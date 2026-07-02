@@ -23,9 +23,6 @@ import { fireSwitchHook, fireSwitchOutHook } from './switchHooks.js';
 import { applyEnemyPeriodicMechanic, applyEnemyThresholdMechanic, applyEnemyOnHitMechanic, applyEnemyDefendHook, canTargetEnemy } from './enemyMechanics.js';
 import { hasHeavyAttack, fireCharacterHook, queryCharacterHook, getCharacterMechanic } from './characters/index.js';
 import { ACTION_COST, ACTION_MULTIPLIER, VIBRATION_DAMAGE } from './balance.js';
-// 返回值参与倍率/控制流的 hook 仍保留具名调用（fireCharacterHook 会丢弃返回值）。
-import { cartethyiaEnterFurForm, cartethyiaBurstErosion } from './characters/cartethyia.js';
-
 // 行动花费薄入口：默认只看回合 AP；挂了 resolveCost hook 的角色（长离心眼态拿离火抵 AP）走 queryCharacterHook。
 // 返回 { apCost: 实际要扣的回合 AP, lihuoCost: 要消耗的离火 }。
 function resolveActionCost(self, actionType, baseApCost) {
@@ -887,74 +884,17 @@ export function doBurst(battle) {
   const fEnh = forteEnhances(self, 'burst');
   // ★ 忌炎「锐意之势」：消耗所有锐意，每层 +100%（6 链 +120%）解放伤害
   const { ruiyiMult = 1.0 } = queryCharacterHook(self, 'burstRuiyi', battle) || {};
-  // ===== 卡提希娅双阶段解放 =====
-  if (self.name === '卡提希娅') {
-    const inFurForm = (self.cartethyiaFurTurns || 0) > 0;
-
-    // ---- 第二次解放：芙露德莉斯形态下 · 看潮怒风哮之刃 ----
-    if (inFurForm) {
-      const { erosionMult, erosionConsumed } = cartethyiaBurstErosion(self, battle);
-      // 官方「看潮怒风哮之刃」倍率：6.60%×7 = 46.2% 最大生命（Lv1 简化值）
-      // 3 链 +60% 最大生命 / 6 链风蚀翻倍 + 立即结算 + 不清空（在 cartethyiaBurstErosion 内处理）
-      const chain3Bonus = self.cartethyiaBurstHpBonus || 0;
-      const baseMain = (0.462 + chain3Bonus) * erosionMult;
-      const baseSide = (0.462 + chain3Bonus) * erosionMult * 0.5;
-      const results = aliveEnemies.map(e => {
-        const mult = (e === primary) ? baseMain : baseSide;
-        const { dmg, crit } = calcDamage(self, e, mult, 'burst');
-        const real = dealDamage(e, dmg);
-        reduceVibration(e, VIBRATION_DAMAGE.burst, battle, self);
-        applyReflect(battle, self, e, real);
-        return { tgt: e.name, dmg: real, crit, primary: e === primary };
-      });
-      battle.ap -= ACTION_COST.burst;
-      self.energy = 0;
-      gainConcerto(self, 30);
-      gainForte(self, 'burst');
-      if (fEnh) consumeForte(self);
-      fireTrigger(self, 'burst_cast', { battle });
-      battle.log.push({
-        type: 'burst', src: self.name, results,
-        action: '共鸣解放 · 看潮怒风哮之刃（风蚀爆发）'
-      });
-      finishIfBattleEnded(battle, 'win');
-      return { ok: true };
-    }
-
-    // ---- 第一次解放：听骑士从心祈愿（卡提希娅形态 → 芙露德莉斯）----
-    // 官方此技能无伤害倍率，是纯化身技能
-    cartethyiaEnterFurForm(self, battle);
-    self.energy = 0;
-    battle.ap -= ACTION_COST.burst;
-    gainConcerto(self, 30);
-    gainForte(self, 'burst');
-    if (fEnh) consumeForte(self);
-    fireTrigger(self, 'burst_cast', { battle });
-    battle.log.push({
-      type: 'burst', src: self.name, results: [],
-      action: '共鸣解放 · 听骑士从心祈愿（进入芙露德莉斯形态）'
-    });
-    finishIfBattleEnded(battle, 'win');
-    return { ok: true };
-    battle.ap -= ACTION_COST.burst;
-    gainConcerto(self, 30);
-    gainForte(self, 'burst');
-    if (fEnh) consumeForte(self);
-    fireTrigger(self, 'burst_cast', { battle });
-    battle.log.push({
-      type: 'burst', src: self.name, results: fResults,
-      action: '共鸣解放 · 听骑士从心祈愿（进入芙露德莉斯形态）'
-    });
-    finishIfBattleEnded(battle, 'win');
-    return { ok: true };
-  }
-
-  // ===== 非卡提希娅·原逻辑 =====
-  // 赞妮·重燃：HP 核，主目标 HP×16%（5 链 ×2.2 = HP×35.2%），副目标半额
-  const characterBurstMult = queryCharacterHook(self, 'resolveBurstMult');
+  const characterBurstDamage = queryCharacterHook(self, 'resolveBurstDamage', battle, {
+    calcDamage,
+    dealDamage,
+    reduceVibration,
+    applyReflect,
+    VIBRATION_DAMAGE
+  });
+  const characterBurstMult = characterBurstDamage ? null : queryCharacterHook(self, 'resolveBurstMult');
   const baseMain = characterBurstMult?.baseMain ?? ACTION_MULTIPLIER.burstMain * (fEnh ? fEnh.effectMult : 1.0) * ruiyiMult;
   const baseSide = characterBurstMult?.baseSide ?? ACTION_MULTIPLIER.burstSide * (fEnh ? fEnh.effectMult : 1.0) * ruiyiMult;
-  const results = aliveEnemies.map(e => {
+  const results = characterBurstDamage?.results || aliveEnemies.map(e => {
     const mult = (e === primary) ? baseMain : baseSide;
     const { dmg, crit } = calcDamage(self, e, mult, 'burst');
     const real = dealDamage(e, dmg);
@@ -1001,7 +941,7 @@ export function doBurst(battle) {
   if (!queryCharacterHook(self, 'skipCraneAssistOnBurst')) fireCraneAssist(battle, primary);
   battle.log.push({
     type: 'burst', src: self.name, results,
-    action: fEnh ? `${fEnh.resourceName}强化解放` : '共鸣解放'
+    action: characterBurstDamage?.action || (fEnh ? `${fEnh.resourceName}强化解放` : '共鸣解放')
   });
 
   // 其他治疗/辅助位（非守岸人）：解放时一次性治疗全队

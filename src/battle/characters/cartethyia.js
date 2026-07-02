@@ -240,6 +240,37 @@ export function cartethyiaLethalShield(self, dmg, battle) {
 }
 
 // 第二次解放：看潮怒风哮之刃 — 每层风蚀 +20%，清空全部
+export function cartethyiaResolveBurstDamage(self, battle, helpers = {}) {
+  if (self.name !== '卡提希娅') return null;
+
+  const aliveEnemies = battle.enemies.filter(e => e.alive);
+  const targetIdx = (typeof battle.targetIdx === 'number') ? battle.targetIdx : -1;
+  const primary = (battle.enemies[targetIdx] && battle.enemies[targetIdx].alive) ? battle.enemies[targetIdx] : aliveEnemies[0];
+  if (!primary) return { results: [], action: '共鸣解放' };
+
+  if ((self.cartethyiaFurTurns || 0) > 0) {
+    const { erosionMult } = cartethyiaBurstErosion(self, battle);
+    const chain3Bonus = self.cartethyiaBurstHpBonus || 0;
+    const baseMain = (0.462 + chain3Bonus) * erosionMult;
+    const baseSide = (0.462 + chain3Bonus) * erosionMult * 0.5;
+    const results = aliveEnemies.map(e => {
+      const mult = (e === primary) ? baseMain : baseSide;
+      const { dmg, crit } = helpers.calcDamage(self, e, mult, 'burst');
+      const real = helpers.dealDamage(e, dmg);
+      helpers.reduceVibration(e, helpers.VIBRATION_DAMAGE.burst, battle, self);
+      helpers.applyReflect(battle, self, e, real);
+      return { tgt: e.name, dmg: real, crit, primary: e === primary };
+    });
+    return { results, action: '共鸣解放 · 看潮怒风哮之刃（风蚀爆发）' };
+  }
+
+  cartethyiaEnterFurForm(self, battle);
+  return {
+    results: [],
+    action: '共鸣解放 · 听骑士从心祈愿（进入芙露德莉斯形态）'
+  };
+}
+
 export function cartethyiaBurstErosion(self, battle) {
   if (self.name !== '卡提希娅') return { erosionMult: 1.0, erosionConsumed: 0 };
 
@@ -379,6 +410,7 @@ export default {
   onSkill: cartethyiaOnSkill,
   onHeavy: cartethyiaOnHeavy,
   enterFurForm: cartethyiaEnterFurForm,
+  resolveBurstDamage: cartethyiaResolveBurstDamage,
   burstErosion: cartethyiaBurstErosion,
   erosionOnBreak: cartethyiaErosionOnBreak,
   erosionOnSwitchIn: cartethyiaErosionOnSwitchIn,
