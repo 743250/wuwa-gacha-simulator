@@ -24,6 +24,7 @@ import { renderSkillsBlock } from './render/skillBlock.js';
 import { renderShopBanner, renderTopupBanner } from './render/shopBanner.js';
 import { renderLogList } from './render/logList.js';
 import { renderPullPanel } from './render/pullPanel.js';
+import { renderExchangeList } from './render/exchangeList.js';
 
 export function render() {
   const aps = activePhase(), bs = activeBanners(), b = cur();
@@ -50,28 +51,7 @@ export function render() {
 
   renderPullStats(b, S);
 
-  // 海市
-  $('cAg').textContent = S.afterglow;
-  $('cOs').textContent = S.oscillated;
-  $('cAgHint').textContent = `可换 ${Math.floor(S.afterglow / 8)} 抽`;
-  $('cOsHint').textContent = `可换 ${Math.floor(S.oscillated / 70)} 抽`;
-  const tides = [['radiant', '浮金波纹'], ['forging', '铸潮波纹'], ['lustrous', '唤声涡纹']];
-  // 联动期：把联动波纹也加入兑换列表（#7 #9）
-  if (isCollabActive()) {
-    tides.push(['dream', '捕梦波纹'], ['mirage', '铭影波纹']);
-  }
-  $('exList').innerHTML = tides.map(([k, n]) => {
-    const agMax = Math.floor(S.afterglow / 8);
-    const osLeft = 7 - (S.oscBuy[k] || 0);
-    const osMax = Math.min(Math.floor(S.oscillated / 70), osLeft);
-    return `<div class="exch">
-      <div class="n"><span>${n}</span><span class="own">持有 <b>${S[k]||0}</b> 个</span></div>
-      <div class="btns">
-        <button class="mbtn" onclick="openExchangeModal('${k}','${n}','afterglow')" ${agMax <= 0 ? 'disabled' : ''}>余 波 · 最多 ${agMax}</button>
-        <button class="mbtn gold" onclick="openExchangeModal('${k}','${n}','oscillated')" ${osMax <= 0 ? 'disabled' : ''}>残 振 · 剩 ${osLeft}/7</button>
-      </div>
-    </div>`;
-  }).join('');
+  renderExchangeList(S, isCollabActive());
 
   // 回音频段：展示所有已拥有且未满链的五星角色
   const allFiveStars = [...new Set([...standard5, ...Object.keys(bannerNames).filter(n => !standard5.includes(n) && !fourAll.includes(n))])];
