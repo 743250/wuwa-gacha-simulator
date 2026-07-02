@@ -746,12 +746,8 @@ export function canHeavy(self, battle, targetIdx) {
   if (self.name === '赞妮' && zanYanInBlaze(self)) {
     return { ok: false, err: '灼焰形态下重击不可用 · 普攻键已替换为重斩' };
   }
-  // 折枝重击「点睛」：消耗半数墨鹤转全队护盾，不需要目标
-  if (self.name === '折枝') {
-    if (!self.zhezhiFieldTurns || self.zhezhiFieldTurns <= 0) return { ok: false, err: '墨鹤领域未展开' };
-    if (!self.zhezhiCranes || self.zhezhiCranes <= 0) return { ok: false, err: '无墨鹤可消耗' };
-    return { ok: true };
-  }
+  const heavyCheck = queryCharacterHook(self, 'canHeavy', battle, targetIdx);
+  if (heavyCheck) return heavyCheck;
   // 弗洛洛谱曲终末：需满 6 乐声
   if (self.name === '弗洛洛' && (self.furoloNotes || 0) < 6) {
     return { ok: false, err: '乐声未满 6 枚，无法施放谱曲终末' };
@@ -1080,7 +1076,7 @@ export function doBurst(battle) {
     consumeConcerto(self, battle);
   }
   // 折枝墨鹤追击：解放 AOE 只对主目标触发一次（不因 AOE 多次消耗）
-  if (self.name !== '折枝') fireCraneAssist(battle, primary);
+  if (!queryCharacterHook(self, 'skipCraneAssistOnBurst')) fireCraneAssist(battle, primary);
   battle.log.push({
     type: 'burst', src: self.name, results,
     action: fEnh ? `${fEnh.resourceName}强化解放` : '共鸣解放'
@@ -1114,18 +1110,15 @@ export function doHeavy(battle, targetIdx) {
   const inMindEye = !!queryCharacterHook(self0, 'inMindEye');
 
   // 折枝重击「点睛」：消耗半数墨鹤转全队护盾，不造成伤害、不触发墨鹤追击
-  if (self.name === '折枝') {
-    const handled = queryCharacterHook(self, 'inkShield', battle);
-    if (handled) {
-      battle.ap -= ACTION_COST.heavy;
-      self.cd.heavy = 2;
-      gainConcerto(self, 14);
-      gainForte(self, 'heavy');
-      fireTrigger(self, 'heavy_hit', { battle });
-      finishIfBattleEnded(battle, 'win');
-      return { ok: true };
-    }
-    return { ok: false, err: '点睛无法释放' };
+  const inkShieldHandled = queryCharacterHook(self, 'inkShield', battle);
+  if (inkShieldHandled) {
+    battle.ap -= ACTION_COST.heavy;
+    self.cd.heavy = 2;
+    gainConcerto(self, 14);
+    gainForte(self, 'heavy');
+    fireTrigger(self, 'heavy_hit', { battle });
+    finishIfBattleEnded(battle, 'win');
+    return { ok: true };
   }
 
   const target = battle.enemies[targetIdx];

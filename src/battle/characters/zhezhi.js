@@ -142,6 +142,13 @@ export function zhezhiCraneAssist(battle, primaryTarget) {
   });
 }
 
+export function zhezhiCanHeavy(self) {
+  if (self.name !== '折枝') return null;
+  if (!self.zhezhiFieldTurns || self.zhezhiFieldTurns <= 0) return { ok: false, err: '墨鹤领域未展开' };
+  if (!self.zhezhiCranes || self.zhezhiCranes <= 0) return { ok: false, err: '无墨鹤可消耗' };
+  return { ok: true };
+}
+
 // 重击「点睛」：折枝在场时消耗 ⌊墨鹤/2⌋ 只（至少 1 只）转全队护盾
 // 由 combat.js doHeavy 在折枝重击时调用，返回 true 表示已处理（doHeavy 跳过常规伤害结算）
 export function zhezhiInkShield(self, battle) {
@@ -238,7 +245,9 @@ export default {
   onSkill: zhezhiOnSkill,
   onBurst: zhezhiOnBurst,
   craneAssist: zhezhiCraneAssist,
+  canHeavy: zhezhiCanHeavy,
   inkShield: zhezhiInkShield,
+  skipCraneAssistOnBurst() { return true; },
   turnCleanup: zhezhiTurnCleanup,
   renderBattleStatus(unit) {
     const turns = unit.zhezhiFieldTurns || 0;
