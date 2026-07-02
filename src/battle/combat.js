@@ -24,7 +24,7 @@ import { applyEnemyPeriodicMechanic, applyEnemyThresholdMechanic, applyEnemyOnHi
 import { hasHeavyAttack, fireCharacterHook, queryCharacterHook, getCharacterMechanic } from './characters/index.js';
 import { ACTION_COST, ACTION_MULTIPLIER, VIBRATION_DAMAGE } from './balance.js';
 // 返回值参与倍率/控制流的 hook 仍保留具名调用（fireCharacterHook 会丢弃返回值）。
-import { cartethyiaEnterFurForm, cartethyiaBurstErosion, cartethyiaErosionTick, cartethyiaErosionOnBreak, cartethyiaLethalShield } from './characters/cartethyia.js';
+import { cartethyiaEnterFurForm, cartethyiaBurstErosion, cartethyiaErosionTick, cartethyiaErosionOnBreak } from './characters/cartethyia.js';
 
 // 行动花费薄入口：默认只看回合 AP；挂了 resolveCost hook 的角色（长离心眼态拿离火抵 AP）走 queryCharacterHook。
 // 返回 { apCost: 实际要扣的回合 AP, lihuoCost: 要消耗的离火 }。
@@ -303,15 +303,8 @@ export function dealDamage(target, dmg) {
     if (dmg <= target.shield) { target.shield -= dmg; return 0; }
     else { dmg -= target.shield; target.shield = 0; }
   }
-  // ★ 卡提希娅 5 链 · 将烈风重塑希望：致命伤不倒 + 护盾（每场 1 次）
-  if (target.hp - dmg <= 0 && target.name === '卡提希娅' && target.cartethyiaLethalShield) {
-    if (cartethyiaLethalShield(target, dmg, _currentBattle)) {
-      return 0;
-    }
-  }
-  // ★ 赞妮 6 链 · 当务之急？下班！：灼焰形态内致死不倒（每场 1 次，保留 1 点生命）
   if (target.hp - dmg <= 0) {
-    if (queryCharacterHook(target, 'onLethal', _currentBattle)) {
+    if (queryCharacterHook(target, 'onLethal', _currentBattle, dmg)) {
       return 0;
     }
   }

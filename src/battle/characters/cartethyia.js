@@ -383,5 +383,6 @@ export default {
   erosionOnBreak: cartethyiaErosionOnBreak,
   erosionOnSwitchIn: cartethyiaErosionOnSwitchIn,
   lethalShield: cartethyiaLethalShield,
+  onLethal: cartethyiaLethalShield,
   turnCleanup: cartethyiaTurnCleanup
 };
