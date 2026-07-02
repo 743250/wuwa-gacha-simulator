@@ -61,3 +61,10 @@ export function fireCharacterHook(self, hookName, ctx) {
   const fn = getCharacterMechanic(self.name)?.[hookName];
   if (typeof fn === 'function') fn(self, ctx);
 }
+
+// 直查模式：返回值型 hook（resolveCost / inMindEye / mindEyeForm 等）通过这里查询
+// 调用方无需 import 角色模块，也无需写 `if (self.name === 'X')` 硬编码
+export function queryCharacterHook(self, hookName, ...args) {
+  const fn = getCharacterMechanic(self.name)?.[hookName];
+  return typeof fn === 'function' ? fn(self, ...args) : undefined;
+}

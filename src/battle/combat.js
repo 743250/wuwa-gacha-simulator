@@ -21,8 +21,7 @@ import { applyTempStat, removeTempStat, computeStat, tickTempStats } from './tem
 import { onUnitSwitchOut } from './forms.js';
 import { fireSwitchHook, fireSwitchOutHook } from './switchHooks.js';
 import { applyEnemyPeriodicMechanic, applyEnemyThresholdMechanic, applyEnemyOnHitMechanic, applyEnemyDefendHook, canTargetEnemy } from './enemyMechanics.js';
-import { hasHeavyAttack } from './characters/index.js';
-import { fireCharacterHook } from './characters/index.js';
+import { hasHeavyAttack, fireCharacterHook, queryCharacterHook } from './characters/index.js';
 import { ACTION_COST, ACTION_MULTIPLIER, VIBRATION_DAMAGE } from './balance.js';
 // 返回值参与倍率/控制流的 hook 仍保留具名调用（fireCharacterHook 会丢弃返回值）；
 // encoreGainDisorder 仍用于安可特殊重击；zhezhiCraneAssist/InkShield 是全队/重击专用入口。
@@ -30,17 +29,18 @@ import { jiyanBurstRuiyi } from './characters/jiyan.js';
 import { encoreGainDisorder } from './characters/encore.js';
 import { cartethyiaEnterFurForm, cartethyiaBurstErosion, cartethyiaResolveMultiplier, cartethyiaErosionTick, cartethyiaErosionOnBreak, cartethyiaLethalShield } from './characters/cartethyia.js';
 import { zhezhiCraneAssist, zhezhiInkShield } from './characters/zhezhi.js';
-import { changliGainLihuo, changliResolveCost, changliMindEyeForm, changliSpendLihuo, changliInMindEye, changliEnterYanyu } from './characters/changli.js';
 import { chunResolveSkill, chunEnterHanbao, chunInHanbao, chunHanbaoMult, chunTick } from './characters/camellia.js';
 import { zanYanInBlaze, zanYanHpMult, zanYanResolveNormal, zanYanSpendFlameForSlash, zanYanEnterBlaze, zanYanRekindleMult, zanYanTick, zanYanOnLethal, zanYanOnBurst } from './characters/zanyan.js';
 import { furoloOnNormalHit, furoloOnSkillHit, furoloOnHeavyHit, furoloOnVariationHit, furoloResolveHeavy, furoloExecuteDirge, furoloCanBurst, furoloOnBurst, furoloTick } from './characters/frolo.js';
 
-// 行动花费薄入口：默认只看回合 AP；挂了 resolveCost 的角色（长离心眼态拿离火抵 AP）委托到角色文件。
+// 行动花费薄入口：默认只看回合 AP；挂了 resolveCost hook 的角色（长离心眼态拿离火抵 AP）走 queryCharacterHook。
 // 返回 { apCost: 实际要扣的回合 AP, lihuoCost: 要消耗的离火 }。
 function resolveActionCost(self, actionType, baseApCost) {
-  if (self?.name === '长离') return changliResolveCost(self, actionType, baseApCost);
+  const cost = queryCharacterHook(self, 'resolveCost', actionType, baseApCost);
+  if (cost) return cost;
   return { apCost: baseApCost, lihuoCost: 0 };
 }
+
 
 export function getCombatTeamNames(teamNames = S.team) {
   const seen = new Set();
@@ -719,7 +719,7 @@ export function canSkill(self, battle, targetIdx) {
   if (!self || !self.alive) return { ok: false, err: '当前角色不可行动' };
   if (self.frozenTurns > 0) return { ok: false, err: `当前角色被冻结（${self.frozenTurns} 回合）` };
   if (self.skillLockedTurns > 0) return { ok: false, err: `技能被封锁中（${self.skillLockedTurns} 回合）` };
-  const inMindEye = changliInMindEye(self);
+  const inMindEye = !!queryCharacterHook(self, 'inMindEye');
   if (self.cd.skill > 0 && !inMindEye) return { ok: false, err: `技能冷却中（${self.cd.skill} 回合）` };
   const cost = resolveActionCost(self, 'skill', ACTION_COST.skill);
   if (battle.finished || battle.ap < cost.apCost) return { ok: false, err: 'AP 不足' };
@@ -732,7 +732,7 @@ export function canHeavy(self, battle, targetIdx) {
   if (!self || !self.alive) return { ok: false, err: '当前角色不可行动' };
   if (!self.hasHeavy) return { ok: false, err: `${self.name} 没有重击` };
   if (self.frozenTurns > 0) return { ok: false, err: `当前角色被冻结（${self.frozenTurns} 回合）` };
-  const inMindEye = changliInMindEye(self);
+  const inMindEye = !!queryCharacterHook(self, 'inMindEye');
   if (self.cd.heavy > 0 && !inMindEye) return { ok: false, err: `重击冷却中（${self.cd.heavy} 回合）` };
   const cost = resolveActionCost(self, 'heavy', ACTION_COST.heavy);
   if (battle.finished || battle.ap < cost.apCost) return { ok: false, err: `AP 不足（需 ${cost.apCost}）` };
@@ -784,10 +784,10 @@ export function doAttack(battle, targetIdx) {
   if (!check.ok) return check;
   const self = self0;
   const cost = resolveActionCost(self0, 'normal', ACTION_COST.normal);
-  const inMindEye = changliInMindEye(self0);
+  const inMindEye = !!queryCharacterHook(self0, 'inMindEye');
   const target = battle.enemies[targetIdx];
   // 长离心眼·征：普攻变身为 180% 共鸣技能伤害
-  const meForm = changliMindEyeForm(self, 'normal');
+  const meForm = queryCharacterHook(self, 'mindEyeForm', 'normal');
   // 赞妮灼焰形态：普攻键替换为重斩（HP×12%，消耗 20 焰光，heavy 类型）
   const zyForm = zanYanResolveNormal(self, battle);
   const fEnh = (meForm || zyForm) ? null : forteEnhances(self, 'normal');
@@ -843,8 +843,7 @@ export function doAttack(battle, targetIdx) {
   battle.ap -= cost.apCost;
   self.energy = Math.min(self.energyMax, Math.round(self.energy + 12 * (1 + self.resonanceBonus)));
   gainConcerto(self, 8);
-  if (self.name === '长离') { if (inMindEye) changliSpendLihuo(self, cost.lihuoCost, battle); else changliGainLihuo(self, 1, '普攻', battle); }
-  else gainForte(self, 'normal');
+  gainForte(self, 'normal');
   if (fEnh) consumeForte(self);
   // 折枝墨鹤追击：己方普攻命中主目标时消耗 1 只墨鹤（不递归）
   zhezhiCraneAssist(battle, target);
@@ -857,8 +856,8 @@ export function doAttack(battle, targetIdx) {
   fireEchoSetOnHitErosion(self, target, battle);
   // 触发角色专属声骸套装 5 件（2.0+ 珂莱塔/菲比/布兰特/坎特蕾拉/洛瑟菈/绯雪）
   fireRoleEchoTriggers(self, 'normal_hit', target, battle);
-  // 角色专属普攻 hook（卡提希娅决意/风蚀 · 安可失序 · 吟霖审判）
-  fireCharacterHook(self, 'onAttack', { battle, target, helpers: { calcDamage, dealDamage } });
+  // 角色专属普攻 hook（卡提希娅决意/风蚀 · 安可失序 · 吟霖审判 · 长离离火）
+  fireCharacterHook(self, 'onAttack', { battle, target, cost, helpers: { calcDamage, dealDamage } });
   // ★ 弗洛洛普攻命中后加乐声+余响
   if (self.name === '弗洛洛') furoloOnNormalHit(self, battle);
   finishIfBattleEnded(battle, 'win');
@@ -873,10 +872,10 @@ export function doSkill(battle, targetIdx) {
   if (!check.ok) return check;
   const self = self0;
   const cost = resolveActionCost(self0, 'skill', ACTION_COST.skill);
-  const inMindEye = changliInMindEye(self0);
+  const inMindEye = !!queryCharacterHook(self0, 'inMindEye');
   const target = battle.enemies[targetIdx];
   // 长离心眼·劫：技能变身为 200% 共鸣技能伤害
-  const meForm = changliMindEyeForm(self, 'skill');
+  const meForm = queryCharacterHook(self, 'mindEyeForm', 'skill');
   // 椿永生花：满红椿·蕊 + 协奏≥50 时技能替换为永生花（进入含苞在伤害前，使永生花享受酣梦倍率）
   const chunForm = chunResolveSkill(self, battle);
   if (chunForm) chunEnterHanbao(self, battle, chunForm.isRefresh);
@@ -893,8 +892,7 @@ export function doSkill(battle, targetIdx) {
   if (!inMindEye) self.cd.skill = Math.max(1, 3 - (self.skillCdReduce || 0));
   self.energy = Math.min(self.energyMax, Math.round(self.energy + (22 + self.energyRefund) * (1 + self.resonanceBonus)));
   gainConcerto(self, 18);
-  if (self.name === '长离') { if (inMindEye) changliSpendLihuo(self, cost.lihuoCost, battle); else changliGainLihuo(self, 1, '共鸣技能', battle); }
-  else gainForte(self, 'skill');
+  gainForte(self, 'skill');
 
   if (fEnh) consumeForte(self);
   // Step D：菲比 toggleForm dispatch —— 使用技能后 forte 满自动切换形态（史遗留未接）
@@ -925,8 +923,8 @@ export function doSkill(battle, targetIdx) {
     type: 'skill', src: self.name, tgt: target.name, dmg: real, crit,
     action: meForm ? meForm.label : (chunForm ? chunForm.label : (fEnh ? `${fEnh.resourceName}强化技能` : '共鸣技能'))
   });
-  // 角色专属共鸣技能 hook（守岸人治疗 · 卡提希娅决意/风蚀 · 忌炎锐意 · 安可失序 · 吟霖审判 · 珂莱塔解离 · 折枝补货）
-  fireCharacterHook(self, 'onSkill', { battle, target, helpers: { calcDamage, dealDamage } });
+  // 角色专属共鸣技能 hook（守岸人治疗 · 卡提希娅决意/风蚀 · 忌炎锐意 · 安可失序 · 吟霖审判 · 珂莱塔解离 · 折枝补货 · 长离离火）
+  fireCharacterHook(self, 'onSkill', { battle, target, cost, helpers: { calcDamage, dealDamage } });
   // ★ 弗洛洛技能命中后加乐声+余响
   if (self.name === '弗洛洛') furoloOnSkillHit(self, battle);
   // 折枝墨鹤追击：共鸣技能命中主目标时消耗 1 只墨鹤（追击在补货之后，逻辑上仍是技能命中触发）
@@ -1044,8 +1042,7 @@ export function doBurst(battle) {
   battle.ap -= ACTION_COST.burst;
   self.energy = 0;
   gainConcerto(self, 30);
-  if (self.name === '长离') { changliEnterYanyu(self, battle); changliGainLihuo(self, 3, '离火照丹心', battle); }
-  else gainForte(self, 'burst');
+  gainForte(self, 'burst');
   if (fEnh) consumeForte(self);
   if (fEnh && fEnh.effectType === 'teamShield') {
     battle.team.forEach(t => {
@@ -1062,7 +1059,7 @@ export function doBurst(battle) {
   }
 
   // 角色解放钩子（安可黑咩 / 守岸人星域+回能 / 卡卡罗武装 / 布兰特归亡曲 / 折枝领域 /
-  // 忌炎观势+奇正 / 吟霖印记 / 坎特蕾拉迷梦）
+  // 忌炎观势+奇正 / 吟霖印记 / 坎特蕾拉迷梦 / 长离焰羽+离火）
   fireCharacterHook(self, 'onBurst', { battle, target: primary });
 
   // 触发武器被动：解放释放
@@ -1109,7 +1106,7 @@ export function doHeavy(battle, targetIdx) {
   if (!check.ok) return check;
   const self = self0;
   const cost = resolveActionCost(self0, 'heavy', ACTION_COST.heavy);
-  const inMindEye = changliInMindEye(self0);
+  const inMindEye = !!queryCharacterHook(self0, 'inMindEye');
 
   // 折枝重击「点睛」：消耗半数墨鹤转全队护盾，不造成伤害、不触发墨鹤追击
   if (self.name === '折枝') {
@@ -1137,7 +1134,7 @@ export function doHeavy(battle, targetIdx) {
   const encoreBlack = isEncore && (self.encoreBlackTurns || 0) > 0;
   const encoreSpecial = isEncore && (self.encoreDisorder || 0) >= 100;
   // 长离心眼·冲：重击变身为 400% 共鸣技能伤害
-  const meForm = changliMindEyeForm(self, 'heavy');
+  const meForm = queryCharacterHook(self, 'mindEyeForm', 'heavy');
   const heavyMult = furoloDirgeForm
     ? furoloDirgeForm.mult
     : (meForm
@@ -1153,8 +1150,7 @@ export function doHeavy(battle, targetIdx) {
   battle._heavyUsedThisTurn = true;  // ★ 弹反判定：本回合使用了重击
   self.energy = Math.min(self.energyMax, Math.round(self.energy + 15 * (1 + self.resonanceBonus)));
   gainConcerto(self, 14);
-  if (self.name === '长离') { if (inMindEye) changliSpendLihuo(self, cost.lihuoCost, battle); else changliGainLihuo(self, 1, '重击', battle); }
-  else gainForte(self, 'heavy');
+  gainForte(self, 'heavy');
   fireTrigger(self, 'heavy_hit', { battle, target });
   // 触发声骸套装 5 件条件型（重击命中 / 普攻或重击命中 / 重击或技能命中）
   fireEchoSetTrigger(self, 'heavy_hit', battle);
@@ -1207,8 +1203,8 @@ export function doHeavy(battle, targetIdx) {
       battle.log.push({ type: 'mechanic', src: self.name, msg: '击破绿泡！全队获得治疗' });
     }
   }
-  // 角色重击钩子（卡提希娅决意+风蚀 / 忌炎锐意+观势）
-  fireCharacterHook(self, 'onHeavy', { battle, target });
+  // 角色重击钩子（卡提希娅决意+风蚀 / 忌炎锐意+观势 / 长离离火）
+  fireCharacterHook(self, 'onHeavy', { battle, target, cost });
   finishIfBattleEnded(battle, 'win');
   return { ok: true };
 }
