@@ -1,7 +1,6 @@
 // 渲染主入口
-import { S, fmt, $ } from '../state.js';
+import { S, $ } from '../state.js';
 import { activePhase, activeBanners, cur, poolKind, tideKey, tideName, tideLetter, isCollabActive } from '../gacha/core.js';
-import { VERSION_NAMES } from '../data/phases.js';
 import { shopCatalog } from '../shop/actions.js';
 import { seqText } from '../data/seq.js';
 import { standard5, fourAll, weapons as characterWeapons, bannerNames } from '../data/chars.js';
@@ -18,6 +17,7 @@ import { attachTermTips, highlightChainTerms } from './terms.js';
 import { msg } from '../state.js';
 import { escJs } from './render/utils.js';
 import { renderBannerArt } from './render/bannerArt.js';
+import { renderTopOverview, renderPullStats } from './render/overview.js';
 import { renderWeaponDetail } from './render/weaponDetail.js';
 import { renderSkillsBlock } from './render/skillBlock.js';
 import { renderShopBanner, renderTopupBanner } from './render/shopBanner.js';
@@ -25,23 +25,7 @@ import { renderShopBanner, renderTopupBanner } from './render/shopBanner.js';
 export function render() {
   const aps = activePhase(), bs = activeBanners(), b = cur();
 
-  // 顶部全局资源
-  const gres = [
-    { c: 'ast', l: '星声', v: S.astrite.toLocaleString(), k: 'astrite' },
-    { c: 'lun', l: '月相', v: S.lunite, k: 'lunite' },
-    { c: 'r', l: '浮金', v: S.radiant, k: 'radiant' },
-    { c: 'f', l: '铸潮', v: S.forging, k: 'forging' },
-    { c: 'l', l: '唤声', v: S.lustrous, k: 'lustrous' }
-  ];
-  if (S.days > 0) gres.push({ c: 'day', l: '月卡', v: S.days + '天' });
-  gres.push({ c: 'day', l: '体力', v: `${S.stamina}/${S.staminaMax}`, k: 'stamina' });
-  $('gres').innerHTML = gres.map(x => `<span class="gtag ${x.c}"><span class="dot"></span>${x.l} <b>${x.v}</b>${x.k ? `<button class="plus" onclick="${x.k === 'stamina' ? 'openStaminaModal' : 'openTopup'}('${x.k}')" title="${x.k === 'stamina' ? '嗑药剂回复体力' : '兑换/补充'}">+</button>` : ''}</span>`).join('');
-
-  // 时间
-  $('dateNow').textContent = fmt(S.today);
-  const vs = aps.map(p => p.v).filter((v, i, a) => a.indexOf(v) === i).join(' · ') || '无';
-  const vName = VERSION_NAMES[vs] || '';
-  $('dateMeta').textContent = `版本 ${vs}${vName ? ' · ' + vName : ''} · 开放卡池 ${bs.length}`;
+  renderTopOverview(aps, bs, S);
 
   // 卡池横向 Tab
   if (bs.length) {
@@ -145,29 +129,7 @@ export function render() {
     ['pull1', 'pull10', 'toFive'].forEach(id => $(id).disabled = true);
   }
 
-  // 统计
-  $('sTotal').textContent = S.total;
-  $('sFive').textContent = S.five;
-  $('sFour').textContent = S.four;
-  $('sAvg').textContent = S.five ? (S.total / S.five).toFixed(1) : '-';
-  $('sUp').textContent = S.upHits;
-  $('sWave').textContent = Object.values(S.waveBuy).reduce((a, b) => a + b, 0);
-  const curPool = b ? b.pool : 'eventChar';
-  const charPityPool = poolKind(curPool) === 'char' ? curPool : 'eventChar';
-  const weapPityPool = poolKind(curPool) === 'weapon' ? curPool : 'eventWeapon';
-  $('sCharPity').textContent = S.pity[charPityPool] || 0;
-  $('sWeapPity').textContent = S.pity[weapPityPool] || 0;
-  // 收藏统计（已拥有的角色/武器）
-  const roleArr = Object.values(S.roles || {}).filter(r => r.owned > 0);
-  const role5 = roleArr.filter(r => r.r === 5).length;
-  const role4 = roleArr.filter(r => r.r === 4).length;
-  const weaponArr = Object.values(S.weapons || {});
-  const weapon5 = weaponArr.filter(w => w.r === 5).length;
-  const weapon4 = weaponArr.filter(w => w.r === 4).length;
-  $('sRoles').textContent = roleArr.length;
-  $('sWeapons').textContent = weaponArr.length;
-  const cd = $('sCollectionDetail');
-  if (cd) cd.innerHTML = `角色 ★5 × <b style="color:var(--gold)">${role5}</b> · ★4 × <b style="color:var(--purple)">${role4}</b><br>武器 ★5 × <b style="color:var(--gold)">${weapon5}</b> · ★4 × <b style="color:var(--purple)">${weapon4}</b>`;
+  renderPullStats(b, S);
 
   // 海市
   $('cAg').textContent = S.afterglow;
