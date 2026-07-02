@@ -94,6 +94,18 @@ export function yinlinOnSkill(self, ctx) {
   yinlinGainVerdict(self, 30, '共鸣技能', battle);
 }
 
+export function yinlinMarkedTargetMultiplier(self, dmgType) {
+  if (self.name !== '吟霖') return 1;
+  let mult = 1;
+  if ((dmgType === 'skill' || dmgType === 'burst') && self.yinlinMarkSkillBonus) {
+    mult *= (1 + self.yinlinMarkSkillBonus);
+  }
+  if (dmgType === 'burst' && self.yinlinMarkBurstBonus) {
+    mult *= (1 + self.yinlinMarkBurstBonus);
+  }
+  return mult;
+}
+
 // 解放后：主目标必挂印记 + 4 链全队 atk buff + 6 链开启疾霆窗口
 export function yinlinBurst(self, primary, battle) {
   if (self.name !== '吟霖') return;
@@ -140,6 +152,7 @@ export default {
   onHit: yinlinOnHit,
   onAttack: yinlinOnAttack,
   onSkill: yinlinOnSkill,
+  markedTargetMultiplier: yinlinMarkedTargetMultiplier,
   burst: yinlinBurst,
   onBurst: yinlinOnBurst,
   turnCleanup: yinlinTurnCleanup

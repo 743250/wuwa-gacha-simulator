@@ -269,14 +269,7 @@ export function calcDamage(attacker, defender, multiplier, dmgType, opts = {}) {
   if (mark && mark.layers > 0) {
     const perStack = attacker.yinlinMarkVulnPerStack || 0;
     if (perStack > 0) debuffBonus += perStack * mark.layers;
-    if (attacker.name === '吟霖') {
-      if ((dmgType === 'skill' || dmgType === 'burst') && attacker.yinlinMarkSkillBonus) {
-        debuffBonus *= (1 + attacker.yinlinMarkSkillBonus);  // 1 链：技能/解放 对印记目标 ×1.7
-      }
-      if (dmgType === 'burst' && attacker.yinlinMarkBurstBonus) {
-        debuffBonus *= (1 + attacker.yinlinMarkBurstBonus);  // 5 链：解放 对印记目标 ×2.0
-      }
-    }
+    debuffBonus *= queryCharacterHook(attacker, 'markedTargetMultiplier', dmgType) || 1;
   }
   // 防御穿透（含焰羽等临时 pierceUp buff）
   const pierceBuff = (attacker.buffs || []).reduce((a, b) => b.type === 'pierceUp' ? a + b.value : a, 0);
