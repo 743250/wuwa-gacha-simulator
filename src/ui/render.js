@@ -21,6 +21,7 @@ import { renderTopOverview, renderPullStats } from './render/overview.js';
 import { renderWeaponDetail } from './render/weaponDetail.js';
 import { renderSkillsBlock } from './render/skillBlock.js';
 import { renderShopBanner, renderTopupBanner } from './render/shopBanner.js';
+import { renderLogList } from './render/logList.js';
 
 export function render() {
   const aps = activePhase(), bs = activeBanners(), b = cur();
@@ -205,11 +206,7 @@ export function render() {
       : '<div style="color:var(--muted);font-size:12px;text-align:center;padding:24px;letter-spacing:1px">暂无常驻礼包</div>';
   }
 
-  // 记录
-  $('logList').innerHTML = S.log.length ? S.log.map(x => `
-    <div class="logrow r${x.r}"><b style="color:var(${x.r === 5 ? '--gold' : x.r === 4 ? '--purple' : '--blue'})">${x.r}★</b>
-      <span>${x.n}${x.up ? ' <span style="color:var(--gold);font-size:10px;letter-spacing:1px">提升</span>' : ''}</span>
-      <span class="dt">${x.date}<br>#${x.no}</span></div>`).join('') : '<div style="text-align:center;color:var(--muted);padding:20px;font-size:12px;letter-spacing:1px">暂无记录</div>';
+  renderLogList(S.log);
 
   renderRoles();
   // 每次渲染后自动存档（防抖 1 秒）
