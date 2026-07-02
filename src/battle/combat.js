@@ -24,7 +24,7 @@ import { applyEnemyPeriodicMechanic, applyEnemyThresholdMechanic, applyEnemyOnHi
 import { hasHeavyAttack, fireCharacterHook, queryCharacterHook, getCharacterMechanic } from './characters/index.js';
 import { ACTION_COST, ACTION_MULTIPLIER, VIBRATION_DAMAGE } from './balance.js';
 // 返回值参与倍率/控制流的 hook 仍保留具名调用（fireCharacterHook 会丢弃返回值）。
-import { cartethyiaEnterFurForm, cartethyiaBurstErosion, cartethyiaErosionTick, cartethyiaErosionOnBreak } from './characters/cartethyia.js';
+import { cartethyiaEnterFurForm, cartethyiaBurstErosion, cartethyiaErosionTick } from './characters/cartethyia.js';
 
 // 行动花费薄入口：默认只看回合 AP；挂了 resolveCost hook 的角色（长离心眼态拿离火抵 AP）走 queryCharacterHook。
 // 返回 { apCost: 实际要扣的回合 AP, lihuoCost: 要消耗的离火 }。
@@ -414,10 +414,7 @@ function reduceVibration(enemy, amount, battle, attacker) {
     if (battle) {
       battle.ap = Math.min((battle.apMax || 4) + 2, battle.ap + 2);
       battle.log.push({ type: 'system', msg: `💥 ${enemy.name} 被击破！+2 AP 爆发窗口 · 中断 2 回合` });
-      // ★ 卡提希娅 1 链 · 因命运戴上冠冕：仅当破韧伤害由卡提希娅本人造成时 → 主目标 +1 层风蚀
-      if (attacker && attacker.name === '卡提希娅') {
-        cartethyiaErosionOnBreak(attacker, enemy, battle);
-      }
+      queryCharacterHook(attacker, 'erosionOnBreak', enemy, battle);
     }
   }
 }
