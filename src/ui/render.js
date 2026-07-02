@@ -17,6 +17,7 @@ import { attachTermTips, highlightChainTerms } from './terms.js';
 import { msg } from '../state.js';
 import { escJs } from './render/utils.js';
 import { renderBannerArt } from './render/bannerArt.js';
+import { renderBannerTabs } from './render/bannerTabs.js';
 import { renderTopOverview, renderPullStats } from './render/overview.js';
 import { renderWeaponDetail } from './render/weaponDetail.js';
 import { renderSkillsBlock } from './render/skillBlock.js';
@@ -28,23 +29,9 @@ export function render() {
 
   renderTopOverview(aps, bs, S);
 
-  // 卡池横向 Tab
   if (bs.length) {
-    $('bnTabs').innerHTML = bs.map(x => {
-      const kind = poolKind(x.pool);
-      const on = x.id === S.selected ? (' on ' + (kind === 'weapon' ? 'w' : 'r')) : '';
-      let tag = '角色';
-      if (kind === 'weapon') tag = '武器';
-      if (x.pool === 'beginner') tag = '新手';
-      else if (x.pool === 'noviceChoice') tag = '新旅 · 角色';
-      else if (x.pool === 'noviceWeapon') tag = '新旅 · 武器';
-      else if (x.pool === 'standardChar' || x.pool === 'standardWeapon') tag = '常驻';
-      else if (x.pool === 'eventChar' || x.pool === 'eventWeapon') tag = tag + ' · 限定';
-      else if (x.pool === 'collabChar' || x.pool === 'collabWeapon') tag = tag + ' · 联动';
-      return `<div class="btab${on}" data-id="${x.id}"><span class="bt-kind">${tag}</span><span class="bt-name">${x.banner}</span></div>`;
-    }).join('');
-    $('bnTabs').querySelectorAll('.btab').forEach(el => el.onclick = () => {
-      S.selected = el.dataset.id;
+    renderBannerTabs(bs, S.selected, id => {
+      S.selected = id;
       render();
     });
 
