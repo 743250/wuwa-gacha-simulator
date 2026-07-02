@@ -19,6 +19,7 @@ import { msg } from '../state.js';
 import { escJs } from './render/utils.js';
 import { renderWeaponDetail } from './render/weaponDetail.js';
 import { renderSkillsBlock } from './render/skillBlock.js';
+import { renderShopBanner, renderTopupBanner } from './render/shopBanner.js';
 
 export function render() {
   const aps = activePhase(), bs = activeBanners(), b = cur();
@@ -288,18 +289,18 @@ export function render() {
     // 非联动期：把 collab 标记礼包过滤掉
     const visibleBundle = shopCatalog.bundle.filter(it => !it.collab || collabOn);
     // 凝刻月相：6 档充值
-    $('bannerTopup').innerHTML = shopCatalog.topup.map(it => renderTopupBanner(it)).join('');
+    $('bannerTopup').innerHTML = shopCatalog.topup.map(it => renderTopupBanner(it, S)).join('');
     // 特惠专区：月卡 + 战令 + 限购礼包（非 regular 的 bundle）
     const featuredItems = [
       ...shopCatalog.monthly,
       ...visibleBundle.filter(it => !it.regular),
       ...shopCatalog.pass
     ];
-    $('bannerFeatured').innerHTML = featuredItems.map(it => renderShopBanner(it)).join('');
+    $('bannerFeatured').innerHTML = featuredItems.map(it => renderShopBanner(it, S)).join('');
     // 常驻礼包：bundle 中 regular = true 的
     const regularItems = visibleBundle.filter(it => it.regular);
     $('bannerRegular').innerHTML = regularItems.length
-      ? regularItems.map(it => renderShopBanner(it)).join('')
+      ? regularItems.map(it => renderShopBanner(it, S)).join('')
       : '<div style="color:var(--muted);font-size:12px;text-align:center;padding:24px;letter-spacing:1px">暂无常驻礼包</div>';
   }
 
@@ -1102,74 +1103,6 @@ window.__weaponFeedDo = (targetName, feedName) => {
   window.__openWeaponModal(targetName);
   window.__render();
 };
-// ===== 商店横幅式渲染（参考游戏内布局） =====
-// 凝刻月相 banner（直充档位）
-function renderTopupBanner(it) {
-  const first = S.shopFirstTime[it.id];
-  const got = it.firstDouble && first ? it.lunite * 2 : it.lunite;
-  const badge = it.firstDouble && first
-    ? '<span class="sb-badge gold">首充翻倍</span>' : '';
-  return `<div class="shop-banner topup">
-    <div class="sb-icon">${topupIcon(it.lunite)}</div>
-    <div class="sb-body">
-      <div class="sb-name">${it.name} ${badge}</div>
-      <div class="sb-desc">购买后获得 <b style="color:var(--gold)">${got}</b> 月相${first && it.firstDouble ? ' · <span style="color:var(--gold)">首充双倍</span>' : ''}</div>
-    </div>
-    <div class="sb-side">
-      <div class="sb-price">¥${it.price}</div>
-      <button class="mbtn gold" onclick="buyShop('${it.id}')">购 买</button>
-    </div>
-  </div>`;
-}
-
-// 礼包/月卡/战令 通用 banner
-function renderShopBanner(it) {
-  const used = S.shopBuyCount?.[it.id] || 0;
-  const exhausted = it.limit && used >= it.limit;
-  const left = it.limit ? Math.max(0, it.limit - used) : 0;
-  // 新手礼包：永久限购 1 次，购买后直接从列表消失
-  if (it.id?.startsWith('newbie') && exhausted) return '';
-  let limitLabel = '';
-  if (it.period === 'month') limitLabel = `每月限购：${left}/${it.limit}`;
-  else if (it.period === 'version') limitLabel = `本版本限购：${left}/${it.limit}`;
-  else if (it.regular) limitLabel = `本月限购：${left}/${it.limit}（每月刷新）`;
-  else if (it.limit) limitLabel = `永久限购：${left}/${it.limit}`;
-  const typeClass = it.type ? it.type : '';
-  return `<div class="shop-banner ${typeClass} ${exhausted ? 'sold' : ''}">
-    <div class="sb-icon">${shopIcon(it)}</div>
-    <div class="sb-body">
-      <div class="sb-name">${it.name}</div>
-      <div class="sb-desc">${it.desc}</div>
-    </div>
-    <div class="sb-side">
-      <div class="sb-price">¥${it.price}</div>
-      ${limitLabel ? `<div class="sb-limit">${limitLabel}</div>` : ''}
-      <button class="mbtn gold" onclick="buyShop('${it.id}')" ${exhausted ? 'disabled' : ''}>${exhausted ? '已售罄' : '购 买'}</button>
-    </div>
-  </div>`;
-}
-
-function topupIcon(lun) {
-  if (lun >= 6480) return '💎';
-  if (lun >= 3280) return '👑';
-  if (lun >= 1980) return '🌟';
-  if (lun >= 980) return '✨';
-  if (lun >= 300) return '🌙';
-  return '🌑';
-}
-
-function shopIcon(it) {
-  if (it.days) return '📅';
-  if (it.id?.startsWith('bp_')) return '📡';
-  if (it.id?.startsWith('qsfj')) return '🟡';   // 求索浮金（角色）
-  if (it.id?.startsWith('qscc')) return '🟢';   // 求索铸潮（武器）
-  if (it.id?.startsWith('pkbm')) return '🔴';   // 叛客捕梦（联动角色）
-  if (it.id?.startsWith('pkmy')) return '🟥';   // 叛客铭影（联动武器）
-  if (it.id?.startsWith('zsb')) return '📦';    // 准时宝月度
-  if (it.id?.startsWith('newbie')) return '🎁'; // 新手
-  return '🎁';
-}
-
 // makeSkillLines 工厂已移至 ./render/skillLines.js
 // escJs 已移至 ./render/utils.js
 // 角色技能与共鸣回路区块已移至 ./render/skillBlock.js
