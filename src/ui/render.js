@@ -1,7 +1,6 @@
 // 渲染主入口
 import { S, $ } from '../state.js';
 import { activePhase, activeBanners, cur, poolKind, isCollabActive } from '../gacha/core.js';
-import { shopCatalog } from '../shop/actions.js';
 import { seqText } from '../data/seq.js';
 import { standard5, fourAll, weapons as characterWeapons } from '../data/chars.js';
 import { openModal, closeModal } from '../modal.js';
@@ -21,11 +20,11 @@ import { renderBannerTabs } from './render/bannerTabs.js';
 import { renderTopOverview, renderPullStats } from './render/overview.js';
 import { renderWeaponDetail } from './render/weaponDetail.js';
 import { renderSkillsBlock } from './render/skillBlock.js';
-import { renderShopBanner, renderTopupBanner } from './render/shopBanner.js';
 import { renderLogList } from './render/logList.js';
 import { renderPullPanel } from './render/pullPanel.js';
 import { renderExchangeList } from './render/exchangeList.js';
 import { renderWaveList } from './render/waveList.js';
+import { renderShopPanel } from './render/shopPanel.js';
 
 export function render() {
   const aps = activePhase(), bs = activeBanners(), b = cur();
@@ -56,31 +55,7 @@ export function render() {
 
   renderWaveList(S);
 
-  // 商店
-  $('kSpent').textContent = '¥' + S.spent;
-  $('kLunite').textContent = S.lunite;
-  $('kDays').textContent = S.days;
-
-  // 横幅式商店渲染（参考游戏内布局）
-  if ($('bannerFeatured')) {
-    const collabOn = isCollabActive();
-    // 非联动期：把 collab 标记礼包过滤掉
-    const visibleBundle = shopCatalog.bundle.filter(it => !it.collab || collabOn);
-    // 凝刻月相：6 档充值
-    $('bannerTopup').innerHTML = shopCatalog.topup.map(it => renderTopupBanner(it, S)).join('');
-    // 特惠专区：月卡 + 战令 + 限购礼包（非 regular 的 bundle）
-    const featuredItems = [
-      ...shopCatalog.monthly,
-      ...visibleBundle.filter(it => !it.regular),
-      ...shopCatalog.pass
-    ];
-    $('bannerFeatured').innerHTML = featuredItems.map(it => renderShopBanner(it, S)).join('');
-    // 常驻礼包：bundle 中 regular = true 的
-    const regularItems = visibleBundle.filter(it => it.regular);
-    $('bannerRegular').innerHTML = regularItems.length
-      ? regularItems.map(it => renderShopBanner(it, S)).join('')
-      : '<div style="color:var(--muted);font-size:12px;text-align:center;padding:24px;letter-spacing:1px">暂无常驻礼包</div>';
-  }
+  renderShopPanel(S, isCollabActive());
 
   renderLogList(S.log);
 
