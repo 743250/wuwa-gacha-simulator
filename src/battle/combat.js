@@ -25,7 +25,7 @@ import { hasHeavyAttack, fireCharacterHook, queryCharacterHook, getCharacterMech
 import { ACTION_COST, ACTION_MULTIPLIER, VIBRATION_DAMAGE } from './balance.js';
 // 返回值参与倍率/控制流的 hook 仍保留具名调用（fireCharacterHook 会丢弃返回值）。
 import { cartethyiaEnterFurForm, cartethyiaBurstErosion, cartethyiaResolveMultiplier, cartethyiaErosionTick, cartethyiaErosionOnBreak, cartethyiaLethalShield } from './characters/cartethyia.js';
-import { zanYanInBlaze, zanYanHpMult, zanYanResolveNormal, zanYanSpendFlameForSlash, zanYanEnterBlaze, zanYanRekindleMult, zanYanTick, zanYanOnLethal, zanYanOnBurst } from './characters/zanyan.js';
+import { zanYanInBlaze, zanYanResolveNormal, zanYanSpendFlameForSlash, zanYanEnterBlaze, zanYanRekindleMult, zanYanTick, zanYanOnLethal, zanYanOnBurst } from './characters/zanyan.js';
 
 // 行动花费薄入口：默认只看回合 AP；挂了 resolveCost hook 的角色（长离心眼态拿离火抵 AP）走 queryCharacterHook。
 // 返回 { apCost: 实际要扣的回合 AP, lihuoCost: 要消耗的离火 }。
@@ -194,8 +194,6 @@ export function calcDamage(attacker, defender, multiplier, dmgType, opts = {}) {
   // ★ 卡提希娅：HP 核 — 伤害基于生命值而非攻击力（倍率单独取，不复用 ACTION_MULTIPLIER）
   // HP/ATK ≈ 8.7×，所以 12%HP ≈ 100%ATK，22%HP ≈ 190%ATK，26%HP ≈ 225%ATK
   const CARTETHYIA_HP_MULT = { normal: 0.12, skill: 0.22, heavy: 0.26, burst: 0.462 };
-  // ★ 赞妮：HP 核（HP/ATK ≈ 24.6×，4%HP ≈ 100%ATK）
-  const ZAN_YAN_HP_MULT = { normal: 0.04, skill: 0.075, heavy: 0.09, burst: 0.16 };
   const hpCore = queryCharacterHook(attacker, 'hpCore', dmgType, opts);
   let baseStat;
   let hpMultOverride = null;
@@ -206,11 +204,6 @@ export function calcDamage(attacker, defender, multiplier, dmgType, opts = {}) {
     // burst 不走固定倍率覆写——第二次解放·看潮怒风哮之刃的倍率已在 doBurst 中
     // 按风蚀层数动态计算好（baseMain），此处不应再用硬编码值覆盖
     hpMultOverride = (dmgType === 'burst') ? null : (CARTETHYIA_HP_MULT[dmgType] ?? null);
-  } else if (attacker.name === '赞妮') {
-    baseStat = computeStat(attacker, 'hpMax', attacker.hpMax);
-    // burst 走重燃/终绝的独立倍率（由 doBurst 直接传 multiplier），这里不覆写
-    hpMultOverride = (dmgType === 'burst') ? null : (ZAN_YAN_HP_MULT[dmgType] ?? null);
-    // 灼焰形态内重斩走 heavy 类型但倍率 12%（由 doAttack 重斩路径传 multiplier，不在此覆写）
   } else if (hpCore) {
     baseStat = computeStat(attacker, hpCore.baseStat, attacker[hpCore.baseStat]);
     hpMultOverride = hpCore.hpMultOverride;

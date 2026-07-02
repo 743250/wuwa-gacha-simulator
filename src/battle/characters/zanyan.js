@@ -53,6 +53,14 @@ export function zanYanHpMult(dmgType) {
   }
 }
 
+export function zanYanHpCore(self, dmgType) {
+  if (self.name !== '赞妮') return null;
+  return {
+    baseStat: 'hpMax',
+    hpMultOverride: dmgType === 'burst' ? null : zanYanHpMult(dmgType)
+  };
+}
+
 // ── 重斩倍率（含 6 链加成） ──
 export function zanYanHeavySlashMult(self) {
   let mult = HEAVY_SLASH_HP_MULT;
@@ -252,6 +260,7 @@ export default {
   hasHeavy: true,
   inBlaze: zanYanInBlaze,
   hpMult: zanYanHpMult,
+  hpCore: zanYanHpCore,
   heavySlashMult: zanYanHeavySlashMult,
   finalMult: zanYanFinalMult,
   rekindleMult: zanYanRekindleMult,
