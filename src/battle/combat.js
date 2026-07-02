@@ -24,7 +24,7 @@ import { applyEnemyPeriodicMechanic, applyEnemyThresholdMechanic, applyEnemyOnHi
 import { hasHeavyAttack, fireCharacterHook, queryCharacterHook, getCharacterMechanic } from './characters/index.js';
 import { ACTION_COST, ACTION_MULTIPLIER, VIBRATION_DAMAGE } from './balance.js';
 // 返回值参与倍率/控制流的 hook 仍保留具名调用（fireCharacterHook 会丢弃返回值）。
-import { cartethyiaEnterFurForm, cartethyiaBurstErosion, cartethyiaResolveMultiplier, cartethyiaErosionTick, cartethyiaErosionOnBreak, cartethyiaLethalShield } from './characters/cartethyia.js';
+import { cartethyiaEnterFurForm, cartethyiaBurstErosion, cartethyiaErosionTick, cartethyiaErosionOnBreak, cartethyiaLethalShield } from './characters/cartethyia.js';
 
 // 行动花费薄入口：默认只看回合 AP；挂了 resolveCost hook 的角色（长离心眼态拿离火抵 AP）走 queryCharacterHook。
 // 返回 { apCost: 实际要扣的回合 AP, lihuoCost: 要消耗的离火 }。
@@ -190,21 +190,11 @@ export function calcDamage(attacker, defender, multiplier, dmgType, opts = {}) {
   const wb = collectWeaponBonus(attacker, dmgType, { target: defender });
   // buff 中的 atkUp（守岸人 2 链等）
   const buffAtkUp = (attacker.buffs || []).reduce((a, b) => b.type === 'atkUp' ? a + b.value : a, 0);
-  // ★ 卡提希娅：HP 核 — 伤害基于生命值而非攻击力（倍率单独取，不复用 ACTION_MULTIPLIER）
-  // HP/ATK ≈ 8.7×，所以 12%HP ≈ 100%ATK，22%HP ≈ 190%ATK，26%HP ≈ 225%ATK
-  const CARTETHYIA_HP_MULT = { normal: 0.12, skill: 0.22, heavy: 0.26, burst: 0.462 };
   const hpCore = queryCharacterHook(attacker, 'hpCore', dmgType, opts);
   let baseStat;
   let hpMultOverride = null;
-  if (attacker.name === '卡提希娅') {
-    // 决意增伤
-    const resolveMult = cartethyiaResolveMultiplier(attacker);
-    baseStat = computeStat(attacker, 'hpMax', attacker.hpMax) * resolveMult;
-    // burst 不走固定倍率覆写——第二次解放·看潮怒风哮之刃的倍率已在 doBurst 中
-    // 按风蚀层数动态计算好（baseMain），此处不应再用硬编码值覆盖
-    hpMultOverride = (dmgType === 'burst') ? null : (CARTETHYIA_HP_MULT[dmgType] ?? null);
-  } else if (hpCore) {
-    baseStat = computeStat(attacker, hpCore.baseStat, attacker[hpCore.baseStat]);
+  if (hpCore) {
+    baseStat = computeStat(attacker, hpCore.baseStat, attacker[hpCore.baseStat]) * (hpCore.baseMultiplier ?? 1);
     hpMultOverride = hpCore.hpMultOverride;
   } else {
     baseStat = attacker.atk * (1 + wb.atkBonus + buffAtkUp);

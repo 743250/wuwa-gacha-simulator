@@ -105,6 +105,17 @@ export function cartethyiaResolveMultiplier(self) {
   return 1 + pct / 100;
 }
 
+const CARTETHYIA_HP_MULT = { normal: 0.12, skill: 0.22, heavy: 0.26, burst: 0.462 };
+
+export function cartethyiaHpCore(self, dmgType) {
+  if (self.name !== '卡提希娅') return null;
+  return {
+    baseStat: 'hpMax',
+    baseMultiplier: cartethyiaResolveMultiplier(self),
+    hpMultOverride: dmgType === 'burst' ? null : (CARTETHYIA_HP_MULT[dmgType] ?? null)
+  };
+}
+
 // 第一次解放：消耗决意 → 获得形态之力 → 进入芙露德莉斯形态
 export function cartethyiaEnterFurForm(self, battle) {
   if (self.name !== '卡提希娅' || hasForm(self, 'cartethyia_furu')) return { right: null };
@@ -361,6 +372,7 @@ export default {
   hasHeavy: false,
   renderBattleStatus: renderCartethyiaStatus,
   collectBadges: collectCartethyiaBadges,
+  hpCore: cartethyiaHpCore,
   gainResolve: cartethyiaGainResolve,
   applyErosion: cartethyiaApplyErosion,
   onAttack: cartethyiaOnAttack,
