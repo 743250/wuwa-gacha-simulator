@@ -202,12 +202,23 @@ export function zanYanTick(self, battle) {
     // 退出形态、清空焰光
     self.zanYanFormTurns = 0;
     self.zanYanFlameGauge = 0;
-    if (prep) return { pendingFinal: true, mult: prep.mult };
+    if (prep) {
+      return {
+        pendingFinal: true,
+        mult: prep.mult,
+        consumed: prep.consumed,
+        action: `共鸣解放 · 终绝将至之刻（HP × ${(prep.mult*100).toFixed(1)}% · 消耗焰光 ${prep.consumed}）`
+      };
+    }
     return null;
   }
   // 形态内每回合 +10 焰光
   zanYanGainFlamePerTurn(self, battle);
   return null;
+}
+
+export function zanYanTurnCleanup(self, ctx) {
+  return zanYanTick(self, ctx.battle);
 }
 
 // ── 6 链致死不倒（每场 1 次，灼焰形态内） ──
@@ -283,6 +294,7 @@ export default {
   spendFlameForSlash: zanYanSpendFlameForSlash,
   onLethal: zanYanOnLethal,
   tick: zanYanTick,
+  turnCleanup: zanYanTurnCleanup,
   switchIn: zanYanSwitchIn,
   onBurst: zanYanOnBurst,
   collectBadges: zanYanCollectBadges

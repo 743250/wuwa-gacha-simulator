@@ -25,7 +25,6 @@ import { hasHeavyAttack, fireCharacterHook, queryCharacterHook, getCharacterMech
 import { ACTION_COST, ACTION_MULTIPLIER, VIBRATION_DAMAGE } from './balance.js';
 // 返回值参与倍率/控制流的 hook 仍保留具名调用（fireCharacterHook 会丢弃返回值）。
 import { cartethyiaEnterFurForm, cartethyiaBurstErosion, cartethyiaResolveMultiplier, cartethyiaErosionTick, cartethyiaErosionOnBreak, cartethyiaLethalShield } from './characters/cartethyia.js';
-import { zanYanTick } from './characters/zanyan.js';
 
 // 行动花费薄入口：默认只看回合 AP；挂了 resolveCost hook 的角色（长离心眼态拿离火抵 AP）走 queryCharacterHook。
 // 返回 { apCost: 实际要扣的回合 AP, lihuoCost: 要消耗的离火 }。
@@ -1370,28 +1369,24 @@ export function endTurn(battle) {
     if (t._burstRefundCdLeft > 0) t._burstRefundCdLeft--;
     // 雷霆墙锁定衰减
     if (t._wallLocked > 0) t._wallLocked--;
-    fireCharacterHook(t, 'turnCleanup', { battle });
-    // 赞妮灼焰形态 tick：回合数 -1、焰光 +10、形态结束时触发终绝将至之刻
-    if (t.name === '赞妮') {
-      const zyTick = zanYanTick(t, battle);
-      if (zyTick && zyTick.pendingFinal && t.alive) {
-        const primary = battle.enemies.find(e => e.alive);
-        if (primary) {
-          const aliveEnemies = battle.enemies.filter(e => e.alive);
-          const results = aliveEnemies.map(e => {
-            const isMain = (e === primary);
-            const m = isMain ? zyTick.mult : zyTick.mult * 0.5;
-            const { dmg, crit } = calcDamage(t, e, m, 'burst');
-            const real = dealDamage(e, dmg);
-            reduceVibration(e, VIBRATION_DAMAGE.burst, battle, t);
-            return { tgt: e.name, dmg: real, crit, primary: isMain };
-          });
-          battle.log.push({
-            type: 'burst', src: t.name, results,
-            action: `共鸣解放 · 终绝将至之刻（HP × ${(zyTick.mult*100).toFixed(1)}% · 消耗焰光 ${t.zanYanFlameConsumed || 0}）`
-          });
-          finishIfBattleEnded(battle, 'win');
-        }
+    const cleanupResult = queryCharacterHook(t, 'turnCleanup', { battle });
+    if (cleanupResult?.pendingFinal && t.alive) {
+      const primary = battle.enemies.find(e => e.alive);
+      if (primary) {
+        const aliveEnemies = battle.enemies.filter(e => e.alive);
+        const results = aliveEnemies.map(e => {
+          const isMain = (e === primary);
+          const m = isMain ? cleanupResult.mult : cleanupResult.mult * 0.5;
+          const { dmg, crit } = calcDamage(t, e, m, 'burst');
+          const real = dealDamage(e, dmg);
+          reduceVibration(e, VIBRATION_DAMAGE.burst, battle, t);
+          return { tgt: e.name, dmg: real, crit, primary: isMain };
+        });
+        battle.log.push({
+          type: 'burst', src: t.name, results,
+          action: cleanupResult.action
+        });
+        finishIfBattleEnded(battle, 'win');
       }
     }
     tickStacks(battle, t);     // Step B：统一衰减 Stack（卡提希娅决意 / 忌炎锐意无衰减直接 no-op）
