@@ -94,6 +94,12 @@ export function zanYanRekindleMult(self) {
   return mult;
 }
 
+export function zanYanResolveBurstMult(self) {
+  if (self.name !== '赞妮') return null;
+  const rekind = zanYanRekindleMult(self);
+  return { baseMain: rekind, baseSide: rekind * 0.5 };
+}
+
 // ── 进入灼焰形态（解放·重燃触发） ──
 export function zanYanEnterBlaze(self, battle) {
   if (self.name !== '赞妮') return;
@@ -271,6 +277,7 @@ export default {
   heavySlashMult: zanYanHeavySlashMult,
   finalMult: zanYanFinalMult,
   rekindleMult: zanYanRekindleMult,
+  resolveBurstMult: zanYanResolveBurstMult,
   enterBlaze: zanYanEnterBlaze,
   resolveNormal: zanYanResolveNormal,
   spendFlameForSlash: zanYanSpendFlameForSlash,

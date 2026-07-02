@@ -25,7 +25,7 @@ import { hasHeavyAttack, fireCharacterHook, queryCharacterHook, getCharacterMech
 import { ACTION_COST, ACTION_MULTIPLIER, VIBRATION_DAMAGE } from './balance.js';
 // 返回值参与倍率/控制流的 hook 仍保留具名调用（fireCharacterHook 会丢弃返回值）。
 import { cartethyiaEnterFurForm, cartethyiaBurstErosion, cartethyiaResolveMultiplier, cartethyiaErosionTick, cartethyiaErosionOnBreak, cartethyiaLethalShield } from './characters/cartethyia.js';
-import { zanYanEnterBlaze, zanYanRekindleMult, zanYanTick, zanYanOnLethal, zanYanOnBurst } from './characters/zanyan.js';
+import { zanYanTick, zanYanOnLethal } from './characters/zanyan.js';
 
 // 行动花费薄入口：默认只看回合 AP；挂了 resolveCost hook 的角色（长离心眼态拿离火抵 AP）走 queryCharacterHook。
 // 返回 { apCost: 实际要扣的回合 AP, lihuoCost: 要消耗的离火 }。
@@ -972,15 +972,9 @@ export function doBurst(battle) {
 
   // ===== 非卡提希娅·原逻辑 =====
   // 赞妮·重燃：HP 核，主目标 HP×16%（5 链 ×2.2 = HP×35.2%），副目标半额
-  let baseMain, baseSide;
-  if (self.name === '赞妮') {
-    const rekind = zanYanRekindleMult(self);  // 0.16 或 0.352（5 链）
-    baseMain = rekind;
-    baseSide = rekind * 0.5;
-  } else {
-    baseMain = ACTION_MULTIPLIER.burstMain * (fEnh ? fEnh.effectMult : 1.0) * ruiyiMult;
-    baseSide = ACTION_MULTIPLIER.burstSide * (fEnh ? fEnh.effectMult : 1.0) * ruiyiMult;
-  }
+  const characterBurstMult = queryCharacterHook(self, 'resolveBurstMult');
+  const baseMain = characterBurstMult?.baseMain ?? ACTION_MULTIPLIER.burstMain * (fEnh ? fEnh.effectMult : 1.0) * ruiyiMult;
+  const baseSide = characterBurstMult?.baseSide ?? ACTION_MULTIPLIER.burstSide * (fEnh ? fEnh.effectMult : 1.0) * ruiyiMult;
   const results = aliveEnemies.map(e => {
     const mult = (e === primary) ? baseMain : baseSide;
     const { dmg, crit } = calcDamage(self, e, mult, 'burst');
