@@ -24,7 +24,7 @@ import { applyEnemyPeriodicMechanic, applyEnemyThresholdMechanic, applyEnemyOnHi
 import { hasHeavyAttack, fireCharacterHook, queryCharacterHook, getCharacterMechanic } from './characters/index.js';
 import { ACTION_COST, ACTION_MULTIPLIER, VIBRATION_DAMAGE } from './balance.js';
 // 返回值参与倍率/控制流的 hook 仍保留具名调用（fireCharacterHook 会丢弃返回值）。
-import { cartethyiaEnterFurForm, cartethyiaBurstErosion, cartethyiaErosionTick } from './characters/cartethyia.js';
+import { cartethyiaEnterFurForm, cartethyiaBurstErosion } from './characters/cartethyia.js';
 
 // 行动花费薄入口：默认只看回合 AP；挂了 resolveCost hook 的角色（长离心眼态拿离火抵 AP）走 queryCharacterHook。
 // 返回 { apCost: 实际要扣的回合 AP, lihuoCost: 要消耗的离火 }。
@@ -1205,7 +1205,8 @@ export function endTurn(battle) {
     if (!enemy.alive) return;
 
     // ★ 卡提希娅风蚀效应：敌人回合开始时受到伤害（中断/跳过行动期间仍结算）
-    cartethyiaErosionTick(enemy, battle);
+    const erosionTickFn = getCharacterMechanic('卡提希娅')?.erosionTick;
+    if (typeof erosionTickFn === 'function') erosionTickFn(enemy, battle);
 
     // 破韧/残骸/弹反中断中跳过
     if (enemy.suppressed > 0) {
