@@ -71,6 +71,44 @@ export function encoreOnBurst(self, ctx) {
   encoreStartBlackSheep(self, ctx.battle);
 }
 
+export function encoreWindowMultiplier(self, dmgType) {
+  if (self.name !== '安可' || (self.encoreBlackTurns || 0) <= 0) return 1;
+  if (dmgType === 'normal' || dmgType === 'skill') return 1.5;
+  if (dmgType === 'heavy') return 1.8;
+  return 1;
+}
+
+export function encoreResolveHeavy(self) {
+  if (self.name !== '安可') return null;
+  const black = (self.encoreBlackTurns || 0) > 0;
+  const special = (self.encoreDisorder || 0) >= 100;
+  if (special) {
+    return {
+      special,
+      black,
+      mult: (black ? 4.5 : 3.5) * (1 + (self.heavyBonus || 0)),
+      dmgType: 'burst',
+      action: black ? '黑咩·暴走之炎（失序满）' : '白咩·失控之炎（失序满）'
+    };
+  }
+  return { special, black, action: black ? '黑咩·重击' : '重击' };
+}
+
+export function encoreFinishHeavy(self, battle, form) {
+  if (self.name !== '安可' || !form) return null;
+  if (form.special) {
+    self.encoreDisorder = 0;
+    if (self.forte?.resourceName === '失序值') {
+      self.forte.current = 0;
+      self.forte.ready = false;
+    }
+    battle.log.push({ type: 'mechanic', src: self.name, msg: '消耗失序值 100 → 触发' + (form.black ? '黑咩·暴走之炎' : '白咩·失控之炎') });
+  } else {
+    encoreGainDisorder(self, 20, form.black ? '黑咩·重击' : '重击', battle);
+  }
+  return form.action;
+}
+
 // endTurn 清理
 export function encoreTurnCleanup(self, ctx) {
   if (self.name !== '安可' || !hasForm(self, 'encore_black')) return;
@@ -89,6 +127,9 @@ export default {
   name: '安可',
   hasHeavy: true,
   gainDisorder: encoreGainDisorder,
+  windowMultiplier: encoreWindowMultiplier,
+  resolveHeavy: encoreResolveHeavy,
+  finishHeavy: encoreFinishHeavy,
   onAttack: encoreOnAttack,
   onSkill: encoreOnSkill,
   startBlackSheep: encoreStartBlackSheep,

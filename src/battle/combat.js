@@ -23,10 +23,8 @@ import { fireSwitchHook, fireSwitchOutHook } from './switchHooks.js';
 import { applyEnemyPeriodicMechanic, applyEnemyThresholdMechanic, applyEnemyOnHitMechanic, applyEnemyDefendHook, canTargetEnemy } from './enemyMechanics.js';
 import { hasHeavyAttack, fireCharacterHook, queryCharacterHook, getCharacterMechanic } from './characters/index.js';
 import { ACTION_COST, ACTION_MULTIPLIER, VIBRATION_DAMAGE } from './balance.js';
-// 返回值参与倍率/控制流的 hook 仍保留具名调用（fireCharacterHook 会丢弃返回值）；
-// encoreGainDisorder 仍用于安可特殊重击。
+// 返回值参与倍率/控制流的 hook 仍保留具名调用（fireCharacterHook 会丢弃返回值）。
 import { jiyanBurstRuiyi } from './characters/jiyan.js';
-import { encoreGainDisorder } from './characters/encore.js';
 import { cartethyiaEnterFurForm, cartethyiaBurstErosion, cartethyiaResolveMultiplier, cartethyiaErosionTick, cartethyiaErosionOnBreak, cartethyiaLethalShield } from './characters/cartethyia.js';
 import { chunResolveSkill, chunEnterHanbao, chunInHanbao, chunHanbaoMult, chunTick } from './characters/camellia.js';
 import { zanYanInBlaze, zanYanHpMult, zanYanResolveNormal, zanYanSpendFlameForSlash, zanYanEnterBlaze, zanYanRekindleMult, zanYanTick, zanYanOnLethal, zanYanOnBurst } from './characters/zanyan.js';
@@ -253,14 +251,7 @@ export function calcDamage(attacker, defender, multiplier, dmgType, opts = {}) {
   // 强化窗口：卡卡罗 burstWindow、安可黑咩形态等
   const burstWin = attacker.buffs?.find(b => b.type === 'burstWindow');
   let windowBonus = burstWin && (dmgType === 'normal' || dmgType === 'skill') ? (1 + burstWin.value) : 1;
-  // 安可：共鸣解放·黑咩大暴走后进入黑咩形态
-  // 释放当回合已花 3 AP，所以窗口保留到后续 3 个完整我方回合结束
-  // · 普攻/技能 ×1.5
-  // · 重击（黑咩·暴走之炎）×1.8
-  if (attacker.name === '安可' && (attacker.encoreBlackTurns || 0) > 0) {
-    if (dmgType === 'normal' || dmgType === 'skill') windowBonus *= 1.5;
-    if (dmgType === 'heavy') windowBonus *= 1.8;
-  }
+  windowBonus *= queryCharacterHook(attacker, 'windowMultiplier', dmgType) || 1;
   // 椿含苞·酣梦：含苞期间普攻/技能 ×1.5（6 链 ×2.5）
   if (attacker.name === '椿' && chunInHanbao(attacker) && (dmgType === 'normal' || dmgType === 'skill')) {
     windowBonus *= chunHanbaoMult(attacker);
@@ -1128,20 +1119,18 @@ export function doHeavy(battle, targetIdx) {
 
   // 安可特殊重击：失序值满时，重击改为白咩·失控之炎 / 黑咩·暴走之炎
   // 官方归类为共鸣解放伤害，因此这里用 dmgType='burst' 结算，但仍消耗 2 AP 和重击 CD。
-  const isEncore = self.name === '安可';
-  const encoreBlack = isEncore && (self.encoreBlackTurns || 0) > 0;
-  const encoreSpecial = isEncore && (self.encoreDisorder || 0) >= 100;
+  const encoreForm = queryCharacterHook(self, 'resolveHeavy');
   // 长离心眼·冲：重击变身为 400% 共鸣技能伤害
   const meForm = queryCharacterHook(self, 'mindEyeForm', 'heavy');
   const heavyMult = furoloDirgeForm
     ? furoloDirgeForm.mult
     : (meForm
         ? meForm.mult
-        : (encoreSpecial ? (encoreBlack ? 4.5 : 3.5) * (1 + (self.heavyBonus || 0)) : ACTION_MULTIPLIER.heavy));
-  const heavyType = furoloDirgeForm ? furoloDirgeForm.dmgType : (meForm ? meForm.dmgType : (encoreSpecial ? 'burst' : 'heavy'));
+        : (encoreForm?.special ? encoreForm.mult : ACTION_MULTIPLIER.heavy));
+  const heavyType = furoloDirgeForm ? furoloDirgeForm.dmgType : (meForm ? meForm.dmgType : (encoreForm?.special ? encoreForm.dmgType : 'heavy'));
   const { dmg, crit } = calcDamage(self, target, heavyMult, heavyType, { explicitHpMult: !!furoloDirgeForm });
   const real = dealDamage(target, dmg);
-  reduceVibration(target, encoreSpecial ? VIBRATION_DAMAGE.heavySpecial : VIBRATION_DAMAGE.heavy, battle, self);
+  reduceVibration(target, encoreForm?.special ? VIBRATION_DAMAGE.heavySpecial : VIBRATION_DAMAGE.heavy, battle, self);
   applyReflect(battle, self, target, real);
   battle.ap -= cost.apCost;
   if (!inMindEye) self.cd.heavy = 1;
@@ -1167,20 +1156,8 @@ export function doHeavy(battle, targetIdx) {
     // 普通重击命中后加乐声+余响(理论上弗洛洛只有谱曲终末路径,这里防御性处理)
     furoloOnHeavyHit(self, battle);
   }
-  if (isEncore) {
-    if (encoreSpecial) {
-      heavyAction = encoreBlack ? '黑咩·暴走之炎（失序满）' : '白咩·失控之炎（失序满）';
-      self.encoreDisorder = 0;
-      if (self.forte?.resourceName === '失序值') {
-        self.forte.current = 0;
-        self.forte.ready = false;
-      }
-      battle.log.push({ type: 'mechanic', src: self.name, msg: '消耗失序值 100 → 触发' + (encoreBlack ? '黑咩·暴走之炎' : '白咩·失控之炎') });
-    } else {
-      heavyAction = encoreBlack ? '黑咩·重击' : '重击';
-      encoreGainDisorder(self, 20, encoreBlack ? '黑咩·重击' : '重击', battle);
-    }
-  }
+  const encoreHeavyAction = queryCharacterHook(self, 'finishHeavy', battle, encoreForm);
+  if (encoreHeavyAction) heavyAction = encoreHeavyAction;
   battle.log.push({ type: 'heavy', src: self.name, tgt: target.name, dmg: real, crit, action: heavyAction });
   // 重击也能击破绿泡
   if (target._bubbleHp > 0) {
