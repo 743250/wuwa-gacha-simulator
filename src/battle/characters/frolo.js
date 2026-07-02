@@ -60,6 +60,20 @@ export function furoloCanBurst(self) {
   return furoloInDirge(self);  // 解放需处于定音状态
 }
 
+export function furoloCanHeavy(self) {
+  if (self.name !== '弗洛洛') return null;
+  if ((self.furoloNotes || 0) < NOTES_MAX) return { ok: false, err: '乐声未满 6 枚，无法施放谱曲终末' };
+  return null;
+}
+
+export function furoloCanBurstAction(self, battle) {
+  if (self.name !== '弗洛洛') return null;
+  if (!furoloCanBurst(self)) return { ok: false, err: '需处于定音状态(谱曲终末后)才能施放共鸣解放' };
+  const aliveEnemies = battle.enemies.filter(e => e.alive);
+  if (!aliveEnemies.length) return { ok: false, err: '没有目标' };
+  return { ok: true };
+}
+
 // ── 战斗开始 hook(固有·八重奏) ──
 export function furoloBattleStart(self, ctx) {
   if (self.name !== '弗洛洛') return;
@@ -129,6 +143,15 @@ function furoloRefreshEchoesCdmgBuff(self, battle) {
   }
 }
 
+export function furoloHpCore(self, dmgType, opts = {}) {
+  if (self.name !== '弗洛洛') return null;
+  const mults = { normal: NORMAL_HP_MULT, skill: SKILL_HP_MULT, heavy: HEAVY_HP_MULT, burst: 0.16 };
+  return {
+    baseStat: 'hpMax',
+    hpMultOverride: (opts.explicitHpMult || dmgType === 'burst') ? null : (mults[dmgType] ?? null)
+  };
+}
+
 // ── 普攻第3段后加乐声(由 doAttack 调用) ──
 export function furoloOnNormalHit(self, battle) {
   if (self.name !== '弗洛洛') return;
@@ -166,6 +189,28 @@ export function furoloOnVariationHit(self, battle) {
   furoloGainEchoes(self, 2, battle);
   // 指挥状态期间:赫卡忒协同攻击
   if (furoloInCommand(self)) furoloHecateAssist(self, battle);
+}
+
+export function furoloOnAttack(self, ctx) {
+  furoloOnNormalHit(self, ctx.battle);
+}
+
+export function furoloOnSkill(self, ctx) {
+  furoloOnSkillHit(self, ctx.battle);
+}
+
+export function furoloFinishHeavy(self, battle, form) {
+  if (form?.isDirge) furoloExecuteDirge(self, battle);
+  else furoloOnHeavyHit(self, battle);
+}
+
+export function furoloOnHeavy(self, ctx) {
+  if (ctx.form) furoloFinishHeavy(self, ctx.battle, ctx.form);
+}
+
+export function furoloOnVariation(self, ctx) {
+  if (!ctx.variationTarget) return;
+  furoloOnVariationHit(self, ctx.battle);
 }
 
 // ── 6 链重世幻象追击(普攻第3段/技能后召唤赫卡忒追击 HP×8%) ──
@@ -242,6 +287,14 @@ export function furoloExecuteDirge(self, battle) {
       msg: '4 链 · 火炬引导 · 全队全属性伤害 +20%（4 回合）'
     });
   }
+}
+
+export function furoloResolveBurst(self) {
+  if (self.name !== '弗洛洛') return null;
+  return {
+    results: [],
+    action: '共鸣解放 · 往日深渊的圆舞曲（进入指挥状态 · 赫卡忒召唤）'
+  };
 }
 
 // ── 解放 hook(进入指挥状态 + 召唤赫卡忒) ──
@@ -401,6 +454,10 @@ export function furoloTick(self, battle) {
   return null;
 }
 
+export function furoloTurnCleanup(self, ctx) {
+  return furoloTick(self, ctx.battle);
+}
+
 // ── 徽章收集(战斗 UI 状态行) ──
 // 返回 badge 对象数组 { key, cls, icon, label, tip }，与 collectUnitBadges 协议一致
 export function furoloCollectBadges(self) {
@@ -446,17 +503,25 @@ export default {
   echoes: furoloEchoes,
   inDirge: furoloInDirge,
   inCommand: furoloInCommand,
-  canBurst: furoloCanBurst,
+  hpCore: furoloHpCore,
+  canHeavy: furoloCanHeavy,
+  canBurst: furoloCanBurstAction,
   battleStart: furoloBattleStart,
   onNormalHit: furoloOnNormalHit,
   onSkillHit: furoloOnSkillHit,
   onHeavyHit: furoloOnHeavyHit,
   onVariationHit: furoloOnVariationHit,
+  onAttack: furoloOnAttack,
+  onSkill: furoloOnSkill,
+  onHeavy: furoloOnHeavy,
+  onVariation: furoloOnVariation,
   resolveHeavy: furoloResolveHeavy,
   executeDirge: furoloExecuteDirge,
   dirgeMult: furoloDirgeMult,
+  resolveBurst: furoloResolveBurst,
   onBurst: furoloOnBurst,
   switchIn: furoloSwitchIn,
   tick: furoloTick,
+  turnCleanup: furoloTurnCleanup,
   collectBadges: furoloCollectBadges
 };

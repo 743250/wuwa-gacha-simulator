@@ -27,7 +27,6 @@ import { ACTION_COST, ACTION_MULTIPLIER, VIBRATION_DAMAGE } from './balance.js';
 import { jiyanBurstRuiyi } from './characters/jiyan.js';
 import { cartethyiaEnterFurForm, cartethyiaBurstErosion, cartethyiaResolveMultiplier, cartethyiaErosionTick, cartethyiaErosionOnBreak, cartethyiaLethalShield } from './characters/cartethyia.js';
 import { zanYanInBlaze, zanYanHpMult, zanYanResolveNormal, zanYanSpendFlameForSlash, zanYanEnterBlaze, zanYanRekindleMult, zanYanTick, zanYanOnLethal, zanYanOnBurst } from './characters/zanyan.js';
-import { furoloOnNormalHit, furoloOnSkillHit, furoloOnHeavyHit, furoloOnVariationHit, furoloResolveHeavy, furoloExecuteDirge, furoloCanBurst, furoloOnBurst, furoloTick } from './characters/frolo.js';
 
 // 行动花费薄入口：默认只看回合 AP；挂了 resolveCost hook 的角色（长离心眼态拿离火抵 AP）走 queryCharacterHook。
 // 返回 { apCost: 实际要扣的回合 AP, lihuoCost: 要消耗的离火 }。
@@ -198,8 +197,7 @@ export function calcDamage(attacker, defender, multiplier, dmgType, opts = {}) {
   const CARTETHYIA_HP_MULT = { normal: 0.12, skill: 0.22, heavy: 0.26, burst: 0.462 };
   // ★ 赞妮：HP 核（HP/ATK ≈ 24.6×，4%HP ≈ 100%ATK）
   const ZAN_YAN_HP_MULT = { normal: 0.04, skill: 0.075, heavy: 0.09, burst: 0.16 };
-  // ★ 弗洛洛：HP 核（HP/ATK ≈ 24.6×，同赞妮档位）
-  const FUROLO_HP_MULT = { normal: 0.04, skill: 0.075, heavy: 0.09, burst: 0.16 };
+  const hpCore = queryCharacterHook(attacker, 'hpCore', dmgType, opts);
   let baseStat;
   let hpMultOverride = null;
   if (attacker.name === '卡提希娅') {
@@ -214,12 +212,9 @@ export function calcDamage(attacker, defender, multiplier, dmgType, opts = {}) {
     // burst 走重燃/终绝的独立倍率（由 doBurst 直接传 multiplier），这里不覆写
     hpMultOverride = (dmgType === 'burst') ? null : (ZAN_YAN_HP_MULT[dmgType] ?? null);
     // 灼焰形态内重斩走 heavy 类型但倍率 12%（由 doAttack 重斩路径传 multiplier，不在此覆写）
-  } else if (attacker.name === '弗洛洛') {
-    baseStat = computeStat(attacker, 'hpMax', attacker.hpMax);
-    // 普攻/技能/重击/变奏走固定 HP 倍率覆写（调用方传 ACTION_MULTIPLIER.* 的 ATK 倍率，这里换成 HP 倍率）
-    // 谱曲终末/赫卡忒攻击/6链追击等特殊倍率由调用方通过 opts.explicitHpMult=true 传真实 HP 倍率，不再覆写
-    // burst 路径弗洛洛无直接伤害，亦不覆写
-    hpMultOverride = (opts.explicitHpMult || dmgType === 'burst') ? null : (FUROLO_HP_MULT[dmgType] ?? null);
+  } else if (hpCore) {
+    baseStat = computeStat(attacker, hpCore.baseStat, attacker[hpCore.baseStat]);
+    hpMultOverride = hpCore.hpMultOverride;
   } else {
     baseStat = attacker.atk * (1 + wb.atkBonus + buffAtkUp);
   }
@@ -727,10 +722,6 @@ export function canHeavy(self, battle, targetIdx) {
   }
   const heavyCheck = queryCharacterHook(self, 'canHeavy', battle, targetIdx);
   if (heavyCheck) return heavyCheck;
-  // 弗洛洛谱曲终末：需满 6 乐声
-  if (self.name === '弗洛洛' && (self.furoloNotes || 0) < 6) {
-    return { ok: false, err: '乐声未满 6 枚，无法施放谱曲终末' };
-  }
   const target = battle.enemies[targetIdx];
   if (!target || !target.alive) return { ok: false, err: '目标无效' };
   return { ok: true };
@@ -740,13 +731,8 @@ export function canBurst(self, battle) {
   if (!self || !self.alive) return { ok: false, err: '当前角色不可行动' };
   if (self.frozenTurns > 0) return { ok: false, err: `当前角色被冻结（${self.frozenTurns} 回合）` };
 
-  // 弗洛洛专属：0AP，需定音状态
-  if (self.name === '弗洛洛') {
-    if (!furoloCanBurst(self)) return { ok: false, err: '需处于定音状态(谱曲终末后)才能施放共鸣解放' };
-    const aliveEnemies = battle.enemies.filter(e => e.alive);
-    if (!aliveEnemies.length) return { ok: false, err: '没有目标' };
-    return { ok: true };
-  }
+  const burstCheck = queryCharacterHook(self, 'canBurst', battle);
+  if (burstCheck) return burstCheck;
 
   if (battle.finished || battle.ap < ACTION_COST.burst) return { ok: false, err: `AP 不足（需 ${ACTION_COST.burst}）` };
   if (self.energy < self.energyMax) return { ok: false, err: `能量不足（${self.energy}/${self.energyMax}）` };
@@ -838,8 +824,6 @@ export function doAttack(battle, targetIdx) {
   fireRoleEchoTriggers(self, 'normal_hit', target, battle);
   // 角色专属普攻 hook（卡提希娅决意/风蚀 · 安可失序 · 吟霖审判 · 长离离火）
   fireCharacterHook(self, 'onAttack', { battle, target, cost, helpers: { calcDamage, dealDamage } });
-  // ★ 弗洛洛普攻命中后加乐声+余响
-  if (self.name === '弗洛洛') furoloOnNormalHit(self, battle);
   finishIfBattleEnded(battle, 'win');
   return { ok: true };
 }
@@ -905,8 +889,6 @@ export function doSkill(battle, targetIdx) {
   });
   // 角色专属共鸣技能 hook（守岸人治疗 · 卡提希娅决意/风蚀 · 忌炎锐意 · 安可失序 · 吟霖审判 · 珂莱塔解离 · 折枝补货 · 长离离火）
   fireCharacterHook(self, 'onSkill', { battle, target, cost, helpers: { calcDamage, dealDamage } });
-  // ★ 弗洛洛技能命中后加乐声+余响
-  if (self.name === '弗洛洛') furoloOnSkillHit(self, battle);
   // 折枝墨鹤追击：共鸣技能命中主目标时消耗 1 只墨鹤（追击在补货之后，逻辑上仍是技能命中触发）
   fireCraneAssist(battle, target);
   finishIfBattleEnded(battle, 'win');
@@ -920,12 +902,12 @@ export function doBurst(battle) {
   const check = canBurst(self, battle);
   if (!check.ok) return check;
 
-  // ★ 弗洛洛专属解放:0AP(能量上限为0) + 需定音状态 + 无直接伤害 + 进入指挥状态
-  if (self.name === '弗洛洛') {
-    furoloOnBurst(self, { battle });
+  const characterBurst = queryCharacterHook(self, 'resolveBurst', battle);
+  if (characterBurst) {
+    fireCharacterHook(self, 'onBurst', { battle });
     battle.log.push({
-      type: 'burst', src: self.name, results: [],
-      action: '共鸣解放 · 往日深渊的圆舞曲（进入指挥状态 · 赫卡忒召唤）'
+      type: 'burst', src: self.name, results: characterBurst.results || [],
+      action: characterBurst.action
     });
     finishIfBattleEnded(battle, 'win');
     return { ok: true };
@@ -1102,8 +1084,7 @@ export function doHeavy(battle, targetIdx) {
 
   const target = battle.enemies[targetIdx];
 
-  // ★ 弗洛洛谱曲终末:满6乐声时重击替换为谱曲终末(HP×20% AOE,消耗乐声,进入定音)
-  const furoloDirgeForm = (self.name === '弗洛洛') ? furoloResolveHeavy(self, battle) : null;
+  const furoloDirgeForm = queryCharacterHook(self, 'resolveHeavy', battle);
 
   // 安可特殊重击：失序值满时，重击改为白咩·失控之炎 / 黑咩·暴走之炎
   // 官方归类为共鸣解放伤害，因此这里用 dmgType='burst' 结算，但仍消耗 2 AP 和重击 CD。
@@ -1136,14 +1117,8 @@ export function doHeavy(battle, targetIdx) {
   // 触发角色专属声骸套装 5 件
   fireRoleEchoTriggers(self, 'heavy_hit', target, battle);
   let heavyAction = meForm ? meForm.label : '重击';
-  // ★ 弗洛洛谱曲终末:消耗乐声 + 进入定音 + 2链+14余响 + 4链团队buff
-  if (furoloDirgeForm) {
-    heavyAction = furoloDirgeForm.label;
-    furoloExecuteDirge(self, battle);
-  } else if (self.name === '弗洛洛') {
-    // 普通重击命中后加乐声+余响(理论上弗洛洛只有谱曲终末路径,这里防御性处理)
-    furoloOnHeavyHit(self, battle);
-  }
+  if (furoloDirgeForm) heavyAction = furoloDirgeForm.label;
+  fireCharacterHook(self, 'onHeavy', { battle, target, form: furoloDirgeForm });
   const encoreHeavyAction = queryCharacterHook(self, 'finishHeavy', battle, encoreForm);
   if (encoreHeavyAction) heavyAction = encoreHeavyAction;
   battle.log.push({ type: 'heavy', src: self.name, tgt: target.name, dmg: real, crit, action: heavyAction });
@@ -1251,8 +1226,7 @@ export function doSwitch(battle, toIdx) {
   battle.log.push({ type: 'switch', src: target.name, action: '切换上场' });
   // Step E：统一切人入场钩子（忌炎锐意/通变、今汐谪仙/韶光、卡提希娅 2 链风蚀、安可变奏失序）
   fireSwitchHook({ from: prev, to: target, battle, ctx: { variationTarget } });
-  // ★ 弗洛洛变奏入场命中后加乐声+余响
-  if (target.name === '弗洛洛' && variationTarget) furoloOnVariationHit(target, battle);
+  fireCharacterHook(target, 'onVariation', { battle, variationTarget });
   finishIfBattleEnded(battle, 'win');
   return { ok: true };
 }
@@ -1415,8 +1389,6 @@ export function endTurn(battle) {
     // 雷霆墙锁定衰减
     if (t._wallLocked > 0) t._wallLocked--;
     fireCharacterHook(t, 'turnCleanup', { battle });
-    // ★ 弗洛洛指挥状态 tick(同步主人 commandTurns 与赫卡忒 duration)
-    if (t.name === '弗洛洛') furoloTick(t, battle);
     // 赞妮灼焰形态 tick：回合数 -1、焰光 +10、形态结束时触发终绝将至之刻
     if (t.name === '赞妮') {
       const zyTick = zanYanTick(t, battle);
