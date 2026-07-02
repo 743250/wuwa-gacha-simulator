@@ -42,6 +42,12 @@ export function zanYanFlame(self) {
   return self?.name === '赞妮' ? (self.zanYanFlameGauge || 0) : 0;
 }
 
+export function zanYanCanHeavy(self) {
+  if (self.name !== '赞妮') return null;
+  if (zanYanInBlaze(self)) return { ok: false, err: '灼焰形态下重击不可用 · 普攻键已替换为重斩' };
+  return null;
+}
+
 // ── HP 核倍率覆写（combat.js calcDamage 调用） ──
 export function zanYanHpMult(dmgType) {
   switch (dmgType) {
@@ -259,6 +265,7 @@ export default {
   name: '赞妮',
   hasHeavy: true,
   inBlaze: zanYanInBlaze,
+  canHeavy: zanYanCanHeavy,
   hpMult: zanYanHpMult,
   hpCore: zanYanHpCore,
   heavySlashMult: zanYanHeavySlashMult,

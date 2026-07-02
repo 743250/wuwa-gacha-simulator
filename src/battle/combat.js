@@ -25,7 +25,7 @@ import { hasHeavyAttack, fireCharacterHook, queryCharacterHook, getCharacterMech
 import { ACTION_COST, ACTION_MULTIPLIER, VIBRATION_DAMAGE } from './balance.js';
 // 返回值参与倍率/控制流的 hook 仍保留具名调用（fireCharacterHook 会丢弃返回值）。
 import { cartethyiaEnterFurForm, cartethyiaBurstErosion, cartethyiaResolveMultiplier, cartethyiaErosionTick, cartethyiaErosionOnBreak, cartethyiaLethalShield } from './characters/cartethyia.js';
-import { zanYanInBlaze, zanYanEnterBlaze, zanYanRekindleMult, zanYanTick, zanYanOnLethal, zanYanOnBurst } from './characters/zanyan.js';
+import { zanYanEnterBlaze, zanYanRekindleMult, zanYanTick, zanYanOnLethal, zanYanOnBurst } from './characters/zanyan.js';
 
 // 行动花费薄入口：默认只看回合 AP；挂了 resolveCost hook 的角色（长离心眼态拿离火抵 AP）走 queryCharacterHook。
 // 返回 { apCost: 实际要扣的回合 AP, lihuoCost: 要消耗的离火 }。
@@ -708,10 +708,6 @@ export function canHeavy(self, battle, targetIdx) {
   const cost = resolveActionCost(self, 'heavy', ACTION_COST.heavy);
   if (battle.finished || battle.ap < cost.apCost) return { ok: false, err: `AP 不足（需 ${cost.apCost}）` };
 
-  // 赞妮灼焰形态：普攻键已替换为重斩，重击不可用
-  if (self.name === '赞妮' && zanYanInBlaze(self)) {
-    return { ok: false, err: '灼焰形态下重击不可用 · 普攻键已替换为重斩' };
-  }
   const heavyCheck = queryCharacterHook(self, 'canHeavy', battle, targetIdx);
   if (heavyCheck) return heavyCheck;
   const target = battle.enemies[targetIdx];
