@@ -26,7 +26,6 @@ import { ACTION_COST, ACTION_MULTIPLIER, VIBRATION_DAMAGE } from './balance.js';
 // 返回值参与倍率/控制流的 hook 仍保留具名调用（fireCharacterHook 会丢弃返回值）。
 import { jiyanBurstRuiyi } from './characters/jiyan.js';
 import { cartethyiaEnterFurForm, cartethyiaBurstErosion, cartethyiaResolveMultiplier, cartethyiaErosionTick, cartethyiaErosionOnBreak, cartethyiaLethalShield } from './characters/cartethyia.js';
-import { chunResolveSkill, chunEnterHanbao, chunInHanbao, chunHanbaoMult, chunTick } from './characters/camellia.js';
 import { zanYanInBlaze, zanYanHpMult, zanYanResolveNormal, zanYanSpendFlameForSlash, zanYanEnterBlaze, zanYanRekindleMult, zanYanTick, zanYanOnLethal, zanYanOnBurst } from './characters/zanyan.js';
 import { furoloOnNormalHit, furoloOnSkillHit, furoloOnHeavyHit, furoloOnVariationHit, furoloResolveHeavy, furoloExecuteDirge, furoloCanBurst, furoloOnBurst, furoloTick } from './characters/frolo.js';
 
@@ -252,10 +251,6 @@ export function calcDamage(attacker, defender, multiplier, dmgType, opts = {}) {
   const burstWin = attacker.buffs?.find(b => b.type === 'burstWindow');
   let windowBonus = burstWin && (dmgType === 'normal' || dmgType === 'skill') ? (1 + burstWin.value) : 1;
   windowBonus *= queryCharacterHook(attacker, 'windowMultiplier', dmgType) || 1;
-  // 椿含苞·酣梦：含苞期间普攻/技能 ×1.5（6 链 ×2.5）
-  if (attacker.name === '椿' && chunInHanbao(attacker) && (dmgType === 'normal' || dmgType === 'skill')) {
-    windowBonus *= chunHanbaoMult(attacker);
-  }
   // 卡提希娅气动侵蚀类 debuff
   let debuffBonus = 1;
   if (defender.debuffs) {
@@ -869,8 +864,8 @@ export function doSkill(battle, targetIdx) {
   // 长离心眼·劫：技能变身为 200% 共鸣技能伤害
   const meForm = queryCharacterHook(self, 'mindEyeForm', 'skill');
   // 椿永生花：满红椿·蕊 + 协奏≥50 时技能替换为永生花（进入含苞在伤害前，使永生花享受酣梦倍率）
-  const chunForm = chunResolveSkill(self, battle);
-  if (chunForm) chunEnterHanbao(self, battle, chunForm.isRefresh);
+  const chunForm = queryCharacterHook(self, 'resolveSkill', battle);
+  if (chunForm) queryCharacterHook(self, 'enterHanbao', battle, chunForm.isRefresh);
   const fEnh = (meForm || chunForm) ? null : forteEnhances(self, 'skill');
   let mult;
   if (meForm) mult = meForm.mult;

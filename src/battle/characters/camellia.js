@@ -90,6 +90,12 @@ export function chunResolveSkill(self, battle) {
   };
 }
 
+export function chunWindowMultiplier(self, dmgType) {
+  if (self.name !== '椿' || !chunInHanbao(self)) return 1;
+  if (dmgType !== 'normal' && dmgType !== 'skill') return 1;
+  return chunHanbaoMult(self);
+}
+
 // turnCleanup: 含苞 duration 递减
 export function chunTick(self, battle) {
   if (self.name !== '椿' || !self.forte) return;
@@ -157,6 +163,7 @@ export default {
   enterHanbao: chunEnterHanbao,
   hanbaoMult: chunHanbaoMult,
   yongshengMult: chunYongshengMult,
+  windowMultiplier: chunWindowMultiplier,
   tick: chunTick,
   turnCleanup: chunTick,
   switchIn: chunSwitchIn,
