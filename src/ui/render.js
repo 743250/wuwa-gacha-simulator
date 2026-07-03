@@ -2,18 +2,17 @@
 import { S, $ } from '../state.js';
 import { activePhase, activeBanners, cur, poolKind, isCollabActive } from '../gacha/core.js';
 import { seqText } from '../data/seq.js';
-import { openModal, closeModal } from '../modal.js';
+import { openModal } from '../modal.js';
 import { upgrade } from '../gacha/core.js';
 import { saveState } from '../save.js';
 import { expToNext, weaponToNext } from '../battle/stats.js';
 import { getMeta } from '../battle/template.js';
 import { WEAPON_DATA } from '../equip/weapons.js';
-import { levelUpRole, levelUpRoleMax, levelUpWeapon, levelUpWeaponMax, unequipWeapon, totalExp } from '../equip/actions.js';
-import { equipEcho, unequipSlot, calcTotalCost, levelUpEcho, levelUpEchoMax, recycleEcho, toggleEchoLock, ECHO_COST_CAP, echoToNext } from '../equip/echoActions.js';
+import { totalExp } from '../equip/actions.js';
+import { calcTotalCost, ECHO_COST_CAP, echoToNext } from '../equip/echoActions.js';
 import { getSetById, formatEchoStatValue, formatSetBonus } from '../data/echoes.js';
 import { attachTermTips, highlightChainTerms } from './terms.js';
 import { msg } from '../state.js';
-import { escJs } from './render/utils.js';
 import { renderBannerArt } from './render/bannerArt.js';
 import { renderBannerTabs } from './render/bannerTabs.js';
 import { renderTopOverview, renderPullStats } from './render/overview.js';
@@ -24,7 +23,7 @@ import { renderPullPanel } from './render/pullPanel.js';
 import { renderExchangeList } from './render/exchangeList.js';
 import { renderWaveList } from './render/waveList.js';
 import { renderShopPanel } from './render/shopPanel.js';
-import { makePreviewRole, getRoleForModal, computeRoleStatsForModal, calcRoleBPForModal } from './render/rolePreview.js';
+import { getRoleForModal, computeRoleStatsForModal, calcRoleBPForModal } from './render/rolePreview.js';
 import { renderRoleList } from './render/roleList.js';
 import { registerStandardRolePreview } from './render/standardRolePreview.js';
 import { renderRoleModalBasicTab } from './render/roleModalBasicTab.js';
@@ -35,6 +34,7 @@ import { renderRoleModalChainTab } from './render/roleModalChainTab.js';
 import { renderRoleModalEchoTab } from './render/roleModalEchoTab.js';
 import { registerEchoPicker } from './render/echoPicker.js';
 import { registerWeaponModal } from './render/weaponModal.js';
+import { registerRoleActions } from './render/roleActions.js';
 
 export function render() {
   const aps = activePhase(), bs = activeBanners(), b = cur();
@@ -106,6 +106,17 @@ registerWeaponModal({
   setRoleTab: t => { _currentRoleTab = t; },
   setRoleName: n => { _currentRoleName = n; },
   getCurrentRoleTab: () => _currentRoleTab
+});
+
+registerRoleActions({
+  renderRoleModal,
+  render,
+  renderRoleTabContent,
+  getCurrentRoleName: () => _currentRoleName,
+  getCurrentRoleTab: () => _currentRoleTab,
+  getCurrentRolePreview: () => _currentRolePreview,
+  setRoleTab: t => { _currentRoleTab = t; },
+  getEchoSelectedSlot: () => _echoSelectedSlot,
 });
 
 // 重新打开角色面板（在弹窗被自动关闭后用，例如激活共鸣链）
@@ -269,123 +280,5 @@ window.__activateChain = (n) => {
   if (content) content.innerHTML = renderRoleTabContent(_currentRoleTab, _currentRolePreview);
 };
 
-window.openRoleModal = openRoleModal;
-
-// 角色升级桥接（不重开 modal，只刷新右侧内容）
-function refreshRolePane() {
-  const content = document.getElementById('roleContent');
-  if (content && _currentRoleName) content.innerHTML = renderRoleTabContent(_currentRoleTab, _currentRolePreview);
-}
-window.__levelUpRole = (n) => {
-  if (levelUpRole(n)) { msg('升级成功', false); refreshRolePane(); render(); }
-};
-window.__levelUpRoleMax = (n) => {
-  const c = levelUpRoleMax(n);
-  if (c > 0) { msg(`+${c} 级`, false); refreshRolePane(); render(); }
-  else msg('经验书不足');
-};
-window.__levelUpWeapon = (wn) => {
-  if (levelUpWeapon(wn)) {
-    msg('武器升级', false);
-    refreshRolePane();
-    render();
-  }
-};
-window.__levelUpWeaponMax = (wn) => {
-  const c = levelUpWeaponMax(wn);
-  if (c > 0) {
-    msg(`武器 +${c} 级`, false);
-    refreshRolePane();
-    render();
-  }
-};
-window.__doUnequip = (n) => {
-  unequipWeapon(n);
-  refreshRolePane();
-  render();
-};
-
-window.__doEquipEcho = (roleName, slot, echoId) => {
-  const r = equipEcho(roleName, slot, echoId);
-  if (!r.ok) { msg(r.err); return; }
-  // 装备后回到角色声骸面板（不关闭 modal），方便继续装其他槽位
-  if (_currentRoleName) renderRoleModal();
-  window.__render();
-};
-window.__unequipEchoSlot = (roleName, slot) => {
-  unequipSlot(roleName, slot);
-  if (_currentRoleName) renderRoleModal();
-  window.__render();
-};
-window.__selectEchoSlot = (roleName, idx) => {
-  _echoSelectedSlot[roleName] = idx;
-  refreshRolePane();
-  render();
-};
-// 从子 modal（详情/picker）关闭后回到角色声骸面板
-window.__reopenRoleEchoTab = () => {
-  if (!_currentRoleName) return;
-  _currentRoleTab = 'echo';
-  renderRoleModal();
-};
-window.__echoDetail = (id) => {
-  // 委托给背包详情（统一带升级/升满按钮的 modal）
-  if (typeof window.__bagEchoDetail === 'function') return window.__bagEchoDetail(id, true);
-  const e = S.echos.find(x => x.id === id);
-  if (!e) return;
-  const set = getSetById(Array.isArray(e.set) ? e.set[0] : e.set);
-  openModal({
-    title: `${e.name} · LV ${e.level} · COST ${e.cost}`,
-    body: `<div style="font-size:12px;color:var(--muted);line-height:1.7">
-      <div>套装：<b style="color:var(--gold)">${set?.name || '未知'}</b>${set?.element ? ` · ${set.element}` : ''}</div>
-      <div>元素：<b>${e.element || '—'}</b></div>
-      <div>主词条：<b style="color:var(--gold)">${e.mainStat?.label} ${formatEchoStatValue(e.mainStat?.key, e.mainStat?.value)}</b></div>
-      <div style="margin-top:6px">副词条（${(e.subStats||[]).filter(s=>s.unlocked!==false).length}/${(e.subStats||[]).length}）：</div>
-      <div style="margin-left:10px">${(e.subStats||[]).map(s => s.unlocked === false ? `<div style="opacity:.5">· ??? · 未解锁</div>` : `<div>· ${s.label} ${formatEchoStatValue(s.key, s.value)}</div>`).join('')}</div>
-      ${set ? `<div style="margin-top:8px;padding-top:6px;border-top:1px dashed var(--line)">
-        <div style="color:var(--gold);font-size:11px;margin-bottom:3px">套装效果</div>
-        <div style="margin-left:10px">
-          <div>· <b>2 件</b>：${formatSetBonus(set.bonus2) || '—'}</div>
-          <div>· <b>5 件</b>：${formatSetBonus(set.bonus5) || '—'}</div>
-        </div>
-      </div>` : ''}
-    </div>`,
-    actions: [{ label: '关闭', cls: '', fn: () => {} }]
-  });
-};
-window.__echoLevelUp = (id) => {
-  if (typeof window.__bagEchoLevelUp === 'function') return window.__bagEchoLevelUp(id);
-  const e = S.echos.find(x => x.id === id);
-  if (!e) return;
-  if (e.level >= 25) { msg('已满级'); return; }
-  const cost = echoToNext(e);
-  if (levelUpEcho(id)) {
-    msg(`声骸 +1 级（消耗 ${cost.toLocaleString()} exp）`, false);
-    if (_currentRoleName) { _currentRoleTab = 'echo'; renderRoleModal(); }
-    else render();
-  } else {
-    msg(`经验不足（需 ${cost.toLocaleString()}）`);
-  }
-};
-window.__echoLevelUpMax = (id) => {
-  if (typeof window.__bagEchoLevelUpMax === 'function') return window.__bagEchoLevelUpMax(id);
-};
-window.__echoRecycle = (id) => {
-  if (typeof window.__bagEchoConfirmRecycle === 'function') return window.__bagEchoConfirmRecycle(id);
-  if (typeof window.__bagEchoRecycle === 'function') return window.__bagEchoRecycle(id);
-  const res = recycleEcho(id);
-  if (res.ok) {
-    if (_currentRoleName) { _currentRoleTab = 'echo'; renderRoleModal(); }
-    else { closeModal(); render(); }
-  } else {
-    msg(res.err || '分解失败（已装备/已锁定？）');
-  }
-};
-window.__echoToggleLock = (id) => {
-  if (typeof window.__bagEchoToggleLock === 'function') return window.__bagEchoToggleLock(id);
-  toggleEchoLock(id);
-  if (_currentRoleName) { _currentRoleTab = 'echo'; renderRoleModal(); }
-  else render();
-};
 
 
