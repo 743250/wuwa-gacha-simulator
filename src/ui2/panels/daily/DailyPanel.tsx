@@ -1,10 +1,10 @@
 // 每日委托面板 · Preact 版 · Stage 3.1
 //
-// 老实现:src/ui/daily.js(已改 shim)。UI 完全用 JSX 重写,业务函数走 window.__doCommission /
-// window.__claimWeeklyTour(shim 里注册),旧的 renderDaily 已 no-op。
+// 业务函数 doCommission / claimTour 直接从 src/ui/daily.js import,不再走 window.__ 桥。
 
 import { useS } from '../../signals';
 import { WEEKLY_TOUR_REWARD, isWeeklyTourClaimed } from '../../../daily/weekly.js';
+import { doCommission, claimTour } from '../../../ui/daily.js';
 
 // 注:老 renderDaily 会先调 resetDailyIfNeeded() 触发跨日重置。
 // 迁到 Preact 后,这个副作用移到 main.js 启动流程和时间推进按钮的 rerenderAll() 之前触发 —— 组件本身不做副作用。
@@ -37,7 +37,7 @@ function CommissionCard({ commission, idx }: any) {
         </div>
         <button class={`mbtn ${done ? '' : 'gold'}`}
           disabled={done}
-          onClick={() => (window as any).__doCommission?.(idx)}>
+          onClick={() => doCommission(idx)}>
           {done ? '已完成' : '完 成'}
         </button>
       </div>
@@ -97,7 +97,7 @@ export function DailyPanel() {
           </div>
           <button class={`mbtn ${tourDone ? '' : 'gold'}`}
             disabled={tourDone}
-            onClick={() => (window as any).__claimWeeklyTour?.()}>
+            onClick={() => claimTour()}>
             {tourDone ? '本周已领' : '一 键 领 取'}
           </button>
         </div>

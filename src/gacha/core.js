@@ -1,5 +1,6 @@
 // 抽卡核心逻辑
 import { S, DAY, date, fmt, pick, msg } from '../state.js';
+import { rerenderAll } from '../rerender.js';
 import { phases } from '../data/phases.js';
 import { standard5, fourAll, threeWeapons, fourWeapons, weapons, bannerNames, standardWeapons, newJourneyChars } from '../data/chars.js';
 import {
@@ -120,7 +121,7 @@ export function selectTarget(pool, target) {
   if (pool === 'standardWeapon') S.standardWeaponTarget = target;
   if (pool === 'noviceChoice' && !S.noviceStarted) S.noviceTarget = target;
   if (pool === 'noviceWeapon' && !S.noviceStarted) S.noviceWeaponTarget = target;
-  window.__render();
+  rerenderAll();
 }
 window.selectTarget = selectTarget;
 
@@ -299,6 +300,6 @@ export function canAffordPulls(n) {
 
 export function upgrade(n) {
   const o = S.roles[n]; if (!o || o.spare <= 0 || o.chain >= 6) return;
-  o.spare--; o.chain++; window.__render();
+  o.spare--; o.chain++; rerenderAll();
 }
 window.upgrade = upgrade;

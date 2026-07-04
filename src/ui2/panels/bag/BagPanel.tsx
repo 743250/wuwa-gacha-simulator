@@ -3,15 +3,16 @@
 // 迁移策略(playbook step 3):
 //   · UI 层完全用 Preact JSX 重写,不再拼 innerHTML 字符串
 //   · 数据层继续读 src/state.js 的 S 单例,靠 sSignal(stateVersion)驱动重渲染
-//   · 按钮 onClick 继续调 window.__xxx() 老 handler —— 老 handler 里的 renderBag()/window.__render()
-//     经 main.js 触发 bumpStateVersion() 反过来刷新本组件。老 renderBag 已变成 no-op。
-//   · Stage 6 清理阶段再把 window.__ 全部换成正常 import。
+//   · 按钮 onClick 直接 import 调用 bagMaterialActions 纯函数
+//   · Stage 6 清理阶段 window.__ 桥保留给 HTML 内联 onclick
 
 import { h } from 'preact';
 import { useS } from '../../signals';
 import { POTIONS } from '../../../daily/stamina.js';
 import { ECHO_COST_CAP } from '../../../equip/echoActions.js';
 import { getSetById, formatEchoStatValue } from '../../../data/echoes.js';
+import { usePotion, useAllPotions, bagOpenWeaponBox, bagUseRefineStone } from '../../../ui/bag/bagMaterialActions.js';
+import { bagEchoDetail } from '../../../ui/bag.js';
 
 const ELEMENT_COLORS: Record<string, string> = {
   '热熔': '#ff8c5e', '冷凝': '#7bd6ff', '导电': '#b58cff',
@@ -62,9 +63,9 @@ function PotionCard({ potion, have, canUse }: any) {
       <div style={{ fontSize: 9, color: 'var(--dim)', margin: '3px 0 6px', letterSpacing: '.3px' }}>{potion.desc}</div>
       <div style={{ display: 'flex', gap: 4 }}>
         <button class="mbtn" style={{ flex: 1, fontSize: 10, padding: 5 }} disabled={!canUse}
-          onClick={() => (window as any).__usePotion?.(potion.id, 1)}>用 1 个</button>
+          onClick={() => usePotion(potion.id, 1)}>用 1 个</button>
         <button class="mbtn gold" style={{ flex: 1, fontSize: 10, padding: 5 }} disabled={!canUse}
-          onClick={() => (window as any).__usePotion?.(potion.id, have)}>用全部</button>
+          onClick={() => usePotion(potion.id, have)}>用全部</button>
       </div>
     </div>
   );
@@ -113,7 +114,7 @@ function EchoCard({ echo }: any) {
   const color = set?.element ? (ELEMENT_COLORS[set.element] || '#fff') : '#999';
   return (
     <div class="echo-card"
-      onClick={() => (window as any).__bagEchoDetail?.(echo.id)}
+      onClick={() => bagEchoDetail(echo.id)}
       style={{
         cursor: 'pointer', position: 'relative',
         border: `1px solid ${color}`, borderRadius: 8, padding: '6px 5px',
@@ -232,7 +233,7 @@ export function BagPanel() {
 
       {showUseAll && (
         <button class="mbtn gold" style={{ width: '100%', marginTop: 8 }}
-          onClick={() => (window as any).__useAllPotions?.()}>
+          onClick={() => useAllPotions()}>
           🧪 一键嗑光所有药剂（{totalPotions} 个）
         </button>
       )}
@@ -252,7 +253,7 @@ export function BagPanel() {
                 </div>
                 <div style={{ fontSize: 9, color: 'var(--dim)', margin: '3px 0 6px', letterSpacing: '.3px' }}>来自先约电台 · 5 选 1</div>
                 <button class="mbtn gold" style={{ width: '100%', fontSize: 10, padding: 5 }}
-                  onClick={() => (window as any).__bagOpenWeaponBox?.()}>开启</button>
+                  onClick={() => bagOpenWeaponBox()}>开启</button>
               </div>
             )}
             {pendingRefine > 0 && (
@@ -266,7 +267,7 @@ export function BagPanel() {
                 </div>
                 <div style={{ fontSize: 9, color: 'var(--dim)', margin: '3px 0 6px', letterSpacing: '.3px' }}>用于精炼 4★ 自选武器（从背包选择）</div>
                 <button class="mbtn" style={{ width: '100%', fontSize: 10, padding: 5 }}
-                  onClick={() => (window as any).__bagUseRefineStone?.()}>选择武器</button>
+                  onClick={() => bagUseRefineStone()}>选择武器</button>
               </div>
             )}
           </div>

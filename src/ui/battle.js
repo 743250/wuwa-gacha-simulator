@@ -2,6 +2,7 @@
 // Preact <BattleView /> 已接管 #battleOverlay 的渲染。
 // 本文件保留入口函数签名和 window handler 注册。
 import { S, $, msg } from '../state.js';
+import { rerenderAll } from '../rerender.js';
 import { startEncounter, getCombatTeamNames } from '../battle/combat.js';
 import { flattenEnemies, DUNGEONS, canUseWeeklyBoss, getWeeklyBossUsed, WEEKLY_BOSS_LIMIT, getDungeonEncounter, getWorldBossSpawnOpts, getDungeonEnemyLevel, rollEchoMinions } from '../battle/dungeon.js';
 import { ABYSS_ZONES, startAbyssFloor } from '../daily/abyss.js';
@@ -127,8 +128,7 @@ function hideBattleScreen() {
 }
 
 function rerenderAfterBattle() {
-  if (typeof window.__rerenderAll === 'function') window.__rerenderAll();
-  else if (typeof window.__render === 'function') window.__render();
+  rerenderAll();
 }
 
 // ===== 主刷新：行动后调用，通过 signal 驱动 Preact 重渲染 + toast 检测 =====

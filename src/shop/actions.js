@@ -1,6 +1,7 @@
 // 商店
 // 数据校准（2026-06）：按鸣潮真实商店档位实装
 import { S, msg, fmt } from '../state.js';
+import { rerenderAll } from '../rerender.js';
 import { openModal } from '../modal.js';
 import { unlockPaid, unlockPremium } from '../podcast/core.js';
 
@@ -242,7 +243,7 @@ export function buyShop(id) {
         S.spent += it.price;
         applyShopItem(it);
         msg('购买成功', false);
-        window.__render();
+        rerenderAll();
       }}
     ]
   });
@@ -255,7 +256,7 @@ export function convertLunite() {
     title: '月相转星声', body: `将 <b class="g">${S.lunite}</b> 月相全部转为星声（1:1）`,
     actions: [
       { label: '取消', cls: '', fn: () => {} },
-      { label: '确认', cls: 'primary', fn: () => { S.astrite += S.lunite; S.lunite = 0; msg('转换成功', false); window.__render(); } }
+      { label: '确认', cls: 'primary', fn: () => { S.astrite += S.lunite; S.lunite = 0; msg('转换成功', false); rerenderAll(); } }
     ]
   });
 }

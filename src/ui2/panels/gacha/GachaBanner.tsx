@@ -4,7 +4,7 @@
 
 import { h, Fragment } from 'preact';
 import { useS, bumpStateVersion } from '../../signals';
-import { activeBanners, cur, poolKind, poolTitle, targetOptions } from '../../../gacha/core.js';
+import { activeBanners, cur, poolKind, poolTitle, targetOptions, noviceRemainDays } from '../../../gacha/core.js';
 import { DAY, S as S_RAW } from '../../../state.js';
 import { VERSION_NAMES } from '../../../data/phases.js';
 import { standard5 } from '../../../data/chars.js';
@@ -60,7 +60,7 @@ export function GachaBanner() {
       return <div class="pool-badge novice">新手专享 · 累计 {used}/50 抽用完关闭</div>;
     }
     if (pool === 'noviceChoice' || pool === 'noviceWeapon') {
-      const d = typeof (window as any).__noviceRemainDays === 'function' ? (window as any).__noviceRemainDays() : 30;
+      const d = noviceRemainDays();
       return <div class="pool-badge novice">新人限时 · 剩余 {d} 天 · 首五星 100% 命中</div>;
     }
     if (pool === 'standardChar') return <div class="pool-badge perm">永久常驻 · 5 选 1 等概率</div>;
@@ -91,7 +91,7 @@ export function GachaBanner() {
 
   let extraPeriod: any = null;
   if (b.pool === 'noviceChoice' || b.pool === 'noviceWeapon') {
-    const d = typeof (window as any).__noviceRemainDays === 'function' ? (window as any).__noviceRemainDays() : 30;
+    const d = noviceRemainDays();
     extraPeriod = (
       <>
         新旅期限 · 共 30 天<br />

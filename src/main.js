@@ -13,32 +13,11 @@ import { renderAbyss } from './ui/abyss.js';
 import { renderDaily } from './ui/daily.js';
 import { renderWastes } from './ui/wastes.js';
 import { renderPodcast } from './ui/podcast.js';
+import { rerenderAll } from './rerender.js';
 import './ui/battle.js';   // 副作用：注册战斗弹窗
 import './exchange/coral.js'; // 副作用：注册海市兑换 onclick
 import { resetDailyIfNeeded } from './daily/commission.js';
-import { noviceRemainDays } from './gacha/core.js';
 import { phases } from './data/phases.js';
-import { bumpStateVersion } from './ui2/signals.ts';
-
-// 必要的全局桥接（跨模块回调）
-window.__noviceRemainDays = noviceRemainDays;
-
-// 全部面板重渲染（__render 和 __rerenderAll 都指向同一个全刷新函数，
-// 确保所有操作点——抽卡/商店/海市/电台/养成/委托——都会刷新全部面板）
-function rerenderAll() {
-  render();
-  renderTeamBuilder();
-  renderBag();
-  renderDaily();
-  renderDungeon();
-  renderAbyss();
-  renderWastes();
-  renderPodcast();
-  // Stage 1 起:通知 Preact 组件重渲染。旧 render 仍全跑,新旧共存期靠 bump 驱动 signals。
-  bumpStateVersion();
-}
-window.__render = rerenderAll;
-window.__rerenderAll = rerenderAll;
 
 // 顶部时间线按钮
 document.getElementById('nextDay').onclick = () => { advanceDay(); rerenderAll(); };

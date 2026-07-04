@@ -2,31 +2,32 @@
 //
 // 本文件保留:
 //   1. main.js 里 `import { renderDaily }` / `renderDaily()` 调用不挂
-//   2. 注册 window.__doCommission / window.__claimWeeklyTour handler(action 层未拆,Stage 6 处理)
-//   3. Stage 6 清理时一并删掉
+//   2. doCommission / claimWeeklyTour action 函数,被 DailyPanel.tsx 直接 import
+//   3. Stage 6 清理时连 main.js import 一起删
 
 import { msg } from '../state.js';
 import { completeCommission } from '../daily/commission.js';
 import { WEEKLY_TOUR_REWARD, claimWeeklyTour } from '../daily/weekly.js';
+import { bumpStateVersion } from '../ui2/signals.ts';
 
 // no-op —— Preact 已接管 #paneDaily
 export function renderDaily() {}
 
-window.__doCommission = (idx) => {
+export function doCommission(idx) {
   completeCommission(idx);
   msg('委托完成', false);
-  window.__render();
-};
+  bumpStateVersion();
+}
 
-window.__claimWeeklyTour = () => {
+export function claimTour() {
   const r = claimWeeklyTour();
   if (r) {
     msg(`周度游历领取 · 星声 +${r.astrite}`, false);
-    window.__render();
+    bumpStateVersion();
   } else {
     msg('本周已领取');
   }
-};
+}
 
 // 保持 export 不变(main.js 有引用)
 void WEEKLY_TOUR_REWARD;

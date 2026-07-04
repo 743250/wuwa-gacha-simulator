@@ -1,7 +1,11 @@
 // 海市兑换 + 顶部资源条 +号
+// Stage 6.2: modal body 改为 Preact VNode，闭包 onClick 代替 window.__ 桥
 import { S, msg } from '../state.js';
+import { rerenderAll } from '../rerender.js';
 import { standard5, fourAll, bannerNames } from '../data/chars.js';
 import { openModal } from '../modal.js';
+import { h } from 'preact';
+import { usePotion, buyStamina } from '../ui/bag/bagMaterialActions.js';
 
 export function openExchangeModal(tideKeyArg, tideNameArg, coralType) {
   const coralName = coralType === 'afterglow' ? '余波珊瑚' : '残振珊瑚';
@@ -30,7 +34,7 @@ ${coralType === 'oscillated' ? `本版本已兑换 <b>${S.oscBuy[tideKeyArg] || 
           if (S[coralType] < cost) return msg('珊瑚不足');
           S[coralType] -= cost; S[tideKeyArg] += n;
           if (coralType === 'oscillated') S.oscBuy[tideKeyArg] = (S.oscBuy[tideKeyArg] || 0) + n;
-          msg(`已获得 ${n} 个 ${tideNameArg}`, false); window.__render();
+          msg(`已获得 ${n} 个 ${tideNameArg}`, false); rerenderAll();
         }
       }
     ]
@@ -71,23 +75,30 @@ export function openWaveModal() {
     return;
   }
 
-  // 多个候选：弹出选择界面
-  window.__waveCandidates = candidates;
+  // 多个候选：弹出选择界面（Preact VNode）
   const rows = candidates.map((c, i) => {
     const canBuy = c.maxN > 0;
-    return `<div style="border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:6px;background:rgba(255,255,255,.02);display:flex;justify-content:space-between;align-items:center">
-      <div>
-        <b style="font-size:13px">${c.name}</b>
-        <span style="font-size:10px;color:var(--muted);margin-left:6px">${c.isStd ? '常驻' : '限定'}五星</span>
-        <div style="font-size:10px;color:var(--dim);margin-top:2px">链 ${c.owned.chain}/6 · 余波 ${c.cost}/个 · 本版本 ${S.waveBuy[c.name] || 0}/2</div>
-      </div>
-      <button class="mbtn gold" style="font-size:11px;padding:5px 12px" onclick="window.__pickWave(${i})" ${canBuy ? '' : 'disabled'}>${canBuy ? '兑换' : (c.perVersionLeft <= 0 ? '已满' : '余波不足')}</button>
-    </div>`;
-  }).join('');
+    return h('div', { style: 'border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:6px;background:rgba(255,255,255,.02);display:flex;justify-content:space-between;align-items:center' },
+      h('div', null,
+        h('b', { style: 'font-size:13px' }, c.name),
+        h('span', { style: 'font-size:10px;color:var(--muted);margin-left:6px' }, c.isStd ? '常驻' : '限定', '五星'),
+        h('div', { style: 'font-size:10px;color:var(--dim);margin-top:2px' }, `链 ${c.owned.chain}/6 · 余波 ${c.cost}/个 · 本版本 ${S.waveBuy[c.name] || 0}/2`)
+      ),
+      h('button', {
+        class: 'mbtn gold',
+        style: 'font-size:11px;padding:5px 12px',
+        disabled: !canBuy || undefined,
+        onClick: () => openSingleWave(c)
+      }, canBuy ? '兑换' : (c.perVersionLeft <= 0 ? '已满' : '余波不足'))
+    );
+  });
 
   openModal({
     title: '回音频段兑换',
-    body: `<div style="font-size:11px;color:var(--muted);margin-bottom:8px">选择要兑换的五星角色（仅显示已拥有且未满链）</div>${rows}`,
+    body: h('div', null,
+      h('div', { style: 'font-size:11px;color:var(--muted);margin-bottom:8px' }, '选择要兑换的五星角色（仅显示已拥有且未满链）'),
+      ...rows
+    ),
     actions: [{ label: '取消', cls: '', fn: () => {} }]
   });
 }
@@ -119,16 +130,12 @@ ${c.lackingChains >= 2 ? '差 2 及以上链 → 本次最多可换 <b>2</b> 个
           S.afterglow -= total; S.waveBuy[c.name] = (S.waveBuy[c.name] || 0) + num;
           o2.spare += num; o2.bought = (o2.bought || 0) + num;
           S.roles[c.realName] = o2;
-          msg(`已获得 ${num} 个回音频段`, false); window.__render();
+          msg(`已获得 ${num} 个回音频段`, false); rerenderAll();
         }
       }
     ]
   });
 }
-window.__pickWave = (i) => {
-  const c = window.__waveCandidates?.[i];
-  if (c) openSingleWave(c);
-};
 
 const RES_META = {
   radiant: { n: '浮金波纹', from: '星声', rate: 160, desc: '1 个 = 160 星声' },
@@ -173,7 +180,7 @@ export function openTopup(key) {
         { label: '确认兑换', cls: 'primary', fn: (n) => {
             if (S.lunite < n) return msg('月相不足');
             S.lunite -= n; S.astrite += n;
-            msg(`兑换 ${n} 星声`, false); window.__render();
+            msg(`兑换 ${n} 星声`, false); rerenderAll();
           }
         }
       ]
@@ -210,7 +217,7 @@ export function openTopup(key) {
           const fromAst = Math.min(pay, S.astrite); S.astrite -= fromAst; pay -= fromAst;
           if (pay > 0) { S.lunite -= pay; }
           S[key] += n;
-          msg(`兑换 ${n} 个 ${m.n}`, false); window.__render();
+          msg(`兑换 ${n} 个 ${m.n}`, false); rerenderAll();
         }
       }
     ]
@@ -226,57 +233,70 @@ export function openStaminaModal() {
   const POTION_CAP = 480;
   const canDoAnything = S.stamina < POTION_CAP;
 
-  const rows = [];
-  rows.push(`<div style="font-size:12px;color:var(--muted);margin-bottom:10px">当前体力 <b class="g">${S.stamina}/${S.staminaMax}</b>（药剂上探至 ${POTION_CAP}）</div>`);
-
-  rows.push(`<div style="display:grid;grid-template-columns:1fr;gap:6px">
-    <div style="border:1px solid var(--line);border-radius:8px;padding:9px 11px;background:rgba(141,230,166,.04)">
-      <div style="display:flex;justify-content:space-between;align-items:baseline">
-        <span style="font-size:12px;font-weight:600">凝缩波片</span>
-        <span style="font-size:14px;color:var(--green)">${hasCond}/5</span>
-      </div>
-      <div style="font-size:10px;color:var(--dim);margin:3px 0 6px">+60 体力 · 上限 5</div>
-      <button class="mbtn" style="width:100%;font-size:11px;padding:5px" onclick="window.__staminaUse('condensed_waveplate',1)" ${hasCond > 0 && canDoAnything ? '' : 'disabled'}>使用 1 个</button>
-    </div>
-    <div style="border:1px solid var(--line);border-radius:8px;padding:9px 11px;background:rgba(141,230,166,.04)">
-      <div style="display:flex;justify-content:space-between;align-items:baseline">
-        <span style="font-size:12px;font-weight:600">结晶溶剂</span>
-        <span style="font-size:14px;color:var(--green)">×${hasSolv}</span>
-      </div>
-      <div style="font-size:10px;color:var(--dim);margin:3px 0 6px">+60 体力 · 无上限</div>
-      <div style="display:flex;gap:4px">
-        <button class="mbtn" style="flex:1;font-size:11px;padding:5px" onclick="window.__staminaUse('crystal_solvent',1)" ${hasSolv > 0 && canDoAnything ? '' : 'disabled'}>用 1 个</button>
-        <button class="mbtn gold" style="flex:1;font-size:11px;padding:5px" onclick="window.__staminaUse('crystal_solvent',${hasSolv})" ${hasSolv > 0 && canDoAnything ? '' : 'disabled'}>用全部</button>
-      </div>
-    </div>
-    <div style="border:1px solid rgba(245,207,107,.3);border-radius:8px;padding:9px 11px;background:rgba(245,207,107,.04)">
-      <div style="display:flex;justify-content:space-between;align-items:baseline">
-        <span style="font-size:12px;font-weight:600">紧急补充</span>
-        <span style="font-size:14px;color:var(--gold)">60 星声</span>
-      </div>
-      <div style="font-size:10px;color:var(--dim);margin:3px 0 6px">60 星声 → 60 波片（鸣潮紧急通道）</div>
-      <button class="mbtn gold" style="width:100%;font-size:11px;padding:5px" onclick="window.__staminaBuy()" ${S.astrite >= 60 && canDoAnything ? '' : 'disabled'}>购买 1 次</button>
-    </div>
-  </div>`);
+  const body = h('div', null,
+    h('div', { style: 'font-size:12px;color:var(--muted);margin-bottom:10px' },
+      '当前体力 ',
+      h('b', { class: 'g' }, `${S.stamina}/${S.staminaMax}`),
+      `（药剂上探至 ${POTION_CAP}）`
+    ),
+    h('div', { style: 'display:grid;grid-template-columns:1fr;gap:6px' },
+      // 凝缩波片
+      h('div', { style: 'border:1px solid var(--line);border-radius:8px;padding:9px 11px;background:rgba(141,230,166,.04)' },
+        h('div', { style: 'display:flex;justify-content:space-between;align-items:baseline' },
+          h('span', { style: 'font-size:12px;font-weight:600' }, '凝缩波片'),
+          h('span', { style: 'font-size:14px;color:var(--green)' }, `${hasCond}/5`)
+        ),
+        h('div', { style: 'font-size:10px;color:var(--dim);margin:3px 0 6px' }, '+60 体力 · 上限 5'),
+        h('button', {
+          class: 'mbtn',
+          style: 'width:100%;font-size:11px;padding:5px',
+          disabled: !(hasCond > 0 && canDoAnything) || undefined,
+          onClick: () => { usePotion('condensed_waveplate', 1); openStaminaModal(); }
+        }, '使用 1 个')
+      ),
+      // 结晶溶剂
+      h('div', { style: 'border:1px solid var(--line);border-radius:8px;padding:9px 11px;background:rgba(141,230,166,.04)' },
+        h('div', { style: 'display:flex;justify-content:space-between;align-items:baseline' },
+          h('span', { style: 'font-size:12px;font-weight:600' }, '结晶溶剂'),
+          h('span', { style: 'font-size:14px;color:var(--green)' }, `×${hasSolv}`)
+        ),
+        h('div', { style: 'font-size:10px;color:var(--dim);margin:3px 0 6px' }, '+60 体力 · 无上限'),
+        h('div', { style: 'display:flex;gap:4px' },
+          h('button', {
+            class: 'mbtn',
+            style: 'flex:1;font-size:11px;padding:5px',
+            disabled: !(hasSolv > 0 && canDoAnything) || undefined,
+            onClick: () => { usePotion('crystal_solvent', 1); openStaminaModal(); }
+          }, '用 1 个'),
+          h('button', {
+            class: 'mbtn gold',
+            style: 'flex:1;font-size:11px;padding:5px',
+            disabled: !(hasSolv > 0 && canDoAnything) || undefined,
+            onClick: () => { usePotion('crystal_solvent', hasSolv); openStaminaModal(); }
+          }, '用全部')
+        )
+      ),
+      // 紧急补充
+      h('div', { style: 'border:1px solid rgba(245,207,107,.3);border-radius:8px;padding:9px 11px;background:rgba(245,207,107,.04)' },
+        h('div', { style: 'display:flex;justify-content:space-between;align-items:baseline' },
+          h('span', { style: 'font-size:12px;font-weight:600' }, '紧急补充'),
+          h('span', { style: 'font-size:14px;color:var(--gold)' }, '60 星声')
+        ),
+        h('div', { style: 'font-size:10px;color:var(--dim);margin:3px 0 6px' }, '60 星声 → 60 波片（鸣潮紧急通道）'),
+        h('button', {
+          class: 'mbtn gold',
+          style: 'width:100%;font-size:11px;padding:5px',
+          disabled: !(S.astrite >= 60 && canDoAnything) || undefined,
+          onClick: () => { buyStamina(); openStaminaModal(); }
+        }, '购买 1 次')
+      )
+    )
+  );
 
   openModal({
     title: '补充体力',
-    body: rows.join(''),
+    body,
     actions: [{ label: '关闭', cls: '', fn: () => {} }]
   });
 }
 window.openStaminaModal = openStaminaModal;
-
-// 嗑药 / 买体力的桥接（renderBag 已经有 __usePotion，这里独立一份以便 modal 关闭后重渲染）
-window.__staminaUse = (id, n) => {
-  if (window.__usePotion) {
-    window.__usePotion(id, n);
-    openStaminaModal();
-  }
-};
-window.__staminaBuy = () => {
-  if (window.__buyStamina) {
-    window.__buyStamina();
-    openStaminaModal();
-  }
-};

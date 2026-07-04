@@ -1,5 +1,6 @@
 import { h } from 'preact';
 import { ELEMENT_COLORS, TABS } from './signals';
+import { switchRoleTab } from '../../../ui/render/roleModal.js';
 
 interface ShellProps {
   roleName: string;
@@ -43,7 +44,7 @@ export function Shell({ roleName, rarity, element, type, level, chain, currentTa
         {visibleTabs.map(t => (
           <div key={t.id}
             class={`role-tab ${currentTab === t.id ? 'on' : ''}`}
-            onClick={() => (window as any).__switchRoleTab?.(t.id)}>
+            onClick={() => switchRoleTab(t.id)}>
             <span class="rt-icon">{t.icon}</span>
             <span class="rt-lbl">{t.label}</span>
           </div>

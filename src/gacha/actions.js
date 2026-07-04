@@ -1,5 +1,6 @@
 // 抽卡动作入口（含十连补抽确认弹窗）
 import { S, msg, animating } from '../state.js';
+import { rerenderAll } from '../rerender.js';
 import { cur, getPool, tideKey, tideName, canAffordPulls, payBeginnerTen, pull } from './core.js';
 import { openModal } from '../modal.js';
 import { showResult } from './animation.js';
@@ -27,7 +28,7 @@ export function doPullN(n, free = false) {
     if (fiveCount > 0) progressTask('p_five', fiveCount);
     showResult(arr);
   }
-  window.__render();
+  rerenderAll();
 }
 
 export function tryPull(n) {
@@ -91,7 +92,7 @@ export function toFive() {
           const arr = [];
           for (let i = 0; i < 100; i++) { const x = pull(getPool(), false); if (!x) break; arr.push(x); if (x.r === 5) break; }
           if (arr.length) { S.log = arr.slice().reverse().concat(S.log).slice(0, 200); showResult(arr); }
-          window.__render();
+          rerenderAll();
         }
       }
     ]

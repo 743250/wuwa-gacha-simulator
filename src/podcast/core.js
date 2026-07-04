@@ -1,5 +1,6 @@
 // 先约电台核心：经验/任务/领奖/版本重置
 import { S, msg, fmt } from '../state.js';
+import { rerenderAll } from '../rerender.js';
 import { PODCAST_TASKS, findTask } from '../data/podcast-tasks.js';
 import {
   PODCAST_REWARDS,
@@ -10,6 +11,7 @@ import {
 } from '../data/podcast-rewards.js';
 import { activePhase } from '../gacha/core.js';
 import { openModal } from '../modal.js';
+import { h } from 'preact';
 
 // 确保 S.podcast 存在（旧存档兼容）
 export function ensurePodcast() {
@@ -241,12 +243,14 @@ export function unlockPremium() {
 
 function openWeaponBox() {
   const buttons = WEAPON_BOX_OPTIONS.map(name =>
-    `<button class="mbtn" style="margin:4px;min-width:90px" onclick="window.__radioPickWeapon('${name}')">${name}</button>`
-  ).join('');
+    h('button', { class: 'mbtn', style: 'margin:4px;min-width:90px', onClick: () => radioPickWeapon(name) }, name)
+  );
   openModal({
     title: '先约电台 · 4★ 武器自选箱',
-    body: `<div style="color:var(--muted);font-size:12px;margin-bottom:10px">从下面 5 把 4 星武器中任选 1 把（精炼直接 +1，若已 5 精则转化为养成料补偿）</div>
-<div style="text-align:center">${buttons}</div>`,
+    body: h('div', null,
+      h('div', { style: 'color:var(--muted);font-size:12px;margin-bottom:10px' }, '从下面 5 把 4 星武器中任选 1 把（精炼直接 +1，若已 5 精则转化为养成料补偿）'),
+      h('div', { style: 'text-align:center' }, buttons)
+    ),
     actions: [{ label: '稍后再选（保留入口）', cls: '', fn: () => {
       // 用户暂不选择 → 把"待领"标记存进 state，UI 里给个红点
       if (!S.podcast.pendingWeaponBox) S.podcast.pendingWeaponBox = 0;
@@ -255,7 +259,7 @@ function openWeaponBox() {
   });
 }
 
-window.__radioPickWeapon = (name) => {
+export function radioPickWeapon(name) {
   // 给一把该武器：若已有则精炼 +1，否则新建 lv1 r1
   if (!S.weapons[name]) {
     S.weapons[name] = { n: name, r: 4, pulled: 1, level: 1, refine: 1, spareRefine: 0, equippedBy: null };
@@ -272,9 +276,8 @@ window.__radioPickWeapon = (name) => {
     }
   }
   document.getElementById('modal').classList.remove('on');
-  window.__render && window.__render();
-  window.__rerenderAll && window.__rerenderAll();
-};
+  rerenderAll();
+}
 
 // ============ 烙金银杏（精炼石）====
 // 用法：当玩家持有"先约电台 4★ 自选武器"中的某把时，可点击精炼石给那把武器 +1 精

@@ -3,11 +3,12 @@
 // 迁移策略(playbook step 3):
 //   · UI 层完全用 Preact JSX 重写,不再拼 innerHTML 字符串
 //   · 数据层继续读 src/state.js 的 S 单例,靠 sSignal(stateVersion)驱动重渲染
-//   · 按钮 onClick 继续调 window.__xxx() 老 handler
+//   · 按钮 onClick 直接调 openTeamPicker / toggleTeamMember(import 来的纯函数)
 //   · 老 renderTeamBuilder 已变成 no-op shim
 
 import { h } from 'preact';
 import { useS } from '../../signals';
+import { openTeamPicker, toggleTeamMember } from '../../../ui/teambuilder.js';
 import { getMeta } from '../../../battle/template';
 import { calcBP } from '../../../battle/stats';
 
@@ -42,7 +43,7 @@ function TeamSlot({ slotIdx, name }: { slotIdx: number; name: string | null }) {
         </>
       )}
       <button class="mbtn" style={{ marginTop: 6 }}
-        onClick={() => (window as any).__openTeamPicker(slotIdx)}>
+        onClick={() => openTeamPicker(slotIdx)}>
         {name ? '更换' : '选择'}
       </button>
     </div>
@@ -62,7 +63,7 @@ function RoleListItem({ name }: { name: string }) {
       cursor: 'pointer',
       background: inTeam ? 'rgba(245,207,107,.06)' : undefined,
     }}
-      onClick={() => (window as any).__toggleTeamMember(name)}>
+      onClick={() => toggleTeamMember(name)}>
       <div style={{ flex: 1 }}>
         <span style={{ fontWeight: 600 }}>{name}</span>
         <span style={{ fontSize: 10, color: 'var(--muted)', marginLeft: 6 }}>{meta?.element}</span>

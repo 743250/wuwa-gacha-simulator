@@ -1,7 +1,8 @@
-// Preact 已接管 #paneDungeon,这里只保留 tab 状态 + action handler 注册 + 空 export
+// Preact 已接管 #paneDungeon,这里只保留 tab 状态 + export 纯函数 + 空 export
 //
 // 保持 WEEKLY_BOSS 合入 DUNGEONS 的副作用(其他模块依赖此行为)
 import { DUNGEONS, WEEKLY_BOSS, setSol3Level } from '../battle/dungeon.js';
+import { bumpStateVersion } from '../ui2/signals.ts';
 import './battle.js';
 
 WEEKLY_BOSS.forEach(b => {
@@ -17,12 +18,12 @@ export function getDungeonTab() { return _dungeonTab; }
 export function renderDungeon() {}  // Preact 接管,no-op
 
 // Action handler — 改了 tab 或 sol3 后全量重渲染(含 bumpStateVersion)
-window.__dungeonSwitchTab = (key) => {
+export function dungeonSwitchTab(key) {
   _dungeonTab = key;
-  window.__render();
-};
+  bumpStateVersion();
+}
 
-window.__setSol3 = (lv) => {
+export function setSol3(lv) {
   setSol3Level(lv);
-  window.__render();
-};
+  bumpStateVersion();
+}

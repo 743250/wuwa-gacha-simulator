@@ -1,4 +1,6 @@
 import { h } from 'preact';
+import { selectEchoSlot } from '../../../ui/render/roleModal.js';
+import { bagEchoDetail } from '../../../ui/bag.js';
 
 const ELEM_COLORS: Record<string, string> = {
   '热熔': '#ff8c5e', '冷凝': '#7bd6ff', '导电': '#b58cff',
@@ -32,9 +34,9 @@ function EchoSlot({ id, idx, isSel, roleName, echos, getSetById }: any) {
   const isSelStyle = isSel ? 'var(--gold)' : borderColor;
 
   function handleClick() {
-    (window as any).__selectEchoSlot?.(roleName, idx);
+    selectEchoSlot(roleName, idx);
     if (e) {
-      (window as any).__bagEchoDetail?.(e.id, true);
+      bagEchoDetail(e.id, true);
     } else {
       (window as any).__openEchoPicker?.(roleName, idx);
     }
@@ -142,7 +144,7 @@ function SelectedEchoDetail({ echo: e, selIdx, roleName, getSetById, echoToNext,
       <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
         <button class="mbtn" onClick={() => (window as any).__openEchoPicker?.(roleName, selIdx)}>换装</button>
         {canLevel ? <button class="mbtn gold" onClick={() => (window as any).__echoLevelUp?.(e.id)}>升级 ({nextCost.toLocaleString()} exp)</button> : null}
-        <button class="mbtn" onClick={() => (window as any).__bagEchoDetail?.(e.id, true)}>详情</button>
+        <button class="mbtn" onClick={() => bagEchoDetail(e.id, true)}>详情</button>
         <button class="mbtn" onClick={() => (window as any).__unequipEchoSlot?.(roleName, selIdx)}>卸下</button>
       </div>
     </div>

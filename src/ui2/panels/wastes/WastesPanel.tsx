@@ -12,6 +12,7 @@ import { getCombatTeamNames } from '../../../battle/combat.js';
 import { ENEMIES } from '../../../battle/enemies.js';
 import { ELEMENT_COLOR } from '../../../battle/elements.js';
 import { activePhase } from '../../../gacha/core.js';
+import { startWastesWithTokens } from '../../../ui/wastes.js';
 
 // ---------- helpers ----------
 
@@ -183,7 +184,7 @@ export function WastesPanel() {
               <button
                 class="mbtn gold"
                 disabled={isLocked || teamCount === 0}
-                onClick={() => (window as any).__startWastesWithTokens?.(s.id)}
+                onClick={() => startWastesWithTokens(s.id)}
               >
                 {isLocked ? '🔒 锁定' : (score > 0 ? '刷 分' : '挑 战')}
               </button>

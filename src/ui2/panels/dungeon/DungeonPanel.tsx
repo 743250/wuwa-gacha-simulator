@@ -3,7 +3,7 @@
 // 迁移策略(playbook step 3):
 //   · innerHTML → Preact JSX,保留全部 CSS class 和布局
 //   · 数据层继续读 src/state.js 的 S,靠 sSignal(stateVersion)驱动重渲染
-//   · 按钮 onClick 继续调 window.__xxx() 老 handler
+//   · 按钮 onClick 调 import 来的纯函数
 //   · _dungeonTab 状态在 src/ui/dungeon.js shim 中持有,通过 getDungeonTab 读取
 //
 // @vitest-environment happy-dom
@@ -19,7 +19,8 @@ import { getCombatTeamNames } from '../../../battle/combat.js';
 import { ENEMIES, formatEnemyMechanic } from '../../../battle/enemies.js';
 import { ELEMENT_COLOR } from '../../../battle/elements.js';
 import { getSetById } from '../../../data/echoes.js';
-import { getDungeonTab } from '../../../ui/dungeon.js';
+import { getDungeonTab, dungeonSwitchTab, setSol3 } from '../../../ui/dungeon.js';
+import { usePotion, buyStamina } from '../../../ui/bag/bagMaterialActions.js';
 
 // Ensure WEEKLY_BOSS entries are merged into DUNGEONS (matches old ui/dungeon.js side effect)
 (WEEKLY_BOSS as any[]).forEach((b: any) => {
@@ -193,17 +194,17 @@ export function DungeonPanel() {
         <div class="dng-actions">
           <button class="mbtn"
             disabled={condensed <= 0 || S.stamina >= POT_CAP}
-            onClick={() => (window as any).__usePotion?.('condensed_waveplate', 1)}>
+            onClick={() => usePotion('condensed_waveplate', 1)}>
             凝缩 {condensed}/5
           </button>
           <button class="mbtn gold"
             disabled={solvent <= 0 || S.stamina >= POT_CAP}
-            onClick={() => (window as any).__usePotion?.('crystal_solvent', 1)}>
+            onClick={() => usePotion('crystal_solvent', 1)}>
             溶剂 x{solvent}
           </button>
           <button class="mbtn"
             disabled={S.astrite < 60 || S.stamina >= POT_CAP}
-            onClick={() => (window as any).__buyStamina?.()}>
+            onClick={() => buyStamina()}>
             60⭐ 补体力
           </button>
         </div>
@@ -227,7 +228,7 @@ export function DungeonPanel() {
               class={`mbtn ${active ? 'gold' : ''}`}
               style={{ fontSize: 10, padding: '4px 10px' }}
               disabled={active}
-              onClick={() => (window as any).__setSol3?.(Number(lv))}>
+              onClick={() => setSol3(Number(lv))}>
               {cfg.name}
             </button>
           );
@@ -251,7 +252,7 @@ export function DungeonPanel() {
             const count = DUNGEONS.filter((d: any) => d.type === g.type && isDungeonUnlocked(d)).length;
             return (
               <div key={g.key}
-                onClick={() => (window as any).__dungeonSwitchTab?.(g.key)}
+                onClick={() => dungeonSwitchTab(g.key)}
                 style={{
                   cursor: 'pointer',
                   border: `2px solid ${active ? color : 'var(--line)'}`,

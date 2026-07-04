@@ -1,4 +1,5 @@
 import { h } from 'preact';
+import { activateChain } from '../../../ui/render/roleModal.js';
 
 interface SeqLine {
   name: string;
@@ -46,7 +47,7 @@ export function ChainTab({ roleName, chain, spare, bought = 0, preview, previewN
 
       <div style={{ margin: '10px 0', textAlign: 'center' }}>
         <button class={`mbtn ${canUp ? 'gold' : ''}`}
-          onClick={() => (window as any).__activateChain?.(roleName)}
+          onClick={() => activateChain(roleName)}
           disabled={!canUp && !preview && chain < 6}>
           {buttonLabel}
         </button>
