@@ -3,6 +3,7 @@ import { h } from 'preact';
 import { ELEMENT_COLOR } from '../../../battle/elements.js';
 import { renderCharacterBattleStatus } from '../../../battle/characters/index.js';
 import { collectUnitBadges, renderBadge } from '../../../ui/battleRenderers/buffRenderers.js';
+import { bSwitch } from '../../../ui/battle/battleActions.js';
 import { displayName } from './helpers';
 
 interface TeamRowProps {
@@ -96,7 +97,7 @@ export function TeamRow({ battle }: TeamRowProps) {
           <div
             key={i}
             class={`bf-unit ${isActive ? 'active' : ''}`}
-            onClick={canSwitch ? () => (window as any).__bSwitch?.(i) : undefined}
+            onClick={canSwitch ? () => bSwitch(i) : undefined}
             title={swapHint}
             style={{
               border: `2px solid ${isActive ? 'var(--gold)' : 'var(--line)'}`,

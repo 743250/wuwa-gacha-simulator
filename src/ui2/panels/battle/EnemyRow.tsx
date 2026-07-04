@@ -2,6 +2,7 @@
 import { h } from 'preact';
 import { ELEMENT_COLOR } from '../../../battle/elements.js';
 import { collectEnemyBadges, renderBadge } from '../../../ui/battleRenderers/buffRenderers.js';
+import { bTarget } from '../../../ui/battle/battleActions.js';
 import { displayName } from './helpers';
 
 interface EnemyRowProps {
@@ -24,7 +25,7 @@ export function EnemyRow({ enemy, realIdx, isTarget, battle }: EnemyRowProps) {
 
   return (
     <div
-      onClick={() => (window as any).__bTarget?.(realIdx)}
+      onClick={() => bTarget(realIdx)}
       style={{
         border: `1px solid ${isTarget ? 'var(--red)' : 'var(--line)'}`,
         borderRadius: 10, padding: 11, marginBottom: 6,

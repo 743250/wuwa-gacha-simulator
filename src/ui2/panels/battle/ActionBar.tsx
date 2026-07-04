@@ -2,6 +2,7 @@
 import { h } from 'preact';
 import { canAttack, canSkill, canHeavy, canBurst } from '../../../battle/combat.js';
 import { renderCharacterBattleStatus } from '../../../battle/characters/index.js';
+import { bAtk, bSkill, bHeavy, bBurst, bDebris, bEndTurn, bClose, bSettle } from '../../../ui/battle/battleActions.js';
 import { displayName } from './helpers';
 
 interface ActionBarProps {
@@ -67,7 +68,7 @@ export function ActionBar({ battle, pendingDungeon }: ActionBarProps) {
               color: '#1a1208', border: 'none', borderRadius: 8,
               fontWeight: 700, letterSpacing: 3, cursor: 'pointer'
             }}
-            onClick={() => (window as any).__bSettle?.()}
+            onClick={() => bSettle()}
           >
             领 取 奖 励
           </button>
@@ -89,7 +90,7 @@ export function ActionBar({ battle, pendingDungeon }: ActionBarProps) {
             color: 'var(--text)', border: '1px solid var(--line)',
             borderRadius: 8, letterSpacing: 3, cursor: 'pointer'
           }}
-          onClick={() => (window as any).__bClose?.()}
+          onClick={() => bClose()}
         >
           关 闭
         </button>
@@ -156,7 +157,7 @@ export function ActionBar({ battle, pendingDungeon }: ActionBarProps) {
       <div style={{ display: 'grid', gridTemplateColumns: `repeat(${cols},1fr)`, gap: 6, marginBottom: 8 }}>
         <button class="bbtn"
           style={litStyle(canAtk, 'var(--text)')}
-          onClick={() => (window as any).__bAtk?.(enemyIdx)}
+          onClick={() => bAtk(enemyIdx)}
           disabled={!canAtk}
           title="100% 攻击 · +12 能量 · 削破韧 8"
         >
@@ -165,7 +166,7 @@ export function ActionBar({ battle, pendingDungeon }: ActionBarProps) {
 
         <button class="bbtn"
           style={litStyle(canSkillOk, 'var(--accent)')}
-          onClick={() => (window as any).__bSkill?.(enemyIdx)}
+          onClick={() => bSkill(enemyIdx)}
           disabled={!canSkillOk}
           title="180% 攻击 · CD 3 回合 · +22 能量 · 削破韧 20"
         >
@@ -175,7 +176,7 @@ export function ActionBar({ battle, pendingDungeon }: ActionBarProps) {
         {showHeavy && (
           <button class="bbtn"
             style={litStyle(canHeavyOk, '#ff8c5e')}
-            onClick={() => (window as any).__bHeavy?.(enemyIdx)}
+            onClick={() => bHeavy(enemyIdx)}
             disabled={!canHeavyOk}
             title="220% 攻击 · 重击伤害类型 · CD 1 回合 · +15 能量 · 削破韧 25"
           >
@@ -185,7 +186,7 @@ export function ActionBar({ battle, pendingDungeon }: ActionBarProps) {
 
         <button class="bbtn"
           style={litStyle(canBurstOk, 'var(--gold)')}
-          onClick={() => (window as any).__bBurst?.()}
+          onClick={() => bBurst()}
           disabled={!canBurstOk}
           title={burstHint}
         >
@@ -202,7 +203,7 @@ export function ActionBar({ battle, pendingDungeon }: ActionBarProps) {
             borderRadius: 8, color: 'var(--gold)', fontSize: 12,
             letterSpacing: 2, cursor: 'pointer'
           }}
-          onClick={() => (window as any).__bDebris?.()}
+          onClick={() => bDebris()}
         >
           ⚙ 投掷残骸（0 AP · 眩晕 BOSS 1 回合）
         </button>
@@ -216,7 +217,7 @@ export function ActionBar({ battle, pendingDungeon }: ActionBarProps) {
           border: '1px solid var(--line2)', borderRadius: 8,
           color: 'var(--text)', fontSize: 12, letterSpacing: 3
         }}
-        onClick={() => (window as any).__bEndTurn?.()}
+        onClick={() => bEndTurn()}
       >
         结 束 回 合
       </button>
