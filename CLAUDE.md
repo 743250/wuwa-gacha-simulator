@@ -93,7 +93,7 @@ src/
     timeline.js ← +1日/下一期/下版本 + 体力补满/委托重置 + 版本/日期跳转
 
   ui/           ← UI 渲染
-    render.js   ← 主渲染入口（1086 行，待拆分见 Phase 2）
+    render.js   ← 主渲染入口（已 no-op，Preact 接管，仅保留 initRoleModal 副作用）
     render/     ← 渲染子模块
       skillHints.js  ← 角色技能 tooltip 定义（SKILL_HINTS）
       skillLines.js  ← 共鸣链文案行渲染 + makeSkillLines 工厂
@@ -101,14 +101,28 @@ src/
     battleRenderers/
       buffRenderers.js ← Buff 显示注册表
     teambuilder.js ← 编队面板（3 人）
-    battle.js   ← 战斗全屏 UI（HP/AP/技能按钮/日志）
+    battle.js   ← 战斗全屏 UI（Preact shim，渲染已迁 ui2/panels/battle/）
     dungeon.js  ← 副本选择面板
     abyss.js    ← 深塔面板（三塔分区 + 活力显示）
     daily.js    ← 日常委托面板
     wastes.js   ← 冥歌海墟面板
-    bag.js      ← 仓库面板
+    bag.js      ← 仓库面板（Preact shim，bagEchoDetail re-export）
     podcast.js  ← 电台面板
     terms.js    ← 术语词典（tooltip 悬停）
+  ui2/          ← Preact 组件树（与 src/ui/ 双轨并存，靠 signals + stateVersion 桥接）
+    signals.ts  ← stateVersion signal + useS() 钩子
+    panels/
+      bag/      ← BagPanel（已迁）
+      dungeon/  ← DungeonPanel（已迁）
+      wastes/   ← WastesPanel（已迁）
+      abyss/    ← AbyssPanel（已迁）
+      podcast/  ← PodcastPanel（已迁）
+      daily/    ← DailyPanel（已迁）
+      battle/   ← BattleView + EnemyRow/TeamRow/ActionBar（已迁）
+      roleModal/← RoleModal 独立 modal 系统（signal 驱动，与 openModal 互斥）
+      gacha/    ← RoleGrid 等（已迁）
+  modal.js      ← 通用弹窗（dual-mode：body 支持 string 或 VNode）
+  rerender.js   ← 统一重渲染入口（旧 render 函数 + bumpStateVersion）
 ```
 
 ## 战斗系统
