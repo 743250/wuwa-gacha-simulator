@@ -28,7 +28,8 @@ import { totalExp } from '../../../equip/actions.js';
 import { calcTotalCost, ECHO_COST_CAP, echoToNext } from '../../../equip/echoActions.js';
 import { getSetById, formatEchoStatValue, formatSetBonus } from '../../../data/echoes.js';
 import { seqText } from '../../../data/seq.js';
-import { attachTermTips, highlightChainTerms } from '../../../ui/terms.js';
+import { attachTermTips } from '../../../ui/terms.js';
+import { highlightChainTerms } from '../../../ui/render.js';
 
 export function RoleModalContent() {
   const S = useS();

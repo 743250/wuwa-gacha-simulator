@@ -47,7 +47,6 @@ src/
     chars.js    ← 角色/武器名、卡池名称
     phases.js   ← 卡池时间表 1.0–3.4
     seq.js      ← 共鸣链文案（seqText，模拟器版）
-    chains-extracted.json ← 库街区抓到的 10 个核心角色官方原文备份（历史参考）
 
   gacha/        ← 抽卡核心
     core.js     ← 概率曲线、保底、卡池/波纹解析、角色/武器初始化
@@ -242,7 +241,7 @@ src/
 | 库街区 API | ❌ | 需认证，2026-06 起 `getEntryDetail`/`getPage` 都拒公开访问 |
 | Fandom wiki | ❌ | 403 |
 
-历史抓到的 10 个核心角色的官方共鸣链 HTML 备份在 [src/data/chains-extracted.json](src/data/chains-extracted.json)；提取脚本 [scripts/extract-chains.cjs](scripts/extract-chains.cjs) 用来解析库街区返回 HTML→染色 JSON。encore.moe 是新数据源首选；库街区脚本仅留作历史参考。
+历史抓到的 10 个核心角色的官方共鸣链 HTML 备份在 [docs/sources/chains/chains-extracted.json](docs/sources/chains/chains-extracted.json)；提取脚本 [scripts/extract-chains.cjs](scripts/extract-chains.cjs) 用来解析库街区返回 HTML→染色 JSON。encore.moe 是新数据源首选；库街区脚本仅留作历史参考。
 
 ## 版本
 
