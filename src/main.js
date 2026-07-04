@@ -18,6 +18,7 @@ import './exchange/coral.js'; // 副作用：注册海市兑换 onclick
 import { resetDailyIfNeeded } from './daily/commission.js';
 import { noviceRemainDays } from './gacha/core.js';
 import { phases } from './data/phases.js';
+import { bumpStateVersion } from './ui2/signals.ts';
 
 // 必要的全局桥接（跨模块回调）
 window.__noviceRemainDays = noviceRemainDays;
@@ -33,6 +34,8 @@ function rerenderAll() {
   renderAbyss();
   renderWastes();
   renderPodcast();
+  // Stage 1 起:通知 Preact 组件重渲染。旧 render 仍全跑,新旧共存期靠 bump 驱动 signals。
+  bumpStateVersion();
 }
 window.__render = rerenderAll;
 window.__rerenderAll = rerenderAll;
@@ -144,19 +147,14 @@ document.getElementById('modal').addEventListener('click', (e) => {
   }
 });
 
-// 抽卡按钮
-document.getElementById('pull1').onclick = () => tryPull(1);
-document.getElementById('pull10').onclick = () => tryPull(10);
-document.getElementById('free10').onclick = () => doPullN(10, true);
-document.getElementById('toFive').onclick = toFive;
-
-// 清空日志
-document.getElementById('clearLog').onclick = () => { S.log = []; msg('已清空', false); render(); };
+// 抽卡按钮 · preact PullPanel 已接管 onClick（Stage 6.1b）
+// 旧绑定在 mountPreactRoot() 前执行，节点被 preact 替换后失效，保留为空操作避免误导。
+// 清空日志 · preact LogTab 已接管 onClick（Stage 6.1b）
 
 // 侧栏 tab 切换：分 3 个视图
-// 视图 1（唤取）：stat / ex / log
-// 视图 2（冒险）：team / daily / dungeon / abyss
-// 视图 3（仓库）：bag / shop
+// 视图 1（唤取）stat/ex/log：preact SidePanel 用 gachaTabSignal 接管，无需 DOM 绑定
+// 视图 2（冒险）team/daily/dungeon/abyss/wastes：.a-tab 静态节点保留，仍需 DOM 绑定切显隐
+// 视图 3（仓库）bag/shop：.b-tab 静态节点保留，仍需 DOM 绑定切显隐
 function bindSubTabs(selector, panes, onSwitch) {
   document.querySelectorAll(selector).forEach(t => t.onclick = () => {
     document.querySelectorAll(selector).forEach(x => x.classList.toggle('on', x === t));
@@ -169,7 +167,6 @@ function bindSubTabs(selector, panes, onSwitch) {
   });
 }
 
-bindSubTabs('.s-tab', ['stat', 'ex', 'log']);
 bindSubTabs('.a-tab', ['team', 'daily', 'dungeon', 'abyss', 'wastes'], k => {
   if (k === 'team') renderTeamBuilder();
   if (k === 'daily') renderDaily();
@@ -181,16 +178,7 @@ bindSubTabs('.b-tab', ['podcast', 'shop'], k => {
   if (k === 'podcast') renderPodcast();
 });
 
-// 商店内部分类 tab（特惠/常驻/凝刻月相）
-document.querySelectorAll('.sct').forEach(t => t.onclick = () => {
-  document.querySelectorAll('.sct').forEach(x => x.classList.toggle('on', x === t));
-  const key = t.dataset.sc;
-  const map = { featured: 'scFeatured', regular: 'scRegular', topup: 'scTopup' };
-  Object.keys(map).forEach(k => {
-    const el = document.getElementById(map[k]);
-    if (el) el.style.display = k === key ? '' : 'none';
-  });
-});
+// 商店内部分类 tab（特惠/常驻/凝刻月相）· preact ShopPanel 用 shopCatSignal 接管（Stage 6.1b），旧 .sct 绑定已被 preact 替换节点后失效，跳过。
 
 // 顶层视图切换：gacha / adventure / bag / storage
 const VIEWS = { gacha: 'viewGacha', adventure: 'viewAdventure', bag: 'viewBag', storage: 'viewStorage' };
@@ -242,9 +230,13 @@ document.body.addEventListener('mouseout', e => {
   if (__tipEl) __tipEl.style.display = 'none';
 });
 
+// Stage 1:挂载 Preact 根(目前是空组件,只证明框架接入生效)
+import { mountPreactRoot } from './ui2/root.tsx';
+
 // 启动前加载存档
 (async () => {
   await loadState();
   resetDailyIfNeeded();
   render();
+  mountPreactRoot();
 })();

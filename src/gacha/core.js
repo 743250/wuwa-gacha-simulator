@@ -2,6 +2,10 @@
 import { S, DAY, date, fmt, pick, msg } from '../state.js';
 import { phases } from '../data/phases.js';
 import { standard5, fourAll, threeWeapons, fourWeapons, weapons, bannerNames, standardWeapons, newJourneyChars } from '../data/chars.js';
+import {
+  BASE_RATE, HARD_PITY, SOFT_PITY_KNOT, MID_PITY_KNOT, HIGH_PITY_KNOT,
+  SOFT_SLOPE, MID_SLOPE, HIGH_SLOPE, SOFT_SPAN, MID_SPAN
+} from './rateConfig.js';
 
 export function activePhase() { return phases.filter(p => S.today >= p.start && S.today < p.end); }
 export function isCollabRole(c) { return c === '露西' || c === '丽贝卡'; }
@@ -55,17 +59,8 @@ export function cur() {
   return a.find(b => b.id === S.selected);
 }
 
-// 概率曲线（与 tests/gacha/core.test.js 锁定的拐点一致，改动需同步测试）
-const BASE_RATE = .008;        // 65 抽以内基础概率 0.8%
-const HARD_PITY = 80;          // 80 抽硬保底
-const SOFT_PITY_KNOT = 65;     // 软保底起点
-const MID_PITY_KNOT = 70;      // 中段拐点
-const HIGH_PITY_KNOT = 75;     // 高段拐点
-const SOFT_SLOPE = .04;        // 66-70 每抽 +4%
-const MID_SLOPE = .08;         // 71-75 每抽 +8%
-const HIGH_SLOPE = .10;        // 76-79 每抽 +10%
-const SOFT_SPAN = MID_PITY_KNOT - SOFT_PITY_KNOT;   // 5 抽
-const MID_SPAN = HIGH_PITY_KNOT - MID_PITY_KNOT;    // 5 抽
+// 概率曲线常量已外提至 rateConfig.js。
+// 改动需同步 tests/gacha/core.test.js:19-54 的锁定值。
 
 export function rate(p) {
   if (p >= HARD_PITY) return 1;

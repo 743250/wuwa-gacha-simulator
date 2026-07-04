@@ -41,6 +41,10 @@
   </div>
 
   <!-- ====== 视图 1：唤取 ====== -->
+  <!-- #viewGacha 内部静态结构由 preact <GachaPanel/> 接管（Stage 6.1b），mount 时清空重建。
+       内部 #bnTabs/#bnArt/#costPanel/#pityRow/#pull1/#pull10/#lbl1/#lbl10/#toFive/#free10/
+       #roles/#paneStat/#paneEx/#paneLog/#sTotal 等所有 id 在 mount 后不复存在，
+       请勿通过 getElementById 查询这些节点。 -->
   <div class="view" id="viewGacha">
     <!-- 上：卡池 + 抽卡 -->
     <div class="section-top">
@@ -155,6 +159,9 @@
         <div class="b-tab" data-b="shop">商 店</div>
       </div>
       <div class="pane" id="panePodcast"></div>
+      <!-- #paneShop 内部静态结构由 preact <ShopPanel/> 接管（Stage 6.1b），mount 时清空重建。
+           内部 #kSpent/#kLunite/#kDays/#scFeatured/#scRegular/#scTopup/#bannerFeatured 等id
+           在 mount 后不复存在，请勿通过 getElementById 查询。 -->
       <div class="pane" id="paneShop" style="display:none">
         <h2 class="col-head" style="margin-top:0">钱 包</h2>
         <div class="shop-bar">
@@ -208,6 +215,9 @@
 
 <!-- 战斗界面（全屏覆盖） -->
 <div id="battleOverlay" style="display:none;position:fixed;inset:0;z-index:85;background:rgba(0,0,0,.92);backdrop-filter:blur(8px);align-items:flex-start;justify-content:center;overflow-y:auto"></div>
+
+<!-- Preact 根挂载点 (Stage 1 起,新 UI 组件挂这里;暂时是空的) -->
+<div id="preact-root"></div>
 
 <script type="module" src="./src/main.js"></script>
 </body>

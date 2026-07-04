@@ -12,11 +12,20 @@
     "check:balance": "node scripts/check-balance.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
+    "lint": "vitest run tests/lint/",
     "push": "node scripts/push.mjs",
     "preview:char": "node scripts/preview-char.mjs"
   },
   "devDependencies": {
+    "@preact/preset-vite": "^2.10.5",
+    "@testing-library/preact": "^3.2.4",
+    "happy-dom": "^20.10.6",
+    "typescript": "^6.0.3",
     "vite": "^5.4.10",
     "vitest": "^4.1.9"
+  },
+  "dependencies": {
+    "@preact/signals": "^2.9.2",
+    "preact": "^10.29.3"
   }
 }
