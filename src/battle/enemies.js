@@ -2,6 +2,7 @@
 //
 // 数值基准：官方 wuthering.wiki Lv90 数据（原始值，未缩放）
 import { growthRatioTo90 } from '../data/enemies-growth.js';
+import { S } from '../state.js';
 // 世界 BOSS 战斗：世界等级 × 讨伐等级 → 直接取官方数值
 //   索拉Ⅰ ×0.30 / 索拉Ⅱ ×0.40 / 索拉Ⅲ ×0.50
 //   讨伐等级：初始 Lv40 → 击败 +10（封顶 90）→ 失败 -20（下限 40）
@@ -578,12 +579,9 @@ function defForLevel(lv) {
 
 // 获取 BOSS 讨伐等级
 export function getBossLevel(bossName) {
-  // S 由调用方传入，避免循环依赖
-  if (typeof window !== 'undefined' && window.__S) {
-    const levels = window.__S.bossLevels || {};
-    return levels[bossName] || 40;
-  }
-  return 40;
+  // S 来自 state.js 单例,无循环依赖(state.js 不 import enemies.js)
+  const levels = (S && S.bossLevels) || {};
+  return levels[bossName] || 40;
 }
 
 // 按敌人名生成战斗实例

@@ -12,6 +12,7 @@
 //   forteHint: string              — forteDesc 中"推荐战斗节奏"前的核心循环说明
 
 import { escTip } from './utils.js';
+import { encoreBurstModeSignal } from '../../ui/panels/roleModal/signals.js';
 
 export function makeSkillLines(cfg) {
   return (stats, role) => {
@@ -68,7 +69,7 @@ export function makeSkillLines(cfg) {
 
     const fmtPct = v => `${(v*100).toFixed(0)}%`;
 
-    const encoreMode = cfg.encoreBurstToggle ? ((typeof window !== 'undefined' && window.__encoreBurstMode) || 'white') : '';
+    const encoreMode = cfg.encoreBurstToggle ? encoreBurstModeSignal.value : '';
     const isEncoreBlack = encoreMode === 'black';
     const encoreMult = isEncoreBlack ? (cfg.encoreDamageMult || 1.5) : 1;
     const normalShown = Math.round(finalNormal * encoreMult);

@@ -10,7 +10,7 @@
 // 层数值保存在 `unit._stacks[id]`，衰减计时在 `unit._stackTimers[id]`，
 // 把这两个字段当成注册器私产，外部不要直接读写。
 
-const STACK_DEFS = {};
+export const STACK_DEFS = {};
 
 export function registerStack(id, def) {
   STACK_DEFS[id] = def;

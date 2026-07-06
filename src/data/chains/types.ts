@@ -16,12 +16,11 @@
 // ===== 类型定义 =====
 
 /** 共鸣链战斗 effect 的标准类型(对应 chainEffects.js 现有 effect 字段) */
-export type ChainEffectType =
-  | 'atkUp' | 'crateUp' | 'cdmgUp' | 'elemDmg' | 'elemAllUp'
-  | 'skillChargeFaster' | 'tongBian' | 'guanShi' | 'qiZheng' | 'mingDuan'
-  | 'normalDmgUp' | 'skillDmgUp' | 'heavyDmgUp' | 'burstDmgUp'
-  | 'pierceUp' | 'healUp' | 'energyRefund' | 'forteGain'
-  | 'custom'; // 角色专属未归类的走 custom
+// 注:原设计是严格 union,但现有 chainEffects.js 用 'atk'/'skillDmg'/'teamAllDmg' 等
+// 不在 union 中的标识符(共 15+ 标准 + 角色专属如 'jiyanTongBian')。
+// CLAUDE.md 铁律 2 禁止改角色机制,重命名 effect 标识符会牵动 chains.js 战斗分发,
+// 风险高。改用 string 兼容现有数据,类型安全让位给数据真实性。
+export type ChainEffectType = string;
 
 /** 单条链的战斗 effect */
 export interface ChainEffect {
@@ -34,6 +33,7 @@ export interface ChainEffect {
   crate?: number;
   cdmg?: number;
   elem?: string;
+  label?: string;        // 玩家可见的简述(原 chainEffects.js 的 label 字段)
   [key: string]: any;   // 角色专属字段开放
 }
 
@@ -60,8 +60,8 @@ export interface ChainTerm {
 export interface ChainDef {
   /** 链序号 1-6 */
   index: 1 | 2 | 3 | 4 | 5 | 6;
-  /** 战斗 effect(数值版,chains.js 消费) */
-  effect: ChainEffect;
+  /** 战斗 effect(数值版,chains.js 消费)。可选:空链(如椿 2/6 链)无 effect */
+  effect?: ChainEffect;
   /** 玩家文案(seq.js 消费) */
   text: ChainText;
   /** 工厂版技能文案(skillHints customLines 消费,可选) */
@@ -80,10 +80,11 @@ export interface CharacterChains {
 
 /**
  * 已迁到 ChainDef 单结构的角色清单。
- * 空数组 = 全部 84 角色还在 4 处并写状态。
- * 后续每会话迁一批,在这里加角色名,直到 84 全覆盖。
+ * Phase 3 完成批量 codemod,全部 50 角色已迁(chainEffects + seq 数据等价合并到 registry.ts)。
+ * 注:原计划写"84 角色"是估算,实际 chainEffects.js / seq.js 各 50 角色且无差异。
  */
-export const MIGRATED_TO_CHAIN_DEF: string[] = [];
+import { REGISTRY } from './registry';
+export const MIGRATED_TO_CHAIN_DEF: string[] = Object.keys(REGISTRY);
 
 // ===== 消费方接口(供 4 个渲染路径未来切换时用) =====
 

@@ -8,7 +8,7 @@ import { flattenEnemies, DUNGEONS, canUseWeeklyBoss, getWeeklyBossUsed, WEEKLY_B
 import { ABYSS_ZONES, startAbyssFloor } from '../daily/abyss.js';
 import { startWastesStage, WASTES_STAGES } from '../daily/wastes.js';
 import { registerBattleActions } from './battle/battleActions.js';
-import { currentBattleSignal, pendingDungeonSignal, battleVisibleSignal, battleToastSignal, bumpBattleVersion } from '../ui2/panels/battle/battleSignals.js';
+import { currentBattleSignal, pendingDungeonSignal, battleVisibleSignal, battleToastSignal, bumpBattleVersion } from '../battle/battleSignals.js';
 
 let pendingDungeon = null;
 let _lastLogLen = 0;       // 用于检测新增日志（弹 toast）
@@ -160,8 +160,3 @@ registerBattleActions({
   hideBattleScreen,
   rerenderAfterBattle,
 });
-
-// 暴露给外部
-window.__startDungeon = startDungeonBattle;
-window.__startAbyss = startAbyssBattle;
-window.__startWastes = startWastesBattle;

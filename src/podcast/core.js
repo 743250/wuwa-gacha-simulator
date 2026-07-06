@@ -289,9 +289,4 @@ function openRefineStonePicker(count) {
   msg(`烙金银杏 +${count}，可在背包选择武器精炼`, false);
 }
 
-// 暴露到 window 供 onclick 使用
-window.__podcast = {
-  claimFree, claimPaid, claimAll, buyLevel
-};
-
 export { PODCAST_REWARDS, PODCAST_MAX_LEVEL, PODCAST_EXP_PER_LEVEL, PODCAST_BUY_LEVEL_COST };

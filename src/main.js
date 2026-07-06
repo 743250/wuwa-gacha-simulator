@@ -6,18 +6,21 @@ import { tryPull, doPullN, toFive } from './gacha/actions.js';
 import { advanceDay, nextPhase, nextVersion, jumpToday, jumpToVersion, jumpToDate } from './time/timeline.js';
 import { openModal } from './modal.js';
 import { loadState, saveState, exportSave, importSave, clearSave, saveStateNow, pickSaveFolder, isFsSaveActive, isFsSupported } from './save.js';
-import { renderTeamBuilder } from './ui/teambuilder.js';
-import { renderBag } from './ui/bag.js';
-import { renderDungeon } from './ui/dungeon.js';
-import { renderAbyss } from './ui/abyss.js';
-import { renderDaily } from './ui/daily.js';
-import { renderWastes } from './ui/wastes.js';
-import { renderPodcast } from './ui/podcast.js';
-import { rerenderAll } from './rerender.js';
+import './ui/panels/dungeon/actions';  // 副作用:WEEKLY_BOSS 合入 DUNGEONS(原 src/ui/dungeon.js)
 import './ui/battle.js';   // 副作用：注册战斗弹窗
 import './exchange/coral.js'; // 副作用：注册海市兑换 onclick
 import { resetDailyIfNeeded } from './daily/commission.js';
 import { phases } from './data/phases.js';
+import { bumpStateVersion } from './ui/signals.ts';
+import './battle/resources/index';  // Phase 4 副作用:把 forte/stacks/forms 注册到 RESOURCE_REGISTRY
+
+// 全部面板重渲染（__render 和 __rerenderAll 都指向同一个全刷新函数，
+// 确保所有操作点——抽卡/商店/海市/电台/养成/委托——都会刷新全部面板）
+function rerenderAll() {
+  render();
+  // Stage 1 起:通知 Preact 组件重渲染。旧 render 仍全跑,新旧共存期靠 bump 驱动 signals。
+  bumpStateVersion();
+}
 
 // 顶部时间线按钮
 document.getElementById('nextDay').onclick = () => { advanceDay(); rerenderAll(); };
@@ -146,15 +149,11 @@ function bindSubTabs(selector, panes, onSwitch) {
   });
 }
 
-bindSubTabs('.a-tab', ['team', 'daily', 'dungeon', 'abyss', 'wastes'], k => {
-  if (k === 'team') renderTeamBuilder();
-  if (k === 'daily') renderDaily();
-  if (k === 'dungeon') renderDungeon();
-  if (k === 'abyss') renderAbyss();
-  if (k === 'wastes') renderWastes();
+bindSubTabs('.a-tab', ['team', 'daily', 'dungeon', 'abyss', 'wastes'], () => {
+  // Preact 组件订阅 signals 自动重渲染,无需手动调
 });
-bindSubTabs('.b-tab', ['podcast', 'shop'], k => {
-  if (k === 'podcast') renderPodcast();
+bindSubTabs('.b-tab', ['podcast', 'shop'], () => {
+  // Preact 组件订阅 signals 自动重渲染
 });
 
 // 商店内部分类 tab（特惠/常驻/凝刻月相）· preact ShopPanel 用 shopCatSignal 接管（Stage 6.1b），旧 .sct 绑定已被 preact 替换节点后失效，跳过。
@@ -168,10 +167,7 @@ document.querySelectorAll('.vtab').forEach(t => t.onclick = () => {
     const el = document.getElementById(VIEWS[v]);
     if (el) el.style.display = v === key ? '' : 'none';
   });
-  // 切到非唤取视图时，触发对应的初次渲染
-  if (key === 'adventure') renderTeamBuilder();
-  if (key === 'bag') renderBag();
-  if (key === 'storage') renderPodcast();
+  // 切到非唤取视图时,Preact 组件订阅 signals 自动渲染
 });
 
 // 弹窗点击外部关闭
@@ -210,7 +206,7 @@ document.body.addEventListener('mouseout', e => {
 });
 
 // Stage 1:挂载 Preact 根(目前是空组件,只证明框架接入生效)
-import { mountPreactRoot } from './ui2/root.tsx';
+import { mountPreactRoot } from './ui/root.tsx';
 
 // 启动前加载存档
 (async () => {

@@ -1,8 +1,7 @@
 // roleModal shim — Stage 5.1 Preact migration
 // Preact (RoleModalManager + RoleModalContent) has taken over #modalBox content.
-// switchRoleTab / activateChain / selectEchoSlot 已 export 给 ui2 Preact 组件直接 import。
-// window.openRoleModal / openRolePreview 保留(被旧 HTML 字符串 onclick 调用)。
-// __encoreBurstMode / __toggleEncoreBurstMode 保留(skillBlock.js 旧 HTML 调用)。
+// switchRoleTab / activateChain / selectEchoSlot / openRoleModal / openRolePreview 已 export 给 src/ui/panels/roleModal/ Preact 组件直接 import。
+// skillBlock.js 已 Preact 化,直接 import toggleEncoreBurstMode,不再需要 window.__ re-export 桥。
 
 import { S, msg } from '../../state.js';
 import { upgrade } from '../../gacha/core.js';
@@ -13,11 +12,11 @@ import {
   roleModalPreviewSignal,
   echoSelectedSlotSignal,
   roleModalRenderTick,
-} from '../../ui2/panels/roleModal/signals.js';  // eslint-disable-line
+} from '../../ui/panels/roleModal/signals.js';  // eslint-disable-line
 
-// ---------- Public entry points (called from HTML onclick) ----------
+// ---------- Public entry points ----------
 
-function openRoleModal(n) {
+export function openRoleModal(n) {
   roleModalNameSignal.value = n;
   roleModalTabSignal.value = 'basic';
   roleModalPreviewSignal.value = false;
@@ -25,7 +24,7 @@ function openRoleModal(n) {
   roleModalOpenSignal.value = true;
 }
 
-function openRolePreview(n) {
+export function openRolePreview(n) {
   roleModalNameSignal.value = n;
   roleModalTabSignal.value = 'basic';
   roleModalPreviewSignal.value = true;
@@ -54,15 +53,4 @@ export function selectEchoSlot(roleName, idx) {
 
 export function initRoleModal({ render }) {
   void render;
-
-  // window.openRoleModal / openRolePreview 被旧 HTML 字符串 onclick 调用,保留
-  window.openRoleModal = openRoleModal;
-  window.openRolePreview = openRolePreview;
-
-  // 安可技能页:共鸣解放文案白咩/黑咩版本切换(skillBlock.js 旧 HTML 调用,保留 window.__)
-  window.__encoreBurstMode = window.__encoreBurstMode || 'white';
-  window.__toggleEncoreBurstMode = () => {
-    window.__encoreBurstMode = window.__encoreBurstMode === 'black' ? 'white' : 'black';
-    roleModalRenderTick.value = roleModalRenderTick.value + 1;
-  };
 }

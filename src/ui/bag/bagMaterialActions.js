@@ -6,7 +6,7 @@ import { WEAPON_BOX_OPTIONS } from '../../data/podcast-rewards.js';
 import { openModal } from '../../modal.js';
 import { h } from 'preact';
 import { radioPickWeapon } from '../../podcast/core.js';
-import { bumpStateVersion } from '../../ui2/signals.ts';
+import { bumpStateVersion } from '../../ui/signals.ts';
 
 export function usePotion(id, count) {
   const r = usePotionCore(id, count);
@@ -96,9 +96,3 @@ export function bagUseRefineStone() {
   });
 }
 
-// dual-mode: 保留 window.__ 兼容桥（给 HTML 内联 onclick / 旧 UI 调用）
-window.__usePotion = usePotion;
-window.__useAllPotions = useAllPotions;
-window.__buyStamina = buyStamina;
-window.__bagOpenWeaponBox = bagOpenWeaponBox;
-window.__bagUseRefineStone = bagUseRefineStone;

@@ -46,7 +46,7 @@ src/
   data/         ← 纯数据（无逻辑）
     chars.js    ← 角色/武器名、卡池名称
     phases.js   ← 卡池时间表 1.0–3.4
-    seq.js      ← 共鸣链文案（seqText，模拟器版）
+    chains/     ← 共鸣链 ChainDef（Phase 3：registry.ts 50 角色 × 6 链 + types.ts，原 seq.js + chainEffects CHAIN_BATTLE_EFFECTS 已合并到此）
 
   gacha/        ← 抽卡核心
     core.js     ← 概率曲线、保底、卡池/波纹解析、角色/武器初始化
@@ -58,16 +58,18 @@ src/
     stats.js    ← 面板计算（攻击/暴击/元素/生命）
     template.js ← 角色定位模板（4 类）+ 元素映射
     elements.js ← 六元素抗性 + 震动伤害
-    chains.js   ← 共鸣链→战斗效果（applyChainBonuses 等）
-    chainEffects.js ← CHAIN_BATTLE_EFFECTS 结构化 effect 表（角色专属数值覆写）
+    chains.js   ← 共鸣链→战斗效果（applyChainBonuses 等，Phase 3 走 ChainDef 路径）
+    chainEffects.js ← FALLBACK_CHAIN + FORTE_BOOST（Phase 3: CHAIN_BATTLE_EFFECTS 已迁到 data/chains/registry.ts）
     forte.js    ← 奏回路（角色专属资源条）
     weaponTriggers.js ← 武器被动触发
     enemies.js  ← 敌人数据库（含 BOSS 机制）
     enemyMechanics.js ← 敌人机制注册表（周期/阈值触发）
     combat.js   ← AP 回合制战斗引擎（731 行）
     dungeon.js  ← 副本配置
+    battleSignals.js ← 战斗 UI signals（Phase 2 从 ui/panels/battle/ 移来打破循环）
     characters/ ← 角色专属机制文件（S 级专属，1 对 1 文件）
       index.js  ← 注册表/派发（getCharacterMechanic / hasHeavy / fireHook）
+    resources/  ← ResourceDef 适配器（Phase 4：types.ts + index.ts，把 forte/stacks/forms 注册到 RESOURCE_REGISTRY）
 
   equip/        ← 装备养成
     weapons.js  ← 武器数据库（所有 3/4/5 星武器，678 行）
@@ -92,37 +94,33 @@ src/
   time/         ← 时间推进
     timeline.js ← +1日/下一期/下版本 + 体力补满/委托重置 + 版本/日期跳转
 
-  ui/           ← UI 渲染
-    render.js   ← 主渲染入口（已 no-op，Preact 接管，仅保留 initRoleModal 副作用）
+  ui/           ← UI 渲染（Phase 5: ui2/ 已合并到 ui/panels/）
+    render.js   ← 主渲染入口（旧 HTML 字符串渲染，1086 行）
     render/     ← 渲染子模块
       skillHints.js  ← 角色技能 tooltip 定义（SKILL_HINTS）
       skillLines.js  ← 共鸣链文案行渲染 + makeSkillLines 工厂
+      skillBlock.js  ← 技能介绍 block（Phase 1 Preact VNode）
+      roleModal.js   ← roleModal 入口（openRoleModal 等，Phase 1 Preact 化）
       utils.js       ← 工具函数
     battleRenderers/
       buffRenderers.js ← Buff 显示注册表
-    teambuilder.js ← 编队面板（3 人）
-    battle.js   ← 战斗全屏 UI（Preact shim，渲染已迁 ui2/panels/battle/）
-    dungeon.js  ← 副本选择面板
-    abyss.js    ← 深塔面板（三塔分区 + 活力显示）
-    daily.js    ← 日常委托面板
-    wastes.js   ← 冥歌海墟面板
-    bag.js      ← 仓库面板（Preact shim，bagEchoDetail re-export）
-    podcast.js  ← 电台面板
+    battle.js   ← 战斗全屏 UI 入口（startDungeonBattle 等，非 shim）
     terms.js    ← 术语词典（tooltip 悬停）
-  ui2/          ← Preact 组件树（与 src/ui/ 双轨并存，靠 signals + stateVersion 桥接）
-    signals.ts  ← stateVersion signal + useS() 钩子
-    panels/
-      bag/      ← BagPanel（已迁）
-      dungeon/  ← DungeonPanel（已迁）
-      wastes/   ← WastesPanel（已迁）
-      abyss/    ← AbyssPanel（已迁）
-      podcast/  ← PodcastPanel（已迁）
-      daily/    ← DailyPanel（已迁）
-      battle/   ← BattleView + EnemyRow/TeamRow/ActionBar（已迁）
-      roleModal/← RoleModal 独立 modal 系统（signal 驱动，与 openModal 互斥）
-      gacha/    ← RoleGrid 等（已迁）
-  modal.js      ← 通用弹窗（dual-mode：body 支持 string 或 VNode）
-  rerender.js   ← 统一重渲染入口（旧 render 函数 + bumpStateVersion）
+    signals.ts  ← Preact signals 中心（stateVersion / tab signals）
+    root.tsx    ← Preact 根（mountPreactRoot 挂载所有面板）
+    panels/     ← Preact 组件目录（Phase 5: 原 ui2/panels/ 合并到此）
+      gacha/    ← 唤取面板（GachaBanner / PullPanel / SidePanel 等）
+      battle/   ← 战斗面板（BattleView / TeamRow / ActionBar 等）
+      roleModal/ ← 角色详情弹窗（RoleModal / SkillTab / ChainTab + signals）
+      bag/      ← 仓库面板（BagPanel + echoActions + actions）
+      daily/    ← 日常委托面板（DailyPanel + actions）
+      dungeon/  ← 副本面板（DungeonPanel + actions，WEEKLY_BOSS 合入副作用）
+      abyss/    ← 深塔面板
+      wastes/   ← 冥歌海墟面板（WastesPanel + actions）
+      podcast/  ← 电台面板
+      team/     ← 编队面板（TeamBuilderPanel + actions）
+      shop/     ← 商店面板
+      exchange/ ← 海市面板
 ```
 
 ## 战斗系统
@@ -209,11 +207,11 @@ src/
 |---|---|
 | [src/battle/characters/](src/battle/characters/) `<角色名>.js` | S 级专属机制（状态机/双形态）；A 级工厂一般不需要这个文件 |
 | [src/battle/characters/index.js](src/battle/characters/index.js) `getCharacterMechanic` / `HAS_HEAVY_ROLES` | 注册表 / 重击开关 |
-| [src/battle/chainEffects.js](src/battle/chainEffects.js) `CHAIN_BATTLE_EFFECTS[角色名]` | 6 链的结构化战斗 effect（数值版） |
-| [src/battle/chains.js](src/battle/chains.js) `applyChainBonuses` | 按 effect 类型分发到 unit；未列在 chainEffects 的角色走文案正则兜底 |
+| [src/data/chains/registry.ts](src/data/chains/registry.ts) `ChainDef[角色名]` | 6 链的战斗 effect + 玩家文案（Phase 3 单结构，原 chainEffects CHAIN_BATTLE_EFFECTS + seq.js seqText 已合并到此） |
+| [src/battle/chains.js](src/battle/chains.js) `applyChainBonuses` | 按 effect 类型分发到 unit；所有角色走 ChainDef 路径，FALLBACK_CHAIN 兜底未迁角色 |
 | [src/battle/combat.js](src/battle/combat.js) | AP 回合制引擎，挂钩 doAttack/doSkill/doHeavy/doBurst/doSwitch |
 | [src/battle/forte.js](src/battle/forte.js) `FORTE[角色名]` | FORTE 资源条配置 |
-| [src/data/seq.js](src/data/seq.js) `seqText[角色名]` | 共鸣链 6 条文案（模拟器版） |
+| [src/data/chains/registry.ts](src/data/chains/registry.ts) `ChainDef[角色名].text` | 共鸣链 6 条文案（模拟器版，Phase 3 从原 seq.js 迁入） |
 | [src/ui/render/skillHints.js](src/ui/render/skillHints.js) `SKILL_HINTS[角色名]` | 技能 tab 文案（工厂版用 `makeSkillLines` 见 [src/ui/render/skillLines.js](src/ui/render/skillLines.js)） |
 | [src/ui/render.js](src/ui/render.js) `CHAIN_TERM_PATTERNS` | 让术语在共鸣链里也能悬停 |
 | [src/ui/terms.js](src/ui/terms.js) `TERM_DICT` | 术语词典（资源/状态/招式名） |
@@ -238,10 +236,10 @@ src/
 
 | 级别 | 文件改动 | 适用 |
 |---|---|---|
-| **S 级**（专属状态机）| characters/<角色>.js + combat.js + chainEffects.js 结构化 effect + customLines 手写 + 链文案 | 真正的 SS/S 级、独特机制无法用工厂表达者，≈ 8~10 人 |
-| **A 级**（工厂完整）| chainEffects.js 标准 effect + `makeSkillLines` 配置 + seq.js 链文案 | 默认级别，大多数限定/常驻强角 |
+| **S 级**（专属状态机）| characters/<角色>.js + combat.js + registry.ts 结构化 effect + customLines 手写 + 链文案 | 真正的 SS/S 级、独特机制无法用工厂表达者，≈ 8~10 人 |
+| **A 级**（工厂完整）| registry.ts 标准 effect + `makeSkillLines` 配置 + registry.ts 链文案 | 默认级别，大多数限定/常驻强角 |
 | **B 级**（最小化）| 简化 customLines + 链染色 | 4★ 边缘 / 不熟 / 3.x 后期暂不深入 |
-| **C 级**（只收录）| 仅 seq.js fallback | 资料不足 / 明显低强度 |
+| **C 级**（只收录）| 仅 registry.ts fallback | 资料不足 / 明显低强度 |
 
 **默认 A 级，不要动不动升 S**：A→S 仅在”核心决策无法用 makeSkillLines + 标准 effect 表达”时升。S 级奖励机制必要性，不奖励强度。B 级不是凑数，是承认暂时不懂这个角色 —— **瞎编 customLines 比裸数文案+染色更糟**。已实装角色见 [status.md](docs/plans/characters/status.md)。
 

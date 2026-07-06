@@ -99,22 +99,20 @@ export function poolTitle(b) {
 }
 
 export function targetOptions(b) {
-  if (!b) return '';
+  if (!b) return null;
   let opts = [];
   if (b.pool === 'standardWeapon') opts = standardWeapons.map(w => ({ label: w.banner, target: w.name, active: w.name === S.standardWeaponTarget }));
   if (b.pool === 'noviceChoice') {
-    if (S.noviceStarted) return `<div class="ba-weapon" style="margin-top:10px;font-size:12px;color:var(--gold);letter-spacing:1px">已选定：<b>${S.noviceTarget}</b>（开始抽取后不可更改）</div>`;
+    if (S.noviceStarted) return { pool: b.pool, opts: [], locked: S.noviceTarget };
     opts = newJourneyChars.map(c => ({ label: c, target: c, active: c === S.noviceTarget }));
   }
   if (b.pool === 'noviceWeapon') {
-    if (S.noviceStarted) return `<div class="ba-weapon" style="margin-top:10px;font-size:12px;color:var(--gold);letter-spacing:1px">已选定：<b>${S.noviceWeaponTarget}</b>（开始抽取后不可更改）</div>`;
+    if (S.noviceStarted) return { pool: b.pool, opts: [], locked: S.noviceWeaponTarget };
     opts = newJourneyChars.map(c => ({ label: `${weapons[c]}（${c}）`, target: weapons[c], active: weapons[c] === S.noviceWeaponTarget }))
       .filter(o => o.target);
   }
-  if (!opts.length) return '';
-  return `<div class="ba-weapon" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px">
-    ${opts.map(o => `<button class="mbtn ${o.active ? 'gold' : ''}" onclick="selectTarget('${b.pool}','${o.target}')">${o.label}</button>`).join('')}
-  </div>`;
+  if (!opts.length) return null;
+  return { pool: b.pool, opts, locked: null };
 }
 
 export function selectTarget(pool, target) {
@@ -123,7 +121,6 @@ export function selectTarget(pool, target) {
   if (pool === 'noviceWeapon' && !S.noviceStarted) S.noviceWeaponTarget = target;
   rerenderAll();
 }
-window.selectTarget = selectTarget;
 
 // 支付
 function payOne(pool) {

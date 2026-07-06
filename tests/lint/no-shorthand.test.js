@@ -3,7 +3,7 @@
 // 禁词场景:`→` `buff` `debuff` `core` `叠层` `爆发解放机` 出现在给玩家看的字符串字面量里
 // 这些是工作笔记速记,不应出现在玩家文案里(应用"增益"/"减益"/中文连接符等)。
 //
-// 守卫范围:**只查 src/ui2/ 新 Preact 组件的字符串字面量**(不查变量名/属性名/注释)。
+// 守卫范围:**只查 src/ui/ 新 Preact 组件的字符串字面量**(不查变量名/属性名/注释)。
 // 老代码(src/ui/render/)历史已有用法,不强清,留作后续逐个修。
 // 战斗日志 helpers.ts 的 "A 攻击 → B" 是流式动作描述,行业惯例,豁免。
 
@@ -12,7 +12,7 @@ import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { lintWarn } from './helpers.js';
 
-const ROOT = resolve(__dirname, '../../src/ui2');
+const ROOT = resolve(__dirname, '../../src/ui/panels');
 
 function walk(dir) {
   const out = [];
@@ -37,8 +37,8 @@ function extractPlayerStrings(content) {
   return out;
 }
 
-describe('lint · 铁律 8:ui2/ 玩家文案禁速记', () => {
-  it('提醒:ui2/ 玩家文案字符串里不出现 buff/debuff/core/叠层/爆发解放机', () => {
+describe('lint · 铁律 8:ui/panels/ 玩家文案禁速记', () => {
+  it('提醒:ui/panels/ 玩家文案字符串里不出现 buff/debuff/core/叠层/爆发解放机', () => {
     const files = walk(ROOT);
     const violations = [];
     for (const f of files) {
@@ -63,7 +63,7 @@ intro 只写身份(元素 · 武器 · 定位 · 「核心机制名」),不替�
     expect(violations.length).toBeGreaterThanOrEqual(0);
   });
 
-  it('提醒:ui2/ 玩家文案字符串里不出现 → 箭头(战斗日志 helpers.ts 豁免)', () => {
+  it('提醒:ui/panels/ 玩家文案字符串里不出现 → 箭头(战斗日志 helpers.ts 豁免)', () => {
     const files = walk(ROOT);
     const violations = [];
     for (const f of files) {

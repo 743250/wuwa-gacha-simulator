@@ -17,9 +17,12 @@ export default defineConfig({
             if (id.includes('preact') || id.includes('@preact')) return 'vendor-preact';
             return 'vendor';
           }
-          if (id.includes('/src/battle/characters/')) return 'battle';
-          if (id.includes('/src/battle/combat/')) return 'battle';
-          if (id.includes('/src/ui2/')) return 'ui2';
+          // src/ 全部进 index chunk(默认)
+          // 历史:曾有 battle / ui2 分块,但 src/battle/characters/ ↔ src/ui2/ ↔ src/(index)
+          // 形成多重循环:battle→index(via ../forms.js)、index→ui2(via main.js→ui2/root.tsx)、
+          // ui2→battle(via TeamRow→battle/characters/index.js)、index→battle(via buffRenderers)。
+          // 无法仅靠 manualChunks 打破,合并到 index 是最简方案。
+          // 详见 docs/plans/architecture/next-phase-plan.md Phase 2。
         }
       }
     },

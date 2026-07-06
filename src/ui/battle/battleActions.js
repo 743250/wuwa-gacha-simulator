@@ -1,6 +1,5 @@
-// 战斗动作 handler 组 · Stage 6 dual-mode
-//   · 10 个 action 改成 export 纯函数
-//   · 保留 window.__b* 兼容桥给 Preact 组件（直到 Preact 改 import 调用）
+// 战斗动作 handler 组
+//   · 10 个 action 为 export 纯函数，Preact 组件直接 import 调用
 import { S, msg } from '../../state.js';
 import { doAttack, doSkill, doHeavy, doBurst, doSwitch, doDebris, endTurn } from '../../battle/combat.js';
 import { onBattleResult, getSol3Config, getSol3Level } from '../../battle/dungeon.js';
@@ -16,17 +15,6 @@ import { consumeWeeklyBoss } from '../../battle/dungeon.js';
 var _ctx = null;
 export function registerBattleActions(ctx) {
   _ctx = ctx;
-  // dual-mode: 保留 window 桥给 Preact 组件（未迁 import 前仍用）
-  window.__bAtk = bAtk;
-  window.__bTarget = bTarget;
-  window.__bSkill = bSkill;
-  window.__bHeavy = bHeavy;
-  window.__bBurst = bBurst;
-  window.__bDebris = bDebris;
-  window.__bSwitch = bSwitch;
-  window.__bEndTurn = bEndTurn;
-  window.__bClose = bClose;
-  window.__bSettle = bSettle;
 }
 
 export function bAtk(idx) {

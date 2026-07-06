@@ -2,7 +2,7 @@
 // 也禁止在角色文件 / combat 子模块里出现"声骸技能伤害"作为独立伤害类型的表述。
 //
 // 注:src/data/echoes.js 的 bonus5.cond 是官方套装描述的引文(给玩家看的原文),
-// 不算违规 —— 这条 lint 只守 code 路径(src/battle/ + src/ui2/ + 角色文件)。
+// 不算违规 —— 这条 lint 只守 code 路径(src/battle/ + src/ui/ + 角色文件)。
 
 import { describe, it, expect } from 'vitest';
 import { readFileSync, readdirSync, statSync } from 'node:fs';
@@ -24,7 +24,7 @@ function walk(dir) {
 
 const GUARD_DIRS = [
   join(ROOT, 'battle'),
-  join(ROOT, 'ui2'),
+  join(ROOT, 'ui/panels'),
 ];
 
 const FORBIDDEN_PHRASES = [
@@ -37,7 +37,7 @@ const FORBIDDEN_PHRASES = [
 ];
 
 describe('lint · 铁律 11:无声骸技能作为独立伤害类型', () => {
-  it('提醒:battle/ 和 ui2/ 内不出现"声骸技能伤害"等禁词', () => {
+  it('提醒:battle/ 和 ui/panels/ 内不出现"声骸技能伤害"等禁词', () => {
     const files = GUARD_DIRS.flatMap(d => {
       try { return walk(d); } catch { return []; }
     });

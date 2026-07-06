@@ -24,9 +24,11 @@
     <div class="t-actions">
       <button class="tbtn" id="nextDay">＋1 日</button>
       <button class="tbtn" id="nextPhase">下一期</button>
+      <button class="tbtn" id="todayBtn">今 天</button>
+      <span class="t-sep"></span>
       <button class="tbtn" id="nextVersion">下版本</button>
       <button class="tbtn" id="pickVersion">选版本</button>
-      <button class="tbtn" id="todayBtn">今 天</button>
+      <span class="t-sep"></span>
       <button class="tbtn" id="saveMgmt">存 档</button>
       <button class="tbtn danger" id="reset">重 置</button>
     </div>
@@ -34,10 +36,10 @@
 
   <!-- 顶层视图切换 -->
   <div class="view-tabs">
-    <button class="vtab on" data-v="gacha"><span class="vt-zh">唤 取</span><span class="vt-sub">卡池 · 角色 · 海市</span></button>
-    <button class="vtab" data-v="adventure"><span class="vt-zh">冒 险</span><span class="vt-sub">编队 · 日常 · 副本 · 深塔</span></button>
-    <button class="vtab" data-v="bag"><span class="vt-zh">背 包</span><span class="vt-sub">材料 · 武器 · 药剂</span></button>
-    <button class="vtab" data-v="storage"><span class="vt-zh">商 店</span><span class="vt-sub">充值 · 月卡 · 电台</span></button>
+    <button class="vtab on" data-v="gacha"><span class="vt-zh">唤 取</span><span class="vt-sub">🎲 卡池 · 角色 · 海市</span></button>
+    <button class="vtab" data-v="adventure"><span class="vt-zh">冒 险</span><span class="vt-sub">⚔ 编队 · 日常 · 副本 · 深塔</span></button>
+    <button class="vtab" data-v="bag"><span class="vt-zh">背 包</span><span class="vt-sub">🎒 材料 · 武器 · 药剂</span></button>
+    <button class="vtab" data-v="storage"><span class="vt-zh">商 店</span><span class="vt-sub">📻 充值 · 月卡 · 电台</span></button>
   </div>
 
   <!-- ====== 视图 1：唤取 ====== -->
@@ -208,7 +210,11 @@
 </div>
 <div class="skip-hint" id="skipHint">点击屏幕翻开所有 · 再次点击关闭</div>
 
-<!-- 通用弹窗 -->
+<!-- 角色详情弹窗（外层，独立 mount 节点，避免与子 modal 共用 #modalBox）-->
+<div class="modal" id="roleModal">
+  <div class="modal-box role-modal" id="roleModalBox"></div>
+</div>
+<!-- 通用弹窗（子 modal，DOM 在后故层级在上）-->
 <div class="modal" id="modal">
   <div class="modal-box" id="modalBox"></div>
 </div>

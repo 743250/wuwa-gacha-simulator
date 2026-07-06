@@ -248,7 +248,6 @@ export function buyShop(id) {
     ]
   });
 }
-window.buyShop = buyShop;
 
 export function convertLunite() {
   if (S.lunite <= 0) return msg('无月相可转');

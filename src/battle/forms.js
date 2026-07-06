@@ -9,7 +9,7 @@
 //
 // 形态字段 unit.activeForm / unit.displayName 由 forms.js 维护，外部不要直接写。
 
-const FORM_DEFS = {};
+export const FORM_DEFS = {};
 
 export function registerForm(id, def) {
   FORM_DEFS[id] = def;
