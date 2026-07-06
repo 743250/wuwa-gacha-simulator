@@ -30,11 +30,15 @@ afterEach(() => {
     container.remove();
     container = null;
   }
-  // Clean up modal DOM state
+  // Clean up both modal DOMs (RoleModal uses #roleModal/#roleModalBox, independent from #modal/#modalBox)
   const modalBox = document.getElementById('modalBox');
   const modal = document.getElementById('modal');
   if (modalBox) { modalBox.innerHTML = ''; modalBox.className = 'modal-box'; }
   if (modal) modal.classList.remove('on');
+  const roleModalBox = document.getElementById('roleModalBox');
+  const roleModal = document.getElementById('roleModal');
+  if (roleModalBox) { roleModalBox.innerHTML = ''; roleModalBox.className = 'modal-box role-modal'; }
+  if (roleModal) roleModal.classList.remove('on');
   roleModalOpenSignal.value = false;
   roleModalNameSignal.value = null;
   roleModalTabSignal.value = 'basic';
@@ -43,6 +47,7 @@ afterEach(() => {
 
 /**
  * Helper: set up modal DOM elements that index.html normally has.
+ * RoleModal renders into #roleModalBox (independent from #modalBox used by openModal).
  */
 function setupModalDom() {
   if (!document.getElementById('modal')) {
@@ -52,15 +57,22 @@ function setupModalDom() {
     overlay.innerHTML = '<div class="modal-box" id="modalBox"></div>';
     document.body.appendChild(overlay);
   }
+  if (!document.getElementById('roleModal')) {
+    const overlay = document.createElement('div');
+    overlay.id = 'roleModal';
+    overlay.className = 'modal';
+    overlay.innerHTML = '<div class="modal-box role-modal" id="roleModalBox"></div>';
+    document.body.appendChild(overlay);
+  }
 }
 
 describe('RoleModalManager', () => {
   it('renders nothing when closed', () => {
     setupModalDom();
     mount(h(RoleModalManager, null));
-    const modalBox = document.getElementById('modalBox')!;
-    expect(modalBox.innerHTML).toBe('');
-    expect(document.getElementById('modal')!.classList.contains('on')).toBe(false);
+    const roleModalBox = document.getElementById('roleModalBox')!;
+    expect(roleModalBox.innerHTML).toBe('');
+    expect(document.getElementById('roleModal')!.classList.contains('on')).toBe(false);
   });
 
   it('renders role modal when opened with a role name', async () => {
@@ -82,9 +94,9 @@ describe('RoleModalManager', () => {
     await Promise.resolve();
     await new Promise(r => setTimeout(r, 0));
 
-    const modalBox = document.getElementById('modalBox')!;
-    expect(modalBox.textContent).toContain('忌炎');
-    expect(modalBox.textContent).toContain('基本属性');
+    const roleModalBox = document.getElementById('roleModalBox')!;
+    expect(roleModalBox.textContent).toContain('忌炎');
+    expect(roleModalBox.textContent).toContain('基本属性');
   });
 
   it('shows basic tab stats', async () => {
@@ -100,11 +112,11 @@ describe('RoleModalManager', () => {
     await Promise.resolve();
     await new Promise(r => setTimeout(r, 0));
 
-    const modalBox = document.getElementById('modalBox')!;
-    expect(modalBox.textContent).toContain('LV 90');
-    expect(modalBox.textContent).toContain('暴击');
-    expect(modalBox.textContent).toContain('生命');
-    expect(modalBox.textContent).toContain('攻击');
+    const roleModalBox = document.getElementById('roleModalBox')!;
+    expect(roleModalBox.textContent).toContain('LV 90');
+    expect(roleModalBox.textContent).toContain('暴击');
+    expect(roleModalBox.textContent).toContain('生命');
+    expect(roleModalBox.textContent).toContain('攻击');
   });
 
   it('switches tab content when signal changes', async () => {
@@ -127,9 +139,9 @@ describe('RoleModalManager', () => {
     await Promise.resolve();
     await new Promise(r => setTimeout(r, 0));
 
-    const modalBox = document.getElementById('modalBox')!;
-    expect(modalBox.textContent).toContain('共鸣链');
-    expect(modalBox.textContent).toContain('0/6');
+    const roleModalBox = document.getElementById('roleModalBox')!;
+    expect(roleModalBox.textContent).toContain('共鸣链');
+    expect(roleModalBox.textContent).toContain('0/6');
   });
 
   it('shows preview mode without levelup tab', async () => {
@@ -149,9 +161,9 @@ describe('RoleModalManager', () => {
     await Promise.resolve();
     await new Promise(r => setTimeout(r, 0));
 
-    const modalBox = document.getElementById('modalBox')!;
-    expect(modalBox.textContent).toContain('角色档案');
-    expect(modalBox.textContent).not.toContain('突破升级');
+    const roleModalBox = document.getElementById('roleModalBox')!;
+    expect(roleModalBox.textContent).toContain('角色档案');
+    expect(roleModalBox.textContent).not.toContain('突破升级');
   });
 
   it('renders chain activate button', async () => {
@@ -171,11 +183,11 @@ describe('RoleModalManager', () => {
     await Promise.resolve();
     await new Promise(r => setTimeout(r, 0));
 
-    const modalBox = document.getElementById('modalBox')!;
+    const roleModalBox = document.getElementById('roleModalBox')!;
     // The chain section shows chain count
-    expect(modalBox.textContent).toContain('0/6');
+    expect(roleModalBox.textContent).toContain('0/6');
     // Button should mention activating chain
-    const buttons = modalBox.querySelectorAll('button');
+    const buttons = roleModalBox.querySelectorAll('button');
     const activateBtn = Array.from(buttons).find(b => b.textContent!.includes('激活'));
     expect(activateBtn).toBeTruthy();
   });
@@ -209,8 +221,8 @@ describe('RoleModalManager', () => {
     await Promise.resolve();
     await new Promise(r => setTimeout(r, 0));
 
-    const modalBox = document.getElementById('modalBox')!;
-    expect(modalBox.textContent).toContain('COST');
-    expect(modalBox.textContent).toContain('声 骸 槽 位');
+    const roleModalBox = document.getElementById('roleModalBox')!;
+    expect(roleModalBox.textContent).toContain('COST');
+    expect(roleModalBox.textContent).toContain('声 骸 槽 位');
   });
 });
