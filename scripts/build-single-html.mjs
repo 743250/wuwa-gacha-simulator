@@ -43,7 +43,14 @@ console.log(`wrote 共鸣链原版备份.txt (${charSpans.length} chars, ${chain
 const html = fs.readFileSync(path.join(dist, 'index.html'), 'utf8');
 const jsMatch = html.match(/<script type="module" crossorigin src="\.\/assets\/([^"]+)"><\/script>/);
 const cssMatch = html.match(/<link rel="stylesheet" crossorigin href="\.\/assets\/([^"]+)">/);
+const preloadMatch = html.match(/<link rel="modulepreload" crossorigin href="\.\/assets\/([^"]+)">/);
 if (!jsMatch || !cssMatch) throw new Error('dist assets not found');
+if (preloadMatch) {
+  throw new Error(
+    `检测到 vendor 分包(${preloadMatch[1]}),单文件内联后 import 路径会断、模块加载失败。\n` +
+    `请用 \`npm run build:single\`(SINGLE_FILE=1) 构建,它会禁用 manualChunks 输出单 JS chunk。`
+  );
+}
 
 const js = fs.readFileSync(path.join(dist, 'assets', jsMatch[1]), 'utf8');
 const css = fs.readFileSync(path.join(dist, 'assets', cssMatch[1]), 'utf8');

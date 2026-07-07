@@ -30,8 +30,9 @@ if (dirty) {
 }
 
 // ---- 1. 构建 Vite + 打单文件 ----
-run('npm run build');
-run('node scripts/build-single-html.mjs');
+// 用 build:single(SINGLE_FILE=1) 让 Vite 不分包,输出单个 JS,
+// 否则 build-single-html 内联后 vendor chunk 的 import 路径会断,模块加载失败。
+run('npm run build:single');
 
 if (!fs.existsSync(SINGLE_FILE)) {
   console.error(`\n\x1b[31m✗ 没找到产物：${SINGLE_FILE}\x1b[0m`);
