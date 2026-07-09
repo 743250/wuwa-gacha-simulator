@@ -8,7 +8,7 @@ export default defineConfig({
   plugins: [preact()],
   server: { port: 5173, open: true },
   build: {
-    outDir: 'dist',
+    outDir: SINGLE_FILE ? 'single' : 'dist',
     emptyOutDir: true,
     rollupOptions: SINGLE_FILE ? {} : {
       output: {
@@ -17,12 +17,9 @@ export default defineConfig({
             if (id.includes('preact') || id.includes('@preact')) return 'vendor-preact';
             return 'vendor';
           }
-          // src/ 全部进 index chunk(默认)
-          // 历史:曾有 battle / ui2 分块,但 src/battle/characters/ ↔ src/ui2/ ↔ src/(index)
-          // 形成多重循环:battle→index(via ../forms.js)、index→ui2(via main.js→ui2/root.tsx)、
-          // ui2→battle(via TeamRow→battle/characters/index.js)、index→battle(via buffRenderers)。
-          // 无法仅靠 manualChunks 打破,合并到 index 是最简方案。
-          // 详见 docs/plans/architecture/next-phase-plan.md Phase 2。
+          // src/ 全部进 index chunk(默认)。当前入口、UI、battle、data 之间仍有交叉依赖,
+          // 强行拆 src/ chunk 容易重新引入 circular chunk 警告。后续若 AppShell / init
+          // 边界收口完成,再重新评估分块。计划见 docs/plans/architecture/plan.md。
         }
       }
     },

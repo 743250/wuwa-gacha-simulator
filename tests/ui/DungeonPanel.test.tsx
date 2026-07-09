@@ -1,12 +1,15 @@
 // @vitest-environment happy-dom
 
-import { describe, it, expect, afterEach } from 'vitest';
+import { describe, it, expect, afterEach, beforeAll } from 'vitest';
 import { render } from 'preact';
 import { resetState } from '../helpers.js';
 import { S } from '../../src/state.js';
 import { bumpStateVersion } from '../../src/ui/signals.js';
 import { DungeonPanel } from '../../src/ui/panels/dungeon/DungeonPanel';
 import { setDungeonTab, getDungeonTab } from '../../src/ui/panels/dungeon/actions';
+import { initDungeonMerge } from '../../src/battle/dungeon.js';
+
+beforeAll(() => { initDungeonMerge(); });
 
 let container: HTMLDivElement | null = null;
 

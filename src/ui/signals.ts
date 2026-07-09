@@ -28,3 +28,10 @@ export function useS(): typeof S {
   void stateVersion.value;
   return S;
 }
+
+// 顶层视图与子 tab 状态(Phase 2:AppShell 接管 view/tab 切换)
+// 三个 signal 都是 '当前激活 key' 的单一真相源;DOM 上的 .on class 由 AppShell 同步。
+// 外部组件要切视图请调 src/ui/appShell.ts 的 setView/setATab/setBTab,不要直接写 signal.value(让 setView 集中处理 display 切换副作用)。
+export const viewSignal = signal<'gacha' | 'adventure' | 'bag' | 'storage'>('gacha');
+export const aTabSignal = signal<'team' | 'daily' | 'dungeon' | 'abyss' | 'wastes'>('team');
+export const bTabSignal = signal<'podcast' | 'shop'>('podcast');

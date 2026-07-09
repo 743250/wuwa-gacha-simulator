@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const root = process.cwd();
-const dist = path.join(root, 'dist');
+const dist = path.join(root, 'single');
 
 // 从 registry.ts 抽取每个角色的 6 链 name/desc(Phase 3 后 seq.js 已合并到此)
 const registrySrc = fs.readFileSync(path.join(root, 'src/data/chains/registry.ts'), 'utf8');
@@ -44,7 +44,7 @@ const html = fs.readFileSync(path.join(dist, 'index.html'), 'utf8');
 const jsMatch = html.match(/<script type="module" crossorigin src="\.\/assets\/([^"]+)"><\/script>/);
 const cssMatch = html.match(/<link rel="stylesheet" crossorigin href="\.\/assets\/([^"]+)">/);
 const preloadMatch = html.match(/<link rel="modulepreload" crossorigin href="\.\/assets\/([^"]+)">/);
-if (!jsMatch || !cssMatch) throw new Error('dist assets not found');
+if (!jsMatch || !cssMatch) throw new Error('single build assets not found (跑 `npm run build:single` 生成 single/index.html + assets)');
 if (preloadMatch) {
   throw new Error(
     `检测到 vendor 分包(${preloadMatch[1]}),单文件内联后 import 路径会断、模块加载失败。\n` +
@@ -60,4 +60,4 @@ const single = html
   .replace(jsMatch[0], () => `<script type="module">\n${safeJs}\n</script>`);
 
 fs.writeFileSync(path.join(dist, '鸣潮模拟器-单文件版.html'), single, 'utf8');
-console.log('wrote dist/鸣潮模拟器-单文件版.html');
+console.log('wrote single/鸣潮模拟器-单文件版.html');

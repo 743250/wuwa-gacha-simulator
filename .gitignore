@@ -2,5 +2,7 @@
 Thumbs.db
 node_modules/
 dist/
+single/*
+!single/鸣潮模拟器-单文件版.html
 .vite/
 *.log

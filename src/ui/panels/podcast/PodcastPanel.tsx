@@ -9,7 +9,8 @@
 
 import { h } from 'preact';
 import { useEffect, useRef } from 'preact/hooks';
-import { useS, bumpStateVersion } from '../../signals';
+import { useS } from '../../signals';
+import { setView } from '../../AppShell';
 import { DAY } from '../../../state.js';
 import {
   ensurePodcast,
@@ -114,7 +115,6 @@ function LevelCell({ lv, level, paid, claimedFree, claimedPaid }: LevelCellProps
         onClick={() => {
           if (reached && !freeClaimed) {
             claimFree(lv);
-            bumpStateVersion();
           }
         }}
         style={{ position: 'relative', cursor: reached && !freeClaimed ? 'pointer' : 'default' }}>
@@ -126,7 +126,6 @@ function LevelCell({ lv, level, paid, claimedFree, claimedPaid }: LevelCellProps
         onClick={() => {
           if (reached && !paidClaimed && !lockedPaid) {
             claimPaid(lv);
-            bumpStateVersion();
           }
         }}
         style={{ position: 'relative', cursor: reached && !paidClaimed && !lockedPaid ? 'pointer' : 'default' }}>
@@ -160,7 +159,7 @@ function TaskItem({ id, name, exp }: any) {
       <div class="pct-info">{Math.min(st.progress, st.target)}/{st.target} · +{exp} EXP {st.done ? '✓' : ''}
         {targetView && !st.done && (
           <a style={{ marginLeft: 6, color: 'var(--gold)', cursor: 'pointer', fontSize: 10 }}
-            onClick={() => (document.querySelector(`.vtab[data-v="${targetView}"]`) as HTMLElement)?.click()}>前往 ›</a>
+            onClick={() => { if (targetView === 'gacha' || targetView === 'adventure' || targetView === 'bag' || targetView === 'storage') setView(targetView); }}>前往 ›</a>
         )}
       </div>
     </div>
@@ -259,13 +258,13 @@ export function PodcastPanel() {
         <div class="pc-exp-bar"><div class="pc-exp-fill" style={{ width: `${expPct}%` }}></div></div>
         <div class="pc-exp-num">{p.exp.toLocaleString()} / {PODCAST_EXP_PER_LEVEL.toLocaleString()} EXP</div>
         <div class="pc-actions">
-          <button class="mbtn" onClick={() => { buyLevel(1); bumpStateVersion(); }}>
+          <button class="mbtn" onClick={() => { buyLevel(1); }}>
             买 1 级 (星声 {PODCAST_BUY_LEVEL_COST})
           </button>
-          <button class="mbtn" onClick={() => { buyLevel(5); bumpStateVersion(); }}>
+          <button class="mbtn" onClick={() => { buyLevel(5); }}>
             买 5 级 (星声 {PODCAST_BUY_LEVEL_COST * 5})
           </button>
-          <button class="mbtn gold" onClick={() => { claimAll(); bumpStateVersion(); }}>
+          <button class="mbtn gold" onClick={() => { claimAll(); }}>
             一键领取已达成
           </button>
         </div>

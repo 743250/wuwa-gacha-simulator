@@ -1,16 +1,7 @@
 // 共鸣链战斗效果数据（纯数据，无逻辑）
 // Phase 3: CHAIN_BATTLE_EFFECTS 已迁到 src/data/chains/registry.ts(ChainDef 单结构)
-// 本文件只保留 FALLBACK_CHAIN(未迁角色兜底)+ FORTE_BOOST(6 链 forte 倍率加成)
-// 由 chains.js 导入使用。
-
-export const FALLBACK_CHAIN = [
-  { effect: 'atk', value: 0.06, label: '攻击 +6%' },
-  { effect: 'skillDmg', value: 0.10, label: '共鸣技能伤害 +10%' },
-  { effect: 'skillDmg', value: 0.06, label: '共鸣技能伤害 +6%' },
-  { effect: 'teamAtk', value: 0.08, label: '全队攻击 +8%' },
-  { effect: 'burstDmg', value: 0.06, label: '共鸣解放伤害 +6%' },
-  { effect: 'burstDmg', value: 0.50, label: '共鸣解放伤害 +50%' }
-];
+// Phase 4: FALLBACK_CHAIN 已删(registry.ts 覆盖全部 50 角色,兜底分支不可达)。
+// 本文件只保留 FORTE_BOOST(6 链 forte 倍率加成),由 chains.js 导入使用。
 
 export const FORTE_BOOST = {
   '忌炎': { atChain: 6, bonus: 0.5 },

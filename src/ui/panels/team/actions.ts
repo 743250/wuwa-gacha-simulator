@@ -1,22 +1,24 @@
 // 编队 actions · Phase 5 从 src/ui/teambuilder.js shim 迁入
 // openTeamPicker 用 Preact VNode body,闭包 onClick 无 window 桥
+// Phase 1:状态写入走 commit() 统一入口
 import { h } from 'preact';
 import { S, msg, $ } from '../../../state.js';
 import { getMeta } from '../../../battle/template.js';
 import { calcBP } from '../../../battle/stats.js';
 import { openModal } from '../../../modal.js';
-import { bumpStateVersion } from '../../signals';
+import { commit } from '../../../state/commit.ts';
 
 export const TEAM_SIZE = 3;
 
 function setTeamMember(slotIdx: number, name: string) {
-  const team = S.team || [null, null, null];
-  const existingIdx = team.indexOf(name);
-  if (existingIdx >= 0) team[existingIdx] = null;
-  team[slotIdx] = name;
-  S.team = team;
+  commit(() => {
+    const team = S.team || [null, null, null];
+    const existingIdx = team.indexOf(name);
+    if (existingIdx >= 0) team[existingIdx] = null;
+    team[slotIdx] = name;
+    S.team = team;
+  });
   msg(`编入 ${name}`, false);
-  bumpStateVersion();
   $('modal').classList.remove('on');
 }
 
@@ -52,27 +54,31 @@ export function openTeamPicker(slotIdx: number) {
 }
 
 export function toggleTeamMember(name: string) {
-  const team = S.team || [null, null, null];
-  const existingIdx = team.indexOf(name);
-  if (existingIdx >= 0) {
-    team[existingIdx] = null;
-    msg(`移出 ${name}`, false);
-  } else {
-    const empty = team.indexOf(null);
-    if (empty >= 0) team[empty] = name;
-    else { msg('编队已满，先移出再添加'); return; }
-  }
-  S.team = team;
-  bumpStateVersion();
+  let dropped = false;
+  commit(() => {
+    const team = S.team || [null, null, null];
+    const existingIdx = team.indexOf(name);
+    if (existingIdx >= 0) {
+      team[existingIdx] = null;
+      dropped = true;
+    } else {
+      const empty = team.indexOf(null);
+      if (empty >= 0) team[empty] = name;
+      else { msg('编队已满，先移出再添加'); return; }
+    }
+    S.team = team;
+  });
+  if (dropped) msg(`移出 ${name}`, false);
 }
 
 export function swapTeamMember(fromIdx: number, toIdx: number) {
-  const team = S.team || [null, null, null];
-  if (fromIdx < 0 || fromIdx >= team.length || toIdx < 0 || toIdx >= team.length) return;
-  if (fromIdx === toIdx) return;
-  const tmp = team[fromIdx];
-  team[fromIdx] = team[toIdx];
-  team[toIdx] = tmp;
-  S.team = team;
-  bumpStateVersion();
+  commit(() => {
+    const team = S.team || [null, null, null];
+    if (fromIdx < 0 || fromIdx >= team.length || toIdx < 0 || toIdx >= team.length) return;
+    if (fromIdx === toIdx) return;
+    const tmp = team[fromIdx];
+    team[fromIdx] = team[toIdx];
+    team[toIdx] = tmp;
+    S.team = team;
+  });
 }

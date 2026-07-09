@@ -1,6 +1,7 @@
 // 先约电台核心：经验/任务/领奖/版本重置
 import { S, msg, fmt } from '../state.js';
 import { rerenderAll } from '../rerender.js';
+import { commit } from '../state/commit.ts';
 import { PODCAST_TASKS, findTask } from '../data/podcast-tasks.js';
 import {
   PODCAST_REWARDS,
@@ -57,22 +58,24 @@ export function addExp(amount) {
 
 // 100 星声买 1 级
 export function buyLevel(n = 1) {
-  ensurePodcast();
-  if (S.podcast.level >= PODCAST_MAX_LEVEL) {
-    msg('已满级');
-    return false;
-  }
-  const maxBuyable = Math.min(n, PODCAST_MAX_LEVEL - S.podcast.level);
-  const cost = maxBuyable * PODCAST_BUY_LEVEL_COST;
-  if (S.astrite < cost) {
-    msg(`星声不足（需 ${cost}）`);
-    return false;
-  }
-  S.astrite -= cost;
-  S.podcast.level += maxBuyable;
-  S.podcast.exp = 0;
-  msg(`+${maxBuyable} 级 · 消耗 ${cost} 星声`, false);
-  return true;
+  return commit(() => {
+    ensurePodcast();
+    if (S.podcast.level >= PODCAST_MAX_LEVEL) {
+      msg('已满级');
+      return false;
+    }
+    const maxBuyable = Math.min(n, PODCAST_MAX_LEVEL - S.podcast.level);
+    const cost = maxBuyable * PODCAST_BUY_LEVEL_COST;
+    if (S.astrite < cost) {
+      msg(`星声不足（需 ${cost}）`);
+      return false;
+    }
+    S.astrite -= cost;
+    S.podcast.level += maxBuyable;
+    S.podcast.exp = 0;
+    msg(`+${maxBuyable} 级 · 消耗 ${cost} 星声`, false);
+    return true;
+  });
 }
 
 // ============ 任务 ============
@@ -173,48 +176,54 @@ function applyReward(r) {
 
 // 领取免费轨 lv 级奖励
 export function claimFree(lv) {
-  ensurePodcast();
-  if (lv > S.podcast.level) { msg('等级未达'); return false; }
-  if (S.podcast.claimedFree.includes(lv)) { msg('已领取'); return false; }
-  const r = PODCAST_REWARDS[lv - 1]?.free;
-  if (!r) return false;
-  applyReward(r);
-  S.podcast.claimedFree.push(lv);
-  return true;
+  return commit(() => {
+    ensurePodcast();
+    if (lv > S.podcast.level) { msg('等级未达'); return false; }
+    if (S.podcast.claimedFree.includes(lv)) { msg('已领取'); return false; }
+    const r = PODCAST_REWARDS[lv - 1]?.free;
+    if (!r) return false;
+    applyReward(r);
+    S.podcast.claimedFree.push(lv);
+    return true;
+  });
 }
 
 // 领取付费轨 lv 级奖励
 export function claimPaid(lv) {
-  ensurePodcast();
-  if (!S.podcast.paid) { msg('需要购买内幕频道'); return false; }
-  if (lv > S.podcast.level) { msg('等级未达'); return false; }
-  if (S.podcast.claimedPaid.includes(lv)) { msg('已领取'); return false; }
-  const r = PODCAST_REWARDS[lv - 1]?.paid;
-  if (!r) return false;
-  applyReward(r);
-  S.podcast.claimedPaid.push(lv);
-  return true;
+  return commit(() => {
+    ensurePodcast();
+    if (!S.podcast.paid) { msg('需要购买内幕频道'); return false; }
+    if (lv > S.podcast.level) { msg('等级未达'); return false; }
+    if (S.podcast.claimedPaid.includes(lv)) { msg('已领取'); return false; }
+    const r = PODCAST_REWARDS[lv - 1]?.paid;
+    if (!r) return false;
+    applyReward(r);
+    S.podcast.claimedPaid.push(lv);
+    return true;
+  });
 }
 
 // 一键领取已达成的全部奖励
 export function claimAll() {
-  ensurePodcast();
-  let count = 0;
-  for (let lv = 1; lv <= S.podcast.level; lv++) {
-    if (!S.podcast.claimedFree.includes(lv)) {
-      applyReward(PODCAST_REWARDS[lv - 1].free);
-      S.podcast.claimedFree.push(lv);
-      count++;
+  return commit(() => {
+    ensurePodcast();
+    let count = 0;
+    for (let lv = 1; lv <= S.podcast.level; lv++) {
+      if (!S.podcast.claimedFree.includes(lv)) {
+        applyReward(PODCAST_REWARDS[lv - 1].free);
+        S.podcast.claimedFree.push(lv);
+        count++;
+      }
+      if (S.podcast.paid && !S.podcast.claimedPaid.includes(lv)) {
+        applyReward(PODCAST_REWARDS[lv - 1].paid);
+        S.podcast.claimedPaid.push(lv);
+        count++;
+      }
     }
-    if (S.podcast.paid && !S.podcast.claimedPaid.includes(lv)) {
-      applyReward(PODCAST_REWARDS[lv - 1].paid);
-      S.podcast.claimedPaid.push(lv);
-      count++;
-    }
-  }
-  if (count > 0) msg(`一键领取 ${count} 项奖励`, false);
-  else msg('没有可领取的奖励');
-  return count;
+    if (count > 0) msg(`一键领取 ${count} 项奖励`, false);
+    else msg('没有可领取的奖励');
+    return count;
+  });
 }
 
 // ============ 内幕/寰宇频道购买入口 ============
@@ -260,21 +269,23 @@ function openWeaponBox() {
 }
 
 export function radioPickWeapon(name) {
-  // 给一把该武器：若已有则精炼 +1，否则新建 lv1 r1
-  if (!S.weapons[name]) {
-    S.weapons[name] = { n: name, r: 4, pulled: 1, level: 1, refine: 1, spareRefine: 0, equippedBy: null };
-    msg(`获得 ${name} ×1`, false);
-  } else {
-    const w = S.weapons[name];
-    if ((w.refine || 1) < 5) {
-      w.spareRefine = (w.spareRefine || 0) + 1;
-      msg(`${name} 可精炼次数 +1（可在背包使用）`, false);
+  commit(() => {
+    // 给一把该武器：若已有则精炼 +1，否则新建 lv1 r1
+    if (!S.weapons[name]) {
+      S.weapons[name] = { n: name, r: 4, pulled: 1, level: 1, refine: 1, spareRefine: 0, equippedBy: null };
+      msg(`获得 ${name} ×1`, false);
     } else {
-      // 已 5 精，补偿 8 万经验等价物 → 2 个特级促剂
-      S.materials.exp_super = (S.materials.exp_super || 0) + 2;
-      msg(`${name} 已 5 精 · 补偿特级促剂 ×2`, false);
+      const w = S.weapons[name];
+      if ((w.refine || 1) < 5) {
+        w.spareRefine = (w.spareRefine || 0) + 1;
+        msg(`${name} 可精炼次数 +1（可在背包使用）`, false);
+      } else {
+        // 已 5 精，补偿 8 万经验等价物 → 2 个特级促剂
+        S.materials.exp_super = (S.materials.exp_super || 0) + 2;
+        msg(`${name} 已 5 精 · 补偿特级促剂 ×2`, false);
+      }
     }
-  }
+  });
   document.getElementById('modal').classList.remove('on');
   rerenderAll();
 }

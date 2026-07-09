@@ -16,6 +16,7 @@
 import { S } from '../state.js';
 import { phases } from '../data/phases.js';
 import { ENEMIES } from './enemies.js';
+import { commit } from '../state/commit.ts';
 // 注：副本敌人强度不随版本变化（官方设计如此）
 // 注：副本敌人等级由 SOL3 三档世界等级（getDungeonEnemyLevel）决定，副本对象不再带 enemyLevel 字段
 //     （旧 enemyLevel 字段从不被战斗读取，已于 2026-07 清理）
@@ -549,6 +550,16 @@ export function getDungeonEncounter(d, today = S.today) {
 // ===== 周本周限 3 次（共享计数）=====
 export const WEEKLY_BOSS_LIMIT = 3;
 
+// 把 WEEKLY_BOSS 合入 DUNGEONS 的副作用收口为显式 init。
+// 过去靠 UI 层 side-effect 触发，Phase 3 起由 src/init.ts 调用本函数。
+let _dungeonsMerged = false;
+export function initDungeonMerge() {
+  if (_dungeonsMerged) return;
+  _dungeonsMerged = true;
+  WEEKLY_BOSS.forEach(b => {
+    if (!DUNGEONS.find(x => x.id === b.id)) DUNGEONS.push(b);
+  });
+}
 export function getWeeklyBossUsed() {
   return (S.weeklyBoss && S.weeklyBoss.used && S.weeklyBoss.used.shared) || 0;
 }
@@ -590,16 +601,18 @@ export function getSol3Level() {
 }
 
 export function setSol3Level(lv) {
-  const l = Math.max(1, Math.min(3, lv));
-  if (!S.materials) S.materials = {};
-  S.materials.sol3Level = l;
-  // 切档重置所有副本等级到新档下限
-  if (!S.dungeonLevels) S.dungeonLevels = {};
-  const min = SOL3_LEVELS[l].levelMin;
-  for (const id of Object.keys(S.dungeonLevels)) {
-    S.dungeonLevels[id] = min;
-  }
-  return l;
+  return commit(() => {
+    const l = Math.max(1, Math.min(3, lv));
+    if (!S.materials) S.materials = {};
+    S.materials.sol3Level = l;
+    // 切档重置所有副本等级到新档下限
+    if (!S.dungeonLevels) S.dungeonLevels = {};
+    const min = SOL3_LEVELS[l].levelMin;
+    for (const id of Object.keys(S.dungeonLevels)) {
+      S.dungeonLevels[id] = min;
+    }
+    return l;
+  });
 }
 
 export function getSol3Config(lv) {

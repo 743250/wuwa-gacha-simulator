@@ -35,7 +35,7 @@ export function BasicTab({ level, bp, stats, previewNote }: BasicTabProps) {
       <div style={{ border: '1px solid var(--line)', borderRadius: 8, padding: '11px 13px', background: 'rgba(255,255,255,.02)' }}>
         <div style={{ fontSize: 9, color: 'var(--muted)', letterSpacing: 2, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
           面 板 属 性
-          <span title="最终值 = 基础 + 武器 + 声骸 + 共鸣链 buff" style={{ color: 'var(--accent)', cursor: 'help', fontSize: 11 }}>ⓘ</span>
+          <span title="最终值 = 基础 + 武器 + 声骸 + 共鸣链增益" style={{ color: 'var(--accent)', cursor: 'help', fontSize: 11 }}>ⓘ</span>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 12, color: 'var(--muted)', lineHeight: 1.8 }}>
           <div>💚 生命 <b style={{ color: 'var(--green)', float: 'right' }}>{stats.hp.toLocaleString()}</b></div>

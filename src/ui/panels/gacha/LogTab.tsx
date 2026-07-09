@@ -1,9 +1,9 @@
 // 抽卡记录 tab · Stage 6.1b
-// 接管 #paneLog；#clearLog 按钮 onClick 直接写 S 并 bump
+// 接管 #paneLog；#clearLog 按钮 onClick 走 clearLog action(经 commit 落盘)
 
 import { h, Fragment } from 'preact';
-import { useS, bumpStateVersion } from '../../signals';
-import { S as S_RAW } from '../../../state.js';
+import { useS } from '../../signals';
+import { clearLog } from '../../../gacha/actions.js';
 
 export function LogTab() {
   const S = useS();
@@ -14,7 +14,7 @@ export function LogTab() {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
         <span style={{ fontSize: '11px', color: 'var(--muted)', letterSpacing: '1px' }}>最近 200 条</span>
         <button class="mbtn" id="clearLog"
-          onClick={() => { S_RAW.log = []; bumpStateVersion(); }}>
+          onClick={() => { clearLog(); }}>
           清空
         </button>
       </div>

@@ -153,10 +153,17 @@ function pushToast(text) {
 }
 
 // ===== 桥接到全局 =====
-registerBattleActions({
-  getCurrentBattle: () => currentBattleSignal.value,
-  getPendingDungeon: () => pendingDungeonSignal.value,
-  refreshAll,
-  hideBattleScreen,
-  rerenderAfterBattle,
-});
+// Phase 3:registerBattleActions 收口为显式 initBattleUiBridge(),由 src/init.ts 调用。
+// 必须在 BattleView 面板挂载前调用,否则 battleActions 的 _ctx 为 null,按钮 handler 会崩。
+let _battleUiBridgeInitialized = false;
+export function initBattleUiBridge() {
+  if (_battleUiBridgeInitialized) return;
+  _battleUiBridgeInitialized = true;
+  registerBattleActions({
+    getCurrentBattle: () => currentBattleSignal.value,
+    getPendingDungeon: () => pendingDungeonSignal.value,
+    refreshAll,
+    hideBattleScreen,
+    rerenderAfterBattle,
+  });
+}

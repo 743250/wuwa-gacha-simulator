@@ -20,7 +20,7 @@
 | [characters/](characters/) | 角色移植(总览 + 51 单角色计划) | [characters/README.md](characters/README.md) |
 | [enemies/](enemies/) | 敌人移植(总览 + 17 单 BOSS 计划) | [enemies/README.md](enemies/README.md) |
 | [mechanisms/](mechanisms/) | 游戏机制移植(深塔/海墟/声骸) | [mechanisms/README.md](mechanisms/README.md) |
-| [architecture/](architecture/) | 代码架构优化(phase-1 已完成 / phase-2 进行中) | [architecture/README.md](architecture/README.md) |
+| [architecture/](architecture/) | 代码架构优化(当前计划见 plan.md) | [architecture/README.md](architecture/README.md) |
 
 ---
 

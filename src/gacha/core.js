@@ -2,6 +2,7 @@
 import { S, DAY, date, fmt, pick, msg } from '../state.js';
 import { rerenderAll } from '../rerender.js';
 import { phases } from '../data/phases.js';
+import { commit } from '../state/commit.ts';
 import { standard5, fourAll, threeWeapons, fourWeapons, weapons, bannerNames, standardWeapons, newJourneyChars } from '../data/chars.js';
 import {
   BASE_RATE, HARD_PITY, SOFT_PITY_KNOT, MID_PITY_KNOT, HIGH_PITY_KNOT,
@@ -116,10 +117,17 @@ export function targetOptions(b) {
 }
 
 export function selectTarget(pool, target) {
-  if (pool === 'standardWeapon') S.standardWeaponTarget = target;
-  if (pool === 'noviceChoice' && !S.noviceStarted) S.noviceTarget = target;
-  if (pool === 'noviceWeapon' && !S.noviceStarted) S.noviceWeaponTarget = target;
+  commit(() => {
+    if (pool === 'standardWeapon') S.standardWeaponTarget = target;
+    if (pool === 'noviceChoice' && !S.noviceStarted) S.noviceTarget = target;
+    if (pool === 'noviceWeapon' && !S.noviceStarted) S.noviceWeaponTarget = target;
+  });
   rerenderAll();
+}
+
+// 切换当前选中的卡池(顶部 banner tab 点击)
+export function selectBanner(bannerId) {
+  commit(() => { S.selected = bannerId; });
 }
 
 // 支付
@@ -297,6 +305,6 @@ export function canAffordPulls(n) {
 
 export function upgrade(n) {
   const o = S.roles[n]; if (!o || o.spare <= 0 || o.chain >= 6) return;
-  o.spare--; o.chain++; rerenderAll();
+  commit(() => { o.spare--; o.chain++; });
+  rerenderAll();
 }
-window.upgrade = upgrade;

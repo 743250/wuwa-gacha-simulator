@@ -4,6 +4,7 @@ import { expToNext, weaponToNext, EXP_VALUES } from '../battle/stats.js';
 import { isFiveStarWeapon, isFourStarWeapon, WEAPON_DATA, weaponType } from '../equip/weapons.js';
 import { getMeta } from '../battle/template.js';
 import { progressTask } from '../podcast/core.js';
+import { commit } from '../state/commit.ts';
 
 // 玩家总持有经验值
 export function totalExp() {
@@ -48,32 +49,37 @@ export function levelUpRole(roleName) {
     msg(`经验不足（需 ${cost.toLocaleString()}）`);
     return false;
   }
-  consumeExp(cost);
-  o.level++;
-  progressTask('d_upgrade', 1);
-  progressTask('w_levelup', 1);
-  if (o.level >= 90) progressTask('p_char90', 1);
-  return true;
+  return commit(() => {
+    consumeExp(cost);
+    o.level++;
+    progressTask('d_upgrade', 1);
+    progressTask('w_levelup', 1);
+    if (o.level >= 90) progressTask('p_char90', 1);
+    return true;
+  });
 }
 
 // 一键升满（消耗到没材料为止）
 export function levelUpRoleMax(roleName) {
   const o = S.roles[roleName];
   if (!o) return 0;
-  let count = 0;
-  while (o.level < 90) {
-    const cost = expToNext(o);
-    if (totalExp() < cost) break;
-    consumeExp(cost);
-    o.level++;
-    count++;
-  }
-  if (count > 0) {
-    progressTask('d_upgrade', 1);
-    progressTask('w_levelup', count);
-    if (o.level >= 90) progressTask('p_char90', 1);
-  }
-  return count;
+  if (o.level >= 90 || totalExp() < expToNext(o)) return 0;
+  return commit(() => {
+    let count = 0;
+    while (o.level < 90) {
+      const cost = expToNext(o);
+      if (totalExp() < cost) break;
+      consumeExp(cost);
+      o.level++;
+      count++;
+    }
+    if (count > 0) {
+      progressTask('d_upgrade', 1);
+      progressTask('w_levelup', count);
+      if (o.level >= 90) progressTask('p_char90', 1);
+    }
+    return count;
+  });
 }
 
 // 升级武器
@@ -86,29 +92,34 @@ export function levelUpWeapon(weaponName) {
     msg(`武器突破石不足（需 ${cost}）`);
     return false;
   }
-  S.materials.weapon_book -= cost;
-  w.level++;
-  progressTask('d_upgrade', 1);
-  if (w.level >= 90) progressTask('p_weapon90', 1);
-  return true;
+  return commit(() => {
+    S.materials.weapon_book -= cost;
+    w.level++;
+    progressTask('d_upgrade', 1);
+    if (w.level >= 90) progressTask('p_weapon90', 1);
+    return true;
+  });
 }
 
 export function levelUpWeaponMax(weaponName) {
   const w = S.weapons[weaponName];
   if (!w) return 0;
-  let count = 0;
-  while (w.level < 90) {
-    const cost = weaponToNext(w);
-    if (S.materials.weapon_book < cost) break;
-    S.materials.weapon_book -= cost;
-    w.level++;
-    count++;
-  }
-  if (count > 0) {
-    progressTask('d_upgrade', 1);
-    if (w.level >= 90) progressTask('p_weapon90', 1);
-  }
-  return count;
+  if (w.level >= 90 || S.materials.weapon_book < weaponToNext(w)) return 0;
+  return commit(() => {
+    let count = 0;
+    while (w.level < 90) {
+      const cost = weaponToNext(w);
+      if (S.materials.weapon_book < cost) break;
+      S.materials.weapon_book -= cost;
+      w.level++;
+      count++;
+    }
+    if (count > 0) {
+      progressTask('d_upgrade', 1);
+      if (w.level >= 90) progressTask('p_weapon90', 1);
+    }
+    return count;
+  });
 }
 
 // 喂料升级：把另一把武器当作经验包，喂给目标武器
@@ -130,29 +141,31 @@ export function levelUpWeaponWithFeed(targetName, feedName) {
     cumulative += Math.max(1, Math.floor((lv + 5) / 25));
   }
   const bookRefund = Math.max(1, Math.round(cumulative * 0.6));
-  S.materials.weapon_book = (S.materials.weapon_book || 0) + bookRefund;
-  delete S.weapons[feedName];
+  return commit(() => {
+    S.materials.weapon_book = (S.materials.weapon_book || 0) + bookRefund;
+    delete S.weapons[feedName];
 
-  let levelsGained = 0;
-  while (target.level < 90) {
-    const cost = weaponToNext(target);
-    if (S.materials.weapon_book < cost) break;
-    S.materials.weapon_book -= cost;
-    target.level++;
-    levelsGained++;
-  }
-  if (levelsGained > 0) {
-    progressTask('d_upgrade', 1);
-    if (target.level >= 90) progressTask('p_weapon90', 1);
-  }
-  return {
-    ok: true,
-    target: targetName,
-    feed: feedName,
-    books_gained: bookRefund,
-    levels_gained: levelsGained,
-    final_level: target.level
-  };
+    let levelsGained = 0;
+    while (target.level < 90) {
+      const cost = weaponToNext(target);
+      if (S.materials.weapon_book < cost) break;
+      S.materials.weapon_book -= cost;
+      target.level++;
+      levelsGained++;
+    }
+    if (levelsGained > 0) {
+      progressTask('d_upgrade', 1);
+      if (target.level >= 90) progressTask('p_weapon90', 1);
+    }
+    return {
+      ok: true,
+      target: targetName,
+      feed: feedName,
+      books_gained: bookRefund,
+      levels_gained: levelsGained,
+      final_level: target.level
+    };
+  });
 }
 
 export function previewWeaponFeed(targetName, feedName) {
@@ -190,33 +203,39 @@ export function refineWeapon(weaponName, count = 1) {
   if (spare <= 0) return { ok: false, err: '暂无可精炼次数' };
   if ((w.refine || 1) >= 5) return { ok: false, err: '已满精炼' };
   const use = Math.min(count, spare, 5 - (w.refine || 1));
-  w.spareRefine = spare - use;
-  w.refine = (w.refine || 1) + use;
-  return { ok: true, used: use, refine: w.refine, spare: w.spareRefine };
+  return commit(() => {
+    w.spareRefine = spare - use;
+    w.refine = (w.refine || 1) + use;
+    return { ok: true, used: use, refine: w.refine, spare: w.spareRefine };
+  });
 }
 
 export function equipWeapon(roleName, weaponName) {
   const role = S.roles[roleName];
   const weapon = S.weapons[weaponName];
   if (!role || !weapon) return false;
-  if (role.equipWeapon && S.weapons[role.equipWeapon]) {
-    S.weapons[role.equipWeapon].equippedBy = null;
-  }
-  if (weapon.equippedBy && S.roles[weapon.equippedBy]) {
-    S.roles[weapon.equippedBy].equipWeapon = null;
-  }
-  role.equipWeapon = weaponName;
-  weapon.equippedBy = roleName;
-  return true;
+  return commit(() => {
+    if (role.equipWeapon && S.weapons[role.equipWeapon]) {
+      S.weapons[role.equipWeapon].equippedBy = null;
+    }
+    if (weapon.equippedBy && S.roles[weapon.equippedBy]) {
+      S.roles[weapon.equippedBy].equipWeapon = null;
+    }
+    role.equipWeapon = weaponName;
+    weapon.equippedBy = roleName;
+    return true;
+  });
 }
 
 export function unequipWeapon(roleName) {
   const role = S.roles[roleName];
   if (!role || !role.equipWeapon) return false;
   const weapon = S.weapons[role.equipWeapon];
-  if (weapon) weapon.equippedBy = null;
-  role.equipWeapon = null;
-  return true;
+  return commit(() => {
+    if (weapon) weapon.equippedBy = null;
+    role.equipWeapon = null;
+    return true;
+  });
 }
 
 // 获取该角色可装备的武器列表（按武器类型过滤）

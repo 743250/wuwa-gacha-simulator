@@ -8,6 +8,7 @@ import { resetWeeklyBossIfNeeded } from '../battle/dungeon.js';
 import { resetAbyssIfNeeded } from '../daily/abyss.js';
 import { resetWastesIfNeeded } from '../daily/wastes.js';
 import { resetPodcastForVersion, resetPodcastDailyIfNeeded, resetPodcastWeeklyIfNeeded, progressTask } from '../podcast/core.js';
+import { commit } from '../state/commit.ts';
 
 function versionAt(t) {
   const p = phases.find(x => t >= x.start && t < x.end);
@@ -17,13 +18,15 @@ function versionAt(t) {
 // 把当天的月卡领取一份（如果有月卡 且 今天没领过）
 // 返回是否真的领了
 export function claimMonthly() {
-  const today = fmt(S.today);
-  if (S.lastMonthlyClaim === today) return false;
-  if (S.days <= 0) return false;
-  S.days--;
-  S.astrite += 90;
-  S.lastMonthlyClaim = today;
-  return true;
+  return commit(() => {
+    const today = fmt(S.today);
+    if (S.lastMonthlyClaim === today) return false;
+    if (S.days <= 0) return false;
+    S.days--;
+    S.astrite += 90;
+    S.lastMonthlyClaim = today;
+    return true;
+  });
 }
 
 // 推进日期时：
@@ -85,39 +88,41 @@ function refreshVersion(toast) {
 }
 
 export function advanceTo(target) {
-  const oldVersion = versionAt(S.today);
-  const oldMonth = new Date(S.today).getUTCMonth();
-  const oldYear = new Date(S.today).getUTCFullYear();
-  const daysPassed = Math.max(0, Math.floor((target - S.today) / DAY));
-  const claimed = settleDays(target);
-  if (claimed > 0) msg(`月卡自动领取 ${claimed} 天 · +${claimed * 90} 星声`, false);
-  S.today = target;
-  // 每过一天补满体力：仅当低于上限时往上补到上限；超过上限（嗑药剂状态）保留不动
-  if (S.stamina < S.staminaMax) {
-    S.stamina = Math.min(S.staminaMax, S.stamina + daysPassed * 240);
-  }
-  // 重置每日委托
-  resetDailyIfNeeded();
-  // 重置电台每日/每周任务（按日期判定）
-  resetPodcastDailyIfNeeded();
-  resetPodcastWeeklyIfNeeded();
-  // 每过 1 天，自动完成签到任务
-  progressTask('d_signin', 1);
-  // 周一重置周本计数
-  resetWeeklyBossIfNeeded(S.today);
-  // 双周深塔危险区重置（每 14 天）
-  resetAbyssIfNeeded(S.today);
-  // 跨月重置月度礼包
-  const newMonth = new Date(S.today).getUTCMonth();
-  const newYear = new Date(S.today).getUTCFullYear();
-  if (newYear !== oldYear || newMonth !== oldMonth) {
-    resetMonthlyShop();
-  }
-  const newVersion = versionAt(S.today);
-  if (newVersion !== oldVersion) {
-    refreshVersion(false);
-    if (newVersion) resetPodcastForVersion(newVersion);
-  }
+  commit(() => {
+    const oldVersion = versionAt(S.today);
+    const oldMonth = new Date(S.today).getUTCMonth();
+    const oldYear = new Date(S.today).getUTCFullYear();
+    const daysPassed = Math.max(0, Math.floor((target - S.today) / DAY));
+    const claimed = settleDays(target);
+    if (claimed > 0) msg(`月卡自动领取 ${claimed} 天 · +${claimed * 90} 星声`, false);
+    S.today = target;
+    // 每过一天补满体力：仅当低于上限时往上补到上限；超过上限（嗑药剂状态）保留不动
+    if (S.stamina < S.staminaMax) {
+      S.stamina = Math.min(S.staminaMax, S.stamina + daysPassed * 240);
+    }
+    // 重置每日委托
+    resetDailyIfNeeded();
+    // 重置电台每日/每周任务（按日期判定）
+    resetPodcastDailyIfNeeded();
+    resetPodcastWeeklyIfNeeded();
+    // 每过 1 天，自动完成签到任务
+    progressTask('d_signin', 1);
+    // 周一重置周本计数
+    resetWeeklyBossIfNeeded(S.today);
+    // 双周深塔危险区重置（每 14 天）
+    resetAbyssIfNeeded(S.today);
+    // 跨月重置月度礼包
+    const newMonth = new Date(S.today).getUTCMonth();
+    const newYear = new Date(S.today).getUTCFullYear();
+    if (newYear !== oldYear || newMonth !== oldMonth) {
+      resetMonthlyShop();
+    }
+    const newVersion = versionAt(S.today);
+    if (newVersion !== oldVersion) {
+      refreshVersion(false);
+      if (newVersion) resetPodcastForVersion(newVersion);
+    }
+  });
   // 注意：不在内部调 __render，由 main.js 的各 caller 统一调 rerenderAll()
 }
 
@@ -151,7 +156,9 @@ export function jumpToDate(timestamp) {
 }
 
 export function jumpToday() {
-  S.today = date('2026-06-23');
-  refreshVersion();
+  commit(() => {
+    S.today = date('2026-06-23');
+    refreshVersion();
+  });
   // 注意：不在内部调 __render，由 main.js caller 统一调 rerenderAll()
 }

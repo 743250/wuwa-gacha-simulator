@@ -34,13 +34,8 @@
     </div>
   </div>
 
-  <!-- 顶层视图切换 -->
-  <div class="view-tabs">
-    <button class="vtab on" data-v="gacha"><span class="vt-zh">唤 取</span><span class="vt-sub">🎲 卡池 · 角色 · 海市</span></button>
-    <button class="vtab" data-v="adventure"><span class="vt-zh">冒 险</span><span class="vt-sub">⚔ 编队 · 日常 · 副本 · 深塔</span></button>
-    <button class="vtab" data-v="bag"><span class="vt-zh">背 包</span><span class="vt-sub">🎒 材料 · 武器 · 药剂</span></button>
-    <button class="vtab" data-v="storage"><span class="vt-zh">商 店</span><span class="vt-sub">📻 充值 · 月卡 · 电台</span></button>
-  </div>
+  <!-- 顶层视图切换 · 由 Preact <ViewTabs/> 接管(AppShell 第二小步) -->
+  <div id="viewTabs"></div>
 
   <!-- ====== 视图 1：唤取 ====== -->
   <!-- #viewGacha 内部静态结构由 preact <GachaPanel/> 接管（Stage 6.1b），mount 时清空重建。

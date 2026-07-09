@@ -52,9 +52,9 @@ describe('battle/chains', () => {
       }
     });
 
-    it('returns fallback for unknown characters', () => {
+    it('returns empty for unknown characters (Phase 4: fallback removed)', () => {
       const effects = chains.getChainEffects('不存在的角色', 3);
-      expect(effects.length).toBe(3);
+      expect(effects.length).toBe(0);
     });
   });
 

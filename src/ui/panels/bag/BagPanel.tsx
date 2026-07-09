@@ -52,7 +52,7 @@ function openWeaponModal(name: string) {
     }});
   }
   if (canRefine) {
-    actions.push({ label: `精炼 +1（R${weapon.refine || 1}→R${(weapon.refine || 1) + 1}）`, cls: 'gold', fn: () => {
+    actions.push({ label: `精炼 +1（R${weapon.refine || 1} 到 R${(weapon.refine || 1) + 1}）`, cls: 'gold', fn: () => {
       const r = refineWeapon(name);
       if (r.ok) {
         msg(`${name} 精炼 +1（现 R${r.refine}）`, false);

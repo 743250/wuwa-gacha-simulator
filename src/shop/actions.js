@@ -4,6 +4,7 @@ import { S, msg, fmt } from '../state.js';
 import { rerenderAll } from '../rerender.js';
 import { openModal } from '../modal.js';
 import { unlockPaid, unlockPremium } from '../podcast/core.js';
+import { commit } from '../state/commit.ts';
 
 export const shopCatalog = {
   // ===== 月相充值（六档，鸣潮真实档位） =====
@@ -240,8 +241,10 @@ export function buyShop(id) {
     actions: [
       { label: '取消', cls: '', fn: () => {} },
       { label: `确认购买 ¥${it.price}`, cls: 'primary', fn: () => {
-        S.spent += it.price;
-        applyShopItem(it);
+        commit(() => {
+          S.spent += it.price;
+          applyShopItem(it);
+        });
         msg('购买成功', false);
         rerenderAll();
       }}
@@ -255,7 +258,7 @@ export function convertLunite() {
     title: '月相转星声', body: `将 <b class="g">${S.lunite}</b> 月相全部转为星声（1:1）`,
     actions: [
       { label: '取消', cls: '', fn: () => {} },
-      { label: '确认', cls: 'primary', fn: () => { S.astrite += S.lunite; S.lunite = 0; msg('转换成功', false); rerenderAll(); } }
+      { label: '确认', cls: 'primary', fn: () => { commit(() => { S.astrite += S.lunite; S.lunite = 0; }); msg('转换成功', false); rerenderAll(); } }
     ]
   });
 }

@@ -23,6 +23,7 @@ import { flattenEnemies } from '../battle/dungeon.js';
 import { activePhase } from '../gacha/core.js';
 import { STAR_CRITERIA } from '../battle/balance.js';
 import { msg } from '../state.js';
+import { commit } from '../state/commit.ts';
 
 // ===== 信物系统（Tokens）=====
 // 每关开战前从以下 6 种选 1 个；同一种可重复选（效果叠加）
@@ -118,12 +119,14 @@ export function getPickedTokens() {
 }
 
 export function pickToken(stageId, tokenId) {
-  if (!S.wastes) S.wastes = { scores: {}, tokensPicked: {}, lastVersion: currentVersionKey(), cumulativeScore: 0, tiersClaimed: [] };
-  if (!S.wastes.tokensPicked) S.wastes.tokensPicked = {};
-  if (!S.wastes.tokensPicked[stageId]) S.wastes.tokensPicked[stageId] = [];
-  if (S.wastes.tokensPicked[stageId].includes(tokenId)) return false;
-  S.wastes.tokensPicked[stageId].push(tokenId);
-  return true;
+  return commit(() => {
+    if (!S.wastes) S.wastes = { scores: {}, tokensPicked: {}, lastVersion: currentVersionKey(), cumulativeScore: 0, tiersClaimed: [] };
+    if (!S.wastes.tokensPicked) S.wastes.tokensPicked = {};
+    if (!S.wastes.tokensPicked[stageId]) S.wastes.tokensPicked[stageId] = [];
+    if (S.wastes.tokensPicked[stageId].includes(tokenId)) return false;
+    S.wastes.tokensPicked[stageId].push(tokenId);
+    return true;
+  });
 }
 
 export function startWastesStage(id) {

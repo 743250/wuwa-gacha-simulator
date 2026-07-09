@@ -6,6 +6,7 @@ import { standard5, fourAll, bannerNames } from '../data/chars.js';
 import { openModal } from '../modal.js';
 import { h } from 'preact';
 import { usePotion, buyStamina } from '../ui/bag/bagMaterialActions.js';
+import { commit } from '../state/commit.ts';
 
 export function openExchangeModal(tideKeyArg, tideNameArg, coralType) {
   const coralName = coralType === 'afterglow' ? '余波珊瑚' : '残振珊瑚';
@@ -32,15 +33,16 @@ ${coralType === 'oscillated' ? `本版本已兑换 <b>${S.oscBuy[tideKeyArg] || 
       { label: '确认兑换', cls: 'primary', fn: (n) => {
           const cost = n * unit;
           if (S[coralType] < cost) return msg('珊瑚不足');
-          S[coralType] -= cost; S[tideKeyArg] += n;
-          if (coralType === 'oscillated') S.oscBuy[tideKeyArg] = (S.oscBuy[tideKeyArg] || 0) + n;
+          commit(() => {
+            S[coralType] -= cost; S[tideKeyArg] += n;
+            if (coralType === 'oscillated') S.oscBuy[tideKeyArg] = (S.oscBuy[tideKeyArg] || 0) + n;
+          });
           msg(`已获得 ${n} 个 ${tideNameArg}`, false); rerenderAll();
         }
       }
     ]
   });
 }
-window.openExchangeModal = openExchangeModal;
 
 export function openWaveModal() {
   const allFiveStars = [...standard5, ...Object.keys(bannerNames).filter(n => !standard5.includes(n) && !fourAll.includes(n))];
@@ -127,9 +129,11 @@ ${c.lackingChains >= 2 ? '差 2 及以上链 → 本次最多可换 <b>2</b> 个
           if (S.afterglow < total) return msg('余波不足');
           const o2 = S.roles[c.realName];
           if (!o2 || o2.chain >= 6) return msg('已满 6 链');
-          S.afterglow -= total; S.waveBuy[c.name] = (S.waveBuy[c.name] || 0) + num;
-          o2.spare += num; o2.bought = (o2.bought || 0) + num;
-          S.roles[c.realName] = o2;
+          commit(() => {
+            S.afterglow -= total; S.waveBuy[c.name] = (S.waveBuy[c.name] || 0) + num;
+            o2.spare += num; o2.bought = (o2.bought || 0) + num;
+            S.roles[c.realName] = o2;
+          });
           msg(`已获得 ${num} 个回音频段`, false); rerenderAll();
         }
       }
@@ -179,7 +183,7 @@ export function openTopup(key) {
         { label: '取消', cls: '', fn: () => {} },
         { label: '确认兑换', cls: 'primary', fn: (n) => {
             if (S.lunite < n) return msg('月相不足');
-            S.lunite -= n; S.astrite += n;
+            commit(() => { S.lunite -= n; S.astrite += n; });
             msg(`兑换 ${n} 星声`, false); rerenderAll();
           }
         }
@@ -213,17 +217,18 @@ export function openTopup(key) {
       { label: '确认兑换', cls: 'primary', fn: (n) => {
           const cost = n * 160;
           if (haveAst + haveLun < cost) return msg('资源不足');
-          let pay = cost;
-          const fromAst = Math.min(pay, S.astrite); S.astrite -= fromAst; pay -= fromAst;
-          if (pay > 0) { S.lunite -= pay; }
-          S[key] += n;
+          commit(() => {
+            let pay = cost;
+            const fromAst = Math.min(pay, S.astrite); S.astrite -= fromAst; pay -= fromAst;
+            if (pay > 0) { S.lunite -= pay; }
+            S[key] += n;
+          });
           msg(`兑换 ${n} 个 ${m.n}`, false); rerenderAll();
         }
       }
     ]
   });
 }
-window.openTopup = openTopup;
 
 // 顶部体力 + 号：弹"补充体力"面板（药剂 + 60 星声急救）
 export function openStaminaModal() {
@@ -299,4 +304,15 @@ export function openStaminaModal() {
     actions: [{ label: '关闭', cls: '', fn: () => {} }]
   });
 }
-window.openStaminaModal = openStaminaModal;
+
+// Phase 3:window 桥收口为显式 initExchange(),由 src/init.ts 调用。
+// 消费者(ExchangeTab.tsx / TopOverview.tsx)仍走 window.openExchangeModal 等,
+// 暂不改消费者,保留桥接语义,只把副作用收口。
+let _exchangeInitialized = false;
+export function initExchange() {
+  if (_exchangeInitialized) return;
+  _exchangeInitialized = true;
+  window.openExchangeModal = openExchangeModal;
+  window.openTopup = openTopup;
+  window.openStaminaModal = openStaminaModal;
+}

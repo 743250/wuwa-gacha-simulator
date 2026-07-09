@@ -1,32 +1,30 @@
 // 背包面板：药剂/体力/武器箱/精炼石 handler 组
 // Stage 6.2: modal body 改为 Preact VNode，闭包 onClick 代替 window.__ 桥
+// 注:core 写入函数已通过 commit() 自带 bump,wrapper 层不再额外调 bumpStateVersion()
 import { S, msg } from '../../state.js';
 import { usePotion as usePotionCore, useAllPotions as useAllPotionsCore, buyStaminaWithAstrite } from '../../daily/stamina.js';
 import { WEAPON_BOX_OPTIONS } from '../../data/podcast-rewards.js';
 import { openModal } from '../../modal.js';
 import { h } from 'preact';
 import { radioPickWeapon } from '../../podcast/core.js';
-import { bumpStateVersion } from '../../ui/signals.ts';
+import { commit } from '../../state/commit.ts';
 
 export function usePotion(id, count) {
   const r = usePotionCore(id, count);
   if (!r.ok) { msg(r.err); return; }
   msg(`回复 ${r.gained} 体力`, false);
-  bumpStateVersion();
 }
 
 export function useAllPotions() {
   const gained = useAllPotionsCore();
   if (gained === 0) { msg('没有药剂可用'); return; }
   msg(`回复 ${gained} 体力`, false);
-  bumpStateVersion();
 }
 
 export function buyStamina() {
   const r = buyStaminaWithAstrite();
   if (!r.ok) { msg(r.err); return; }
   msg(`60 星声 → +${r.gained} 波片`, false);
-  bumpStateVersion();
 }
 
 // 精炼武器内部函数（闭包，替代 window.__bagUseRefineStoneOn）
@@ -34,15 +32,16 @@ function bagUseRefineStoneOn(target) {
   if (!S.podcast?.pendingRefine) return msg('没有精炼石');
   const w = S.weapons[target];
   if (!w) return msg('没有这把武器');
-  S.podcast.pendingRefine--;
-  if ((w.refine || 1) < 5) {
-    w.refine = (w.refine || 1) + 1;
-    msg(`${target} 精炼 +1（现 R${w.refine}）`, false);
-  } else {
-    S.materials.exp_super = (S.materials.exp_super || 0) + 2;
-    msg(`${target} 已 5 精 · 补偿特级促剂 ×2`, false);
-  }
-  bumpStateVersion();
+  commit(() => {
+    S.podcast.pendingRefine--;
+    if ((w.refine || 1) < 5) {
+      w.refine = (w.refine || 1) + 1;
+      msg(`${target} 精炼 +1（现 R${w.refine}）`, false);
+    } else {
+      S.materials.exp_super = (S.materials.exp_super || 0) + 2;
+      msg(`${target} 已 5 精 · 补偿特级促剂 ×2`, false);
+    }
+  });
 }
 
 // 打开待领武器箱
@@ -59,8 +58,7 @@ export function bagOpenWeaponBox() {
       h('div', { style: 'text-align:center' }, buttons)
     ),
     actions: [{ label: '稍后再选', cls: '', fn: () => {
-      S.podcast.pendingWeaponBox++; // 退回
-      bumpStateVersion();
+      commit(() => { S.podcast.pendingWeaponBox++; }); // 退回
     }}]
   });
 }

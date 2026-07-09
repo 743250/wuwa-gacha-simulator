@@ -5,6 +5,7 @@ import { cur, getPool, tideKey, tideName, canAffordPulls, payBeginnerTen, pull }
 import { openModal } from '../modal.js';
 import { showResult } from './animation.js';
 import { progressTask } from '../podcast/core.js';
+import { commit } from '../state/commit.ts';
 
 export function doPullN(n, free = false) {
   if (animating) return;
@@ -16,18 +17,21 @@ export function doPullN(n, free = false) {
     if (!payBeginnerTen()) return msg('资源不足，万象新声十连需要 8 个唤声涡纹或等值星声');
     freePull = true;
   }
-  const arr = [];
-  for (let i = 0; i < n; i++) { const x = pull(pool, freePull); if (!x) break; arr.push(x); }
-  if (arr.length) {
-    S.log = arr.slice().reverse().concat(S.log).slice(0, 200);
-    // 电台任务：抽卡计数 + 五星
-    progressTask('d_pull', arr.length);
-    progressTask('p_pull50', arr.length);
-    progressTask('p_pull200', arr.length);
-    const fiveCount = arr.filter(x => x.r === 5).length;
-    if (fiveCount > 0) progressTask('p_five', fiveCount);
-    showResult(arr);
-  }
+  const arr = commit(() => {
+    const out = [];
+    for (let i = 0; i < n; i++) { const x = pull(pool, freePull); if (!x) break; out.push(x); }
+    if (out.length) {
+      S.log = out.slice().reverse().concat(S.log).slice(0, 200);
+      // 电台任务：抽卡计数 + 五星
+      progressTask('d_pull', out.length);
+      progressTask('p_pull50', out.length);
+      progressTask('p_pull200', out.length);
+      const fiveCount = out.filter(x => x.r === 5).length;
+      if (fiveCount > 0) progressTask('p_five', fiveCount);
+    }
+    return out;
+  });
+  if (arr.length) showResult(arr);
   rerenderAll();
 }
 
@@ -62,7 +66,8 @@ export function tryPull(n) {
       actions: [
         { label: '取消', cls: '', fn: () => {} },
         { label: '转换并唤取', cls: 'primary', fn: () => {
-            S.lunite -= c.missing; S.astrite += c.missing; doPullN(n);
+            commit(() => { S.lunite -= c.missing; S.astrite += c.missing; });
+            doPullN(n);
           }
         }
       ]
@@ -89,12 +94,21 @@ export function toFive() {
     actions: [
       { label: '取消', cls: '', fn: () => {} },
       { label: '开始', cls: 'primary', fn: () => {
-          const arr = [];
-          for (let i = 0; i < 100; i++) { const x = pull(getPool(), false); if (!x) break; arr.push(x); if (x.r === 5) break; }
-          if (arr.length) { S.log = arr.slice().reverse().concat(S.log).slice(0, 200); showResult(arr); }
+          const arr = commit(() => {
+            const out = [];
+            for (let i = 0; i < 100; i++) { const x = pull(getPool(), false); if (!x) break; out.push(x); if (x.r === 5) break; }
+            if (out.length) S.log = out.slice().reverse().concat(S.log).slice(0, 200);
+            return out;
+          });
+          if (arr.length) showResult(arr);
           rerenderAll();
         }
       }
     ]
   });
+}
+
+// 清空抽卡日志(LogTab"清空"按钮)
+export function clearLog() {
+  commit(() => { S.log = []; });
 }

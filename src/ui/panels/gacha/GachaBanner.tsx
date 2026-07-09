@@ -1,11 +1,10 @@
 // 卡池 banner 区域 · Stage 6.1b
 // 挂载到 .banner-wrap，用 fragment 保持子节点平铺
-// 注意：组件内设置 selected 时直接写 S_RAW.selected 避免 TS 只读报错
 
 import { h, Fragment } from 'preact';
-import { useS, bumpStateVersion } from '../../signals';
-import { activeBanners, cur, poolKind, poolTitle, targetOptions, selectTarget, noviceRemainDays } from '../../../gacha/core.js';
-import { DAY, S as S_RAW } from '../../../state.js';
+import { useS } from '../../signals';
+import { activeBanners, cur, poolKind, poolTitle, targetOptions, selectTarget, selectBanner, noviceRemainDays } from '../../../gacha/core.js';
+import { DAY } from '../../../state.js';
 import { VERSION_NAMES } from '../../../data/phases.js';
 import { standard5 } from '../../../data/chars.js';
 import { openRolePreview } from '../../../ui/render/roleModal.js';
@@ -112,7 +111,7 @@ export function GachaBanner() {
           const on = x.id === S.selected ? (' on ' + (poolKind(x.pool) === 'weapon' ? 'w' : 'r')) : '';
           return (
             <div class={`btab${on}`} data-id={x.id}
-              onClick={() => { S_RAW.selected = x.id; bumpStateVersion(); }}>
+              onClick={() => { selectBanner(x.id); }}>
               <span class="bt-kind">{tabTag(x)}</span>
               <span class="bt-name">{x.banner}</span>
             </div>

@@ -7,8 +7,8 @@
 // 不是硬阻断 —— 如果是用户明确要求的改动,在 commit message 说明 + 更新 SNAPSHOT_MD5 即可。
 //
 // Phase 3 历史:原锁定 chainEffects.js,Phase 3 step 5 删 CHAIN_BATTLE_EFFECTS 后
-// 角色数据迁到 registry.ts,lint 目标随之迁移。chainEffects.js 现在只剩
-// FALLBACK_CHAIN + FORTE_BOOST(非角色专属数值,不锁)。
+// 角色数据迁到 registry.ts,lint 目标随之迁移。Phase 4 删 FALLBACK_CHAIN 后
+// chainEffects.js 只剩 FORTE_BOOST(非角色专属数值,不锁)。
 
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';

@@ -12,11 +12,13 @@ import { PodcastPanel } from './panels/podcast/PodcastPanel';
 import { AbyssPanel } from './panels/abyss/AbyssPanel';
 import { TeamBuilderPanel } from './panels/team/TeamBuilderPanel';
 import { BattleView } from './panels/battle/BattleView';
-import { RoleModalManager, installModalCloseHandler } from './panels/roleModal/RoleModal';
+import { installModalCloseHandler } from './panels/roleModal/RoleModal';
 import { GachaPanel } from './panels/gacha/GachaPanel';
 import { TopOverview } from './panels/gacha/TopOverview';
 import { DateInfo } from './panels/gacha/DateInfo';
 import { ShopPanel } from './panels/gacha/ShopPanel';
+import { GlobalLayer } from './GlobalLayer';
+import { ViewTabs } from './panels/ViewTabs';
 
 const mounted: Record<string, boolean> = {};
 
@@ -46,11 +48,12 @@ export function mountPreactRoot(): void {
 	// Stage 5.2: 战斗全屏 UI 迁入 #battleOverlay
 	mountPanel('battleOverlay', BattleView);
 
-	// Stage 5.1: roleModal lifecycle manager mounted into preact-root
-	if (!mounted['roleModal']) {
+	// Stage 5.1 + Phase 2 修正:RoleModalManager + AppShell 合并到 GlobalLayer 单根,
+	// 避免对 #preact-root 重复 preactRender(后者覆盖前者,靠副作用已执行的隐式假设)。
+	if (!mounted['globalLayer']) {
 		if (globalRoot) {
-			preactRender(h(RoleModalManager, null), globalRoot);
-			mounted['roleModal'] = true;
+			preactRender(h(GlobalLayer, null), globalRoot);
+			mounted['globalLayer'] = true;
 		}
 		installModalCloseHandler();
 	}
@@ -59,6 +62,8 @@ export function mountPreactRoot(): void {
 	mountPanel('viewGacha', GachaPanel);
 	mountPanel('paneShop', ShopPanel);
 	mountPanel('gres', TopOverview);
+	// AppShell 第二小步:顶层视图 tab 改为真 Preact 组件(替代 AppShell 的 .vtab 命令式接管)
+	mountPanel('viewTabs', ViewTabs);
 	// dateNow/dateMeta in .timeline .ti
 	const tiEl = document.querySelector('.ti');
 	if (tiEl && !mounted['dateInfo']) {

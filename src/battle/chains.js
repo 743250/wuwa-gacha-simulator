@@ -1,12 +1,9 @@
 // 共鸣链 → 战斗效果（逻辑层）
 // Phase 3: 数据源迁到 src/data/chains/registry.ts(ChainDef 单结构)
-// ChainDef 包含 effect + text,本文件只做效果分发
-//
-// 历史:原 chainEffects.js 的 CHAIN_BATTLE_EFFECTS + seq.js 的 seqText 已删,
-// registry.ts 成为手维源。正则解析路径(parseChainLine 的旧版)已删,
-// 所有角色走 ChainDef 路径,FALLBACK_CHAIN 兜底未迁角色(理论上不存在)。
+// Phase 4: FALLBACK_CHAIN 已删,registry.ts 覆盖全部 50 角色,parseChainLine 只走 ChainDef 路径。
+// 未找到角色时返回空数组(明确无 effect),不再隐式解析旧数据。
 
-import { FALLBACK_CHAIN, FORTE_BOOST } from './chainEffects.js';
+import { FORTE_BOOST } from './chainEffects.js';
 import { getChainDef } from '../data/chains';
 
 function stripTags(html) {
@@ -17,7 +14,7 @@ function stripTags(html) {
 // label 缺失时用 text.desc 去标签兜底
 function overrideToEffects(roleName, idx) {
   const def = getChainDef(roleName);
-  if (!def) return null;
+  if (!def) return [];
   const c = def.chains[idx];
   if (!c || !c.effect) return [];
   return [{
@@ -27,12 +24,7 @@ function overrideToEffects(roleName, idx) {
 }
 
 function parseChainLine(roleName, index) {
-  // ChainDef 路径:全部 50 角色已迁
-  if (getChainDef(roleName)) {
-    return overrideToEffects(roleName, index) || [];
-  }
-  // 兜底:未迁角色(理论上不存在,registry 含全部 50 角色)
-  return FALLBACK_CHAIN[index] ? [FALLBACK_CHAIN[index]] : [];
+  return overrideToEffects(roleName, index);
 }
 
 export function getChainEffects(roleName, chain) {

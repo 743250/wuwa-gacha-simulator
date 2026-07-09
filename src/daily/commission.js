@@ -5,6 +5,7 @@
 //   合计：4×10 + 20 = 60 星声/日（不再加"全完成额外 60"）
 import { S } from '../state.js';
 import { progressTask } from '../podcast/core.js';
+import { commit } from '../state/commit.ts';
 
 const SMALL_POOL = [
   { id: 's1', name: '击败 3 只幼狼',  reward: { astrite: 10, exp_mid: 2 } },
@@ -42,19 +43,21 @@ function simpleHash(seed) {
 
 // 完成委托（不再额外送 60，已分摊到每个委托）
 export function completeCommission(idx) {
-  const cs = S.dailyCommissions;
-  if (!cs[idx] || cs[idx].done) return 0;
-  cs[idx].done = true;
-  applyReward(cs[idx].reward);
-  // 电台任务进度：daily / weekly
-  // 前 4 个是小委托，第 5 个是挑战委托
-  if (idx === 4 || cs[idx].id?.startsWith('c')) {
-    progressTask('d_challenge', 1);
-  } else {
-    progressTask('d_commission', 1);
-  }
-  progressTask('w_commission', 1);
-  return 0;
+  return commit(() => {
+    const cs = S.dailyCommissions;
+    if (!cs[idx] || cs[idx].done) return 0;
+    cs[idx].done = true;
+    applyReward(cs[idx].reward);
+    // 电台任务进度：daily / weekly
+    // 前 4 个是小委托，第 5 个是挑战委托
+    if (idx === 4 || cs[idx].id?.startsWith('c')) {
+      progressTask('d_challenge', 1);
+    } else {
+      progressTask('d_commission', 1);
+    }
+    progressTask('w_commission', 1);
+    return 0;
+  });
 }
 
 function applyReward(r) {

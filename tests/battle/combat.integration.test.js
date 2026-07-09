@@ -1,6 +1,6 @@
 // Battle integration tests — full combat flow scenarios
 // AI safety net: verify turn-to-turn combat flow, damage consistency, win/lose conditions
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { S } from '../../src/state.js';
 import { resetState, quickBattle, firstEnemy, assertClose } from '../helpers.js';
 
@@ -61,23 +61,30 @@ describe('battle/combat — integration', () => {
   // ===== Multi-enemy combat =====
   describe('multi-enemy', () => {
     it('burst hits all enemies with split damage', () => {
-      const battle = quickBattle(null, [
-        { name: '火鬃狼', scale: 1 },
-        { name: '火鬃狼', scale: 1 },
-      ]);
-      const self = battle.team[battle.active];
-      self.energy = self.energyMax;
+      // 固定随机种子:忌炎 5% 暴击率,0.5 永不暴击,400% > 200% 永远成立。
+      // 不固定的话副目标暴击(200%×1.986≈397%)可能接近主目标未暴击(400%),翻转断言。
+      const randomSpy = vi.spyOn(Math, 'random').mockReturnValue(0.5);
+      try {
+        const battle = quickBattle(null, [
+          { name: '火鬃狼', scale: 1 },
+          { name: '火鬃狼', scale: 1 },
+        ]);
+        const self = battle.team[battle.active];
+        self.energy = self.energyMax;
 
-      const result = combat.doBurst(battle);
-      expect(result.ok).toBe(true);
+        const result = combat.doBurst(battle);
+        expect(result.ok).toBe(true);
 
-      // All enemies took damage
-      const burstLog = battle.log.find(l => l.type === 'burst');
-      expect(burstLog.results.length).toBeGreaterThanOrEqual(2);
-      const mainTargetDmg = burstLog.results[0].dmg;
-      const sideTargetDmg = burstLog.results[1].dmg;
-      // Main target should take more damage than side targets
-      expect(mainTargetDmg).toBeGreaterThanOrEqual(sideTargetDmg);
+        // All enemies took damage
+        const burstLog = battle.log.find(l => l.type === 'burst');
+        expect(burstLog.results.length).toBeGreaterThanOrEqual(2);
+        const mainTargetDmg = burstLog.results[0].dmg;
+        const sideTargetDmg = burstLog.results[1].dmg;
+        // Main target should take more damage than side targets
+        expect(mainTargetDmg).toBeGreaterThanOrEqual(sideTargetDmg);
+      } finally {
+        randomSpy.mockRestore();
+      }
     });
 
     it('doAttack on dead enemy finds next target', () => {

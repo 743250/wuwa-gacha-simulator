@@ -1,12 +1,9 @@
 // 副本 actions · Phase 5 从 src/ui/dungeon.js shim 迁入
-// 包含 WEEKLY_BOSS 合入 DUNGEONS 的副作用(其他模块依赖此行为)
-import { DUNGEONS, WEEKLY_BOSS, setSol3Level } from '../../../battle/dungeon.js';
+// setSol3Level 已通过 commit() 自带 bump,dungeonSwitchTab 仍用 bump(纯 UI 切 tab)
+// WEEKLY_BOSS 合入 DUNGEONS 的副作用已移至 src/battle/dungeon.js 的 initDungeonMerge(),
+// 由 src/init.ts 调用,保持 battle 领域自包含,UI 层不掺合。
+import { setSol3Level } from '../../../battle/dungeon.js';
 import { bumpStateVersion } from '../../signals';
-
-// 副作用:WEEKLY_BOSS 合入 DUNGEONS(原 src/ui/dungeon.js 模块加载时执行)
-WEEKLY_BOSS.forEach(b => {
-  if (!DUNGEONS.find(x => x.id === b.id)) DUNGEONS.push(b);
-});
 
 let _dungeonTab = 'exp';
 
@@ -20,5 +17,4 @@ export function dungeonSwitchTab(key: string) {
 
 export function setSol3(lv: number) {
   setSol3Level(lv);
-  bumpStateVersion();
 }

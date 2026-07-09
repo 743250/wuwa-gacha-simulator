@@ -13,6 +13,7 @@
 // 模拟器：体力上限 240，使用药剂可临时上探到 480（POTION_CAP）
 import { S, msg } from '../state.js';
 import { progressTask } from '../podcast/core.js';
+import { commit } from '../state/commit.ts';
 
 const RECOVER_MS = 6 * 60 * 1000; // 6 分钟/点（模拟器通过推日补满）
 
@@ -55,29 +56,33 @@ export const POTIONS = {
 
 // 使用药剂
 export function usePotion(potionId, count = 1) {
-  const p = POTIONS[potionId];
-  if (!p) return { ok: false, err: '未知药剂' };
-  const have = S.materials[potionId] || 0;
-  if (have < count) return { ok: false, err: `${p.name}不足（持有 ${have}）` };
-  S.materials[potionId] = have - count;
-  const gained = p.value * count;
-  S.stamina = Math.min(POTION_CAP, S.stamina + gained);
-  return { ok: true, gained };
+  return commit(() => {
+    const p = POTIONS[potionId];
+    if (!p) return { ok: false, err: '未知药剂' };
+    const have = S.materials[potionId] || 0;
+    if (have < count) return { ok: false, err: `${p.name}不足（持有 ${have}）` };
+    S.materials[potionId] = have - count;
+    const gained = p.value * count;
+    S.stamina = Math.min(POTION_CAP, S.stamina + gained);
+    return { ok: true, gained };
+  });
 }
 
 // 一键嗑光所有药剂（凝缩 + 溶剂都用）
 export function useAllPotions() {
-  let totalGained = 0;
-  Object.values(POTIONS).forEach(p => {
-    const have = S.materials[p.id] || 0;
-    if (have > 0) {
-      const gained = p.value * have;
-      S.materials[p.id] = 0;
-      totalGained += gained;
-    }
+  return commit(() => {
+    let totalGained = 0;
+    Object.values(POTIONS).forEach(p => {
+      const have = S.materials[p.id] || 0;
+      if (have > 0) {
+        const gained = p.value * have;
+        S.materials[p.id] = 0;
+        totalGained += gained;
+      }
+    });
+    S.stamina = Math.min(POTION_CAP, S.stamina + totalGained);
+    return totalGained;
   });
-  S.stamina = Math.min(POTION_CAP, S.stamina + totalGained);
-  return totalGained;
 }
 
 // 60 星声直接补 60 波片（鸣潮的紧急补救通道）
@@ -85,15 +90,17 @@ export const STAMINA_BUY_COST = 60;
 export const STAMINA_BUY_VALUE = 60;
 
 export function buyStaminaWithAstrite() {
-  if (S.astrite < STAMINA_BUY_COST) {
-    return { ok: false, err: `星声不足（需 ${STAMINA_BUY_COST}）` };
-  }
-  if (S.stamina >= POTION_CAP) {
-    return { ok: false, err: '体力已达上限' };
-  }
-  S.astrite -= STAMINA_BUY_COST;
-  S.stamina = Math.min(POTION_CAP, S.stamina + STAMINA_BUY_VALUE);
-  return { ok: true, gained: STAMINA_BUY_VALUE };
+  return commit(() => {
+    if (S.astrite < STAMINA_BUY_COST) {
+      return { ok: false, err: `星声不足（需 ${STAMINA_BUY_COST}）` };
+    }
+    if (S.stamina >= POTION_CAP) {
+      return { ok: false, err: '体力已达上限' };
+    }
+    S.astrite -= STAMINA_BUY_COST;
+    S.stamina = Math.min(POTION_CAP, S.stamina + STAMINA_BUY_VALUE);
+    return { ok: true, gained: STAMINA_BUY_VALUE };
+  });
 }
 
 // 奖励发放时给凝缩波片：受 5 个 cap

@@ -13,6 +13,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "vitest run tests/lint/",
+    "lint:strict": "LINT_STRICT=1 vitest run tests/lint/",
     "push": "node scripts/push.mjs",
     "preview:char": "node scripts/preview-char.mjs"
   },
