@@ -256,7 +256,7 @@ export function doBurst(battle) {
     applyReflect(battle, self, e, real);
     return { tgt: e.name, dmg: real, crit, primary: e === primary };
   });
-  battle.ap -= ACTION_COST.burst;
+  battle.ap -= queryCharacterHook(self, 'resolveBurstCost', battle) ?? ACTION_COST.burst;
   self.energy = 0;
   gainConcerto(self, 30);
   gainForte(self, 'burst');

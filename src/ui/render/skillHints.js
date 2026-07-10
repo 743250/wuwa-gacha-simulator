@@ -449,7 +449,7 @@ export const SKILL_HINTS = {
           desc: `对目标造成 <span class="tip" data-tip='${skillTip}'><b style="color:var(--accent)">${skillDmg}</b> 点</span><b class="term-skill">气动伤害</b>，回复 22 能量。<br>获得 <b>1</b> 层<span class="tip" data-tip='${resolveTip}'><b class="term-resource">【决意】</b></span>（上限 ${resolveCap} 层，持续 2 回合，刷新机制）。`
         },
         {
-          icon: '⚡', name: '共鸣解放 · 听骑士从心祈愿', cost: `3 AP · 需能量满 ${stats.maxEnergy || 125}`,
+          icon: '⚡', name: '共鸣解放 · 听骑士从心祈愿', cost: `0 AP · 需能量满 ${stats.maxEnergy || 125}`,
           color: 'var(--gold)',
           desc: `<b style="color:#a78bff">进入芙露德莉斯形态，无直接伤害。</b><br><br>` +
                 `<b>消耗当前全部【决意】层数</b>，根据层数获得形态之力：<br>` +

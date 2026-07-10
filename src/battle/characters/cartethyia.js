@@ -238,7 +238,39 @@ export function cartethyiaLethalShield(self, dmg, battle) {
   return true;
 }
 
-// 第二次解放：看潮怒风哮之刃 — 每层风蚀 +20%，清空全部
+// 第一次解放·听骑士从心祈愿:0 AP 纯变身,仅消耗能量。
+// 第二次解放·看潮怒风哮之刃:3 AP。
+//
+// 卡提希娅两个大招走同一 doBurst 主流流程(只伤害结算有差异,见 resolveBurstDamage)。
+// AP 通过通用 `resolveBurstCost` hook 返回,doBurst 会查它:
+//   · 卡提希娅形态(第一次解放·听骑士从心祈愿):返回 0
+//   · 芙露形态(第二次解放·看潮怒风哮之刃):返回 undefined,doBurst 回落 ACTION_COST.burst(=3)
+// canBurst 同步放宽:第一次解放只检能量满 + 战斗未结束,不查 AP≥3;
+//   第二次解放回落通用 canBurst(查 AP≥3)。
+export function cartethyiaCanBurst(self, battle) {
+  if (self.name !== '卡提希娅') return undefined;
+  // 芙露形态下的解放(看潮怒风哮之刃):回落通用 canBurst(检 AP≥3 + 能量满)
+  if ((self.cartethyiaFurTurns || 0) > 0) return undefined;
+  // 卡提希娅形态下的解放(听骑士从心祈愿):0 AP,只检能量满 + 战斗未结束 + 有目标
+  if (self.frozenTurns > 0) return { ok: false, err: `当前角色被冻结（${self.frozenTurns} 回合）` };
+  if (battle.finished) return { ok: false, err: '战斗已结束' };
+  if (self.energy < self.energyMax) return { ok: false, err: `能量不足（${self.energy}/${self.energyMax}）` };
+  const aliveEnemies = battle.enemies.filter(e => e.alive);
+  if (!aliveEnemies.length) return { ok: false, err: '没有目标' };
+  return { ok: true };
+}
+
+// 本次解放消耗的 AP(adapter 给 doBurst 用):
+//   第一次解放(卡提希娅形态) → 0
+//   第二次解放(芙露形态)    → undefined,回落通用 ACTION_COST.burst(=3)
+export function cartethyiaResolveBurstCost(self, battle) {
+  if (self.name !== '卡提希娅') return undefined;
+  if ((self.cartethyiaFurTurns || 0) > 0) return undefined;  // 第二次解放回落默认
+  return 0;  // 第一次解放 0 AP
+}
+
+// 解放伤害分发:第一/第二次解放仍走 resolveBurstDamage 主流路径(doBurst 全套流程:扣 AP、onBurst、concerto+30、forte...)。
+// 第一次解放 = 形态切换(无伤害,调 enterFurForm);第二次 = 看潮怒风哮之刃(风蚀爆发)。
 export function cartethyiaResolveBurstDamage(self, battle, helpers = {}) {
   if (self.name !== '卡提希娅') return null;
 
@@ -397,6 +429,8 @@ export default {
   onSkill: cartethyiaOnSkill,
   onHeavy: cartethyiaOnHeavy,
   enterFurForm: cartethyiaEnterFurForm,
+  canBurst: cartethyiaCanBurst,
+  resolveBurstCost: cartethyiaResolveBurstCost,
   resolveBurstDamage: cartethyiaResolveBurstDamage,
   burstErosion: cartethyiaBurstErosion,
   erosionOnBreak: cartethyiaErosionOnBreak,
