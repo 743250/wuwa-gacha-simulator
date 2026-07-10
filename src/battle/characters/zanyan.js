@@ -49,10 +49,11 @@ export function zanYanCanHeavy(self) {
 }
 
 // ── HP 核倍率覆写（combat.js calcDamage 调用） ──
-export function zanYanHpMult(dmgType) {
+export function zanYanHpMult(self, dmgType) {
+  const chain = self?.chain || 0;
   switch (dmgType) {
     case 'normal': return NORMAL_HP_MULT;
-    case 'skill':  return SKILL_HP_MULT;
+    case 'skill':  return chain >= 2 ? SKILL_HP_MULT * 1.8 : SKILL_HP_MULT;  // 2链集中压制/破袭反击 +80%
     case 'heavy':  return HEAVY_HP_MULT;
     case 'burst':  return BURST_REKIND_HP_MULT;  // 重燃主目标
     default:       return null;
@@ -63,7 +64,7 @@ export function zanYanHpCore(self, dmgType) {
   if (self.name !== '赞妮') return null;
   return {
     baseStat: 'hpMax',
-    hpMultOverride: dmgType === 'burst' ? null : zanYanHpMult(dmgType)
+    hpMultOverride: dmgType === 'burst' ? null : zanYanHpMult(self, dmgType)
   };
 }
 

@@ -3,6 +3,7 @@ import { describe, it, expect, beforeEach, beforeAll } from 'vitest';
 import { state0, S } from '../../src/state.js';
 import { resetState, quickBattle, firstEnemy } from '../helpers.js';
 import { generateEcho } from '../../src/equip/echoActions.js';
+import { addEffect } from '../../src/battle/combat/effects.js';
 
 describe('combat endTurn snapshots', () => {
   let combat;
@@ -31,7 +32,8 @@ describe('combat endTurn snapshots', () => {
     expect(enemy).toBeTruthy();
 
     // 手动设置风蚀层数（模拟卡提希娅已施加）
-    enemy.cartethyiaErosion = 3;
+    enemy.debuffs = enemy.debuffs || [];
+    addEffect(enemy, 'wind_erosion', 3, battle, { src: 'test' });
     const expectedDmgPerTurn = Math.round(enemy.atk * 3 * 0.3);
 
     const hps = [];
@@ -39,9 +41,9 @@ describe('combat endTurn snapshots', () => {
       const hpBefore = enemy.hp;
       combat.endTurn(battle);
 
-      // 风蚀应在每回合敌人阶段开始时触发
+      // 风蚀应在每回合敌人回合开始时触发；排除 addEffect 初始附加时的"+N 层"日志
       const erosionLog = battle.log.filter(l =>
-        l.type === 'mechanic' && l.msg && l.msg.includes('风蚀效应')
+        l.type === 'mechanic' && l.msg && l.msg.includes('风蚀效应') && l.msg.includes('伤害')
       );
       expect(erosionLog.length).toBe(t + 1);
 
@@ -118,14 +120,15 @@ describe('combat endTurn snapshots', () => {
     // 同时设置压制和风蚀
     enemy.suppressed = 2;
     enemy.suppressedVuln = 0.3;
-    enemy.cartethyiaErosion = 5;
+    enemy.debuffs = enemy.debuffs || [];
+    addEffect(enemy, 'wind_erosion', 5, battle, { src: 'test' });
     const hpBefore = enemy.hp;
 
     combat.endTurn(battle);
 
-    // 风蚀应已触发（HP 下降）
+    // 风蚀应已触发（HP 下降）；排除 addEffect 初始附加时的"+N 层"日志
     const erosionLog = battle.log.filter(l =>
-      l.type === 'mechanic' && l.msg && l.msg.includes('风蚀效应')
+      l.type === 'mechanic' && l.msg && l.msg.includes('风蚀效应') && l.msg.includes('伤害')
     );
     expect(erosionLog.length).toBe(1);
     expect(enemy.hp).toBeLessThan(hpBefore);

@@ -76,6 +76,14 @@ const ELEMENT_COLORS: Record<string, string> = {
   '气动': '#8de6a6', '衍射': '#fff0b0', '湮灭': '#c39bff',
 };
 
+function hexToRgba(hex: string, alpha: number): string {
+  const h = hex.replace('#', '');
+  const r = parseInt(h.slice(0, 2), 16);
+  const g = parseInt(h.slice(2, 4), 16);
+  const b = parseInt(h.slice(4, 6), 16);
+  return `rgba(${r},${g},${b},${alpha})`;
+}
+
 function ResourceCard({ name, value, desc, color = '#fff', bgTint }: any) {
   return (
     <div style={{
@@ -169,14 +177,17 @@ function WeaponCard({ name, weapon }: any) {
 function EchoCard({ echo }: any) {
   const set = getSetById(Array.isArray(echo.set) ? echo.set[0] : echo.set);
   const color = set?.element ? (ELEMENT_COLORS[set.element] || '#fff') : '#999';
+  // 把元素色 hex 转成 rgba tint(用于背景着色)
+  const tint = hexToRgba(color, 0.08);
+  const glow = hexToRgba(color, 0.18);
   return (
     <div class="echo-card"
       onClick={() => bagEchoDetail(echo.id)}
       style={{
         cursor: 'pointer', position: 'relative',
         border: `1px solid ${color}`, borderRadius: 8, padding: '6px 5px',
-        background: 'rgba(255,255,255,.02)',
-        boxShadow: echo.lock ? '0 0 8px rgba(245,207,107,.25) inset' : undefined,
+        background: `radial-gradient(circle at 50% 30%, ${glow}, transparent 70%), ${tint}`,
+        boxShadow: `0 0 12px ${glow} inset, 0 2px 8px ${hexToRgba(color, 0.12)}`,
       }}>
       {echo.equippedBy && (
         <div style={{ position: 'absolute', top: 3, left: 4, fontSize: 8, color: 'var(--green)', fontWeight: 700 }}>装:{echo.equippedBy}</div>
@@ -184,7 +195,7 @@ function EchoCard({ echo }: any) {
       <div style={{ position: 'absolute', top: 3, right: 4, fontSize: 9, color: 'var(--gold)' }}>
         {echo.lock ? '🔒' : ''}C{echo.cost}
       </div>
-      <div style={{ fontSize: 11, fontWeight: 700, color, textAlign: 'center', marginTop: 10, wordBreak: 'break-all', lineHeight: 1.1 }}>{echo.name}</div>
+      <div style={{ fontSize: 11, fontWeight: 700, color, textAlign: 'center', marginTop: 10, wordBreak: 'break-all', lineHeight: 1.1, textShadow: `0 0 6px ${glow}` }}>{echo.name}</div>
       <div style={{ fontSize: 8, color: 'var(--muted)', textAlign: 'center', marginTop: 2 }}>LV {echo.level} · {echo.element || ''}</div>
       <div style={{ fontSize: 8, color: 'var(--gold)', textAlign: 'center', marginTop: 2 }}>{echo.mainStat?.label || ''}</div>
       <div style={{ fontSize: 8, color: 'var(--gold)', textAlign: 'center' }}>
@@ -213,7 +224,6 @@ export function BagPanel() {
       items: [
         { name: '星声',   value: S.astrite.toLocaleString(),  desc: '抽卡 / 商店主货币',   color: '#fff' },
         { name: '月相',   value: S.lunite,                    desc: '充值货币 · 可换星声', color: 'var(--gold)' },
-        { name: '累计充值', value: '¥' + S.spent,            desc: '历史充值总额',        color: 'var(--red)' },
         { name: '月卡剩余', value: S.days + ' 天',           desc: '月相观测卡天数',      color: 'var(--green)' },
       ],
     },

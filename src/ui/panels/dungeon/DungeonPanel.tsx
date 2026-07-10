@@ -18,7 +18,12 @@ import {
 import { getCombatTeamNames } from '../../../battle/combat.js';
 import { ENEMIES, formatEnemyMechanic } from '../../../battle/enemies.js';
 import { ELEMENT_COLOR } from '../../../battle/elements.js';
-import { getSetById } from '../../../data/echoes.js';
+import { getSetById, formatSetBonus } from '../../../data/echoes.js';
+
+function escAttr(s: string): string {
+  // data-tip 用 innerHTML 解析，保留 <b>/<br> 等 HTML 标签，只转义会破坏属性值的 " 和 &
+  return String(s ?? '').replace(/&/g, '&amp;').replace(/"/g, '&quot;');
+}
 import { getDungeonTab, dungeonSwitchTab, setSol3 } from './actions';
 import { usePotion, buyStamina } from '../../../ui/bag/bagMaterialActions.js';
 import { startDungeonBattle } from '../../../ui/battle.js';
@@ -65,10 +70,23 @@ function DropsDisplay({ drops }: { drops: any }) {
   }
   if (drops.echo_set) {
     const setIds = Array.isArray(drops.echo_set) ? drops.echo_set : [drops.echo_set];
-    const names = setIds.map((sid: string) => getSetById(sid)?.name || sid).filter(Boolean);
     const cnt = drops.echo_count || 1;
-    if (names.length) {
-      parts.push(<span key="eset" style={{ color: 'var(--accent)' }}>声骸 x{cnt}（{names.join(' / ')}）</span>);
+    const setSpans = setIds.map((sid: string) => {
+      const set = getSetById(sid);
+      if (!set) return <span key={sid}>{sid}</span>;
+      const b2 = formatSetBonus(set.bonus2);
+      const b5 = formatSetBonus(set.bonus5);
+      const tip = escAttr(`<b style="color:var(--accent)">${set.name}</b>${set.element ? `（${set.element}）` : ''}<br>` +
+        `<b>2 件</b>：${b2 || '无'}<br>` +
+        `<b>5 件</b>：${b5 || '无'}`);
+      return (
+        <span key={sid} class="tip" data-tip={tip} style={{ color: 'var(--accent)', cursor: 'help', textDecoration: 'underline dotted' }}>
+          {set.name}
+        </span>
+      );
+    });
+    if (setSpans.length) {
+      parts.push(<span key="eset">声骸 x{cnt}（{setSpans}）</span>);
     }
   }
   if (parts.length === 0) return null;
@@ -124,6 +142,16 @@ function DungeonCard({ d }: { d: any }) {
     ? `缺 ${d.cost - S.stamina} 体力`
     : (isWeekly && !canUseWeeklyBoss() ? '本周已满' : '需编队');
   const mechanics = MechanicDisplay({ enemyStrs: encounter.enemies });
+  const sol3 = getSol3Config(getSol3Level());
+  const rawDrops = d.drops;
+  let displayDrops;
+  if (rawDrops) {
+    displayDrops = {};
+    for (const [k, v] of Object.entries(rawDrops)) {
+      displayDrops[k] = (k === 'astrite' || k === 'echo_set' || k === 'echo_count')
+        ? v : Math.round(v * sol3.dropMult);
+    }
+  }
 
   const cardClass = isWeekly ? 'dng-card weekly' : 'dng-card';
 
@@ -148,7 +176,7 @@ function DungeonCard({ d }: { d: any }) {
       </div>
       <div class="dng-drops">
         <div class="dng-label">奖励</div>
-        <div><DropsDisplay drops={d.drops} /></div>
+        <div><DropsDisplay drops={displayDrops} /></div>
       </div>
     </article>
   );

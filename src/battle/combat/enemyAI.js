@@ -29,10 +29,7 @@ export function enemyAttack(battle, enemy, target, opts = {}) {
   }
 
   const resMult = resistMultiplier(enemy.element, { element: target.element });
-  const debuffMult = (target.debuffs || []).reduce((m, d) => {
-    if (d.type === 'erosion' && d.element === enemy.element) return m + d.value;
-    return m;
-  }, 1);
+  const debuffMult = 1;
   const isCrit = Math.random() < (opts.critRate ?? 0.05);
   const critMult = isCrit ? (opts.critMult || 1.5) : 1.0;
   let dmg = (enemy.atk + 30) * mult * resMult * debuffMult * critMult;

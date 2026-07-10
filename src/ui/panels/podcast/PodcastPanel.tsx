@@ -17,6 +17,7 @@ import {
   resetPodcastDailyIfNeeded,
   resetPodcastWeeklyIfNeeded,
   taskState,
+  progressTask,
   claimFree,
   claimPaid,
   buyLevel,
@@ -188,6 +189,13 @@ export function PodcastPanel() {
   ensurePodcast();
   resetPodcastDailyIfNeeded();
   resetPodcastWeeklyIfNeeded();
+
+  // 每次进入电台面板，若今日签到任务未完成，自动签到一次
+  // 兜底新存档第一天 / 重置后第一天 / 跨日后忘进游戏的签到遗漏
+  useEffect(() => {
+    const st = taskState('d_signin');
+    if (st && !st.done) progressTask('d_signin', 1);
+  }, []);
 
   const p = S.podcast;
   const expPct = p.level >= PODCAST_MAX_LEVEL ? 100 : Math.round(p.exp / PODCAST_EXP_PER_LEVEL * 100);

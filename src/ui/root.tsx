@@ -26,6 +26,7 @@ function mountPanel(id: string, component: any) {
 	if (mounted[id]) return;
 	const el = document.getElementById(id);
 	if (!el) return;
+	while (el.firstChild) el.removeChild(el.firstChild);
 	preactRender(h(component, null), el);
 	mounted[id] = true;
 }

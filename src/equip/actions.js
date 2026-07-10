@@ -15,31 +15,42 @@ export function totalExp() {
        + (m.exp_low || 0) * EXP_VALUES.exp_low;
 }
 
-// 消耗 amount 经验，优先用高档
-export function consumeExp(amount) {
+// 预览升级到 amount 经验要扣的书数和实际扣的总经验(不真扣)
+// 返回 { ok, useLow, useMid, useHigh, useSuper, provided }
+export function previewExpCost(amount) {
   const m = S.materials;
   let need = amount;
-  // 先消耗特级
-  const useSuper = Math.min(m.exp_super || 0, Math.ceil(need / EXP_VALUES.exp_super));
-  let provided = useSuper * EXP_VALUES.exp_super;
-  // 高级
+  let provided = 0;
+  const useLow  = Math.min(m.exp_low  || 0, Math.ceil(need / EXP_VALUES.exp_low));
+  provided += useLow * EXP_VALUES.exp_low;
+  const useMid  = provided >= need ? 0 : Math.min(m.exp_mid  || 0, Math.ceil((need - provided) / EXP_VALUES.exp_mid));
+  provided += useMid * EXP_VALUES.exp_mid;
   const useHigh = provided >= need ? 0 : Math.min(m.exp_high || 0, Math.ceil((need - provided) / EXP_VALUES.exp_high));
   provided += useHigh * EXP_VALUES.exp_high;
-  // 中级
-  const useMid = provided >= need ? 0 : Math.min(m.exp_mid || 0, Math.ceil((need - provided) / EXP_VALUES.exp_mid));
-  provided += useMid * EXP_VALUES.exp_mid;
-  // 初级
-  const useLow = provided >= need ? 0 : Math.min(m.exp_low || 0, Math.ceil((need - provided) / EXP_VALUES.exp_low));
-  provided += useLow * EXP_VALUES.exp_low;
-  if (provided < need) return false;
-  m.exp_super -= useSuper;
-  m.exp_high -= useHigh;
-  m.exp_mid -= useMid;
-  m.exp_low -= useLow;
-  return true;
+  const useSuper = provided >= need ? 0 : Math.min(m.exp_super || 0, Math.ceil((need - provided) / EXP_VALUES.exp_super));
+  provided += useSuper * EXP_VALUES.exp_super;
+  return {
+    ok: provided >= need,
+    useLow, useMid, useHigh, useSuper,
+    provided,
+    waste: Math.max(0, provided - need),
+  };
 }
 
-// 升级角色一级
+// 消耗 amount 经验,优先用低档(最小化经验浪费)
+// 返回实际消耗的总经验(>=amount),或 false(材料不足)
+export function consumeExp(amount) {
+  const p = previewExpCost(amount);
+  if (!p.ok) return false;
+  const m = S.materials;
+  m.exp_low  -= p.useLow;
+  m.exp_mid  -= p.useMid;
+  m.exp_high -= p.useHigh;
+  m.exp_super -= p.useSuper;
+  return p.provided;
+}
+
+// 升级角色一级(自动消费经验书,优先低档减少浪费)
 export function levelUpRole(roleName) {
   const o = S.roles[roleName];
   if (!o) return false;
@@ -51,6 +62,38 @@ export function levelUpRole(roleName) {
   }
   return commit(() => {
     consumeExp(cost);
+    o.level++;
+    progressTask('d_upgrade', 1);
+    progressTask('w_levelup', 1);
+    if (o.level >= 90) progressTask('p_char90', 1);
+    return true;
+  });
+}
+
+// 升级角色一级 · 玩家手动指定消耗的本数
+// 不够升级所需经验时 msg 提示并拒绝
+// 超出所需按"溢出"浪费
+export function levelUpRoleWith(roleName, useLow, useMid, useHigh, useSuper) {
+  const o = S.roles[roleName];
+  if (!o) return false;
+  if (o.level >= 90) { msg('已满级'); return false; }
+  const m = S.materials;
+  useLow  = Math.max(0, Math.min(useLow  || 0, m.exp_low  || 0));
+  useMid  = Math.max(0, Math.min(useMid  || 0, m.exp_mid  || 0));
+  useHigh = Math.max(0, Math.min(useHigh || 0, m.exp_high || 0));
+  useSuper = Math.max(0, Math.min(useSuper || 0, m.exp_super || 0));
+  const provided = useLow * EXP_VALUES.exp_low + useMid * EXP_VALUES.exp_mid +
+                   useHigh * EXP_VALUES.exp_high + useSuper * EXP_VALUES.exp_super;
+  const cost = expToNext(o);
+  if (provided < cost) {
+    msg(`所选经验不足 · 提供 ${provided.toLocaleString()} / 需 ${cost.toLocaleString()}`);
+    return false;
+  }
+  return commit(() => {
+    m.exp_low  -= useLow;
+    m.exp_mid  -= useMid;
+    m.exp_high -= useHigh;
+    m.exp_super -= useSuper;
     o.level++;
     progressTask('d_upgrade', 1);
     progressTask('w_levelup', 1);

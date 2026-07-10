@@ -6,11 +6,25 @@ import { h, Fragment } from 'preact';
 import { useS } from '../../signals';
 import { openRoleModal } from '../../../ui/render/roleModal.js';
 
+// 排序:5★ 优先 → 共鸣链高优先 → 等级高优先 → 名字
+function roleSortKey(o: any): [number, number, number, string] {
+  return [
+    -(o.r || 0),           // 5★ 在前
+    -(o.chain || 0),       // 共鸣链高在前
+    -(o.level || 1),       // 等级高在前
+    String(o.n || ''),     // 名字升序
+  ];
+}
+
 export function RoleGrid() {
   const S = useS();
-  const arr = Object.values(S.roles).sort((a: any, b: any) =>
-    (b.r || 0) - (a.r || 0) || (b.level || 1) - (a.level || 1) || String(a.n || '').localeCompare(String(b.n || ''), 'zh')
-  );
+  const arr = Object.values(S.roles).sort((a: any, b: any) => {
+    const ka = roleSortKey(a), kb = roleSortKey(b);
+    for (let i = 0; i < ka.length; i++) {
+      if (ka[i] !== kb[i]) return ka[i] - kb[i];
+    }
+    return 0;
+  });
 
   if (arr.length === 0) {
     return (
@@ -34,9 +48,7 @@ export function RoleGrid() {
             {o.spare > 0 ? <div class="spare-dot">频段 {o.spare}</div> : null}
             <div class="stars">{stars}</div>
             <div class="rname">{o.n}</div>
-            <div style={{ fontSize: '9px', color: 'var(--muted)', textAlign: 'center', marginTop: '3px', letterSpacing: '.5px' }}>
-              LV {lv}{o.equipWeapon ? ' · 已装备' : ''}
-            </div>
+            <div class="rlv">LV {lv}{o.equipWeapon ? ' · 装备' : ''}</div>
           </div>
         );
       })}

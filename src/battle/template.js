@@ -149,12 +149,13 @@ export const OVERRIDE_STATS = {
 
   // ─── 2.5 限定 ───
   '弗洛洛': {
-    stats: { hp: 10775, atk: 438, def: 1137, crate: 0.05, cdmg: 1.5, energy: 125, dodge: 0.18 }
+    stats: { hp: 10775, atk: 438, def: 1137, crate: 0.05, cdmg: 1.5, energy: 0, dodge: 0.18 }
   },
 
   // ─── 2.6 限定 ───
   '奥古斯塔': {
-    stats: { hp: 10300, atk: 462, def: 1112, crate: 0.05, cdmg: 1.5, energy: 125, dodge: 0.18 }
+    stats: { hp: 10300, atk: 462, def: 1112, crate: 0.05, cdmg: 1.5, energy: 125, dodge: 0.18 },
+    bonuses: { hpScaling: true }
   },
   '尤诺': {
     stats: { hp: 10525, atk: 450, def: 1124, crate: 0.05, cdmg: 1.5, energy: 125, dodge: 0.18 }
@@ -170,7 +171,8 @@ export const OVERRIDE_STATS = {
 
   // ─── 2.8 限定 ───
   '千咲': {
-    stats: { hp: 10775, atk: 438, def: 1137, crate: 0.05, cdmg: 1.5, energy: 125, dodge: 0.18 }
+    stats: { hp: 10775, atk: 438, def: 1137, crate: 0.05, cdmg: 1.5, energy: 125, dodge: 0.18 },
+    bonuses: { hpScaling: true }
   },
 
   // ─── 3.0 限定 ───

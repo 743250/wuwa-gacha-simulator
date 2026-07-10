@@ -21,12 +21,12 @@ export function doPullN(n, free = false) {
     const out = [];
     for (let i = 0; i < n; i++) { const x = pull(pool, freePull); if (!x) break; out.push(x); }
     if (out.length) {
-      S.log = out.slice().reverse().concat(S.log).slice(0, 200);
+      S.log = out.slice().reverse().concat(S.log);
+      const fiveCount = out.filter(x => x.r === 5).length;
       // 电台任务：抽卡计数 + 五星
       progressTask('d_pull', out.length);
       progressTask('p_pull50', out.length);
       progressTask('p_pull200', out.length);
-      const fiveCount = out.filter(x => x.r === 5).length;
       if (fiveCount > 0) progressTask('p_five', fiveCount);
     }
     return out;
@@ -97,7 +97,9 @@ export function toFive() {
           const arr = commit(() => {
             const out = [];
             for (let i = 0; i < 100; i++) { const x = pull(getPool(), false); if (!x) break; out.push(x); if (x.r === 5) break; }
-            if (out.length) S.log = out.slice().reverse().concat(S.log).slice(0, 200);
+            if (out.length) {
+              S.log = out.slice().reverse().concat(S.log);
+            }
             return out;
           });
           if (arr.length) showResult(arr);

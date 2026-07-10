@@ -50,9 +50,13 @@ function SkillPanel({ cur }: { cur: any }) {
 export function ActionBar({ battle, pendingDungeon }: ActionBarProps) {
   if (battle.finished) {
     if (battle.result === 'win') {
-      const stars = evaluateStars(battle);
-      const starStr = '★'.repeat(stars) + '☆'.repeat(3 - stars);
-      const starLabel = stars === 3 ? '完美通关' : stars === 2 ? '高效通关' : '通关';
+      const isDungeon = pendingDungeon?.kind === 'dungeon';
+      let starStr: string | null = null, starLabel: string | null = null;
+      if (!isDungeon) {
+        const stars = evaluateStars(battle);
+        starStr = '★'.repeat(stars) + '☆'.repeat(3 - stars);
+        starLabel = stars === 3 ? '完美通关' : stars === 2 ? '高效通关' : '通关';
+      }
       return (
         <div style={{
           marginTop: 12, textAlign: 'center', padding: 16,
@@ -62,11 +66,13 @@ export function ActionBar({ battle, pendingDungeon }: ActionBarProps) {
           <div style={{ fontSize: 22, color: 'var(--green)', fontWeight: 700, letterSpacing: 4 }}>
             胜 利！
           </div>
-          <div style={{ fontSize: 28, color: 'var(--gold)', margin: '8px 0 4px', letterSpacing: 4, textShadow: '0 0 12px rgba(245,207,107,.5)' }}>
-            {starStr}
-          </div>
+          {starStr && (
+            <div style={{ fontSize: 28, color: 'var(--gold)', margin: '8px 0 4px', letterSpacing: 4, textShadow: '0 0 12px rgba(245,207,107,.5)' }}>
+              {starStr}
+            </div>
+          )}
           <div style={{ fontSize: 11, color: 'var(--muted)', margin: '6px 0' }}>
-            用 {battle.turn} 回合通关 · {starLabel}
+            用 {battle.turn} 回合通关{starLabel ? ` · ${starLabel}` : ''}
           </div>
           <button
             style={{

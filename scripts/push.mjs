@@ -9,7 +9,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const root = process.cwd();
-const SINGLE_FILE = path.join(root, 'dist', '鸣潮模拟器-单文件版.html');
+const SINGLE_FILE = path.join(root, 'single', '鸣潮模拟器-单文件版.html');
 
 function run(cmd, opts = {}) {
   console.log(`\n\x1b[36m$ ${cmd}\x1b[0m`);
@@ -39,7 +39,7 @@ if (!fs.existsSync(SINGLE_FILE)) {
   process.exit(1);
 }
 const size = (fs.statSync(SINGLE_FILE).size / 1024).toFixed(1);
-console.log(`\n\x1b[32m✓ 已生成 dist/鸣潮模拟器-单文件版.html (${size} KB)\x1b[0m`);
+console.log(`\n\x1b[32m✓ 已生成 single/鸣潮模拟器-单文件版.html (${size} KB)\x1b[0m`);
 
 // ---- 2. 强加进 git（dist/ 在 .gitignore 里） ----
 run(`git add -f "${SINGLE_FILE}"`);

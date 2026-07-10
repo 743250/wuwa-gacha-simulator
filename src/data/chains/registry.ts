@@ -438,7 +438,7 @@ export const REGISTRY: Record<string, CharacterChains> = {
     },
     {
       index: 3,
-      effect: {"effect":"crate","value":0.1,"label":"变奏后暴击 +10%"},
+      effect: {"effect":"crate","value":0.1,"cdmg":0.3,"label":"变奏后暴击 +10% / 暴伤 +30%"},
       text: { name: "用心观察，以手丈量", desc: "施放变奏技能佩洛，来帮忙时，洛可可暴击提升10%，暴击伤害提升30%，持续15秒。" },
     },
     {
@@ -448,7 +448,7 @@ export const REGISTRY: Record<string, CharacterChains> = {
     },
     {
       index: 5,
-      effect: {"effect":"burstDmg","value":0.2,"label":"解放开场 +20%"},
+      effect: {"effect":"burstDmg","value":0.2,"heavyDmg":0.8,"label":"解放开场 +20% / 重击 +80%"},
       text: { name: "重建乐土，在舞台上", desc: "共鸣解放即兴喜剧，开场伤害倍率提升20%，重击伤害倍率提升80%。" },
     },
     {
@@ -523,7 +523,7 @@ export const REGISTRY: Record<string, CharacterChains> = {
     },
     {
       index: 6,
-      effect: {"effect":"normalDmg","value":0.8,"label":"普攻·蛰幻 +80%"},
+      effect: {"effect":"normalDmg","value":0.8,"defPierce":0.3,"label":"普攻·蛰幻 +80% / 解放无视 30% 防御"},
       text: { name: "下坠、下坠……坠入更深的幻梦", desc: "普攻蛰幻的伤害倍率提升80%。施放共鸣解放陷溺时，坎特蕾拉的伤害无视目标30%防御，持续10秒。 迷梦的前1.2秒，目标受到伤害时，若此次伤害没有附加迷梦，则目标不会触发惊醒。" },
     }
     ],
@@ -1133,11 +1133,12 @@ export const REGISTRY: Record<string, CharacterChains> = {
     },
     {
       index: 2,
-      effect: {"effect":"crate","value":0.2,"label":"暴击 +20%"},
+      effect: {"effect":"crate","value":0.2,"label":"暴击 +20%·集中压制/破袭反击 +80%"},
       text: { name: "冷面包配饮料", desc: "暴击提升20%。 集中压制、破袭反击倍率提升80%。" },
     },
     {
       index: 3,
+      effect: {"effect":"zanyanBurstFinaleBoost","value":0.02,"cap":2.0,"label":"灼焰形态:每消耗1焰光,终绝将至之刻倍率+2%(上限+200%)"},
       text: { name: "日复一日的通勤", desc: "处于灼焰形态时每消耗1点【焰光】，本次共鸣解放终绝将至之刻最后一段伤害倍率增加8%，最多增加1200%。" },
     },
     {
@@ -1172,7 +1173,7 @@ export const REGISTRY: Record<string, CharacterChains> = {
     },
     {
       index: 3,
-      effect: {"effect":"skillDmg","value":0.15,"label":"共鸣技能可使用次数 +1"},
+      effect: {"effect":"skillCdReduce","value":1,"label":"共鸣技能 CD-1 回合（3→2）"},
       text: { name: "星烁此时的即兴演奏", desc: "施放普攻第4段时可额外获得1格【音律】；共鸣技能谐律速奏可使用次数增加1次。" },
     },
     {
@@ -1187,7 +1188,7 @@ export const REGISTRY: Record<string, CharacterChains> = {
     },
     {
       index: 6,
-      effect: {"effect":"allDmg","value":0.15,"label":"音律独奏状态额外伤害"},
+      effect: {"effect":"xiakongSoloEntryDmg","value":2.2,"label":"进入音律独奏时造成 220% 气动伤害（视为共鸣解放伤害）"},
       text: { name: "终曲未终", desc: "夏空或合奏音影在进入音律独奏状态时可以对周围目标造成220%的气动伤害，该伤害视为共鸣解放伤害。" },
     }
     ],
@@ -1212,7 +1213,7 @@ export const REGISTRY: Record<string, CharacterChains> = {
     },
     {
       index: 4,
-      effect: {"effect":"skillDmg","value":0.6,"label":"狼舞·决意·极倍率 +125%"},
+      effect: {"effect":"skillDmg","value":1.25,"label":"狼舞·决意·极倍率 +125%"},
       text: { name: "旗帜于火飞扬", desc: "狼舞的决意·极的伤害倍率提升125%。" },
     },
     {
@@ -1237,13 +1238,13 @@ export const REGISTRY: Record<string, CharacterChains> = {
     },
     {
       index: 2,
-      effect: {"effect":"heavyDmg","value":0.75,"label":"谱曲终末（重击替换）伤害 +75%"},
+      effect: {"effect":"furoloDirgeBoost","valueMult":1.75,"echoBonusMult":1.75,"echoesGain":14,"label":"谱曲终末倍率+75%·余响增益效果+75%（每层+60%→+105%）·施放时+14余响"},
       text: { name: "绳索，重生更新的纽带", desc: "谱曲终末伤害倍率提升75%，余响对谱曲终末的倍率增加效果提升75%。施放谱曲终末时获得14层余响。" },
     },
     {
       index: 3,
       effect: {"effect":"heavyDmg","value":0.8,"label":"谱曲终末伤害 +80%"},
-      text: { name: "匕首，消弭妄想的力量", desc: "谱曲终末伤害加深80%。" },
+      text: { name: "匕首，消弭妄想的力量", desc: "谱曲终末伤害加深80%。强化追击·赫卡忒命中目标时，目标攻击力降低20%，持续2回合。" },
     },
     {
       index: 4,
@@ -1252,12 +1253,13 @@ export const REGISTRY: Record<string, CharacterChains> = {
     },
     {
       index: 5,
+      effect: {"effect":"furoloCommandDefense","value":0.30,"label":"指挥状态时弗洛洛与赫卡忒受伤 -30%"},
       text: { name: "岔路，穿越生命的要地", desc: "处于指挥状态时，弗洛洛与赫卡忒受到的伤害降低30%。" },
     },
     {
       index: 6,
       effect: {"effect":"elemDmg","value":0.6,"element":"湮灭","label":"指挥状态时湮灭伤害 +60%"},
-      text: { name: "深夜，走出安息与终结", desc: "强化攻击·赫卡忒伤害倍率提升24%。施放普攻或共鸣技能时召唤赫卡忒追击1次（造成弗洛洛最大生命8%的湮灭伤害），并获得8层余响。指挥状态期间，弗洛洛为登场角色时湮灭伤害加成提升60%；弗洛洛为非登场角色时，目标受到赫卡忒和弗洛洛的伤害提升40%。" },
+      text: { name: "深夜，走出安息与终结", desc: "强化追击·赫卡忒伤害倍率提升24%。施放普攻或共鸣技能时召唤赫卡忒追击1次（造成弗洛洛最大生命8%的湮灭伤害），并获得8层余响。指挥状态期间，弗洛洛为登场角色时湮灭伤害加成提升60%；弗洛洛为非登场角色时，目标受到赫卡忒和弗洛洛的伤害提升40%。" },
     }
     ],
   },
@@ -1286,7 +1288,7 @@ export const REGISTRY: Record<string, CharacterChains> = {
     },
     {
       index: 5,
-      effect: {"effect":"allDmg","value":0.05,"label":"护盾量 +50%"},
+      effect: {"effect":"defense","value":0.30,"label":"减伤30%"},
       text: { name: "于怒潮中卓立", desc: "固有技能·荣誉的加护获得护盾量提升50%。" },
     },
     {
@@ -1306,12 +1308,12 @@ export const REGISTRY: Record<string, CharacterChains> = {
     },
     {
       index: 2,
-      effect: {"effect":"teamAllDmg","value":0.2,"label":"苍白死光的祝颂 10 层时全伤害加深 40%"},
+      effect: {"effect":"teamAllDmg","value":0.4,"label":"苍白死光的祝颂 10 层时全伤害加深 40%"},
       text: { name: "昼或夜，且以它为永恒", desc: "队伍中的角色的苍白死光的祝颂叠加至10层时，其额外获得40%全伤害加深。" },
     },
     {
       index: 3,
-      effect: {"effect":"allDmg","value":0.35,"label":"月弓普攻/技能/闪反伤害加深 65%"},
+      effect: {"effect":"allDmg","value":0.65,"label":"月弓普攻/技能/闪反伤害加深 65%"},
       text: { name: "我痛饮他者的遗忘", desc: "尤诺处于月相流转状态时，月弓·普攻、共鸣技能·越限的弦引、月弓·闪避反击造成的伤害加深65%。 施放月弓·普攻或月弓·闪避反击后一定时间内，施放共鸣技能·越限的弦引将不会重置月弓·普攻的连段。" },
     },
     {
@@ -1326,7 +1328,7 @@ export const REGISTRY: Record<string, CharacterChains> = {
     },
     {
       index: 6,
-      effect: {"effect":"heavyDmg","value":1,"label":"至臻完满倍率 +1600%"},
+      effect: {"effect":"heavyDmg","value":16,"label":"至臻完满倍率 +1600%"},
       text: { name: "我所在，即为不变的独一", desc: "重击·至臻的完满伤害倍率增加1600%。 尤诺施放重击·至臻的完满时，会再次进入月相流转·新月状态，获得100点【灵性】并重置共鸣技能·越限的弦引的全部冷却。" },
     }
     ],
@@ -1346,7 +1348,7 @@ export const REGISTRY: Record<string, CharacterChains> = {
     },
     {
       index: 3,
-      effect: {"effect":"burstDmg","value":0.5,"label":"解放倍率 +500%"},
+      effect: {"effect":"burstDmg","value":5.0,"label":"解放倍率 +500%"},
       text: { name: "剑啊，谓我弃绝割股之心", desc: "共鸣解放万钧一断伤害倍率增加500%。 协奏能量充满且不处于【淋漓醉墨】状态下时，仇远的共鸣技能替换为共鸣技能荷蓑出林，每场战斗可施放1次。 施放荷蓑出林时，提前结束且从容效果，消耗60点协奏能量并回复【挑灯问剑】400点，对目标造成仇远自身500%攻击的气动伤害。 施放荷蓑出林后，下次仇远进入【淋漓醉墨】状态时无法获得且从容效果，答剑·弦歌不缀、答剑·割股之心、答剑·忠烈死节伤害倍率增加600%，答剑·忠烈死节命中时额外获得协奏能量30点。 施放荷蓑出林后，下次延奏技能替换为延奏技能新筠坠箨，造成仇远自身500%攻击的气动伤害。" },
     },
     {

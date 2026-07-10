@@ -125,12 +125,12 @@ describe('StatsTab', () => {
     S.five = 5;
     S.four = 25;
     S.upHits = 3;
+    S.log = Array.from({ length: 5 }, (_, i) => ({ r: 5, n: `五${i}`, t: '', pool: 'eventChar', pity: 20, up: true, no: i + 1, date: '2024-05-23' }));
     bumpStateVersion();
     const el = mount(<StatsTab />);
     expect(el.textContent).toContain('100');
     expect(el.textContent).toContain('5');
-    expect(el.textContent).toContain('25');
-    expect(el.textContent).toContain('20.0'); // avg = 100/5
+    expect(el.textContent).toContain('20.0'); // avg pity = 20 (each 5★ at pity 20)
     expect(el.textContent).toContain('3');
   });
 

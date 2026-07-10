@@ -301,26 +301,22 @@ const W = {
   '忘川': {
     r: 5, type: '音感仪', atk90: 500,
     sub: { stat: 'crate', value90: 0.360 },
-    passive: [
-      { type: 'elem_dmg', element: '湮灭', value: 0.20 }
-    ],
+    passive: [],
     triggers: [
       { on: 'skill_hit', effect: 'elem_dmg', value: 0.10, element: '湮灭', maxStacks: 2, duration: 5 }
     ],
-    desc: '湮灭+20%；技能后湮灭+10%×2 层'
+    desc: '技能命中时湮灭伤害 +10%（最多 2 层，持续 5 回合）'
   },
 
   // 奥古斯塔专武（长刃）
   '雷霆疆域': {
     r: 5, type: '长刃', atk90: 587,
     sub: { stat: 'cdmg', value90: 0.486 },
-    passive: [
-      { type: 'elem_dmg', element: '导电', value: 0.20 }
-    ],
+    passive: [],
     triggers: [
       { on: 'normal_hit', effect: 'elem_dmg', value: 0.10, element: '导电', maxStacks: 3, duration: 5 }
     ],
-    desc: '导电+20%；普攻后导电+10%×3 层'
+    desc: '普攻命中时导电伤害 +10%（最多 3 层，持续 5 回合）'
   },
 
   // 尤诺专武（臂铠）
@@ -328,12 +324,12 @@ const W = {
     r: 5, type: '臂铠', atk90: 587,
     sub: { stat: 'atk_pct', value90: 0.364 },
     passive: [
-      { type: 'elem_dmg', element: '冷凝', value: 0.20 }
+      { type: 'elem_dmg', element: '气动', value: 0.20 }
     ],
     triggers: [
-      { on: 'skill_hit', effect: 'elem_dmg', value: 0.10, element: '冷凝', maxStacks: 2, duration: 5 }
+      { on: 'skill_hit', effect: 'elem_dmg', value: 0.10, element: '气动', maxStacks: 2, duration: 5 }
     ],
-    desc: '冷凝+20%；技能后冷凝+10%×2 层'
+    desc: '气动+20%；技能后气动+10%×2 层'
   },
 
   // 嘉贝莉娜专武（佩枪）— encore 名为"光影双生"
@@ -346,12 +342,6 @@ const W = {
     triggers: [
       { on: 'heavy_hit', effect: 'heavy_pct', value: 0.15, maxStacks: 3, duration: 5 }
     ],
-    desc: '攻击+12%；暴伤+48.6%；重击+15%×3 层'
-  },
-  '光与影': { r: 5, type: '佩枪', atk90: 587,
-    sub: { stat: 'cdmg', value90: 0.486 },
-    passive: [{ type: 'atk_pct', value: 0.12 }],
-    triggers: [{ on: 'heavy_hit', effect: 'heavy_pct', value: 0.15, maxStacks: 3, duration: 5 }],
     desc: '攻击+12%；暴伤+48.6%；重击+15%×3 层'
   },
 

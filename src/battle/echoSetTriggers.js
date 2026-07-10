@@ -12,6 +12,8 @@
 
 const TRIGGER_TURN_DURATION = 3; // 持续 3 回合 ≈ 官方 15 秒
 
+import { getErosionStacks } from './combat/erosion.js';
+
 // cond 触发关键字 → 战斗事件名 映射
 // cond 文案参考 src/data/echoes.js 各套装 bonus5.cond
 const COND_TRIGGER_MAP = [
@@ -132,7 +134,7 @@ export function fireEchoSetOnErosion(self, battle) {
 // 触发点 2：攻击命中带有风蚀效应的目标 → 自身暴击 +10% / 气动 +30%
 export function fireEchoSetOnHitErosion(self, target, battle) {
   if (!unitHasFivePiece(self, 'cartethyia_glory')) return;
-  if (!target || !(target.cartethyiaErosion > 0)) return;
+  if (!target || !getErosionStacks(target)) return;
 
   const src = '声骸套装·cartethyia_glory';
   self.buffs = (self.buffs || []).filter(b => b.src !== src);

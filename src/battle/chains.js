@@ -50,18 +50,21 @@ export function applyChainBonuses(unit) {
         break;
       case 'crate':
         unit.crate += e.value;
+        if (e.cdmg) unit.cdmg += e.cdmg;
         break;
       case 'cdmg':
         unit.cdmg += e.value;
         break;
       case 'normalDmg':
         unit.normalBonus = (unit.normalBonus || 0) + e.value;
+        if (e.defPierce) unit.pierceDef = (unit.pierceDef || 0) + e.defPierce;
         break;
       case 'skillDmg':
         unit.skillBonus = (unit.skillBonus || 0) + e.value;
         break;
       case 'burstDmg':
         unit.burstBonus = (unit.burstBonus || 0) + e.value;
+        if (e.heavyDmg) unit.heavyBonus = (unit.heavyBonus || 0) + e.heavyDmg;
         break;
       case 'heavyDmg':
         unit.heavyBonus = (unit.heavyBonus || 0) + e.value;
@@ -90,6 +93,10 @@ export function applyChainBonuses(unit) {
       // ===== 守岸人结构化机制 =====
       case 'normalSplit':
         unit.normalSplit = Math.max(unit.normalSplit || 1, e.value);
+        break;
+      case 'defense':
+        unit.buffs = unit.buffs || [];
+        unit.buffs.push({ type: 'defense', value: e.value, duration: 999, src: `${unit.name}链防御` });
         break;
       case 'variationDmg':
         unit.variationBonus = (unit.variationBonus || 0) + e.value;

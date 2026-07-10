@@ -2,12 +2,17 @@ import { registerStack, gainStack, consumeStack, getStack, getStackCap, renderSt
 import { registerForm, enterForm, exitForm, hasForm } from '../forms.js';
 import { registerSwitchHook } from '../switchHooks.js';
 import { fireEchoSetOnErosion } from '../echoSetTriggers.js';
+import { addErosion, getErosionStacks, consumeAllErosion, doubleErosionStacks, erosionTick as 通用ErosionTick } from '../combat/erosion.js';
 
 // 卡提希娅「决意 / 芙露德莉斯形态 / 风蚀」状态机
 //
 // 双形态循环：
 //   卡提希娅形态（常态）：普攻/技能/重击叠【决意】→ 第一次解放消耗决意获得【人权/神权/异权】→ 进芙露德莉斯形态
-//   芙露德莉斯形态：攻击/技能叠【风蚀效应】→ 第二次解放每层风蚀 +20% → 清空风蚀退出形态
+//   芙露德莉斯形态：攻击/技能叠【风蚀效应】→ 第二次解放消耗全部风蚀层数,每层 +20% 爆发倍率（卡提希娅自己技能的爆发加成,非通用 debuff 的 perStack）→ 清空风蚀退出形态
+//
+// 风蚀效应：气动元素通用 debuff,通过 target.debuffs[{type:'erosion', element:'气动'}] 管理（见 combat/erosion.js）
+//   通用每层加深 +10% 气动伤害（所有气动角色共享）
+//   卡提希娅第二次解放的"每层 +20% 爆发"是她角色自己的技能倍率加成,独立计算,不动通用 debuff
 //
 // 决意系统：上限 3 层，每层 +10% 气动伤害，每层独立 2 回合衰减（表现为全局 timer=1，到时减 1 层并刷新）
 // 仅作为 buff 名，不复刻官方原文的「每攒 30/60/90/120 决意暴伤 +25%」集意/决意真机制
@@ -166,16 +171,10 @@ export function cartethyiaApplyErosion(self, target, battle, isBurst = false) {
   if (self.name !== '卡提希娅' || !self.cartethyiaFurTurns) return;
   if (isBurst) return; // 第二次解放不清风蚀（而是消耗）
 
-  target.cartethyiaErosion = target.cartethyiaErosion || 0;
-
   // 异权：非大招技能叠加两层风蚀
   const stacks = (self.cartethyiaRight === 'alien' && !isBurst) ? 2 : 1;
 
-  target.cartethyiaErosion += stacks;
-  battle.log.push({
-    type: 'mechanic', src: self.name,
-    msg: `风蚀 +${stacks} 层（共 ${target.cartethyiaErosion} 层）`
-  });
+  addErosion(target, stacks, battle, { src: self.name });
 
   // 触发音骸套装 · 流云逝尽之空 5 件：自身添加风蚀 → 全队气动 +15% / 自身额外 +15%
   fireEchoSetOnErosion(self, battle);
@@ -200,10 +199,10 @@ export function cartethyiaApplyErosion(self, target, battle, isBurst = false) {
 // 在 reduceVibration 内破韧事件触发时调用
 export function cartethyiaErosionOnBreak(self, target, battle) {
   if (!self || self.name !== '卡提希娅' || !self.cartethyiaErosionOnBreak) return;
-  target.cartethyiaErosion = (target.cartethyiaErosion || 0) + 1;
+  addErosion(target, 1, battle, { src: self.name });
   battle.log.push({
     type: 'mechanic', src: self.name,
-    msg: `链 1 · 因命运戴上冠冕：破韧瞬间 → ${target.name} 风蚀 +1（共 ${target.cartethyiaErosion} 层）`
+    msg: `链 1 · 因命运戴上冠冕：破韧瞬间 → ${target.name} 风蚀 +1`
   });
 }
 
@@ -211,10 +210,10 @@ export function cartethyiaErosionOnBreak(self, target, battle) {
 // 在 doSwitch 变奏命中后调用
 export function cartethyiaErosionOnSwitchIn(self, target, battle) {
   if (!self || self.name !== '卡提希娅' || !self.cartethyiaErosionOnSwitchIn) return;
-  target.cartethyiaErosion = (target.cartethyiaErosion || 0) + 1;
+  addErosion(target, 1, battle, { src: self.name });
   battle.log.push({
     type: 'mechanic', src: self.name,
-    msg: `链 2 · 听风潮斩断利刃：变奏上场 → ${target.name} 风蚀 +1（共 ${target.cartethyiaErosion} 层）`
+    msg: `链 2 · 听风潮斩断利刃：变奏上场 → ${target.name} 风蚀 +1`
   });
 }
 
@@ -277,15 +276,17 @@ export function cartethyiaBurstErosion(self, battle) {
   const primary = battle.enemies.find(e => e.alive && e === battle.enemies[battle.targetIdx || 0]);
   if (!primary) return { erosionMult: 1.0, erosionConsumed: 0 };
 
-  let erosion = primary.cartethyiaErosion || 0;
+  let erosion = getErosionStacks(primary);
 
-  // 6 链：风蚀层数翻倍 + 不清空
+  // 6 链：风蚀层数翻倍 + 不清空（官方无上限，不封顶）
   const chain6Double = !!self.cartethyiaBurst2DoubleErosion;
   if (chain6Double) {
     erosion = erosion * 2;
+    doubleErosionStacks(primary, battle, { src: self.name });
+    erosion = getErosionStacks(primary);
   }
 
-  // 每层风蚀 +20%
+  // 每层风蚀 +20%（卡提希娅自己解放技能的爆发倍率加成,非通用 debuff 的 perStack）
   const erosionMult = 1 + erosion * 0.20;
 
   if (erosion > 0) {
@@ -300,16 +301,16 @@ export function cartethyiaBurstErosion(self, battle) {
   // 6 链：立即结算 1 次 + 不清空
   if (chain6Double) {
     battle.enemies.forEach(e => {
-      if (e.alive && e.cartethyiaErosion) {
-        cartethyiaErosionTick(e, battle);
+      if (e.alive && getErosionStacks(e) > 0) {
+        通用ErosionTick(e, battle);
         // 不清空：保留风蚀层数
       }
     });
   } else {
     // 清空所有敌人的风蚀
-    primary.cartethyiaErosion = 0;
+    consumeAllErosion(primary, battle, { src: self.name });
     battle.enemies.forEach(e => {
-      if (e !== primary) e.cartethyiaErosion = 0;
+      if (e !== primary && getErosionStacks(e) > 0) consumeAllErosion(e, battle, { src: self.name });
     });
   }
 
@@ -320,23 +321,9 @@ export function cartethyiaBurstErosion(self, battle) {
   return { erosionMult, erosionConsumed: erosion };
 }
 
-// 风蚀效应伤害：敌人回合开始时，根据敌人自身攻击力受到伤害
+// 风蚀效应 DoT：转发到通用 erosionTick（combat/erosion.js）
 export function cartethyiaErosionTick(enemy, battle) {
-  if (!enemy.alive) return;
-  const erosion = enemy.cartethyiaErosion || 0;
-  if (erosion <= 0) return;
-
-  // 伤害计算：敌人 ATK × 层数 × 0.3（固定倍率，不受玩家加成）
-  const dmg = Math.round(enemy.atk * erosion * 0.3);
-  enemy.hp = Math.max(0, enemy.hp - dmg);
-  battle.log.push({
-    type: 'mechanic', src: enemy.name,
-    msg: `风蚀效应造成 ${dmg} 点伤害（${erosion} 层 × ${enemy.atk} × 0.3）`
-  });
-  if (enemy.hp <= 0) {
-    enemy.alive = false;
-    battle.log.push({ type: 'mechanic', src: enemy.name, msg: `${enemy.name} 被风蚀效应击败` });
-  }
+  通用ErosionTick(enemy, battle);
 }
 
 // endTurn 清理：决意计时移到 stacks.js tickStacks 统一管理，芙露形态计时仍在此处

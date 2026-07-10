@@ -86,12 +86,40 @@ export const FORTE = {
     effectType: 'zanYanBlaze',
     desc: '焰光上限 100。共鸣解放·重燃进入灼焰形态 3 回合（+50 焰光，每回合 +10），期间普攻替换为重斩（HP×12%，消耗 20 焰光）。形态结束自动施放终绝将至之刻（HP×20%，3 链按消耗焰光 +2%/点 最多 +200%）。'
   },
+  '仇远': {
+    kind: 'gauge', resourceName: '挑灯问剑', max: 100,
+    // 挑灯问剑由 chouyuan.js 状态机精确控制（攻+10/技能+25/解放+40/变奏+5，
+    // 非当前角色-5/回合），故通用 gainForte 置 0 避免双算
+    gainPerNormal: 0, gainPerSkill: 0, gainPerBurst: 0, gainPerHeavy: 0,
+    effectType: 'chouyuanDrunk',
+    desc: '挑灯问剑上限 100。满值时进入<b class="term-resource">淋漓醉墨</b> 2 回合，<b class="term-resource">重击</b>替换为<b class="term-resource">答剑三连</b>（atk×550% 气动），退出时清空。<br>首次进入发<b class="term-resource">且从容</b>（答剑三连×1.5，每场 1 次）；同时触发<b class="term-resource">竹照</b>全队全属性伤害+30%（3 回合）。'
+  },
+  '千咲': {
+    kind: 'gauge', resourceName: '锯环残响', max: 100,
+    // 锯环残响由 qianxiao.js 状态机精确控制（普攻+10/技能+25/锯环疾攻每段+12）
+    gainPerNormal: 0, gainPerSkill: 0, gainPerBurst: 0, gainPerHeavy: 0,
+    effectType: 'qianxiaoStack',
+    desc: '锯环残响上限 100。残响满 100 时共鸣技能替换为<b class="term-resource">齿轨轮回</b>（消耗全部残响，进入电锯模式 3 回合）。电锯模式下普攻替换为<b class="term-resource">锯环·疾攻</b>（3 段，HP×5.3%×3=HP×15.9%，每段+12残响），残响再次满 100 时普攻替换为<b class="term-resource">锯环·终结</b>（消耗全部残响，退出电锯模式）。'
+  },
   '弗洛洛': {
     kind: 'gauge', resourceName: '余响', max: 24,
-    // 余响由 frolo.js 状态机控制（普攻+3/技能+5/重击+4/变奏+2/谱曲终末+6/赫卡忒自动+2/强化+3/战斗开始+10）
+    // 余响由 frolo.js 状机控制（普攻+3/技能+5/重击+4/变奏+2/谱曲终末+6/赫卡忒自动+2/强化+3/战斗开始+10）
     gainPerNormal: 0, gainPerSkill: 0, gainPerBurst: 0, gainPerHeavy: 0,
     effectType: 'furoloEchoes',
-    desc: '余响上限 24 层。每层使谱曲终末倍率线性 +60%（2 链 +105%）；每层暴伤 +2.5%（固有·八重奏）。战斗开始 +10 层。'
+    desc: '余响上限 24 层。每层使谱曲终末倍率线性 +60%（2 链 +105%）；每层暴伤 +2.5%（固有·八重）。战斗开始 +10 层。'
+  },
+  '夏空': {
+    kind: 'stacks', resourceName: '音律', max: 3,
+    gainPerNormal: 0, gainPerSkill: 0, gainPerBurst: 0, gainPerHeavy: 0,
+    effectType: 'xiakongHeavy',
+    desc: '音律（0-3）：普攻第 4 段 / 变奏入场 +1 音律，满 3 格时普攻自动替换为四拍重奏（atk×200% 气动，牵引 + 叠风蚀）'
+  },
+  '露帕': {
+    kind: 'gauge', resourceName: '狼焰', max: 100,
+    gainPerNormal: 10, gainPerSkill: 15, gainPerBurst: 100, gainPerHeavy: 20,
+    effectType: 'enhancedBurst',
+    effectMult: 3.2,
+    desc: '普攻+10/技能+15/重击+20/解放全满。满100时共鸣技能替换为狼舞·决意·极（atk×320%热熔，视为共鸣解放伤害；链4+125%=×720%）并消耗全部狼焰'
   },
   '安可': {
     kind: 'gauge', resourceName: '失序值', max: 100,
@@ -174,6 +202,21 @@ export const FORTE = {
     effectType: 'enhancedSkill',
     effectMult: 2.0,
     desc: '气满时「行气反击」伤害 ×2.0'
+  },
+
+  // ── 2.6 限定 ──
+  '奥古斯塔': {
+    kind: 'stacks', resourceName: '以众愿为冕', max: 1,
+    gainPerNormal: 0, gainPerSkill: 0, gainPerBurst: 0, gainPerHeavy: 0,
+    effectType: 'aogusitaBurst',
+    desc: '【以众愿为冕】（层数型）上限1层（C0→2/C6→4），每层导电伤害+15%/暴伤+15%（C1）/暴击+20%（C2）。仅延奏获得（C0）；C1+变奏/技能/重击也可获得。赫日威临结束时清零。<br>【威慑】（阈值型）上限2层。非战斗开始补至1层，延奏+1层。消耗2层释放赫日威临。'
+  },
+  '尤诺': {
+    kind: 'gauge', resourceName: '灵性', max: 100,
+    gainPerNormal: 0, gainPerSkill: 0, gainPerBurst: 0, gainPerHeavy: 0,
+    effectType: 'younuoMoon',
+    effectMult: 1.0,
+    desc: '灵性（0-100）：普攻+12（月相流转+20）、共鸣技能+25、变奏+15、解放+40。满100时进入月相流转状态，展开满月领域3回合，解锁重击·至臻的完满。至臻完满施放后清空灵性。'
   },
 
   // ── 4★ ──

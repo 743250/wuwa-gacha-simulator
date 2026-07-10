@@ -19,19 +19,33 @@ import kakaro from './kakaro.js';
 import zhezhi from './zhezhi.js';
 import zanyan from './zanyan.js';
 import frolo from './frolo.js';
+import chouyuan from './chouyuan.js';
+import qianxiao from './qianxiao.js';
+import aogusita from './aogusita.js';
+import xiakong from './xiakong.js';
+import younuo from './younuo.js';
 
-// 轻量角色：仅标记 hasHeavy，无完整 mechanic 文件
+// 轻量角色：仅标记 hasHeavy，无完整 mechanic 文
 const LIGHTWEIGHT = {
   '嘉贝莉娜': { hasHeavy: true },
   '洛可可':   { hasHeavy: true },
-  '鉴心':     { hasHeavy: true }
+  '鉴心':     { hasHeavy: true },
+  '露帕':     { hasHeavy: true },
+  '相里要':   { hasHeavy: true },
+  '维里奈':   { hasHeavy: false },
+  '凌阳':     { hasHeavy: false }
 };
 
 const FULL = {
   '忌炎': jiyan, '守岸人': shorekeeper, '吟霖': yinlin, '安可': encore, '卡提希娅': cartethyia,
   '今汐': jinhsi, '长离': changli, '椿': camellia, '珂莱塔': carlotta, '菲比': phoebe,
   '布兰特': brant, '坎特蕾拉': cantarella, '卡卡罗': kakaro, '折枝': zhezhi, '赞妮': zanyan,
-  '弗洛洛': frolo
+  '弗洛洛': frolo,
+  '仇远': chouyuan,
+  '千咲': qianxiao,
+  '奥古斯塔': aogusita,
+  '夏空': xiakong,
+  '尤诺': younuo
 };
 
 const ALL = { ...LIGHTWEIGHT, ...FULL };

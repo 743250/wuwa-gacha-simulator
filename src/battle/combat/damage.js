@@ -14,6 +14,7 @@ import { collectWeaponBonus } from '../weaponTriggers.js';
 import { resistMultiplier, vibrationMultiplier } from '../elements.js';
 import { applyEnemyDefendHook } from '../enemyMechanics.js';
 import { queryCharacterHook } from '../characters/index.js';
+import { voidErosionDefMult } from './effects.js';
 
 // ===== 伤害计算 =====
 // dmgType: 'normal' | 'skill' | 'burst' | 'heavy'
@@ -57,15 +58,8 @@ export function calcDamage(attacker, defender, multiplier, dmgType, opts = {}) {
   const burstWin = attacker.buffs?.find(b => b.type === 'burstWindow');
   let windowBonus = burstWin && (dmgType === 'normal' || dmgType === 'skill') ? (1 + burstWin.value) : 1;
   windowBonus *= queryCharacterHook(attacker, 'windowMultiplier', dmgType) || 1;
-  // 卡提希娅气动侵蚀类 debuff
+  // 六种元素异常效应不通过加深 debuff 影响伤害（风蚀/光噪/电磁是 DoT，聚爆/霜渐是累积爆发，虚湮走 defMult）
   let debuffBonus = 1;
-  if (defender.debuffs) {
-    defender.debuffs.forEach(d => {
-      if (d.type === 'erosion' && d.element === attacker.element) {
-        debuffBonus += d.value;
-      }
-    });
-  }
   if (wb.condBonus) debuffBonus += wb.condBonus;
   // 吟霖审判印记
   const mark = defender.judgeMark;
@@ -77,7 +71,9 @@ export function calcDamage(attacker, defender, multiplier, dmgType, opts = {}) {
   // 防御穿透(含焰羽等临时 pierceUp buff)
   const pierceBuff = (attacker.buffs || []).reduce((a, b) => b.type === 'pierceUp' ? a + b.value : a, 0);
   const totalPierce = (attacker.pierceDef || 0) + wb.defPierce + pierceBuff;
-  const defEffective = defender.def * (1 - Math.min(1, totalPierce));
+  // 虚湮效应：每层 -2% 防御
+  const voidDefMult = voidErosionDefMult(defender);
+  const defEffective = defender.def * (1 - Math.min(1, totalPierce)) * voidDefMult;
   const atkLv = attacker.level || 1;
   const mitigation = defEffective / (800 + 8 * atkLv + defEffective);
   const defMult = 1 - mitigation;

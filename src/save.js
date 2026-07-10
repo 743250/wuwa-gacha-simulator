@@ -265,7 +265,13 @@ function migrateLegacy(s) {
 
 export function clearSave() {
   localStorage.removeItem(KEY);
+  localStorage.removeItem('wuwa_setup_done');
   // 文件系统的存档不删,保留作为冷备份
+}
+
+// 检查 localStorage 是否有任何存档镜像(用于首屏判断是否需要弹开局设置)
+export function hasLocalStorageSave() {
+  return !!localStorage.getItem(KEY);
 }
 
 export function exportSave() {

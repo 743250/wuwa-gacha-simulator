@@ -15,6 +15,7 @@ import { applyEnemyPeriodicMechanic, applyEnemyThresholdMechanic, applyEnemyOnHi
 import { queryCharacterHook, getCharacterMechanic } from '../characters/index.js';
 import { VIBRATION_DAMAGE } from '../balance.js';
 import { calcDamage, dealDamage, setCurrentBattle, tickSummons, tickSummonsDuration } from './damage.js';
+import { tickAllEffects, decayEffectDurations } from './effects.js';
 import {
   enemyAttack, spawnSaws, tickSaws, randomTeamTarget2,
   handleDelayedBlast, handleOverclock,
@@ -35,9 +36,8 @@ export function endTurn(battle) {
   battle.enemies.forEach(enemy => {
     if (!enemy.alive) return;
 
-    // 卡提希娅风蚀效应:敌人回合开始时受到伤害(中断/跳过行动期间仍结算)
-    const erosionTickFn = getCharacterMechanic('卡提希娅')?.erosionTick;
-    if (typeof erosionTickFn === 'function') erosionTickFn(enemy, battle);
+    // 通用元素异常效应 tick（敌人回合开始时触发 DoT/满层爆发）
+    tickAllEffects(enemy, battle);
 
     // 破韧/残骸/弹反中断中跳过
     if (enemy.suppressed > 0) {

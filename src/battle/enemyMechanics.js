@@ -557,6 +557,159 @@ const NEW_MECHANICS = {
         }
       }
     }
+  },
+
+  // 18 虚诞虫 · 虚质侵蚀（叠层 debuff + AOE 暗潮）
+  void_decay: {
+    onHit({ battle, enemy, target }) {
+      if (!target?.alive) return;
+      const m = enemy.mechanic;
+      target.debuffs = target.debuffs || [];
+      let decay = target.debuffs.find(d => d.type === 'void_decay');
+      if (!decay) {
+        decay = { type: 'void_decay', stacks: 0, duration: 3, dotPct: m.dotPct || 0.5 };
+        target.debuffs.push(decay);
+      } else {
+        decay.duration = 3;
+      }
+      decay.stacks = Math.min((decay.stacks || 0) + 1, m.maxStacks || 5);
+      battle.log.push({ type: 'mechanic', src: enemy.name, tgt: target.name, msg: `虚蚀 \u00d7${decay.stacks}/${m.maxStacks || 5}` });
+    },
+    periodic({ battle, enemy, helpers }) {
+      const m = enemy.mechanic;
+      battle.team.forEach(t => {
+        if (!t.alive) return;
+        const decay = (t.debuffs || []).find(d => d.type === 'void_decay');
+        if (!decay || decay.stacks <= 0) return;
+        const dotDmg = Math.round(enemy.atk * (m.dotPct || 0.5) * decay.stacks);
+        const real = helpers.dealDamage(t, dotDmg);
+        if (real > 0) battle.log.push({ type: 'mechanic', src: enemy.name, tgt: t.name, dmg: real, msg: `虚蚀 \u00d7${decay.stacks}` });
+      });
+      const effCycle = enemy._voidP2 ? Math.max(1, Math.floor((m.aoeCycle || 3) / 2)) : (m.aoeCycle || 3);
+      if (isMechanicTurn({ cycle: effCycle }, battle.turn)) {
+        battle.log.push({ type: 'mechanic', src: enemy.name, msg: '释放虚质暗潮！' });
+        battle.team.forEach(t => {
+          if (!t.alive) return;
+          helpers.enemyAttack(battle, enemy, t, { mult: m.aoeMult || 0.9, action: '虚质暗潮' });
+        });
+      }
+    },
+    threshold({ battle, enemy }) {
+      const m = enemy.mechanic;
+      if (enemy._voidP2 || enemy.hp / enemy.hpMax > (m.threshold || 0.5)) return;
+      enemy._voidP2 = true;
+      enemy.phase = 2;
+      battle.log.push({ type: 'mechanic', src: enemy.name, msg: '虚质磁暴加剧！暗潮频率翻倍' });
+    }
+  },
+
+  // 19 阿列夫一造物 · 双元素维度裂隙
+  alev_rift: {
+    threshold({ battle, enemy }) {
+      const m = enemy.mechanic;
+      if (enemy._alevP2 || enemy.hp / enemy.hpMax > (m.threshold || 0.6)) return;
+      enemy._alevP2 = true;
+      enemy.phase = 2;
+      battle.log.push({ type: 'mechanic', src: enemy.name, msg: '维度裂隙展开！进入第二阶段，每回合追加裂隙射' });
+    },
+    periodic({ battle, enemy, helpers }) {
+      const m = enemy.mechanic;
+      if (isMechanicTurn({ cycle: m.riftCycle || 3 }, battle.turn)) {
+        const tgt = helpers.pickTeamTarget(battle);
+        if (tgt) helpers.enemyAttack(battle, enemy, tgt, { mult: m.riftMult || 1.8, action: '维度裂缝' });
+      }
+      if (isMechanicTurn({ cycle: m.quakeCycle || 5 }, battle.turn)) {
+        battle.log.push({ type: 'mechanic', src: enemy.name, msg: '双界荡！全队受击' });
+        battle.team.forEach(t => {
+          if (!t.alive) return;
+          helpers.enemyAttack(battle, enemy, t, { mult: m.quakeMult || 1.0, action: '双界震荡' });
+        });
+      }
+      if (enemy._alevP2 && isMechanicTurn({ cycle: 2 }, battle.turn)) {
+        const tgt = helpers.pickTeamTarget(battle);
+        if (tgt) helpers.enemyAttack(battle, enemy, tgt, { mult: m.p2ExtraMult || 0.6, action: '裂隙溅射' });
+      }
+    }
+  },
+
+  // 20 万囮牢·朽躯 · 湮灭印记叠层爆发
+  decay_mark: {
+    onHit({ battle, enemy, target }) {
+      if (!target?.alive) return;
+      const m = enemy.mechanic;
+      target.debuffs = target.debuffs || [];
+      let mark = target.debuffs.find(d => d.type === 'decay_mark');
+      if (!mark) {
+        mark = { type: 'decay_mark', stacks: 0, duration: 3 };
+        target.debuffs.push(mark);
+      } else {
+        mark.duration = 3;
+      }
+      mark.stacks = Math.min((mark.stacks || 0) + 1, m.maxStacks || 5);
+      mark.dmgAmp = mark.stacks * (m.stackDmgPct || 0.05);
+      battle.log.push({ type: 'mechanic', src: enemy.name, tgt: target.name, msg: `湮灭印记 \u00d7${mark.stacks}/${m.maxStacks || 5}（受击+${(mark.dmgAmp * 100).toFixed(0)}%）` });
+    },
+    periodic({ battle, enemy, helpers }) {
+      const m = enemy.mechanic;
+      if (isMechanicTurn({ cycle: m.aoeCycle || 3 }, battle.turn)) {
+        battle.team.forEach(t => {
+          if (!t.alive) return;
+          helpers.enemyAttack(battle, enemy, t, { mult: m.aoeMult || 0.8, action: '朽躯震荡' });
+        });
+      }
+      if (isMechanicTurn({ cycle: m.consumeCycle || 4 }, battle.turn)) {
+        battle.team.forEach(t => {
+          if (!t.alive) return;
+          const mark = (t.debuffs || []).find(d => d.type === 'decay_mark');
+          if (!mark || mark.stacks <= 0) return;
+          const dmg = Math.round(enemy.atk * (m.consumeMult || 1.5) * mark.stacks / (m.maxStacks || 5));
+          const real = helpers.dealDamage(t, dmg);
+          t._decayVuln = 3;
+          mark.stacks = 0;
+          battle.log.push({ type: 'mechanic', src: enemy.name, tgt: t.name, dmg: real, msg: '湮灭印记爆发！' });
+        });
+      }
+    }
+  },
+
+  // 21 千傀重楼 · 谐度破坏叠层 + 多段射击
+  harmonic_disrupt: {
+    onHit({ battle, enemy, target }) {
+      if (!target?.alive) return;
+      const m = enemy.mechanic;
+      target.debuffs = target.debuffs || [];
+      let harm = target.debuffs.find(d => d.type === 'harmonic');
+      if (!harm) {
+        harm = { type: 'harmonic', stacks: 0, duration: 3 };
+        target.debuffs.push(harm);
+      } else {
+        harm.duration = 3;
+      }
+      harm.stacks = Math.min((harm.stacks || 0) + 1, m.maxStacks || 3);
+      if (harm.stacks >= (m.maxStacks || 3)) harm.dmgAmp = m.dmgAmpPct || 0.25;
+      battle.log.push({ type: 'mechanic', src: enemy.name, tgt: target.name, msg: `谐度干涉 \u00d7${harm.stacks}/${m.maxStacks || 3}` });
+    },
+    periodic({ battle, enemy, helpers }) {
+      const m = enemy.mechanic;
+      if (isMechanicTurn({ cycle: m.shotCycle || 2 }, battle.turn)) {
+        const count = m.shotCount || 2;
+        for (let i = 0; i < count; i++) {
+          const tgt = helpers.pickTeamTarget(battle);
+          if (!tgt) break;
+          helpers.enemyAttack(battle, enemy, tgt, { mult: m.shotMult || 0.6, action: '千傀射击' });
+        }
+      }
+      if (isMechanicTurn({ cycle: m.impactCycle || 4 }, battle.turn)) {
+        battle.log.push({ type: 'mechanic', src: enemy.name, msg: '谐度冲击！' });
+        battle.team.forEach(t => {
+          if (!t.alive) return;
+          const harm = (t.debuffs || []).find(d => d.type === 'harmonic');
+          const bonusMult = (harm && harm.stacks >= (m.maxStacks || 3)) ? (m.ampMult || 0.5) : 0;
+          helpers.enemyAttack(battle, enemy, t, { mult: (m.impactMult || 1.2) + bonusMult, action: '谐度冲击' });
+          if (harm) harm.stacks = 0;
+        });
+      }
+    }
   }
 };
 

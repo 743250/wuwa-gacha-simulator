@@ -44,17 +44,8 @@ function renderWeaponDetail(weaponName, wObj) {
       <div style="font-size:10px;color:var(--gold);letter-spacing:1.5px;margin-bottom:4px">▸ ${passiveName}${refine > 1 ? ` · 精炼 <b>${refine}</b>/5（数值 ×${refineMult.toFixed(2)}）` : ' · 精炼 1/5'}</div>
       <div style="color:var(--muted);font-size:11px;line-height:1.7">${refinedDesc}</div>
     </div>`;
-    // 战斗内实际数值（精炼缩放后）
     html += renderWeaponRuntime(data, refineMult, refine);
   } else {
-    // 老格式回退：堆 passive + triggers 行
-    const staticPassives = (data.passive || []).map(p => {
-      const v = (p.value * refineMult * 100).toFixed(0);
-      return `${PASSIVE_TYPE_LABEL[p.type] || p.type}${p.element ? ' · ' + p.element : ''} +${v}%`;
-    });
-    if (staticPassives.length) {
-      html += `<div style="color:var(--accent);margin-top:2px">▸ ${staticPassives.join(' · ')}</div>`;
-    }
     html += renderWeaponRuntime(data, refineMult, refine);
   }
   html += '</div>';
@@ -102,49 +93,62 @@ function applyRefineToDesc(html, refineMult) {
   });
 }
 
-// 战斗实时数值：常驻被动 + 触发被动（带精炼数值 + 公式 tooltip）
+// 战斗实时数值：按 (type, element) 分组,每组一个文案标签 + 一个数值标签
+// 文案标签 tooltip 写详细机制,数值标签 tooltip 写精炼公式
 function renderWeaponRuntime(data, refineMult, refine = 1) {
   const ABSOLUTE_VALUE_EFFECTS = new Set(['concerto_refund']);
-  const lines = [];
+  const groups = new Map();
+  const key = (type, element) => `${type}|${element || ''}`;
+  const fmtPct = v => (v * 100).toFixed(v * 100 % 1 === 0 ? 0 : 1) + '%';
+  const fmtVal = (t, v) => ABSOLUTE_VALUE_EFFECTS.has(t.effect) ? `${Math.round(v)} 点` : fmtPct(v);
   (data.passive || []).forEach(p => {
-    const origPct = (p.value * 100).toFixed(1).replace(/\.0$/, '');
-    const v = p.value * refineMult * 100;
-    const vStr = v.toFixed(v % 1 === 0 ? 0 : 1);
-    const tip = tipAttrEsc(`<b style="color:var(--gold)">精炼公式</b><br>= 原值 <b>${origPct}%</b> × 精 倍率 <b>${refineMult.toFixed(2)}</b><br>= <b style="color:var(--accent)">${vStr}%</b>`);
-    const valStr = refineMult === 1.0
-      ? `<b>+${vStr}%</b>`
-      : `<span class="tip" data-tip='${tip}'><b>+${vStr}%</b></span>`;
-    lines.push(`<div style="color:var(--accent);font-size:10px">▸ ${PASSIVE_TYPE_LABEL[p.type] || p.type}${p.element ? '·' + p.element : ''} ${valStr}（常驻）</div>`);
+    const k = key(p.type, p.element);
+    if (!groups.has(k)) groups.set(k, { type: p.type, element: p.element, passive: null, triggers: [] });
+    groups.get(k).passive = p;
   });
   (data.triggers || []).forEach(t => {
-    const trig = TRIGGER_LABEL[t.on] || t.on;
-    const eff = EFFECT_LABEL[t.effect] || t.effect;
-    const stacks = t.maxStacks > 1 ? ` ×${t.maxStacks} 层` : '';
-    const dur = t.duration && t.duration < 99 ? ` · ${t.duration} 回合` : '';
-    const isAbsolute = ABSOLUTE_VALUE_EFFECTS.has(t.effect);
-    const v = t.value * refineMult;
-    let origLabel, scaledLabel;
-    if (isAbsolute) {
-      origLabel = `${Math.round(t.value)} 点`;
-      scaledLabel = `${Math.round(v)} 点`;
-    } else {
-      origLabel = `${(t.value * 100).toFixed(0)}%`;
-      const pct = v * 100;
-      scaledLabel = `${pct.toFixed(pct % 1 === 0 ? 0 : 1)}%`;
-    }
-    const tip = tipAttrEsc(`<b style="color:var(--gold)">精炼公式</b><br>= 原值 <b>${origLabel}</b> × 精 倍率 <b>${refineMult.toFixed(2)}</b><br>= <b style="color:var(--accent)">${scaledLabel}</b>`);
-    const valStr = refineMult === 1.0
-      ? `<b>+${scaledLabel}</b>`
-      : `<span class="tip" data-tip='${tip}'><b>+${scaledLabel}</b></span>`;
-    lines.push(`<div style="color:var(--gold2);font-size:10px">⚡ ${trig} → ${eff}${t.element ? '(' + t.element + ')' : ''} ${valStr}${stacks}${dur}</div>`);
+    const k = key(t.effect, t.element);
+    if (!groups.has(k)) groups.set(k, { type: t.effect, element: t.element, passive: null, triggers: [] });
+    groups.get(k).triggers.push(t);
   });
-  if (!lines.length) return '';
-  // 精炼倍率 tooltip：解释 1.0 / 1.25 / 1.5 / 1.75 / 2.0 怎么算出来的
-  const refineTip = tipAttrEsc(`<b style="color:var(--gold)">精炼倍率</b><br>= 1 + (精炼 ${refine} − 1) × 0.25<br>= <b style="color:var(--accent)">${refineMult.toFixed(2)}</b><br><span style="color:var(--muted);font-size:10px">精 1: ×1.00 · 精 2: ×1.25 · 精 3: ×1.50 · 精 4: ×1.75 · 精 5: ×2.00</span>`);
-  return `<div style="margin-top:5px;padding-top:5px;border-top:1px dashed var(--line)">
-    <div style="font-size:9px;color:var(--muted);letter-spacing:1.5px;margin-bottom:3px">战 斗 内 数 值（含精炼 <span class="tip" data-tip='${refineTip}'>×${refineMult.toFixed(2)}</span>）</div>
-    ${lines.join('')}
-  </div>`;
+  const parts = [];
+  for (const g of groups.values()) {
+    const typeLabel = PASSIVE_TYPE_LABEL[g.type] || EFFECT_LABEL[g.type] || g.type;
+    const labelName = `${typeLabel}${g.element ? ' · ' + g.element : ''}`;
+    const mechLines = [];
+    let displayValue;
+    let formulaLines = [];
+    if (g.passive) {
+      const orig = g.passive.value;
+      const v = orig * refineMult;
+      displayValue = fmtPct(v);
+      mechLines.push(`常驻 +${fmtPct(v)}`);
+      formulaLines.push(`常驻 = 原值 ${fmtPct(orig)} × 精炼倍率 ${refineMult.toFixed(2)} = <b style="color:var(--accent)">${fmtPct(v)}</b>`);
+    }
+    g.triggers.forEach(t => {
+      const trig = TRIGGER_LABEL[t.on] || t.on;
+      const orig = t.value;
+      const v = orig * refineMult;
+      const vStr = fmtVal(t, v);
+      const origStr = fmtVal(t, orig);
+      const stacksN = t.maxStacks > 1 ? t.maxStacks : 1;
+      if (!g.passive) {
+        const peak = ABSOLUTE_VALUE_EFFECTS.has(t.effect) ? Math.round(orig * stacksN) : orig * stacksN;
+        const peakScaled = peak * refineMult;
+        displayValue = ABSOLUTE_VALUE_EFFECTS.has(t.effect) ? `${Math.round(peakScaled)} 点` : fmtPct(peakScaled);
+      }
+      const stacks = t.maxStacks > 1 ? `，最多 ${t.maxStacks} 层` : '';
+      const dur = t.duration && t.duration < 99 ? `，持续 ${t.duration} 回合` : '';
+      mechLines.push(`${trig}时叠加 +${vStr}${stacks}${dur}`);
+      formulaLines.push(`${trig}时 = 原值 ${origStr} × 精炼倍率 ${refineMult.toFixed(2)} = <b style="color:var(--accent)">${vStr}</b>${stacks}${dur}`);
+    });
+    const mechTip = tipAttrEsc(`<b style="color:var(--gold)">${labelName}</b><br>${mechLines.join('<br>')}`);
+    const formulaTip = tipAttrEsc(`<b style="color:var(--gold)">精炼公式</b><br>${formulaLines.join('<br>')}`);
+    const prefix = (!g.passive && g.triggers.length) ? '最多 +' : '+';
+    parts.push(`<span class="tip" data-tip='${mechTip}'><b>${labelName}</b></span> <span class="tip" data-tip='${formulaTip}'><b>${prefix}${displayValue}</b></span>`);
+  }
+  if (!parts.length) return '';
+  return `<div style="margin-top:5px;padding-top:5px;border-top:1px dashed var(--line);color:var(--accent);font-size:10px;line-height:1.7">▸ ${parts.join(' · ')}</div>`;
 }
 
 const SUB_STAT_LABEL = {

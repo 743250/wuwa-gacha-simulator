@@ -40,7 +40,12 @@ export function formatEnemyMechanic(mechanic, opts = {}) {
     bubble_heal: () => `每${m.cycle||4}回合自疗绿泡（可击破抢治疗）& 不可弹反`,
     flight_tide: () => `每${m.flightCycle||5}回合飞空无敌1回合 & 水洼延迟爆炸`,
     dreamless: () => `三阶段切换（≥70%/40-70%/<40%）& 弹反戟`,
-    blade_turrets: () => `2把浮空剑每${m.turretCycle||2}回合自动射击 & 弹反推刺`,
+    blade_turrets: () => `2把浮空剑每${m.turretCycle||2}回合自射击 & 弹反推刺`,
+    // 2.5-2.8 新增
+    void_decay: () => `命中叠虚蚀（ATK×${((m.dotPct||0.5)*100).toFixed(0)}%/层满${m.maxStacks||5}层）& 每${m.aoeCycle||3}回合虚质暗潮 AOE`,
+    alev_rift: () => `每${m.riftCycle||3}回合维度裂缝单体高伤 & 每${m.quakeCycle||5}回合双界震荡 AOE·HP<${((m.threshold||0.6)*100).toFixed(0)}% 追加裂隙溅射`,
+    decay_mark: () => `命中叠湮灭印记（受击+${((m.stackDmgPct||0.05)*100).toFixed(0)}%/层·满${m.maxStacks||5}层）& 每${m.consumeCycle||4}回印记爆发`,
+    harmonic_disrupt: () => `命中叠谐度干涉（满${m.maxStacks||3}层受击+${((m.dmgAmpPct||0.25)*100).toFixed(0)}%）& 每${m.shotCycle||2}回合多段射击 & 每${m.impactCycle||4}回谐度冲击`,
   }[m.type];
   if (!desc) return '';
   const text = desc();
@@ -449,6 +454,75 @@ export const ENEMIES = {
       defDownDuration: 2
     },
     description: '3.4 联动重型 BOSS。攻击溅射相邻 50%，命中降防 10%（上限 3 层）。HP<40% 狂暴双动 +50%'
+  },
+
+  // ================================================================
+  // 18-21 2.5-2.8 新增世界 BOSS（2026-07-10 补）
+  // ================================================================
+
+  // 18 虚诞虫 · 虚质侵蚀（叠层 debuff + AOE 暗潮）
+  '虚诞虫': { // encore.moe ID: 340000240 (Lv90 · 模拟器简化版)
+    hp: 870000, atk: 5500, def: 800, element: '湮灭', class: 'Overlord',
+    resist: res('湮灭'),
+    mechanic: {
+      type: 'void_decay',
+      dotPct: 0.5,           // 每层回合末扣 ATK×50%
+      maxStacks: 5,          // 满 5 层
+      aoeCycle: 3,           // 每 3 回合潮 AOE
+      aoeMult: 0.9,
+      threshold: 0.5         // HP<50% 进入 P2（暗潮频率翻倍）
+    },
+    description: '虚诞虫（模拟器简化版）。高维湮灭生物。命中附加虚蚀叠层（回末 ATK×50%/层，满 5 层），每 3 回合虚质暗潮 AOE。HP<50% 暗潮+叠层频率翻倍'
+  },
+
+  // 19 阿列夫一造物 · 双元素维度裂隙
+  '阿列夫一造物': { // encore.moe ID: 340000270 (Lv90 · 模拟器简化版)
+    hp: 950000, atk: 6000, def: 800, element: '湮灭', class: 'Overlord',
+    resist: res('湮灭'),
+    mechanic: {
+      type: 'alev_rift',
+      riftCycle: 3,          // 每 3 回合理裂隙（单体高伤）
+      riftMult: 1.8,
+      quakeCycle: 5,         // 每 5 回合双界震荡AOE）
+      quakeMult: 1.0,
+      threshold: 0.6,        // HP<60% P2：额外裂隙溅射
+      p2ExtraMult: 0.6
+    },
+    description: '阿列夫一造物（模拟器简化版）。鸣式阿列夫一的高维造物。每 3 回合维度裂缝单体高伤，每 5 回合界震荡 AOE。HP<60% 进入 P2，每回合追加裂隙溅射'
+  },
+
+  // 20 万囮牢·朽躯 · 湮灭印记叠层爆发
+  '万囮牢·朽躯': { // encore.moe ID: 340000300 (Lv90 · 模拟器简化版)
+    hp: 770000, atk: 5200, def: 800, element: '热熔', class: 'Overlord',
+    resist: res('热熔'),
+    mechanic: {
+      type: 'decay_mark',
+      maxStacks: 5,          // 满 5 层
+      stackDmgPct: 0.05,     // 每层受击 +5%
+      consumeCycle: 4,       // 每 4 回合爆发印记
+      consumeMult: 1.5,      // 爆发伤害倍率
+      aoeCycle: 3,
+      aoeMult: 0.8
+    },
+    description: '万囮牢·朽躯（模拟器简化版）。残损巨影，把守净化谕令。命中附加湮灭印记（每层受击+5%，满 5 层），每 3 回合朽躯震荡 AOE，每 4 回合印记爆发额外伤害'
+  },
+
+  // 21 千傀重楼 · 谐度破坏叠层 + 多段射击
+  '千傀重楼': { // encore.moe ID: 340000310 (Lv90 · 模拟器简化版)
+    hp: 1000000, atk: 5800, def: 800, element: '湮灭', class: 'Overlord',
+    resist: res('湮灭'),
+    mechanic: {
+      type: 'harmonic_disrupt',
+      maxStacks: 3,          // 官方：3 层谐度干涉
+      dmgAmpPct: 0.25,       // 满层受击 +25%
+      shotCycle: 2,          // 每 2 回合多段射击
+      shotCount: 2,
+      shotMult: 0.6,
+      impactCycle: 4,        // 每 4 回合谐度冲击
+      impactMult: 1.2,
+      ampMult: 0.5           // 满层目标额外 +50% 冲击伤害
+    },
+    description: '千傀重楼（模拟器简化版）。巨型机傀。命中附加谐度干涉3 层受+25%），每 2 回合千傀射击×2，每 4 回合谐度冲击（满层目标额外+50%）'
   },
 
   // ===== 剧情 / 周本 BOSS（保留）=====

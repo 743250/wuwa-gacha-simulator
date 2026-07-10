@@ -69,8 +69,8 @@ export const DUNGEONS = [
       { enemies: ['紫羽鹭', '雷鬃狼×3'], enemyScale: 1.0, weight: 3, tag: '雷羽群' },
       { enemies: ['幽翎火×2', '惊蛰猎手×1'], enemyScale: 1.0, weight: 3, tag: '混编残响' }
     ],
-    drops: { weapon_book: 16 },
-    minLevel: 20, desc: '武器石×16 · 40 波片'
+    drops: { weapon_book: 8 },
+    minLevel: 20, desc: '武器石×8 · 40 波片'
   },
   // 80 波片 凝缩档：精英混编 + 怒涛级 BOSS 影（scale 0.5 拉到精英偏高量级），不出海啸级
   {
@@ -83,8 +83,8 @@ export const DUNGEONS = [
       { enemies: ['无归的谬误'], enemyScale: 0.5, weight: 3, tag: '数据封锁·影' },
       { enemies: ['异构武装'], enemyScale: 0.5, weight: 3, tag: '冷凝护盾·影' }
     ],
-    drops: { weapon_book: 32 },
-    minLevel: 40, desc: '武器石×32 · 80 波片（凝缩）'
+    drops: { weapon_book: 16 },
+    minLevel: 40, desc: '武器石×16 · 80 波片（凝缩）'
   },
 
   // ===== 无音区（声骸 · 官方名 Tacet Field · 60 波片）=====
@@ -99,55 +99,55 @@ export const DUNGEONS = [
   {
     id: 'silent_frost', type: 'echo', name: '无音区·凝夜白霜', cost: 60, version: '1.0',
     enemies: ['辉萤军势'],
-    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'frost', echo_count: 1, echo_tuner: 1 },
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 6, astrite: 10, echo_set: 'frost', echo_count: 1, echo_tuner: 1 },
     minLevel: 1, desc: '辉萤军势 · 凝夜白霜 · 60 波片'
   },
   {
     id: 'silent_fire', type: 'echo', name: '无音区·熔山裂谷', cost: 60, version: '1.0',
     enemies: ['燎照之骑'],
-    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'fire', echo_count: 1, echo_tuner: 1 },
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 6, astrite: 10, echo_set: 'fire', echo_count: 1, echo_tuner: 1 },
     minLevel: 1, desc: '燎照之骑 · 熔山裂谷 · 60 波片'
   },
   {
     id: 'silent_thunder', type: 'echo', name: '无音区·彻空冥雷', cost: 60, version: '1.0',
     enemies: ['朔雷之鳞'],
-    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'thunder', echo_count: 1, echo_tuner: 1 },
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 6, astrite: 10, echo_set: 'thunder', echo_count: 1, echo_tuner: 1 },
     minLevel: 1, desc: '朔雷之鳞 · 彻空冥雷 · 60 波片'
   },
   {
     id: 'silent_wind', type: 'echo', name: '无音区·啸谷长风', cost: 60, version: '1.0',
     enemies: ['飞廉之猩'],
-    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'wind', echo_count: 1, echo_tuner: 1 },
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 6, astrite: 10, echo_set: 'wind', echo_count: 1, echo_tuner: 1 },
     minLevel: 1, desc: '飞廉之猩 · 啸谷长风 · 60 波片'
   },
   {
     id: 'silent_spectro', type: 'echo', name: '无音区·浮星祛暗', cost: 60, version: '1.0',
     enemies: ['哀声鸷'],
-    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'spectro', echo_count: 1, echo_tuner: 1 },
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 6, astrite: 10, echo_set: 'spectro', echo_count: 1, echo_tuner: 1 },
     minLevel: 1, desc: '哀声鸷 · 浮星祛暗 · 60 波片'
   },
   {
     id: 'silent_havoc', type: 'echo', name: '无音区·沉日劫明', cost: 60, version: '1.0',
     enemies: ['无冠者'],
-    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'havoc', echo_count: 1, echo_tuner: 1 },
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 6, astrite: 10, echo_set: 'havoc', echo_count: 1, echo_tuner: 1 },
     minLevel: 1, desc: '无冠者 · 沉日劫明 · 60 波片'
   },
   {
     id: 'silent_heal', type: 'echo', name: '无音区·隐世回光', cost: 60, version: '1.0',
     enemies: ['无归的谬误'],
-    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'heal', echo_count: 1, echo_tuner: 1 },
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 6, astrite: 10, echo_set: 'heal', echo_count: 1, echo_tuner: 1 },
     minLevel: 1, desc: '无归的谬误 · 隐世回光 · 60 波片'
   },
   {
     id: 'silent_energy', type: 'echo', name: '无音区·轻云出月', cost: 60, version: '1.0',
     enemies: ['无常凶鹭'],
-    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'energy', echo_count: 1, echo_tuner: 1 },
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 6, astrite: 10, echo_set: 'energy', echo_count: 1, echo_tuner: 1 },
     minLevel: 1, desc: '无常凶鹭 · 轻云出月 · 60 波片'
   },
   {
     id: 'silent_atk', type: 'echo', name: '无音区·不绝余音', cost: 60, version: '1.0',
     enemies: ['聚械机偶'],
-    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'atk', echo_count: 1, echo_tuner: 1 },
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 6, astrite: 10, echo_set: 'atk', echo_count: 1, echo_tuner: 1 },
     minLevel: 1, desc: '聚械机偶 · 不绝余音 · 60 波片'
   },
 
@@ -155,19 +155,19 @@ export const DUNGEONS = [
   {
     id: 'silent_havoc_new', type: 'echo', name: '无音区·幽夜隐匿之帷', cost: 60, version: '2.0',
     enemies: ['罗蕾莱'],
-    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'havoc_new', echo_count: 1, echo_tuner: 1 },
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 6, astrite: 10, echo_set: 'havoc_new', echo_count: 1, echo_tuner: 1 },
     minLevel: 40, desc: '罗蕾莱 · 幽夜隐匿之帷 · 60 波片'
   },
   {
     id: 'silent_coord', type: 'echo', name: '无音区·高天共奏之曲', cost: 60, version: '2.0',
     enemies: ['赫卡忒'],
-    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'coord', echo_count: 1, echo_tuner: 1 },
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 6, astrite: 10, echo_set: 'coord', echo_count: 1, echo_tuner: 1 },
     minLevel: 40, desc: '赫卡忒 · 高天共奏之曲 · 60 波片'
   },
   {
     id: 'silent_energy_new', type: 'echo', name: '无音区·无惧浪涛之勇', cost: 60, version: '2.0',
     enemies: ['叹息古龙'],
-    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'energy_new', echo_count: 1, echo_tuner: 1 },
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 6, astrite: 10, echo_set: 'energy_new', echo_count: 1, echo_tuner: 1 },
     minLevel: 40, desc: '叹息古龙 · 无惧浪涛之勇 · 60 波片'
   },
 
@@ -175,56 +175,56 @@ export const DUNGEONS = [
   {
     id: 'silent_carlotta_skill', type: 'echo', name: '无音区·珂莱塔·凌冽决断', cost: 60, version: '2.0',
     enemies: ['异构武装'],
-    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'carlotta_skill', echo_count: 1, echo_tuner: 1 },
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 6, astrite: 10, echo_set: 'carlotta_skill', echo_count: 1, echo_tuner: 1 },
     minLevel: 40, desc: '异构武装 · 凌冽决断之心 · 60 波片'
   },
   {
     id: 'silent_phoebe_lightnoise', type: 'echo', name: '无音区·菲比·光噪长眠', cost: 60, version: '2.1',
     enemies: ['梦魇·哀声鸷'],
-    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'phoebe_lightnoise', echo_count: 1, echo_tuner: 1 },
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 6, astrite: 10, echo_set: 'phoebe_lightnoise', echo_count: 1, echo_tuner: 1 },
     minLevel: 40, desc: '梦魇·哀声鸷 · 此间永驻之光 · 60 波片'
   },
   {
     id: 'silent_cartethyia_wind', type: 'echo', name: '无音区·卡提希娅·流云', cost: 60, version: '2.4',
     enemies: ['共鸣回响·芙露德莉斯'],
-    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'cartethyia_wind', echo_count: 1, echo_tuner: 1 },
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 6, astrite: 10, echo_set: 'cartethyia_wind', echo_count: 1, echo_tuner: 1 },
     minLevel: 50, desc: '芙露德莉斯 · 流云逝尽之空 · 60 波片'
   },
   {
     id: 'silent_cartethyia_glory', type: 'echo', name: '无音区·卡提希娅·荣光', cost: 60, version: '2.4',
     enemies: ['共鸣回响·芙露德莉斯'],
-    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'cartethyia_glory', echo_count: 1, echo_tuner: 1 },
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 6, astrite: 10, echo_set: 'cartethyia_glory', echo_count: 1, echo_tuner: 1 },
     minLevel: 50, desc: '芙露德莉斯 · 愿戴荣光之旅 · 60 波片'
   },
   {
     id: 'silent_brant_burst', type: 'echo', name: '无音区·布兰特·奔狼', cost: 60, version: '2.1',
     enemies: ['荣耀狮像'],
-    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'brant_burst', echo_count: 1, echo_tuner: 1 },
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 6, astrite: 10, echo_set: 'brant_burst', echo_count: 1, echo_tuner: 1 },
     minLevel: 40, desc: '荣耀狮像 · 奔狼燎原之焰 · 60 波片'
   },
   {
     id: 'silent_cantarella_void', type: 'echo', name: '无音区·坎特蕾拉·虚湮', cost: 60, version: '2.2',
     enemies: ['共鸣回响·鸣式·利维亚坦'],
-    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'cantarella_void', echo_count: 1, echo_tuner: 1 },
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 6, astrite: 10, echo_set: 'cantarella_void', echo_count: 1, echo_tuner: 1 },
     minLevel: 40, desc: '利维亚坦 · 命理崩毁之弦 · 60 波片'
   },
   {
     id: 'silent_brant_path', type: 'echo', name: '无音区·布兰特·长路启航', cost: 60, version: '2.2',
     enemies: ['辛吉勒姆'],
     // 长路启航 + 斑驳粉饰同源辛吉勒姆，50/50 掉
-    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: ['brant_path', 'brant_mottle'], echo_count: 1, echo_tuner: 1 },
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 6, astrite: 10, echo_set: ['brant_path', 'brant_mottle'], echo_count: 1, echo_tuner: 1 },
     minLevel: 40, desc: '辛吉勒姆 · 长路启航/斑驳粉饰 · 60 波片'
   },
   {
-    id: 'silent_feixue_snow', type: 'echo', name: '无音区·绯雪·落日堤屿', cost: 60, version: '2.5',
+    id: 'silent_feixue_snow', type: 'echo', name: '无音区·绯雪·落日堤屿', cost: 60, version: '3.3',
     enemies: ['格洛犸图'],
-    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'feixue_snow', echo_count: 1, echo_tuner: 1 },
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 6, astrite: 10, echo_set: 'feixue_snow', echo_count: 1, echo_tuner: 1 },
     minLevel: 50, desc: '格洛犸图 · 雪落无声之愿 · 60 波片'
   },
   {
-    id: 'silent_lumera_chord', type: 'echo', name: '无音区·洛瑟菈·剪心辑梦', cost: 60, version: '2.5',
+    id: 'silent_lumera_chord', type: 'echo', name: '无音区·洛瑟菈·剪心辑梦', cost: 60, version: '3.4',
     enemies: ['无铭探索者'],
-    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'lumera_chord', echo_count: 1, echo_tuner: 1 },
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 6, astrite: 10, echo_set: 'lumera_chord', echo_count: 1, echo_tuner: 1 },
     minLevel: 50, desc: '无铭探索者 · 剪心辑梦之影 · 60 波片'
   },
 
@@ -232,55 +232,55 @@ export const DUNGEONS = [
   {
     id: 'silent_lost_dream', type: 'echo', name: '无音区·失序彼岸之梦', cost: 60, version: '2.6',
     enemies: ['梦魇·赫卡忒'],
-    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'lost_dream', echo_count: 1, echo_tuner: 1 },
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 6, astrite: 10, echo_set: 'lost_dream', echo_count: 1, echo_tuner: 1 },
     minLevel: 50, desc: '梦魇·赫卡忒 · 失序彼岸之梦 · 60 波片'
   },
   {
     id: 'silent_glory_forge', type: 'echo', name: '无音区·荣斗铸锋之冠', cost: 60, version: '2.6',
     enemies: ['伪作的神王'],
-    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'glory_forge', echo_count: 1, echo_tuner: 1 },
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 6, astrite: 10, echo_set: 'glory_forge', echo_count: 1, echo_tuner: 1 },
     minLevel: 50, desc: '伪作的神王 · 荣斗铸锋之冠 · 60 波片'
   },
   {
     id: 'silent_sync_law', type: 'echo', name: '无音区·息界同调之律', cost: 60, version: '2.6',
     enemies: ['共鸣回响·芬莱克'],
-    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'sync_law', echo_count: 1, echo_tuner: 1 },
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 6, astrite: 10, echo_set: 'sync_law', echo_count: 1, echo_tuner: 1 },
     minLevel: 50, desc: '芬莱克 · 息界同调之律 · 60 波片'
   },
   {
     id: 'silent_hunt_shadow', type: 'echo', name: '无音区·焚羽猎魔之影', cost: 60, version: '2.6',
     enemies: ['共鸣回响·鸣式·利维亚坦'],
-    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'hunt_shadow', echo_count: 1, echo_tuner: 1 },
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 6, astrite: 10, echo_set: 'hunt_shadow', echo_count: 1, echo_tuner: 1 },
     minLevel: 50, desc: '利维亚坦 · 焚羽猎魔之影 · 60 波片'
   },
   {
     id: 'silent_backlight_vow', type: 'echo', name: '无音区·逆光跃彩之约', cost: 60, version: '2.6',
     enemies: ['海维夏'],
-    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'backlight_vow', echo_count: 1, echo_tuner: 1 },
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 6, astrite: 10, echo_set: 'backlight_vow', echo_count: 1, echo_tuner: 1 },
     minLevel: 50, desc: '海维夏 · 逆光跃彩之约 · 60 波片'
   },
   {
     id: 'silent_star_ring', type: 'echo', name: '无音区·星构寻辉之环', cost: 60, version: '2.6',
     enemies: ['炉芯机骸'],
-    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'star_ring', echo_count: 1, echo_tuner: 1 },
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 6, astrite: 10, echo_set: 'star_ring', echo_count: 1, echo_tuner: 1 },
     minLevel: 50, desc: '炉芯机骸 · 星构寻辉之环 · 60 波片'
   },
   {
     id: 'silent_gold_truth', type: 'echo', name: '无音区·流金溯真之式', cost: 60, version: '2.6',
     enemies: ['海维夏'],
-    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'gold_truth', echo_count: 1, echo_tuner: 1 },
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 6, astrite: 10, echo_set: 'gold_truth', echo_count: 1, echo_tuner: 1 },
     minLevel: 50, desc: '海维夏 · 流金溯真之式 · 60 波片'
   },
   {
     id: 'silent_echo_wish', type: 'echo', name: '无音区·听唤语义之愿', cost: 60, version: '2.6',
     enemies: ['无铭探索者'],
-    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'echo_wish', echo_count: 1, echo_tuner: 1 },
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 6, astrite: 10, echo_set: 'echo_wish', echo_count: 1, echo_tuner: 1 },
     minLevel: 50, desc: '无铭探索者 · 听唤语义之愿 · 60 波片'
   },
   {
     id: 'silent_ghost_nightmare', type: 'echo', name: '无音区·碎梦亡鬼之魇', cost: 60, version: '2.6',
     enemies: ['共鸣回响·梦魇亚当·重锤'],
-    drops: { exp_super: 1, exp_high: 2, weapon_book: 12, astrite: 10, echo_set: 'ghost_nightmare', echo_count: 1, echo_tuner: 1 },
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 6, astrite: 10, echo_set: 'ghost_nightmare', echo_count: 1, echo_tuner: 1 },
     minLevel: 50, desc: '梦魇亚当·重锤 · 碎梦亡鬼之魇 · 60 波片'
   },
 
@@ -290,108 +290,134 @@ export const DUNGEONS = [
   {
     id: 'world_ju_xie_ji_ou', type: 'worldBoss', name: '聚械机偶', cost: 60,
     enemies: ['聚械机偶'],
-    drops: { exp_high: 3, exp_mid: 2, weapon_book: 10, astrite: 20 },
-    minLevel: 30, desc: '高级×3 中级×2 · 武器石×10 · 星声+20'
+    drops: { exp_high: 3, exp_mid: 2, weapon_book: 5, astrite: 20 },
+    minLevel: 30, desc: '高级×3 中级×2 · 武器石×5 · 星声+20'
   },
   {
     id: 'world_fei_lian_zhi_xing', type: 'worldBoss', name: '飞廉之猩', cost: 60,
     enemies: ['飞廉之猩'],
-    drops: { exp_high: 3, exp_mid: 2, weapon_book: 10, astrite: 20 },
-    minLevel: 30, desc: '高级×3 中级×2 · 武器石×10 · 星声+20'
+    drops: { exp_high: 3, exp_mid: 2, weapon_book: 5, astrite: 20 },
+    minLevel: 30, desc: '高级×3 中级×2 · 武器石×5 · 星声+20'
   },
   {
     id: 'world_shuo_lei_zhi_lin', type: 'worldBoss', name: '朔雷之鳞', cost: 60,
     enemies: ['朔雷之鳞'],
-    drops: { exp_high: 3, exp_mid: 2, weapon_book: 10, astrite: 20 },
-    minLevel: 30, desc: '高级×3 中级×2 · 武器石×10 · 星声+20'
+    drops: { exp_high: 3, exp_mid: 2, weapon_book: 5, astrite: 20 },
+    minLevel: 30, desc: '高级×3 中级×2 · 武器石×5 · 星声+20'
   },
   {
     id: 'world_yun_shan_zhi_lin', type: 'worldBoss', name: '云闪之鳞', cost: 60,
     enemies: ['云闪之鳞'],
-    drops: { exp_high: 3, exp_mid: 2, weapon_book: 10, astrite: 20 },
-    minLevel: 30, desc: '高级×3 中级×2 · 武器石×10 · 星声+20'
+    drops: { exp_high: 3, exp_mid: 2, weapon_book: 5, astrite: 20 },
+    minLevel: 30, desc: '高级×3 中级×2 · 武器石×5 · 星声+20'
   },
   {
     id: 'world_liao_zhao_zhi_qi', type: 'worldBoss', name: '燎照之骑', cost: 60,
     enemies: ['燎照之骑'],
-    drops: { exp_high: 3, exp_mid: 2, weapon_book: 10, astrite: 20 },
-    minLevel: 30, desc: '高级×3 中级×2 · 武器石×10 · 星声+20'
+    drops: { exp_high: 3, exp_mid: 2, weapon_book: 5, astrite: 20 },
+    minLevel: 30, desc: '高级×3 中级×2 · 武器石×5 · 星声+20'
   },
 
   // Tier 2 — 推荐 40+，中级世界BOSS（base HP 34000-40000）
   {
     id: 'world_ai_sheng_shi', type: 'worldBoss', name: '哀声鸷', cost: 60,
     enemies: ['哀声鸷'],
-    drops: { exp_high: 3, exp_mid: 2, weapon_book: 12, astrite: 20 },
-    minLevel: 40, desc: '高级×3 中级×2 · 武器石×12 · 星声+20'
+    drops: { exp_high: 3, exp_mid: 2, weapon_book: 6, astrite: 20 },
+    minLevel: 40, desc: '高级×3 中级×2 · 武器石×6 · 星声+20'
   },
   {
     id: 'world_wu_chang_xiong_lu', type: 'worldBoss', name: '无常凶鹭', cost: 60,
     enemies: ['无常凶鹭'],
-    drops: { exp_high: 3, exp_mid: 2, weapon_book: 12, astrite: 20 },
-    minLevel: 40, desc: '高级×3 中级×2 · 武器石×12 · 星声+20'
+    drops: { exp_high: 3, exp_mid: 2, weapon_book: 6, astrite: 20 },
+    minLevel: 40, desc: '高级×3 中级×2 · 武器石×6 · 星声+20'
   },
   {
     id: 'world_hui_ying_jun_shi', type: 'worldBoss', name: '辉萤军势', cost: 60,
     enemies: ['辉萤军势'],
-    drops: { exp_high: 3, exp_mid: 2, weapon_book: 12, astrite: 20 },
-    minLevel: 40, desc: '高级×3 中级×2 · 武器石×12 · 星声+20'
+    drops: { exp_high: 3, exp_mid: 2, weapon_book: 6, astrite: 20 },
+    minLevel: 40, desc: '高级×3 中级×2 · 武器石×6 · 星声+20'
   },
   {
     id: 'world_luo_lei_lai', type: 'worldBoss', name: '罗蕾莱', cost: 60,
     enemies: ['罗蕾莱'],
-    drops: { exp_high: 3, exp_mid: 2, weapon_book: 12, astrite: 20 },
-    minLevel: 40, desc: '高级×3 中级×2 · 武器石×12 · 星声+20'
+    drops: { exp_high: 3, exp_mid: 2, weapon_book: 6, astrite: 20 },
+    minLevel: 40, desc: '高级×3 中级×2 · 武器石×6 · 星声+20'
   },
   {
     id: 'world_rong_yao_shi_xiang', type: 'worldBoss', name: '荣耀狮像', cost: 60,
     enemies: ['荣耀狮像'],
-    drops: { exp_high: 3, exp_mid: 2, weapon_book: 12, astrite: 20 },
-    minLevel: 40, desc: '高级×3 中级×2 · 武器石×12 · 星声+20'
+    drops: { exp_high: 3, exp_mid: 2, weapon_book: 6, astrite: 20 },
+    minLevel: 40, desc: '高级×3 中级×2 · 武器石×6 · 星声+20'
   },
   {
     id: 'world_wu_wang_zhe', type: 'worldBoss', name: '无妄者', cost: 60,
     enemies: ['无妄者'],
-    drops: { exp_high: 3, exp_mid: 2, weapon_book: 12, astrite: 20 },
-    minLevel: 40, desc: '高级×3 中级×2 · 武器石×12 · 星声+20'
+    drops: { exp_high: 3, exp_mid: 2, weapon_book: 6, astrite: 20 },
+    minLevel: 40, desc: '高级×3 中级×2 · 武器石×6 · 星声+20'
   },
 
   // Tier 3 — 推荐 50+，高级世界BOSS（base HP ≥ 40000）
   {
     id: 'world_yi_gou_wu_zhuang', type: 'worldBoss', name: '异构武装', cost: 60,
     enemies: ['异构武装'],
-    drops: { exp_super: 1, exp_high: 2, weapon_book: 14, astrite: 20 },
-    minLevel: 50, desc: '特级×1 高级×2 · 武器石×14 · 星声+20'
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 7, astrite: 20 },
+    minLevel: 50, desc: '特级×1 高级×2 · 武器石×7 · 星声+20'
   },
   {
     id: 'world_wu_gui_de_miu_wu', type: 'worldBoss', name: '无归的谬误', cost: 60,
     enemies: ['无归的谬误'],
-    drops: { exp_super: 1, exp_high: 2, weapon_book: 14, astrite: 20 },
-    minLevel: 50, desc: '特级×1 高级×2 · 武器石×14 · 星声+20'
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 7, astrite: 20 },
+    minLevel: 50, desc: '特级×1 高级×2 · 武器石×7 · 星声+20'
   },
   {
     id: 'world_hai_zhi_nv', type: 'worldBoss', name: '海之女', cost: 60,
     enemies: ['海之女'],
-    drops: { exp_super: 1, exp_high: 2, weapon_book: 14, astrite: 20 },
-    minLevel: 50, desc: '特级×1 高级×2 · 武器石×14 · 星声+20'
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 7, astrite: 20 },
+    minLevel: 50, desc: '特级×1 高级×2 · 武器石×7 · 星声+20'
   },
   {
     id: 'world_ming_zhong_zhi_gui', type: 'worldBoss', name: '鸣钟之龟', cost: 60,
     enemies: ['鸣钟之龟'],
-    drops: { exp_super: 1, exp_high: 2, weapon_book: 14, astrite: 20 },
-    minLevel: 50, desc: '特级×1 高级×2 · 武器石×14 · 星声+20'
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 7, astrite: 20 },
+    minLevel: 50, desc: '特级×1 高级×2 · 武器石×7 · 星声+20'
   },
   {
     id: 'world_tan_xi_gu_long', type: 'worldBoss', name: '叹息古龙', cost: 60,
     enemies: ['叹息古龙'],
-    drops: { exp_super: 1, exp_high: 2, weapon_book: 14, astrite: 20 },
-    minLevel: 55, desc: '特级×1 高级×2 · 武器石×14 · 星声+20'
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 7, astrite: 20 },
+    minLevel: 55, desc: '特级×1 高级×2 · 武器石×7 · 星声+20'
   },
   {
     id: 'world_meng_yan_ya_dang', type: 'worldBoss', name: '梦魇亚当·重锤', cost: 60,
     enemies: ['梦魇亚当·重锤'],
-    drops: { exp_super: 1, exp_high: 2, weapon_book: 14, astrite: 20 },
-    minLevel: 55, desc: '特级×1 高级×2 · 武器石×14 · 星声+20'
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 7, astrite: 20 },
+    minLevel: 55, desc: '特级1 高级×2  武器石×7 · 星声+20'
+  },
+
+  // Tier 3+ — 2.5-2.8 新增世界 BOSS（推荐 55+）
+  {
+    id: 'world_xu_dan_chong', type: 'worldBoss', name: '虚诞虫', cost: 60,
+    enemies: ['虚诞虫'],
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 7, astrite: 20 },
+    minLevel: 55, desc: '特级×1 高级×2 · 武器石×7 · 星声+20'
+  },
+  {
+    id: 'world_a_lie_fu_yi_zao_wu', type: 'worldBoss', name: '阿列夫一造物', cost: 60,
+    enemies: ['阿列夫一造物'],
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 7, astrite: 20 },
+    minLevel: 55, desc: '特级×1 高级×2 · 武器石×7 · 星声+20'
+  },
+  {
+    id: 'world_wan_e_liao_xiu_qu', type: 'worldBoss', name: '万囮牢·朽躯', cost: 60,
+    enemies: ['万囮牢·朽躯'],
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 7, astrite: 20 },
+    minLevel: 55, desc: '特级×1 高级×2 · 武器石×7 · 星声+20'
+  },
+  {
+    id: 'world_qian_kui_chong_lou', type: 'worldBoss', name: '千傀重楼', cost: 60,
+    enemies: ['千傀重楼'],
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 7, astrite: 20 },
+    minLevel: 55, desc: '特级×1 高级×2 · 武器石×7 · 星声+20'
   }
 ];
 
@@ -404,8 +430,8 @@ export const WEEKLY_BOSS = [
     encounterPool: [
       { enemies: ['罗蕾莱'], enemyScale: 2.5, weight: 1, tag: '导电护盾' }
     ],
-    drops: { exp_high: 8, weapon_book: 14 },
-    minLevel: 40, desc: '高级×8 · 武器石×14 · 周限 3 次'
+    drops: { exp_high: 8, weapon_book: 7 },
+    minLevel: 40, desc: '高级×8 · 武器石×7 · 周限 3 次'
   },
   {
     id: 'boss_imperator', type: 'weekly', name: '战歌重奏·无冠者', cost: 60, weeklyLimit: true,
@@ -413,8 +439,8 @@ export const WEEKLY_BOSS = [
     encounterPool: [
       { enemies: ['无冠者'], enemyScale: 2.5, weight: 1, tag: '湮灭狂暴' }
     ],
-    drops: { exp_high: 8, weapon_book: 14 },
-    minLevel: 40, desc: '高级×8 · 武器石×14 · 周限 3 次'
+    drops: { exp_high: 8, weapon_book: 7 },
+    minLevel: 40, desc: '高级×8 · 武器石×7 · 周限 3 次'
   },
   {
     id: 'boss_hecate', type: 'weekly', name: '战歌重奏·赫卡忒', cost: 60, weeklyLimit: true,
@@ -422,8 +448,26 @@ export const WEEKLY_BOSS = [
     encounterPool: [
       { enemies: ['赫卡忒'], enemyScale: 2.8, weight: 1, tag: '幻象召唤' }
     ],
-    drops: { exp_super: 4, exp_high: 6, weapon_book: 16 },
-    minLevel: 60, desc: '特级×4 · 高级×6 · 武器石×16 · 周限 3 次'
+    drops: { exp_super: 4, exp_high: 6, weapon_book: 8 },
+    minLevel: 60, desc: '特级×4 · 高级×6 · 武器石×8 · 周限 3 次'
+  },
+  {
+    id: 'boss_liweihatan', type: 'weekly', name: '战歌重奏·鸣式·利维亚坦', cost: 60, weeklyLimit: true,
+    enemies: ['鸣式·利维亚坦'],
+    encounterPool: [
+      { enemies: ['鸣式·利维亚坦'], enemyScale: 2.8, weight: 1, tag: '湮灭波纹' }
+    ],
+    drops: { exp_super: 4, exp_high: 6, weapon_book: 8 },
+    minLevel: 60, desc: '特级×4 · 高级×6 · 武器石×8 · 周限 3 次'
+  },
+  {
+    id: 'boss_fenlaike', type: 'weekly', name: '战歌重奏·共鸣回响·芬莱克', cost: 60, weeklyLimit: true,
+    enemies: ['共鸣回响·芬莱克'],
+    encounterPool: [
+      { enemies: ['共鸣回响·芬莱克'], enemyScale: 2.8, weight: 1, tag: '气动回响' }
+    ],
+    drops: { exp_super: 4, exp_high: 6, weapon_book: 8 },
+    minLevel: 60, desc: '特级×4 · 高级×6 · 武器石×8 · 周限 3 次'
   }
 ];
 

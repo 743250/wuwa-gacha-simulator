@@ -8,6 +8,8 @@
 
 import { getTempStatInstances, hasTempStat } from '../../battle/tempStats.js';
 import { collectCharacterBadges } from '../../battle/characters/index.js';
+import { getErosionStacks } from '../../battle/combat/erosion.js';
+import { getEffectStacks, getEffectDef } from '../../battle/combat/effects.js';
 
 function pct(v) { return `${(v * 100).toFixed(0)}%`; }
 
@@ -188,12 +190,29 @@ export const ENEMY_STATUS_EXTRACTORS = {
     }];
   },
   cartethyia(e) {
-    if (!e.cartethyiaErosion || e.cartethyiaErosion <= 0) return [];
-    return [{
-      key: `ce-${e.name}`, cls: 'debuff', icon: '🌪',
-      label: `风蚀 ×${e.cartethyiaErosion}`,
-      tip: '<b>风蚀</b><br>回合末每层扣 ATK×0.3。'
-    }];
+    // 通用元素异常效应徽章（六种统一渲染）
+    const out = [];
+    const effects = [
+      { type: 'wind_erosion', icon: '🌪', cls: 'debuff', label: '风蚀', color: 'var(--green)' },
+      { type: 'light_noise', icon: '✦', cls: 'debuff', label: '光噪', color: 'var(--gold)' },
+      { type: 'void_erosion', icon: '◉', cls: 'debuff', label: '虚湮', color: '#c8a2ff' },
+      { type: 'scorch_burst', icon: '💥', cls: 'debuff', label: '聚爆', color: '#ff6b6b' },
+      { type: 'electro_magnetic', icon: '⚡', cls: 'debuff', label: '电磁', color: '#7bd6ff' },
+      { type: 'electro_burst', icon: '⚡', cls: 'debuff', label: '电磁爆发', color: '#7bd6ff' },
+      { type: 'frost_gradient', icon: '❄', cls: 'debuff', label: '霜渐', color: '#a2d8ff' }
+    ];
+    for (const eff of effects) {
+      const stacks = getEffectStacks(e, eff.type);
+      if (stacks <= 0) continue;
+      const def = getEffectDef(eff.type);
+      const maxLabel = (def.maxStacks === Infinity || def.maxStacks == null) ? '' : `/${def.maxStacks}`;
+      out.push({
+        key: `eff-${eff.type}-${e.name}`, cls: eff.cls, icon: eff.icon,
+        label: `${eff.label} ×${stacks}`,
+        tip: `<b style="color:${eff.color}">${def.name}</b><br>${eff.label}效应，当前 ${stacks}${maxLabel} 层。`
+      });
+    }
+    return out;
   },
   blast(e) {
     if (!e._delayedBlast) return [];

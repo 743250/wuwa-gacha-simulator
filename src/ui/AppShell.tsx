@@ -17,8 +17,9 @@ import { render } from './render.js';
 import { bumpStateVersion } from './signals';
 import { advanceDay, nextPhase, nextVersion, jumpToday, jumpToVersion, jumpToDate } from '../time/timeline.js';
 import { openModal } from '../modal.js';
-import { saveState, exportSave, importSave, clearSave, saveStateNow, pickSaveFolder, isFsSaveActive, isFsSupported } from '../save.js';
+import { saveState, exportSave, importSave, clearSave, saveStateNow, pickSaveFolder, isFsSaveActive, isFsSupported, hasLocalStorageSave } from '../save.js';
 import { phases } from '../data/phases.js';
+import { openStartSetupModal, isStartSetupNeeded } from './setup/StartSetupModal';
 
 const VIEWS: Record<string, string> = {
   gacha: 'viewGacha',
@@ -93,7 +94,14 @@ function bindResetButton() {
       body: '此操作将清空所有抽卡记录、资源、共鸣链、充值记录。<br><b class="r">不可恢复</b>。',
       actions: [
         { label: '取消', cls: '', fn: () => {} },
-        { label: '确认重置', cls: 'warn', fn: () => { resetState(); clearSave(); rerenderAll(); msg('已重置', false); } }
+        { label: '确认重置', cls: 'warn', fn: () => {
+          resetState();
+          clearSave();
+          rerenderAll();
+          msg('已重置,请重新设置开局', false);
+          // 重置后弹开局设置,让玩家重新选择入坑方式
+          openStartSetupModal();
+        } }
       ]
     });
   };
@@ -211,6 +219,7 @@ function bindModalOutsideClick() {
 }
 
 let __tipEl: HTMLElement | null = null;
+let __tipSrc: HTMLElement | null = null;
 function bindTooltip() {
   document.body.addEventListener('mouseover', (e: Event) => {
     const me = e.target as HTMLElement;
@@ -221,9 +230,10 @@ function bindTooltip() {
       __tipEl.className = 'tip-pop';
       document.body.appendChild(__tipEl);
     }
-    __tipEl.innerHTML = (t as HTMLElement).dataset.tip || '';
+    __tipSrc = t as HTMLElement;
+    __tipEl.innerHTML = __tipSrc.dataset.tip || '';
     __tipEl.style.display = 'block';
-    const r = (t as HTMLElement).getBoundingClientRect();
+    const r = __tipSrc.getBoundingClientRect();
     let top = r.bottom + 6;
     let left = r.left;
     const popH = __tipEl.offsetHeight;
@@ -240,7 +250,16 @@ function bindTooltip() {
     const t = me.closest('.tip[data-tip], .tip-term[data-tip]');
     if (!t) return;
     if (__tipEl) __tipEl.style.display = 'none';
+    __tipSrc = null;
   });
+  // 源节点被卸载(buff 消失/战斗结束/Preact 重渲染)时 mouseout 不触发,用 MutationObserver 兜底
+  const obs = new MutationObserver(() => {
+    if (__tipSrc && !__tipSrc.isConnected) {
+      if (__tipEl) __tipEl.style.display = 'none';
+      __tipSrc = null;
+    }
+  });
+  obs.observe(document.body, { childList: true, subtree: true });
 }
 
 // AppShell 渲染为空 Fragment —— 它只负责接管 DOM 事件,不渲染任何可见 UI。
@@ -270,6 +289,10 @@ export function AppShell() {
     // 弹窗点击外部关闭 + 全局 tooltip
     bindModalOutsideClick();
     bindTooltip();
+    // 第一次进游戏时自动弹开局设置(无存档 + 未做过 setup)
+    if (isStartSetupNeeded()) {
+      setTimeout(() => openStartSetupModal(), 100);
+    }
   }, []);
   return null;
 }
