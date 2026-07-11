@@ -70,9 +70,11 @@ export function levelUpRole(roleName) {
   });
 }
 
-// 升级角色一级 · 玩家手动指定消耗的本数
-// 不够升级所需经验时 msg 提示并拒绝
-// 超出所需按"溢出"浪费
+// 升级角色 · 玩家手动指定消耗的本数
+// 用所提供的总经验逐级扣经验,能升几级升几级
+// 剩余不足以升下一级的经验按"溢出"浪费(不保留、不回收)
+// 不够升 1 级所需经验时 msg 提示并拒绝
+// 返回 { ok, levelsGained, overflow, finalLevel } 或 false
 export function levelUpRoleWith(roleName, useLow, useMid, useHigh, useSuper) {
   const o = S.roles[roleName];
   if (!o) return false;
@@ -94,12 +96,37 @@ export function levelUpRoleWith(roleName, useLow, useMid, useHigh, useSuper) {
     m.exp_mid  -= useMid;
     m.exp_high -= useHigh;
     m.exp_super -= useSuper;
-    o.level++;
+    let remaining = provided;
+    let levelsGained = 0;
+    while (o.level < 90) {
+      const c = expToNext(o);
+      if (remaining < c) break;
+      remaining -= c;
+      o.level++;
+      levelsGained++;
+    }
+    const overflow = remaining;
     progressTask('d_upgrade', 1);
-    progressTask('w_levelup', 1);
+    progressTask('w_levelup', levelsGained);
     if (o.level >= 90) progressTask('p_char90', 1);
-    return true;
+    return { ok: true, levelsGained, overflow, finalLevel: o.level };
   });
+}
+
+// 预览:用 provided 总经验能从当前等级升几级、剩多少溢出(不真扣)
+// 返回 { ok, levelsGained, overflow, finalLevel }
+export function previewLevelUpWith(role, provided) {
+  let lv = role.level || 1;
+  let remaining = provided;
+  let levelsGained = 0;
+  while (lv < 90) {
+    const c = expToNext({ level: lv });
+    if (remaining < c) break;
+    remaining -= c;
+    lv++;
+    levelsGained++;
+  }
+  return { ok: levelsGained > 0, levelsGained, overflow: remaining, finalLevel: lv };
 }
 
 // 一键升满（消耗到没材料为止）

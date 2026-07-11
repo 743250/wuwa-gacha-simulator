@@ -1,12 +1,16 @@
 // @vitest-environment happy-dom
 
-import { describe, it, expect, afterEach } from 'vitest';
+import { describe, it, expect, afterEach, vi } from 'vitest';
 import { render } from 'preact';
 import { resetState } from '../../tests/helpers.js';
 import { S } from '../../src/state.js';
 import { bumpStateVersion } from '../../src/ui/signals.js';
+
+vi.mock('../../src/shop/actions.js', () => ({ buyShop: vi.fn() }));
+
 import { PodcastPanel } from '../../src/ui/panels/podcast/PodcastPanel';
 import { PODCAST_REWARDS, PODCAST_MAX_LEVEL } from '../../src/podcast/core.js';
+import { buyShop } from '../../src/shop/actions.js';
 
 let container: HTMLDivElement | null = null;
 
@@ -18,6 +22,7 @@ function mount(node: any): HTMLDivElement {
 }
 
 afterEach(() => {
+  vi.clearAllMocks();
   if (container) {
     render(null, container);
     container.remove();
@@ -68,6 +73,28 @@ describe('PodcastPanel', () => {
     const el = mount(<PodcastPanel />);
     expect(el.textContent).toContain('解锁内幕频道');
     expect(el.textContent).not.toContain('已订阅内幕频道');
+  });
+
+  it('内幕频道购买按钮会购买正确商品', () => {
+    setupPodcastState({ paid: false, premium: false });
+    const el = mount(<PodcastPanel />);
+    const button = Array.from(el.querySelectorAll<HTMLButtonElement>('.pc-purchase button'))
+      .find(x => x.textContent?.includes('¥68'));
+
+    expect(button).toBeDefined();
+    button!.click();
+    expect(buyShop).toHaveBeenCalledWith('bp_basic');
+  });
+
+  it('寰宇频道购买按钮会购买正确商品', () => {
+    setupPodcastState({ paid: false, premium: false });
+    const el = mount(<PodcastPanel />);
+    const button = Array.from(el.querySelectorAll<HTMLButtonElement>('.pc-purchase button'))
+      .find(x => x.textContent?.includes('¥128'));
+
+    expect(button).toBeDefined();
+    button!.click();
+    expect(buyShop).toHaveBeenCalledWith('bp_premium');
   });
 
   it('renders all 70 level cells in the track', () => {

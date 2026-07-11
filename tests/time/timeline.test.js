@@ -123,6 +123,15 @@ describe('time/timeline', () => {
       const ok = time.jumpToVersion('99.9');
       expect(ok).toBe(false);
     });
+
+    it('切换版本后保留新版本首日签到进度', () => {
+      S.today = date('2024-05-23');
+      S.podcast.version = '1.0';
+
+      expect(time.jumpToVersion('1.1')).toBe(true);
+      expect(S.podcast.version).toBe('1.1');
+      expect(S.podcast.tasks.daily.d_signin).toBe(true);
+    });
   });
 
   // ===== jumpToDate() =====

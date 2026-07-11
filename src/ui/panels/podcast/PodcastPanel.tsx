@@ -29,6 +29,8 @@ import {
 } from '../../../podcast/core.js';
 import { PODCAST_TASKS } from '../../../data/podcast-tasks.js';
 import { phases } from '../../../data/phases.js';
+import { buyShop } from '../../../shop/actions.js';
+import { commit } from '../../../state/commit';
 
 // ---------- helpers ----------
 
@@ -185,17 +187,16 @@ export function PodcastPanel() {
   const S = useS();
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // On mount: ensure state, handle daily/weekly reset
-  ensurePodcast();
-  resetPodcastDailyIfNeeded();
-  resetPodcastWeeklyIfNeeded();
-
-  // 每次进入电台面板，若今日签到任务未完成，自动签到一次
-  // 兜底新存档第一天 / 重置后第一天 / 跨日后忘进游戏的签到遗漏
+  // 日期或版本变化后统一重置并签到；通过 commit 持久化，避免在渲染阶段直接修改状态。
   useEffect(() => {
-    const st = taskState('d_signin');
-    if (st && !st.done) progressTask('d_signin', 1);
-  }, []);
+    commit(() => {
+      ensurePodcast();
+      resetPodcastDailyIfNeeded();
+      resetPodcastWeeklyIfNeeded();
+      const st = taskState('d_signin');
+      if (st && !st.done) progressTask('d_signin', 1);
+    });
+  }, [S.today, S.podcast.version]);
 
   const p = S.podcast;
   const expPct = p.level >= PODCAST_MAX_LEVEL ? 100 : Math.round(p.exp / PODCAST_EXP_PER_LEVEL * 100);

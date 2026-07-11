@@ -19,7 +19,7 @@ export function setAnimating(v) { animating = v; }
 
 export const state0 = () => ({
   today: date('2024-05-23'), selected: null,
-  total: 0, five: 0, four: 0, upHits: 0,
+  total: 0, five: 0, four: 0, upHits: 0, astriteSpent: 0,
   pity: { eventChar: 0, eventWeapon: 0, collabChar: 0, collabWeapon: 0, standardChar: 0, standardWeapon: 0, beginner: 0, noviceChoice: 0, noviceWeapon: 0 },
   p4: { eventChar: 0, eventWeapon: 0, collabChar: 0, collabWeapon: 0, standardChar: 0, standardWeapon: 0, beginner: 0, noviceChoice: 0, noviceWeapon: 0 },
   g: { eventChar: false, collabChar: false, noviceChoice: false },

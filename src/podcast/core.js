@@ -1,5 +1,5 @@
 // 先约电台核心：经验/任务/领奖/版本重置
-import { S, msg, fmt } from '../state.js';
+import { S, msg, fmt, date } from '../state.js';
 import { rerenderAll } from '../rerender.js';
 import { commit } from '../state/commit.ts';
 import { PODCAST_TASKS, findTask } from '../data/podcast-tasks.js';
@@ -11,6 +11,7 @@ import {
   WEAPON_BOX_OPTIONS
 } from '../data/podcast-rewards.js';
 import { activePhase } from '../gacha/core.js';
+import { phases } from '../data/phases.js';
 import { openModal } from '../modal.js';
 import { h } from 'preact';
 
@@ -107,6 +108,31 @@ export function taskState(id) {
   const v = S.podcast.tasks[def.bucket][id];
   if (v === true) return { done: true, progress: def.target, target: def.target, ...def };
   return { done: false, progress: typeof v === 'number' ? v : 0, target: def.target, ...def };
+}
+
+// 旧版本的“抽到下个五星”只写抽卡日志，没有推进电台任务。
+// 启动时按当前电台版本的日志向上补齐；只增不减，避免清空日志导致任务倒退。
+export function reconcilePeriodPullTasksFromLog() {
+  ensurePodcast();
+  const versionPhases = phases.filter(p => p.v === S.podcast.version);
+  if (!versionPhases.length || !Array.isArray(S.log)) return false;
+  const start = Math.min(...versionPhases.map(p => p.start));
+  const end = Math.max(...versionPhases.map(p => p.end));
+  const pullCount = S.log.reduce((count, entry) => {
+    if (!entry || typeof entry.date !== 'string') return count;
+    const pulledAt = date(entry.date);
+    return pulledAt >= start && pulledAt < end && pulledAt <= S.today ? count + 1 : count;
+  }, 0);
+
+  let changed = false;
+  for (const id of ['p_pull50', 'p_pull200']) {
+    const st = taskState(id);
+    if (!st.done && pullCount > st.progress) {
+      progressTask(id, pullCount - st.progress);
+      changed = true;
+    }
+  }
+  return changed;
 }
 
 // 每日重置（每天首次进入时调用）

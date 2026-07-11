@@ -7,6 +7,16 @@ import { showResult } from './animation.js';
 import { progressTask } from '../podcast/core.js';
 import { commit } from '../state/commit.ts';
 
+function recordPullResults(out) {
+  if (!out.length) return;
+  S.log = out.slice().reverse().concat(S.log);
+  const fiveCount = out.filter(x => x.r === 5).length;
+  progressTask('d_pull', out.length);
+  progressTask('p_pull50', out.length);
+  progressTask('p_pull200', out.length);
+  if (fiveCount > 0) progressTask('p_five', fiveCount);
+}
+
 export function doPullN(n, free = false) {
   if (animating) return;
   if (!cur()) return msg('当前日期无可用卡池');
@@ -20,15 +30,7 @@ export function doPullN(n, free = false) {
   const arr = commit(() => {
     const out = [];
     for (let i = 0; i < n; i++) { const x = pull(pool, freePull); if (!x) break; out.push(x); }
-    if (out.length) {
-      S.log = out.slice().reverse().concat(S.log);
-      const fiveCount = out.filter(x => x.r === 5).length;
-      // 电台任务：抽卡计数 + 五星
-      progressTask('d_pull', out.length);
-      progressTask('p_pull50', out.length);
-      progressTask('p_pull200', out.length);
-      if (fiveCount > 0) progressTask('p_five', fiveCount);
-    }
+    recordPullResults(out);
     return out;
   });
   if (arr.length) showResult(arr);
@@ -82,7 +84,7 @@ export function toFive() {
   if (animating) return;
   if (!cur()) return msg('当前日期无可用卡池');
   const k = getPool(), tide = S[tideKey(k)];
-  const maxN = tide + Math.floor(S.astrite / 160);
+  const maxN = tide + Math.floor((S.astrite + S.lunite) / 160);
   const hard = k === 'beginner' ? 50 : 80;
   const need = hard - S.pity[k];
   if (maxN <= 0) return msg('资源不足以再抽一次');
@@ -96,10 +98,22 @@ export function toFive() {
       { label: '开始', cls: 'primary', fn: () => {
           const arr = commit(() => {
             const out = [];
-            for (let i = 0; i < 100; i++) { const x = pull(getPool(), false); if (!x) break; out.push(x); if (x.r === 5) break; }
-            if (out.length) {
-              S.log = out.slice().reverse().concat(S.log);
+            const planned = Math.min(maxN, need);
+            for (let i = 0; i < planned; i++) {
+              const pool = getPool();
+              const key = tideKey(pool);
+              if (S[key] <= 0 && S.astrite < 160) {
+                const missing = 160 - S.astrite;
+                if (S.lunite < missing) break;
+                S.lunite -= missing;
+                S.astrite += missing;
+              }
+              const x = pull(pool, false);
+              if (!x) break;
+              out.push(x);
+              if (x.r === 5) break;
             }
+            recordPullResults(out);
             return out;
           });
           if (arr.length) showResult(arr);

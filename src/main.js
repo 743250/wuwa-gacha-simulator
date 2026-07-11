@@ -7,10 +7,12 @@ import { render } from './ui/render.js';
 import { resetDailyIfNeeded } from './daily/commission.js';
 import { initApp } from './init.ts';
 import { mountPreactRoot } from './ui/root.tsx';
-import { loadState } from './save.js';
+import { loadState, saveState } from './save.js';
+import { reconcilePeriodPullTasksFromLog } from './podcast/core.js';
 
 (async () => {
   await loadState();
+  if (reconcilePeriodPullTasksFromLog()) saveState();
   initApp();
   resetDailyIfNeeded();
   render();

@@ -3,6 +3,8 @@
 > 状态: 本轮核心改造完成，仍保留明确尾债
 > 当前计划见 [plan.md](plan.md)
 
+下一轮可直接交给执行型 AI 的详细任务书见 [next-refactor-execution-guide.md](next-refactor-execution-guide.md)。该文档包含禁止事项、分阶段改动、验收命令和汇报模板。
+
 ## 进度总览
 
 | Phase | 内容 | 状态 |

@@ -96,6 +96,11 @@ export function advanceTo(target) {
     const claimed = settleDays(target);
     if (claimed > 0) msg(`月卡自动领取 ${claimed} 天 · +${claimed * 90} 星声`, false);
     S.today = target;
+    const newVersion = versionAt(S.today);
+    if (newVersion !== oldVersion) {
+      refreshVersion(false);
+      if (newVersion) resetPodcastForVersion(newVersion);
+    }
     // 每过一天补满体力：仅当低于上限时往上补到上限；超过上限（嗑药剂状态）保留不动
     if (S.stamina < S.staminaMax) {
       S.stamina = Math.min(S.staminaMax, S.stamina + daysPassed * 240);
@@ -116,11 +121,6 @@ export function advanceTo(target) {
     const newYear = new Date(S.today).getUTCFullYear();
     if (newYear !== oldYear || newMonth !== oldMonth) {
       resetMonthlyShop();
-    }
-    const newVersion = versionAt(S.today);
-    if (newVersion !== oldVersion) {
-      refreshVersion(false);
-      if (newVersion) resetPodcastForVersion(newVersion);
     }
   });
   // 注意：不在内部调 __render，由 main.js 的各 caller 统一调 rerenderAll()

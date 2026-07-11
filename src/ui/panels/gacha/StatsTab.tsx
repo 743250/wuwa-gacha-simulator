@@ -108,6 +108,7 @@ export function StatsTab() {
       {/* 区域 B：精简指标网格 */}
       <div class="stats">
         <div class="stat"><b style={{ color: 'var(--red)' }}>¥{(((S as any).spent) || 0).toLocaleString()}</b><span>累计充值</span></div>
+        <div class="stat"><b style={{ color: 'var(--gold)' }}>{(((S as any).astriteSpent) || 0).toLocaleString()}</b><span>已花费星声</span></div>
         <div class="stat"><b>{a.totalPulls}</b><span>总抽数</span></div>
         <div class="stat"><b>{a.avgPity > 0 ? num(a.avgPity, 1) : '--'}</b><span>平均五星抽数</span></div>
         <div class="stat"><b>{a.avgUpPity > 0 ? num(a.avgUpPity, 1) : '--'}</b><span>平均 UP 抽数</span></div>

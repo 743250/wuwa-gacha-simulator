@@ -1,7 +1,7 @@
 import { h } from 'preact';
 import { useState } from 'preact/hooks';
 import { msg } from '../../../state.js';
-import { levelUpRoleWith, previewExpCost } from '../../../equip/actions.js';
+import { levelUpRoleWith, previewExpCost, previewLevelUpWith } from '../../../equip/actions.js';
 import { EXP_VALUES } from '../../../battle/stats.js';
 import { bumpStateVersion } from '../../signals';
 
@@ -39,9 +39,9 @@ export function LevelupTab({ roleName, level, preview, previewNote, expNext, exp
 
   const provided = useLow * EXP_VALUES.exp_low + useMid * EXP_VALUES.exp_mid +
                    useHigh * EXP_VALUES.exp_high + useSuper * EXP_VALUES.exp_super;
-  const overflow = Math.max(0, provided - expNext);
   const short = Math.max(0, expNext - provided);
-  const canLevel = provided >= expNext && level < 90;
+  const lvPreview = previewLevelUpWith({ level }, provided);
+  const canLevel = lvPreview.ok && level < 90;
 
   function clamp(n: number, max: number): number {
     if (!Number.isFinite(n) || n < 0) return 0;
@@ -82,8 +82,11 @@ export function LevelupTab({ roleName, level, preview, previewNote, expNext, exp
       msg(`所选经验不足 · 差 ${short.toLocaleString()}`);
       return;
     }
-    if (levelUpRoleWith(roleName, useLow, useMid, useHigh, useSuper)) {
-      msg(`${roleName} 升级成功${overflow > 0 ? ` · 溢出 ${overflow.toLocaleString()}` : ''}`, false);
+    const r = levelUpRoleWith(roleName, useLow, useMid, useHigh, useSuper);
+    if (r && r.ok) {
+      const lv = r.levelsGained;
+      const ov = r.overflow || 0;
+      msg(`${roleName} 连升 ${lv} 级 · 达到 LV ${r.finalLevel}${ov > 0 ? ` · 溢出 ${ov.toLocaleString()}` : ''}`, false);
       setUseLow(0); setUseMid(0); setUseHigh(0); setUseSuper(0);
       bumpStateVersion();
     }
@@ -118,10 +121,10 @@ export function LevelupTab({ roleName, level, preview, previewNote, expNext, exp
           LV <b style={{ color: 'var(--gold)' }}>{level}</b> <span style={{ color: 'var(--muted)', fontSize: 14 }}>/ 90</span>
         </div>
         <div style={{ fontSize: 11, textAlign: 'center', marginBottom: 8, lineHeight: 1.6 }}>
-          <div>升 1 级需 <b style={{ color: 'var(--gold)' }}>{expNext.toLocaleString()}</b> 经验</div>
-          <div style={{ color: provided >= expNext ? 'var(--green)' : 'var(--red)', fontSize: 11 }}>
-            已选 <b>{provided.toLocaleString()}</b>{provided >= expNext
-              ? ` · 溢出 ${overflow.toLocaleString()}`
+          <div>下 1 级需 <b style={{ color: 'var(--gold)' }}>{expNext.toLocaleString()}</b> 经验</div>
+          <div style={{ color: lvPreview.ok ? 'var(--green)' : 'var(--red)', fontSize: 11 }}>
+            已选 <b>{provided.toLocaleString()}</b>{lvPreview.ok
+              ? ` · 可升 ${lvPreview.levelsGained} 级 → LV ${lvPreview.finalLevel}${lvPreview.overflow > 0 ? ` · 溢出 ${lvPreview.overflow.toLocaleString()}` : ''}`
               : ` · 差 ${short.toLocaleString()}`}
           </div>
         </div>
@@ -143,7 +146,7 @@ export function LevelupTab({ roleName, level, preview, previewNote, expNext, exp
         onClick={doLevelUp}
         disabled={!canLevel}
         style={{ width: '100%', padding: '11px', fontSize: 12, letterSpacing: 3 }}>
-        {level >= 90 ? '已 满 级' : canLevel ? `升 1 级 (消耗 ${provided.toLocaleString()})` : `选够经验升级 (差 ${short.toLocaleString()})`}
+        {level >= 90 ? '已 满 级' : canLevel ? `升 ${lvPreview.levelsGained} 级 → LV ${lvPreview.finalLevel} (消耗 ${provided.toLocaleString()})` : `选够经验升级 (差 ${short.toLocaleString()})`}
       </button>
 
       <div style={{ fontSize: 10, color: 'var(--muted)', textAlign: 'center', letterSpacing: 0.5, lineHeight: 1.8, padding: 8, marginTop: 8, background: 'rgba(255,255,255,.02)', borderRadius: 8 }}>

@@ -134,7 +134,7 @@ export function selectBanner(bannerId) {
 function payOne(pool) {
   const key = tideKey(pool);
   if (S[key] > 0) { S[key]--; return true; }
-  if (S.astrite >= 160) { S.astrite -= 160; return true; }
+  if (S.astrite >= 160) { S.astrite -= 160; S.astriteSpent = (S.astriteSpent || 0) + 160; return true; }
   return false;
 }
 export function payBeginnerTen() {
@@ -143,7 +143,7 @@ export function payBeginnerTen() {
   const useTide = Math.min(need, S[key]);
   S[key] -= useTide; need -= useTide;
   const cost = need * 160;
-  if (S.astrite >= cost) { S.astrite -= cost; return true; }
+  if (S.astrite >= cost) { S.astrite -= cost; S.astriteSpent = (S.astriteSpent || 0) + cost; return true; }
   S[key] += useTide;
   return false;
 }
