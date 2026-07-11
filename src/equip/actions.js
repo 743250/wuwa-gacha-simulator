@@ -1,5 +1,6 @@
 // 角色养成动作：升级、装备武器
-import { S, msg } from '../state.js';
+import { S } from '../state.js';
+import { msg } from '../ui/services/toast.ts';
 import { expToNext, weaponToNext, EXP_VALUES } from '../battle/stats.js';
 import { isFiveStarWeapon, isFourStarWeapon, WEAPON_DATA, weaponType } from '../equip/weapons.js';
 import { getMeta } from '../battle/template.js';

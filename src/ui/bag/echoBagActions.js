@@ -1,6 +1,7 @@
 // 声骸仓库交互 handler 组（详情/升级/分解/喂料/调谐等）
 // Stage 6.2: modal body 改为 Preact VNode，闭包 onClick 代替 window.__ 桥
-import { S, msg } from '../../state.js';
+import { S } from '../../state.js';
+import { msg } from '../services/toast.ts';
 import { rerenderAll } from '../../rerender.js';
 import { openModal, closeModal } from '../../modal.js';
 import { h } from 'preact';

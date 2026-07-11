@@ -1,5 +1,6 @@
 import { h } from 'preact';
-import { S, msg } from '../../../state.js';
+import { S } from '../../../state.js';
+import { msg } from '../../services/toast.ts';
 import { openModal, closeModal } from '../../../modal.js';
 import { levelUpWeapon, levelUpWeaponMax, unequipWeapon, getEquippableWeapons, equipWeapon } from '../../../equip/actions.js';
 import { bumpStateVersion } from '../../signals';

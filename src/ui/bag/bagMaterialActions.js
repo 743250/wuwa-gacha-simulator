@@ -1,7 +1,8 @@
 // 背包面板：药剂/体力/武器箱/精炼石 handler 组
 // Stage 6.2: modal body 改为 Preact VNode，闭包 onClick 代替 window.__ 桥
 // 注:core 写入函数已通过 commit() 自带 bump,wrapper 层不再额外调 bumpStateVersion()
-import { S, msg } from '../../state.js';
+import { S } from '../../state.js';
+import { msg } from '../services/toast.ts';
 import { usePotion as usePotionCore, useAllPotions as useAllPotionsCore, buyStaminaWithAstrite } from '../../daily/stamina.js';
 import { WEAPON_BOX_OPTIONS } from '../../data/podcast-rewards.js';
 import { openModal } from '../../modal.js';

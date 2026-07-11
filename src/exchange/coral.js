@@ -1,6 +1,7 @@
 // 海市兑换 + 顶部资源条 +号
 // Stage 6.2: modal body 改为 Preact VNode，闭包 onClick 代替 window.__ 桥
-import { S, msg } from '../state.js';
+import { S } from '../state.js';
+import { msg } from '../ui/services/toast.ts';
 import { rerenderAll } from '../rerender.js';
 import { standard5, fourAll, bannerNames } from '../data/chars.js';
 import { openModal } from '../modal.js';

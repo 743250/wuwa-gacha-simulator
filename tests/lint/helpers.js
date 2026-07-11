@@ -1,6 +1,8 @@
 // Lint 提醒共用 helper
 //
 // 设计哲学:
+
+import { relative, sep } from 'node:path';
 //   lint 不是阻断,是提醒。提醒里带"为什么不允许"的理由。
 //   新任务看了提醒仍选择做,说明有充足理由 —— 在 commit/PR 里说明即可。
 //   想严格?设置 LINT_STRICT=1 环境变量,违规变硬错(用于 CI)。
@@ -42,4 +44,8 @@ export function lintWarn({ rule, reason, violations, fix }) {
   } else {
     console.warn(msg);
   }
+}
+
+export function relativeSourcePath(root, file) {
+  return relative(root, file).split(sep).join('/');
 }

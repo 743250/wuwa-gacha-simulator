@@ -78,7 +78,7 @@ export function canBurst(self, battle) {
 // 普攻:1 AP,单体,100% atk
 // 守岸人 5 链:normalSplit = 2,会额外打一个相邻敌人
 export function doAttack(battle, targetIdx) {
-  setCurrentBattle(battle);
+  setCurrentBattle(battle, queryCharacterHook);
   const self0 = battle.team[battle.active];
   const check = canAttack(self0, battle, targetIdx);
   if (!check.ok) return check;
@@ -158,7 +158,7 @@ export function doAttack(battle, targetIdx) {
 
 // 共鸣技能:1 AP,CD 3 回合,单体 180% atk
 export function doSkill(battle, targetIdx) {
-  setCurrentBattle(battle);
+  setCurrentBattle(battle, queryCharacterHook);
   const self0 = battle.team[battle.active];
   const check = canSkill(self0, battle, targetIdx);
   if (!check.ok) return check;
@@ -217,7 +217,7 @@ export function doSkill(battle, targetIdx) {
 
 // 共鸣解放:3 AP,能量满,AOE,主目标 400% / 副目标 200%
 export function doBurst(battle) {
-  setCurrentBattle(battle);
+  setCurrentBattle(battle, queryCharacterHook);
   const self = battle.team[battle.active];
   const check = canBurst(self, battle);
   if (!check.ok) return check;
@@ -308,7 +308,7 @@ export function doBurst(battle) {
 
 // 重击:2 AP,CD 1,220% atk · 重击伤害类型 · 削破韧 25
 export function doHeavy(battle, targetIdx) {
-  setCurrentBattle(battle);
+  setCurrentBattle(battle, queryCharacterHook);
   const self0 = battle.team[battle.active];
   const check = canHeavy(self0, battle, targetIdx);
   if (!check.ok) return check;
@@ -390,7 +390,7 @@ export function doHeavy(battle, targetIdx) {
 // 投掷残骸(聚械机偶特殊动作 · 0 AP)
 // 仅当 BOSS 掉落残骸时可使用
 export function doDebris(battle) {
-  setCurrentBattle(battle);
+  setCurrentBattle(battle, queryCharacterHook);
   if (battle.finished) return { ok: false, err: '战斗已结束' };
   const self = battle.team[battle.active];
   if (!self || !self.alive || self.frozenTurns > 0) return { ok: false, err: '当前角色不可行动' };
@@ -408,7 +408,7 @@ export function doDebris(battle) {
 // 每次切人触发简化版变奏(入场角色对敌方一击 + 削破韧)
 // 协奏满时强化:变奏伤害提升 + 武器 outro/variation 触发器激活
 export function doSwitch(battle, toIdx) {
-  setCurrentBattle(battle);
+  setCurrentBattle(battle, queryCharacterHook);
   if (battle.finished) return { ok: false, err: '战斗已结束' };
   if (toIdx === battle.active) return { ok: false, err: '已在该角色' };
   if (battle.switchUsedThisTurn) return { ok: false, err: '本回合已经切换过角色' };

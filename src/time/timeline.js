@@ -1,7 +1,8 @@
 // 时间推进与版本切换
-import { S, DAY, date, fmt, msg } from '../state.js';
+import { S, DAY, date, fmt } from '../state.js';
+import { msg } from '../ui/services/toast.ts';
 import { phases } from '../data/phases.js';
-import { activePhase } from '../gacha/core.js';
+import { activePhase, ensureSelectedBanner } from '../gacha/core.js';
 import { resetDailyIfNeeded } from '../daily/commission.js';
 import { shopCatalog } from '../shop/actions.js';
 import { resetWeeklyBossIfNeeded } from '../battle/dungeon.js';
@@ -116,6 +117,8 @@ export function advanceTo(target) {
     resetWeeklyBossIfNeeded(S.today);
     // 双周深塔危险区重置（每 14 天）
     resetAbyssIfNeeded(S.today);
+    // Phase 3 步骤 A:日期/版本切换后,显式回填 S.selected(联动池过期/新手池关闭/新旅池到期)
+    ensureSelectedBanner();
     // 跨月重置月度礼包
     const newMonth = new Date(S.today).getUTCMonth();
     const newYear = new Date(S.today).getUTCFullYear();
@@ -159,6 +162,8 @@ export function jumpToday() {
   commit(() => {
     S.today = date('2026-06-23');
     refreshVersion();
+    // Phase 3 步骤 A:跳日期后回填 S.selected(activeBanners 可能变)
+    ensureSelectedBanner();
   });
   // 注意：不在内部调 __render，由 main.js caller 统一调 rerenderAll()
 }

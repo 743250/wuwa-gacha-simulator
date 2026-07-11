@@ -1,5 +1,6 @@
 // 先约电台核心：经验/任务/领奖/版本重置
-import { S, msg, fmt, date } from '../state.js';
+import { S, fmt, date } from '../state.js';
+import { msg } from '../ui/services/toast.ts';
 import { rerenderAll } from '../rerender.js';
 import { commit } from '../state/commit.ts';
 import { PODCAST_TASKS, findTask } from '../data/podcast-tasks.js';

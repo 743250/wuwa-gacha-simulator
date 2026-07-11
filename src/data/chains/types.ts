@@ -83,7 +83,7 @@ export interface CharacterChains {
  * Phase 3 完成批量 codemod,全部 50 角色已迁(chainEffects + seq 数据等价合并到 registry.ts)。
  * 注:原计划写"84 角色"是估算,实际 chainEffects.js / seq.js 各 50 角色且无差异。
  */
-import { REGISTRY } from './registry';
+import { REGISTRY } from './registry.ts';
 export const MIGRATED_TO_CHAIN_DEF: string[] = Object.keys(REGISTRY);
 
 // ===== 消费方接口(供 4 个渲染路径未来切换时用) =====

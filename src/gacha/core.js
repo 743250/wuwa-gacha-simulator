@@ -1,8 +1,9 @@
 // 抽卡核心逻辑
-import { S, DAY, date, fmt, pick, msg } from '../state.js';
-import { rerenderAll } from '../rerender.js';
+// Phase 3 步骤 B:不再 import rerenderAll/msg —— core 是纯领域层,UI 副作用由调用方承担。
+// commit() 已自带 bumpStateVersion,Preact 信号自动响应;
+// 旧字符串 UI(若调用方仍依赖)由调用方主动调 rerenderAll。
+import { S, DAY, date, fmt, pickRng } from '../state.js';
 import { phases } from '../data/phases.js';
-import { commit } from '../state/commit.ts';
 import { standard5, fourAll, threeWeapons, fourWeapons, weapons, bannerNames, standardWeapons, newJourneyChars } from '../data/chars.js';
 import {
   BASE_RATE, HARD_PITY, SOFT_PITY_KNOT, MID_PITY_KNOT, HIGH_PITY_KNOT,
@@ -54,11 +55,26 @@ export function activeBanners() {
   return [...eventChars, ...eventWeapons, ...permanent];
 }
 
+// Phase 3 步骤 A:cur() 改为纯查询,不再隐式写 S.selected。
+// 旧版的"无选择时回填 a[0].id"由显式 action ensureSelectedBanner() 承担,
+// 在应用初始化、日期切换、卡池切换后调用。
 export function cur() {
   const a = activeBanners();
   if (!a.length) return null;
-  if (!S.selected || !a.some(b => b.id === S.selected)) S.selected = a[0].id;
-  return a.find(b => b.id === S.selected);
+  if (!S.selected) return a[0];
+  return a.find(b => b.id === S.selected) || a[0];
+}
+
+// 显式回填 selected:当当前 selected 不在 activeBanners 中时,写入 a[0].id。
+// 返回是否发生写入(便于调用方决定是否 bump)。
+export function ensureSelectedBanner() {
+  const a = activeBanners();
+  if (!a.length) return false;
+  if (!S.selected || !a.some(b => b.id === S.selected)) {
+    S.selected = a[0].id;
+    return true;
+  }
+  return false;
 }
 
 // 概率曲线常量已外提至 rateConfig.js。
@@ -116,19 +132,9 @@ export function targetOptions(b) {
   return { pool: b.pool, opts, locked: null };
 }
 
-export function selectTarget(pool, target) {
-  commit(() => {
-    if (pool === 'standardWeapon') S.standardWeaponTarget = target;
-    if (pool === 'noviceChoice' && !S.noviceStarted) S.noviceTarget = target;
-    if (pool === 'noviceWeapon' && !S.noviceStarted) S.noviceWeaponTarget = target;
-  });
-  rerenderAll();
-}
-
-// 切换当前选中的卡池(顶部 banner tab 点击)
-export function selectBanner(bannerId) {
-  commit(() => { S.selected = bannerId; });
-}
+// Phase 3 步骤 C:selectTarget / selectBanner / upgrade 已迁到 actions.js
+// 这些是"用户动作"层(对应 UI 点击),需要 commit() 触发状态写入;
+// core.js 是纯领域函数层,不再 import commit。
 
 // 支付
 function payOne(pool) {
@@ -148,22 +154,44 @@ export function payBeginnerTen() {
   return false;
 }
 
-export function pull(pool, free = false) {
-  const b = cur(); if (!b) return null;
-  if (!free && !payOne(pool)) return null;
-  // 新旅池：第一次抽就启动 30 天倒计时
-  if (pool === 'noviceChoice' || pool === 'noviceWeapon') startNoviceIfNeeded();
-  S.total++; S.pity[pool]++; S.p4[pool]++;
-  if (pool === 'beginner') {
-    S.beginnerPulls++;
-    // 累计 50 抽用完才永久关闭（官方机制：抽满 50 后池子才消失）
-    if (S.beginnerPulls >= 50) S.beginnerDone = true;
+// Phase 3 步骤 C:pullOne 是可注入随机源的单抽纯领域函数。
+//   · state   —— 接收可变状态对象(应用层传 S;测试可传副本)
+//   · banner  —— 当前选中卡池对象(cur() 的返回值)
+//   · pool    —— 池子 key(同 pull 第一参数)
+//   · rng     —— 返回 [0,1) 的随机函数,默认 Math.random
+//   · free    —— 是否免费(免费不扣资源)
+// 允许原地修改 state(任务书 7.4 不要求不可变);返回单次抽卡结果或 null(资源不足)。
+// 关键约束:不读取全局 S、不保存、不刷新、不弹窗;随机调用顺序与 pull() 旧版完全一致。
+export function pullOne(state, banner, pool, rng = Math.random, free = false) {
+  if (!banner) return null;
+  if (!free && !payOneFor(state, pool)) return null;
+  if (pool === 'noviceChoice' || pool === 'noviceWeapon') {
+    if (!state.noviceStarted) state.noviceStarted = state.today;
   }
-  const r = Math.random(), fr = pool === 'beginner' && S.beginnerPulls >= 50 ? 1 : rate(S.pity[pool]);
-  if (r < fr) return five(pool, b);
-  if (S.p4[pool] >= 10 || r < fr + .06) return four(pool, b);
-  S.oscillated += 15;
-  return mk(3, pick(threeWeapons), '三星武器', pool);
+  state.total++; state.pity[pool]++; state.p4[pool]++;
+  if (pool === 'beginner') {
+    state.beginnerPulls++;
+    if (state.beginnerPulls >= 50) state.beginnerDone = true;
+  }
+  const r = rng(), fr = pool === 'beginner' && state.beginnerPulls >= 50 ? 1 : rate(state.pity[pool]);
+  if (r < fr) return five(state, pool, banner, rng);
+  if (state.p4[pool] >= 10 || r < fr + .06) return four(state, pool, banner, rng);
+  state.oscillated += 15;
+  return mk(state, 3, pickRng(threeWeapons, rng), '三星武器', pool);
+}
+
+// 旧版 pull(pool, free) 保留作为应用层 wrapper:全 state = S,rng = Math.random,
+// 保持与历史调用方完全一致的行为(原地修改 S、commit 由调用方做)。
+export function pull(pool, free = false) {
+  return pullOne(S, cur(), pool, Math.random, free);
+}
+
+// payOne 的 state 注入版:扣波纹/星声。返回是否成功扣资源。
+function payOneFor(state, pool) {
+  const key = tideKey(pool);
+  if (state[key] > 0) { state[key]--; return true; }
+  if (state.astrite >= 160) { state.astrite -= 160; state.astriteSpent = (state.astriteSpent || 0) + 160; return true; }
+  return false;
 }
 
 function charCoral(r, pulled) {
@@ -172,76 +200,81 @@ function charCoral(r, pulled) {
   return 0;
 }
 
-function five(pool, b) {
-  const pity = S.pity[pool];
-  S.pity[pool] = 0; S.p4[pool] = 0; S.five++;
+function five(state, pool, b, rng) {
+  const pity = state.pity[pool];
+  state.pity[pool] = 0; state.p4[pool] = 0; state.five++;
   let name, type, up = false, coral = 15;
   if (pool === 'eventWeapon' || pool === 'collabWeapon' || pool === 'standardWeapon') {
     name = b.weapon; type = pool === 'standardWeapon' ? '定向常驻五星武器' : (pool === 'collabWeapon' ? '目标联动五星武器' : '目标五星武器'); up = true;
-    addWeapon(name, 5);
+    addWeaponFor(state, name, 5);
     coral = 15;
   } else if (pool === 'noviceWeapon') {
     // ★ 新旅武器池：100% 出自选武器
-    up = true; name = b.weapon || S.noviceWeaponTarget; type = '新旅目标五星武器';
-    addWeapon(name, 5);
+    up = true; name = b.weapon || state.noviceWeaponTarget; type = '新旅目标五星武器';
+    addWeaponFor(state, name, 5);
     coral = 15;
   } else if (pool === 'noviceChoice') {
     up = true; name = b.char; type = '新旅目标五星角色';
-    const r = addRole(name, 5);
+    const r = addRoleFor(state, name, 5);
     coral = charCoral(5, r.pulled);
     // ★ 拆分后不再附送武器
   } else if (pool === 'beginner') {
-    name = pick(standard5); type = '新手五星角色'; up = false;
+    name = pickRng(standard5, rng); type = '新手五星角色'; up = false;
     // 50 抽用完才永久关闭（不再因首五星就关池）
-    const r = addRole(name, 5);
+    const r = addRoleFor(state, name, 5);
     coral = charCoral(5, r.pulled);
   } else if (pool === 'standardChar') {
-    name = pick(standard5); type = '常驻五星角色'; up = false;
-    const r = addRole(name, 5);
+    name = pickRng(standard5, rng); type = '常驻五星角色'; up = false;
+    const r = addRoleFor(state, name, 5);
     coral = charCoral(5, r.pulled);
   } else if (pool === 'collabChar') {
     up = true; name = b.char; type = '概率提升联动五星角色';
-    const r = addRole(name, 5);
+    const r = addRoleFor(state, name, 5);
     coral = charCoral(5, r.pulled);
   } else {
-    up = S.g[pool] || Math.random() < .5;
-    name = up ? b.char : pick(standard5);
+    up = state.g[pool] || rng() < .5;
+    name = up ? b.char : pickRng(standard5, rng);
     type = up ? '概率提升五星角色' : '常驻五星角色';
-    S.g[pool] = !up;
-    const r = addRole(name, 5);
+    state.g[pool] = !up;
+    const r = addRoleFor(state, name, 5);
     coral = charCoral(5, r.pulled);
     if (!up) coral += 30;
   }
-  if (up) { type += ' · 命中提升'; S.upHits++; }
-  S.afterglow += coral;
-  return mk(5, name, type, pool, pity, up);
+  if (up) { type += ' · 命中提升'; state.upHits++; }
+  state.afterglow += coral;
+  return mk(state, 5, name, type, pool, pity, up);
 }
 
-function four(pool, b) {
-  S.four++; S.p4[pool] = 0;
-  const up = S.g4[pool] || Math.random() < .5;
+function four(state, pool, b, rng) {
+  state.four++; state.p4[pool] = 0;
+  const up = state.g4[pool] || rng() < .5;
   let name, type, coral = 3;
   if (up) {
-    name = poolKind(pool) === 'weapon' ? pick(b.fours) : pick(b.fours);
+    name = poolKind(pool) === 'weapon' ? pickRng(b.fours, rng) : pickRng(b.fours, rng);
     type = poolKind(pool) === 'weapon' ? '概率提升四星武器' : '概率提升四星角色';
   } else {
-    name = poolKind(pool) === 'weapon' || Math.random() < .5 ? pick(fourWeapons) : pick(fourAll);
+    name = poolKind(pool) === 'weapon' || rng() < .5 ? pickRng(fourWeapons, rng) : pickRng(fourAll, rng);
     type = fourWeapons.includes(name) ? '四星武器' : '四星角色';
   }
   if (fourWeapons.includes(name)) {
-    addWeapon(name, 4); coral = 3;
+    addWeaponFor(state, name, 4); coral = 3;
   } else {
-    const r = addRole(name, 4); coral = charCoral(4, r.pulled);
+    const r = addRoleFor(state, name, 4); coral = charCoral(4, r.pulled);
   }
-  S.g4[pool] = !up;
-  S.afterglow += coral;
-  return mk(4, name, type, pool, S.pity[pool], up);
+  state.g4[pool] = !up;
+  state.afterglow += coral;
+  return mk(state, 4, name, type, pool, state.pity[pool], up);
 }
 
-function mk(r, n, t, pool, pity, up) { return { r, n, t, pool, pity: pity ?? S.pity[pool], up: !!up, no: S.total, date: fmt(S.today) }; }
+function mk(state, r, n, t, pool, pity, up) {
+  return { r, n, t, pool, pity: pity ?? state.pity[pool], up: !!up, no: state.total, date: fmt(state.today) };
+}
 
-export function addRole(n, r) {
-  const o = S.roles[n] || {
+// addRole / addWeapon 的 state 注入版 —— Phase 3 步骤 C
+// 旧版仍 export 给外部调用方(addRole/addWeapon 调 S);内部 pullOne 调注入版以保持纯函数性。
+// 字段防御与旧 addRole/addWeapon 逐字一一对应,确保行为零变化。
+export function addRoleFor(state, n, r) {
+  const o = state.roles[n] || {
     n, r, owned: 0, chain: 0, spare: 0, bought: 0, pulled: 0,
     level: 1,
     exp: 0,
@@ -257,12 +290,12 @@ export function addRole(n, r) {
   if (o.equipWeapon === undefined) o.equipWeapon = null;
   if (!Array.isArray(o.equipEchoes)) o.equipEchoes = [null, null, null, null, null];
   if (o.exp === undefined) o.exp = 0;
-  S.roles[n] = o; return o;
+  state.roles[n] = o; return o;
 }
 
-export function addWeapon(n, r) {
-  const o = S.weapons[n] || {
-    n, r, pulled: 0,
+export function addWeaponFor(state, name, r) {
+  const o = state.weapons[name] || {
+    n: name, r, pulled: 0,
     level: 1,
     refine: 1,
     spareRefine: 0,
@@ -275,8 +308,11 @@ export function addWeapon(n, r) {
   if (o.refine === undefined) o.refine = 1;
   if (o.spareRefine === undefined) o.spareRefine = Math.max(0, (o.pulled || 1) - (o.refine || 1));
   if (o.equippedBy === undefined) o.equippedBy = null;
-  S.weapons[n] = o; return o;
+  state.weapons[name] = o; return o;
 }
+
+export function addRole(n, r) { return addRoleFor(S, n, r); }
+export function addWeapon(n, r) { return addWeaponFor(S, n, r); }
 
 export function getPool() { const b = cur(); return b ? b.pool : 'eventChar'; }
 
@@ -303,8 +339,5 @@ export function canAffordPulls(n) {
   };
 }
 
-export function upgrade(n) {
-  const o = S.roles[n]; if (!o || o.spare <= 0 || o.chain >= 6) return;
-  commit(() => { o.spare--; o.chain++; });
-  rerenderAll();
-}
+// Phase 3 步骤 C:upgrade 已迁到 actions.js(需要 commit 写入)。
+// 旧调用方 src/ui/render/roleModal.js 已改从 actions.js 导入。

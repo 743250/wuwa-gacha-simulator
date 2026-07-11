@@ -1,7 +1,8 @@
 // 战斗 UI（全屏覆盖）— Preact shim
 // Preact <BattleView /> 已接管 #battleOverlay 的渲染。
 // 本文件保留入口函数签名和 window handler 注册。
-import { S, $, msg } from '../state.js';
+import { S } from '../state.js';
+import { $, msg } from './services/toast.ts';
 import { rerenderAll } from '../rerender.js';
 import { startEncounter, getCombatTeamNames } from '../battle/combat.js';
 import { flattenEnemies, DUNGEONS, canUseWeeklyBoss, getWeeklyBossUsed, WEEKLY_BOSS_LIMIT, getDungeonEncounter, getWorldBossSpawnOpts, getDungeonEnemyLevel, rollEchoMinions } from '../battle/dungeon.js';

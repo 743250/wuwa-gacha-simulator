@@ -1,6 +1,7 @@
 // 商店
 // 数据校准（2026-06）：按鸣潮真实商店档位实装
-import { S, msg, fmt } from '../state.js';
+import { S, fmt } from '../state.js';
+import { msg } from '../ui/services/toast.ts';
 import { rerenderAll } from '../rerender.js';
 import { openModal } from '../modal.js';
 import { unlockPaid, unlockPremium } from '../podcast/core.js';

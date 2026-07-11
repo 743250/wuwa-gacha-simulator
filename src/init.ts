@@ -7,6 +7,8 @@ import { initBattleResources } from './battle/resources/index';
 import { initDungeonMerge } from './battle/dungeon.js';
 import { initBattleUiBridge } from './ui/battle.js';
 import { initExchange } from './exchange/coral.js';
+import { ensureSelectedBanner } from './gacha/core.js';
+import { commit } from './state/commit.ts';
 
 let _initialized = false;
 
@@ -17,4 +19,6 @@ export function initApp(): void {
   initDungeonMerge();
   initBattleUiBridge();
   initExchange();
+  // Phase 3 步骤 A:显式回填 S.selected —— 旧 cur() 隐式写的副作用改由这里承担
+  commit(() => { ensureSelectedBanner(); });
 }

@@ -1,11 +1,32 @@
 // 抽卡动作入口（含十连补抽确认弹窗）
-import { S, msg, animating } from '../state.js';
+import { S } from '../state.js';
+import { animating } from '../ui/gachaAnimationState.js';
+import { msg } from '../ui/services/toast.ts';
 import { rerenderAll } from '../rerender.js';
-import { cur, getPool, tideKey, tideName, canAffordPulls, payBeginnerTen, pull } from './core.js';
+import { cur, getPool, tideKey, tideName, canAffordPulls, payBeginnerTen, pull, ensureSelectedBanner } from './core.js';
 import { openModal } from '../modal.js';
-import { showResult } from './animation.js';
+import { showResult } from '../ui/gacha/animation.js';
 import { progressTask } from '../podcast/core.js';
 import { commit } from '../state/commit.ts';
+
+// Phase 3 步骤 C:从 core.js 迁入的"用户动作"层函数
+// 这些函数需要 commit() 写入状态,所以归 actions 层;core.js 不再 import commit。
+export function selectTarget(pool, target) {
+  commit(() => {
+    if (pool === 'standardWeapon') S.standardWeaponTarget = target;
+    if (pool === 'noviceChoice' && !S.noviceStarted) S.noviceTarget = target;
+    if (pool === 'noviceWeapon' && !S.noviceStarted) S.noviceWeaponTarget = target;
+  });
+}
+
+export function selectBanner(bannerId) {
+  commit(() => { S.selected = bannerId; });
+}
+
+export function upgrade(n) {
+  const o = S.roles[n]; if (!o || o.spare <= 0 || o.chain >= 6) return;
+  commit(() => { o.spare--; o.chain++; });
+}
 
 function recordPullResults(out) {
   if (!out.length) return;
@@ -31,6 +52,9 @@ export function doPullN(n, free = false) {
     const out = [];
     for (let i = 0; i < n; i++) { const x = pull(pool, freePull); if (!x) break; out.push(x); }
     recordPullResults(out);
+    // 抽卡可能关闭新手池(beginnerDone=true 后 activeBanners 不再含 beginner),
+    // 若当前 selected 已失效则回填到第一个可用 banner,避免 banner tab 无高亮。
+    ensureSelectedBanner();
     return out;
   });
   if (arr.length) showResult(arr);
@@ -114,6 +138,8 @@ export function toFive() {
               if (x.r === 5) break;
             }
             recordPullResults(out);
+            // beginner 池可能在此循环内被关掉,补 ensureSelectedBanner 维持 tab 高亮。
+            ensureSelectedBanner();
             return out;
           });
           if (arr.length) showResult(arr);

@@ -6,7 +6,7 @@
 import { describe, it } from 'vitest';
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, resolve } from 'node:path';
-import { lintWarn } from './helpers.js';
+import { lintWarn, relativeSourcePath } from './helpers.js';
 
 const ROOT = resolve(__dirname, '../../src');
 
@@ -35,7 +35,7 @@ describe('lint · 边界:battle 不依赖 ui', () => {
         const m = line.match(/from\s+['"](\.\.?\/[^'"]*\/ui\/[^'"]*)['"]/) ||
                   line.match(/^import\s+['"](\.\.?\/[^'"]*\/ui\/[^'"]*)['"]/);
         if (m) {
-          violations.push({ file: f.replace(ROOT + '/', ''), line: i + 1, snippet: line.trim() });
+          violations.push({ file: relativeSourcePath(ROOT, f), line: i + 1, snippet: line.trim() });
         }
       });
     }

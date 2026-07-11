@@ -13,8 +13,17 @@ import { computeStat } from '../tempStats.js';
 import { collectWeaponBonus } from '../weaponTriggers.js';
 import { resistMultiplier, vibrationMultiplier } from '../elements.js';
 import { applyEnemyDefendHook } from '../enemyMechanics.js';
-import { queryCharacterHook } from '../characters/index.js';
 import { voidErosionDefMult } from './effects.js';
+
+// Phase 4:切断 damage.js → characters/index.js 循环依赖
+// damage.js 不再直接 import queryCharacterHook,改为通过注入的 resolver 调用。
+// 默认 resolver 返回 undefined(行为与无角色机制时一致);
+// combat orchestration (actions.js/turnEnd.js) 在 setCurrentBattle 时
+// 一并调用 setDamageHooksResolver 注入真实 queryCharacterHook。
+let _resolveCharacterHook = () => undefined;
+export function setDamageHooksResolver(fn) { _resolveCharacterHook = fn || (() => undefined); }
+export function getDamageHooksResolver() { return _resolveCharacterHook; }
+function queryHook(self, hookName, ...args) { return _resolveCharacterHook(self, hookName, ...args); }
 
 // ===== 伤害计算 =====
 // dmgType: 'normal' | 'skill' | 'burst' | 'heavy'
@@ -23,7 +32,7 @@ export function calcDamage(attacker, defender, multiplier, dmgType, opts = {}) {
   const wb = collectWeaponBonus(attacker, dmgType, { target: defender });
   // buff 中的 atkUp（守岸人 2 链等）
   const buffAtkUp = (attacker.buffs || []).reduce((a, b) => b.type === 'atkUp' ? a + b.value : a, 0);
-  const hpCore = queryCharacterHook(attacker, 'hpCore', dmgType, opts);
+  const hpCore = queryHook(attacker, 'hpCore', dmgType, opts);
   let baseStat;
   let hpMultOverride = null;
   if (hpCore) {
@@ -57,7 +66,7 @@ export function calcDamage(attacker, defender, multiplier, dmgType, opts = {}) {
   // 强化窗口:卡卡罗 burstWindow、安可黑咩形态等
   const burstWin = attacker.buffs?.find(b => b.type === 'burstWindow');
   let windowBonus = burstWin && (dmgType === 'normal' || dmgType === 'skill') ? (1 + burstWin.value) : 1;
-  windowBonus *= queryCharacterHook(attacker, 'windowMultiplier', dmgType) || 1;
+  windowBonus *= queryHook(attacker, 'windowMultiplier', dmgType) || 1;
   // 六种元素异常效应不通过加深 debuff 影响伤害（风蚀/光噪/电磁是 DoT，聚爆/霜渐是累积爆发，虚湮走 defMult）
   let debuffBonus = 1;
   if (wb.condBonus) debuffBonus += wb.condBonus;
@@ -66,7 +75,7 @@ export function calcDamage(attacker, defender, multiplier, dmgType, opts = {}) {
   if (mark && mark.layers > 0) {
     const perStack = attacker.yinlinMarkVulnPerStack || 0;
     if (perStack > 0) debuffBonus += perStack * mark.layers;
-    debuffBonus *= queryCharacterHook(attacker, 'markedTargetMultiplier', dmgType) || 1;
+    debuffBonus *= queryHook(attacker, 'markedTargetMultiplier', dmgType) || 1;
   }
   // 防御穿透(含焰羽等临时 pierceUp buff)
   const pierceBuff = (attacker.buffs || []).reduce((a, b) => b.type === 'pierceUp' ? a + b.value : a, 0);
@@ -94,9 +103,19 @@ export function calcDamage(attacker, defender, multiplier, dmgType, opts = {}) {
 
 // ===== 当前战斗上下文 =====
 // dealDamage 内的 5 链致命伤等需要 access battle.log / battle.summons
+// Phase 4:setCurrentBattle 同时接收 hook resolver,由 combat orchestration 注入,
+// 避免 damage.js 直接 import characters/index.js 形成循环依赖。
+// 注意:resolveHook 必须显式传入;省略时会把 resolver 复位为 no-op,
+// 避免上一场战斗的 resolver 残留到下一场(状态泄露)。
 let _currentBattle = null;
-export function setCurrentBattle(b) { _currentBattle = b; }
+let _currentResolveHook = null;
+export function setCurrentBattle(b, resolveHook = null) {
+  _currentBattle = b;
+  _currentResolveHook = resolveHook;
+  setDamageHooksResolver(resolveHook);
+}
 export function getCurrentBattle() { return _currentBattle; }
+export function getCurrentResolveHook() { return _currentResolveHook; }
 
 // 扣血(处理护盾、防御 buff、敌方特殊减伤、召唤物挡刀)
 export function dealDamage(target, dmg) {
@@ -124,7 +143,7 @@ export function dealDamage(target, dmg) {
     else { dmg -= target.shield; target.shield = 0; }
   }
   if (target.hp - dmg <= 0) {
-    if (queryCharacterHook(target, 'onLethal', _currentBattle, dmg)) {
+    if (queryHook(target, 'onLethal', _currentBattle, dmg)) {
       return 0;
     }
   }

@@ -12,10 +12,13 @@
 
 import { useEffect } from 'preact/hooks';
 import { viewSignal, aTabSignal, bTabSignal } from './signals';
-import { S, resetState, msg, date } from '../state.js';
+import { S, resetState, date } from '../state.js';
+import { msg } from './services/toast.ts';
 import { render } from './render.js';
 import { bumpStateVersion } from './signals';
 import { advanceDay, nextPhase, nextVersion, jumpToday, jumpToVersion, jumpToDate } from '../time/timeline.js';
+import { ensureSelectedBanner } from '../gacha/core.js';
+import { commit } from '../state/commit.ts';
 import { openModal } from '../modal.js';
 import { saveState, exportSave, importSave, clearSave, saveStateNow, pickSaveFolder, isFsSaveActive, isFsSupported, hasLocalStorageSave } from '../save.js';
 import { phases } from '../data/phases.js';
@@ -97,6 +100,9 @@ function bindResetButton() {
         { label: '确认重置', cls: 'warn', fn: () => {
           resetState();
           clearSave();
+          // S.selected 已被 resetState 归零,但 active 集合变化后显式回填首个 banner,
+          // 维持 cur()/banner tab 一致性(防 reset 后 selected=null 让 cur() fallback 但状态写不一致)。
+          commit(() => { ensureSelectedBanner(); });
           rerenderAll();
           msg('已重置,请重新设置开局', false);
           // 重置后弹开局设置,让玩家重新选择入坑方式
@@ -145,7 +151,13 @@ function bindSaveMgmtButton() {
         const file = e.target.files[0];
         if (!file) return;
         importSave(file, (ok: boolean, err?: string) => {
-          if (ok) { rerenderAll(); msg('存档导入成功', false); }
+          if (ok) {
+            // 导入存档可能让 S.selected 指向已失效 banner(例如旧存档 selected='beginner' 但 beginnerDone=true),
+            // 显式回填首个可用 banner,避免 banner tab 无高亮。
+            commit(() => { ensureSelectedBanner(); });
+            rerenderAll();
+            msg('存档导入成功', false);
+          }
           else msg('导入失败:' + (err || '格式错误'));
         });
       };

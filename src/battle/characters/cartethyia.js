@@ -219,7 +219,8 @@ export function cartethyiaErosionOnSwitchIn(self, target, battle) {
 
 // 5 链 · 将烈风重塑希望：致命伤不倒 + 20% HP 护盾 / 2 回合（每场 1 次）
 // 在 dealDamage 内 target.hp 即将归 0 时调用；返回 true 表示已接管本次伤害
-export function cartethyiaLethalShield(self, dmg, battle) {
+// onLethal hook signature: (self, battle, dmg) => boolean
+export function cartethyiaLethalShield(self, battle, dmg) {
   if (!self || self.name !== '卡提希娅' || !self.cartethyiaLethalShield) return false;
   if (self._cartethyiaLethalUsed) return false;
 

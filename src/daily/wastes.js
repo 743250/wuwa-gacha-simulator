@@ -22,7 +22,7 @@ import { startEncounter, getCombatTeamNames } from '../battle/combat.js';
 import { flattenEnemies } from '../battle/dungeon.js';
 import { activePhase } from '../gacha/core.js';
 import { STAR_CRITERIA } from '../battle/balance.js';
-import { msg } from '../state.js';
+import { msg } from '../ui/services/toast.ts';
 import { commit } from '../state/commit.ts';
 
 // ===== 信物系统（Tokens）=====

@@ -1,21 +1,18 @@
 // 全局状态管理
-export const DAY = 86400000;
-export const fmt = d => new Date(d).toISOString().slice(0, 10);
-export const date = s => new Date(s + 'T00:00:00Z').getTime();
-export const $ = id => document.getElementById(id);
-export const pick = a => a[Math.floor(Math.random() * a.length)];
+//
+// 纯工具已外移:date/fmt/DAY → src/shared/date.js,pick → src/shared/random.js。
+// 本文件 re-export 它们以兼容现有 73 处 import(Phase 2 步骤 A 中间态,新代码请直接 import shared/);
+// state0() 内部用 date(...),所以同时 import 进本文件作用域。
+//
+// $ 和 msg 已外移到 src/ui/services/toast.ts(Phase 2 步骤 B):
+// state 层不再直接操作 DOM。
+//
+// animating/setAnimating 已外移到 src/ui/gachaAnimationState.js(Phase 2 步骤 D)。
 
-let toastTimer;
-export function msg(t, err = true) {
-  const e = $('toast');
-  e.textContent = t || '';
-  e.style.color = err ? 'var(--red)' : 'var(--green)';
-  clearTimeout(toastTimer);
-  if (t) toastTimer = setTimeout(() => e.textContent = '', 2500);
-}
-
-export let animating = false;
-export function setAnimating(v) { animating = v; }
+import { DAY, fmt, date } from './shared/date.js';
+import { pick } from './shared/random.js';
+export { DAY, fmt, date } from './shared/date.js';
+export { pick, pickRng } from './shared/random.js';
 
 export const state0 = () => ({
   today: date('2024-05-23'), selected: null,
@@ -92,6 +89,3 @@ export let S = state0();
 export function resetState() {
   Object.assign(S, state0());
 }
-
-// 这些函数需要挂到 window 供 onclick 使用
-if (typeof window !== 'undefined') window.animating = animating;

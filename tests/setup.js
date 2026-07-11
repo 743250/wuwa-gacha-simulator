@@ -19,7 +19,6 @@ if (!hasRealDom) {
     upgrade() {},
     exportSave() {},
     importSaveFile() {},
-    animating: false,
   };
 
   globalThis.document = {

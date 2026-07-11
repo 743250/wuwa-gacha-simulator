@@ -28,7 +28,7 @@ import {
 
 // 我方结束回合,敌方出手
 export function endTurn(battle) {
-  setCurrentBattle(battle);
+  setCurrentBattle(battle, queryCharacterHook);
   if (battle.finished) return;
   const enemyHelpers = { dealDamage, enemyAttack, inflictFreeze, lockSkill, pickTeamTarget, spawnEnemy };
 

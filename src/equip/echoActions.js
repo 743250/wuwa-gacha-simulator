@@ -1,6 +1,7 @@
 // 声骸养成动作：生成 / 装备 / 卸下 / 升级 / 分解
 // 核心原则：不实现声骸主动技能，纯粹作为数据加成工具
-import { S, msg, pick } from '../state.js';
+import { S, pick } from '../state.js';
+import { msg } from '../ui/services/toast.ts';
 import { ECHO_CATALOG, ECHO_SETS, MAIN_STAT_POOL, SUB_STAT_POOL, LEVEL_EXP, MAX_LEVEL_EXP, getEchoById, getSetById, mainStatAtLevel, ECHO_MAX_LEVEL } from '../data/echoes.js';
 import { totalExp, consumeExp } from './actions.js';
 import { EXP_VALUES } from '../battle/stats.js';

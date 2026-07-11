@@ -14,7 +14,8 @@ import { ECHO_COST_CAP } from '../../../equip/echoActions.js';
 import { getSetById, formatEchoStatValue } from '../../../data/echoes.js';
 import { usePotion, useAllPotions, bagOpenWeaponBox, bagUseRefineStone } from '../../../ui/bag/bagMaterialActions.js';
 import { bagEchoDetail, bagEchoLevelUp, bagEchoLevelUpMax, bagEchoToggleLock } from './echoActions';
-import { S, msg } from '../../../state.js';
+import { S } from '../../../state.js';
+import { msg } from '../../services/toast.ts';
 import { openModal } from '../../../modal.js';
 import { renderWeaponDetail } from '../../render/weaponDetail.js';
 import { levelUpWeapon, levelUpWeaponMax, unequipWeapon, refineWeapon } from '../../../equip/actions.js';
@@ -54,7 +55,7 @@ function openWeaponModal(name: string) {
   if (canRefine) {
     actions.push({ label: `精炼 +1（R${weapon.refine || 1} 到 R${(weapon.refine || 1) + 1}）`, cls: 'gold', fn: () => {
       const r = refineWeapon(name);
-      if (r.ok) {
+      if ('refine' in r) {
         msg(`${name} 精炼 +1（现 R${r.refine}）`, false);
         bumpStateVersion();
         openWeaponModal(name);

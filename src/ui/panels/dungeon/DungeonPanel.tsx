@@ -149,7 +149,7 @@ function DungeonCard({ d }: { d: any }) {
     displayDrops = {};
     for (const [k, v] of Object.entries(rawDrops)) {
       displayDrops[k] = (k === 'astrite' || k === 'echo_set' || k === 'echo_count')
-        ? v : Math.round(v * sol3.dropMult);
+        ? v : Math.round((v as number) * sol3.dropMult);
     }
   }
 

@@ -13,7 +13,7 @@
 // 不吞 mutator 抛错:抛了就不 bump、不落盘,让上层测试/调用方看见。
 
 import { S } from '../state.js';
-import { bumpStateVersion } from '../ui/signals.ts';
+import { bumpStateVersion } from './version.ts';
 import { saveState } from '../save.js';
 
 export interface CommitOptions {

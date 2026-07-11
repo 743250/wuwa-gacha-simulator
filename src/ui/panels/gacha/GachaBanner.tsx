@@ -3,7 +3,8 @@
 
 import { h, Fragment } from 'preact';
 import { useS } from '../../signals';
-import { activeBanners, cur, poolKind, poolTitle, targetOptions, selectTarget, selectBanner, noviceRemainDays } from '../../../gacha/core.js';
+import { activeBanners, cur, poolKind, poolTitle, targetOptions, noviceRemainDays } from '../../../gacha/core.js';
+import { selectTarget, selectBanner } from '../../../gacha/actions.js';
 import { DAY } from '../../../state.js';
 import { VERSION_NAMES } from '../../../data/phases.js';
 import { standard5 } from '../../../data/chars.js';

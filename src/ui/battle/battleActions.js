@@ -1,6 +1,7 @@
 // 战斗动作 handler 组
 //   · 10 个 action 为 export 纯函数，Preact 组件直接 import 调用
-import { S, msg } from '../../state.js';
+import { S } from '../../state.js';
+import { msg } from '../services/toast.ts';
 import { doAttack, doSkill, doHeavy, doBurst, doSwitch, doDebris, endTurn } from '../../battle/combat.js';
 import { onBattleResult, getSol3Config, getSol3Level } from '../../battle/dungeon.js';
 import { spendStamina } from '../../daily/stamina.js';

@@ -3,8 +3,9 @@
 // switchRoleTab / activateChain / selectEchoSlot / openRoleModal / openRolePreview 已 export 给 src/ui/panels/roleModal/ Preact 组件直接 import。
 // skillBlock.js 已 Preact 化,直接 import toggleEncoreBurstMode,不再需要 window.__ re-export 桥。
 
-import { S, msg } from '../../state.js';
-import { upgrade } from '../../gacha/core.js';
+import { S } from '../../state.js';
+import { msg } from '../services/toast.ts';
+import { upgrade } from '../../gacha/actions.js';
 import {
   roleModalOpenSignal,
   roleModalNameSignal,

@@ -4,7 +4,7 @@
 // 未找到角色时返回空数组(明确无 effect),不再隐式解析旧数据。
 
 import { FORTE_BOOST } from './chainEffects.js';
-import { getChainDef } from '../data/chains';
+import { getChainDef } from '../data/chains/index.ts';
 
 function stripTags(html) {
   return String(html || '').replace(/<[^>]+>/g, '');

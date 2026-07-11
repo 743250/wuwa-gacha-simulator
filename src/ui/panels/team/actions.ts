@@ -2,7 +2,8 @@
 // openTeamPicker 用 Preact VNode body,闭包 onClick 无 window 桥
 // Phase 1:状态写入走 commit() 统一入口
 import { h } from 'preact';
-import { S, msg, $ } from '../../../state.js';
+import { S } from '../../../state.js';
+import { $, msg } from '../../services/toast.ts';
 import { getMeta } from '../../../battle/template.js';
 import { calcBP } from '../../../battle/stats.js';
 import { openModal } from '../../../modal.js';

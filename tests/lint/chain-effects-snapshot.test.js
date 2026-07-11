@@ -23,7 +23,9 @@ const REGISTRY_PATH = resolve(__dirname, '../../src/data/chains/registry.ts');
 //   1. 改动是用户明确要求的(不是"贴近官方"擅自改) —— CLAUDE.md 铁律 2
 //   2. 改动原因记录在 commit message / PR 描述
 //   3. 跑过 tests/battle/chains.test.js 全绿
-const SNAPSHOT_MD5 = '3646dcf61a9f454d0f57b98dfebc4f8b';
+// 2026-07-11 更新:接受 cfb6198「feat: 游戏开局设置 + 经验书选择 + UI 改进」对共鸣链 effect
+// 的合法改动(17 增 15 删)作为新基线,旧快照 3646dcf61a 已与 registry 现状脱钩。
+const SNAPSHOT_MD5 = '4cad4148b321724f3ce4e409d2251a49';
 
 function md5(content) {
   return createHash('md5').update(content).digest('hex');

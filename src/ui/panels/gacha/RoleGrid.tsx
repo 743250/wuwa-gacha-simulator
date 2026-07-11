@@ -21,7 +21,7 @@ export function RoleGrid() {
   const arr = Object.values(S.roles).sort((a: any, b: any) => {
     const ka = roleSortKey(a), kb = roleSortKey(b);
     for (let i = 0; i < ka.length; i++) {
-      if (ka[i] !== kb[i]) return ka[i] - kb[i];
+      if (ka[i] !== kb[i]) return (ka[i] as number) - (kb[i] as number);
     }
     return 0;
   });

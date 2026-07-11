@@ -2,7 +2,7 @@
 //   · body 为 string → 走 innerHTML（兼容老调用方）
 //   · body 为 VNode → 走 Preact render（新调用方，闭包 onclick，无 window 桥）
 import { h, render as preactRender } from 'preact';
-import { $ } from './state.js';
+import { $ } from './ui/services/toast.ts';
 
 let preactRoot = null; // Preact 挂载点（VNode 模式）
 

@@ -11,7 +11,8 @@
 // 此外鸣潮还允许 60 星声直接换 60 波片（紧急补救通道，QoL）
 //
 // 模拟器：体力上限 240，使用药剂可临时上探到 480（POTION_CAP）
-import { S, msg } from '../state.js';
+import { S } from '../state.js';
+import { msg } from '../ui/services/toast.ts';
 import { progressTask } from '../podcast/core.js';
 import { commit } from '../state/commit.ts';
 

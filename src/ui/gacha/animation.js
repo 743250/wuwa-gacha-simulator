@@ -1,5 +1,10 @@
-// 抽卡动画
-import { $, setAnimating } from '../state.js';
+// 抽卡翻牌动画 · Phase 3 步骤 B 从 src/gacha/animation.js 迁入 src/ui/gacha/
+//
+// 历史:animation.js 原本放在 src/gacha/ 目录,但它是纯 UI 渲染(DOM 操作、CSS class 切换、
+// 点击交互),不属于领域层。boundary-gacha-no-dom.test.js 因此为它保留白名单。
+// 现迁到 UI 域,白名单可删;领域层(src/gacha/**)再无 DOM 访问。
+import { setAnimating } from '../gachaAnimationState.js';
+import { $ } from '../services/toast.ts';
 
 export function showResult(arr) {
   setAnimating(true);

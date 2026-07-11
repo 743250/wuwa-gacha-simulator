@@ -7,7 +7,7 @@
 import { describe, it } from 'vitest';
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, resolve } from 'node:path';
-import { lintWarn } from './helpers.js';
+import { lintWarn, relativeSourcePath } from './helpers.js';
 
 const ROOT = resolve(__dirname, '../../src');
 
@@ -29,7 +29,7 @@ describe('lint · 边界:ui/panels 不直接 import save', () => {
     const files = walk(GUARD_DIR);
     const violations = [];
     for (const f of files) {
-      const rel = f.replace(ROOT + '/', '');
+      const rel = relativeSourcePath(ROOT, f);
       const txt = readFileSync(f, 'utf8');
       const lines = txt.split('\n');
       lines.forEach((line, i) => {

@@ -1,6 +1,6 @@
 import { h } from 'preact';
 import { useState } from 'preact/hooks';
-import { msg } from '../../../state.js';
+import { msg } from '../../services/toast.ts';
 import { levelUpRoleWith, previewExpCost, previewLevelUpWith } from '../../../equip/actions.js';
 import { EXP_VALUES } from '../../../battle/stats.js';
 import { bumpStateVersion } from '../../signals';
@@ -124,7 +124,7 @@ export function LevelupTab({ roleName, level, preview, previewNote, expNext, exp
           <div>下 1 级需 <b style={{ color: 'var(--gold)' }}>{expNext.toLocaleString()}</b> 经验</div>
           <div style={{ color: lvPreview.ok ? 'var(--green)' : 'var(--red)', fontSize: 11 }}>
             已选 <b>{provided.toLocaleString()}</b>{lvPreview.ok
-              ? ` · 可升 ${lvPreview.levelsGained} 级 → LV ${lvPreview.finalLevel}${lvPreview.overflow > 0 ? ` · 溢出 ${lvPreview.overflow.toLocaleString()}` : ''}`
+              ? ` · 可升 ${lvPreview.levelsGained} 级,到达 LV ${lvPreview.finalLevel}${lvPreview.overflow > 0 ? ` · 溢出 ${lvPreview.overflow.toLocaleString()}` : ''}`
               : ` · 差 ${short.toLocaleString()}`}
           </div>
         </div>
@@ -146,7 +146,7 @@ export function LevelupTab({ roleName, level, preview, previewNote, expNext, exp
         onClick={doLevelUp}
         disabled={!canLevel}
         style={{ width: '100%', padding: '11px', fontSize: 12, letterSpacing: 3 }}>
-        {level >= 90 ? '已 满 级' : canLevel ? `升 ${lvPreview.levelsGained} 级 → LV ${lvPreview.finalLevel} (消耗 ${provided.toLocaleString()})` : `选够经验升级 (差 ${short.toLocaleString()})`}
+        {level >= 90 ? '已 满 级' : canLevel ? `升 ${lvPreview.levelsGained} 级,到 LV ${lvPreview.finalLevel} (消耗 ${provided.toLocaleString()})` : `选够经验升级 (差 ${short.toLocaleString()})`}
       </button>
 
       <div style={{ fontSize: 10, color: 'var(--muted)', textAlign: 'center', letterSpacing: 0.5, lineHeight: 1.8, padding: 8, marginTop: 8, background: 'rgba(255,255,255,.02)', borderRadius: 8 }}>

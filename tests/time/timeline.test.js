@@ -1,7 +1,18 @@
 // Unit tests for time/timeline.js — time advancement, version jumping, monthly card
 // AI safety net: verify date/time invariants after timeline changes
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, beforeAll } from 'vitest';
 import { state0, S, DAY, date } from '../../src/state.js';
+import { activeBanners } from '../../src/gacha/core.js';
+
+// 代码审核回归:S.selected invariant — 时间推进动作后必须满足
+// !S.selected || activeBanners().some(b => b.id === S.selected)
+// (无 active banner 时另算)
+function selectedInvariant() {
+  const a = activeBanners();
+  if (!a.length) return S.selected === null;
+  if (S.selected === null) return true;
+  return a.some(b => b.id === S.selected);
+}
 
 describe('time/timeline', () => {
   let time;
@@ -10,7 +21,7 @@ describe('time/timeline', () => {
   beforeAll(async () => {
     time = await import('../../src/time/timeline.js');
     phases = (await import('../../src/data/phases.js')).phases;
-  });
+  }, 30000);
 
   beforeEach(() => {
     Object.assign(S, state0());
@@ -146,6 +157,48 @@ describe('time/timeline', () => {
     it('returns false for invalid date', () => {
       const ok = time.jumpToDate(Infinity);
       expect(ok).toBe(false);
+    });
+  });
+
+  // ===== 代码审核回归:selected invariant — 时间推进/版本跳转后 =====
+  describe('selected invariant', () => {
+    it('advanceDay 后不变量成立', () => {
+      S.selected = activeBanners()[0].id;
+      time.advanceDay();
+      expect(selectedInvariant()).toBe(true);
+    });
+
+    it('nextPhase 后不变量成立(active 集合可能变)', () => {
+      S.selected = activeBanners()[0].id;
+      time.nextPhase();
+      expect(selectedInvariant()).toBe(true);
+    });
+
+    it('nextVersion 后不变量成立', () => {
+      S.selected = activeBanners()[0].id;
+      time.nextVersion();
+      expect(selectedInvariant()).toBe(true);
+    });
+
+    it('jumpToVersion 后不变量成立(跨期切换最易踩 selected 失效)', () => {
+      S.selected = activeBanners()[0].id;
+      time.jumpToVersion('1.1');
+      expect(selectedInvariant()).toBe(true);
+    });
+
+    it('jumpToDate 后不变量成立', () => {
+      S.selected = activeBanners()[0].id;
+      time.jumpToDate(date('2025-01-01'));
+      expect(selectedInvariant()).toBe(true);
+    });
+
+    it('selected 指向已过期 banner 时 timeline 动作自动回填', () => {
+      // 故意把 selected 写成不存在的 banner id,timeline 动作应自动调 ensureSelectedBanner 回填
+      S.selected = 'bogus-id-not-exist';
+      time.advanceDay();
+      expect(selectedInvariant()).toBe(true);
+      // 回填后 selected 应是 active 中的某个 id
+      expect(S.selected).not.toBe('bogus-id-not-exist');
     });
   });
 });
