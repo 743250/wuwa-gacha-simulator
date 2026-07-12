@@ -303,6 +303,88 @@ export const FORTE = {
     effectType: 'enhancedHeal',
     effectMult: 1.5,
     desc: '符法满时治疗加成 ×1.5（五雷荡煞阵 + 三才合一强化）'
+  },
+
+  // ── 3.0-3.4 限定 5★ ──
+  '琳奈': {
+    // 溢彩为主资源条（满 100 时重击替换为灵感碰撞蓄力爆发，倍率随流光百分比线性放大）
+    kind: 'gauge', resourceName: '溢彩', max: 100,
+    gainPerNormal: 15, gainPerSkill: 25, gainPerBurst: 50,
+    effectType: 'enhancedHeavy',
+    effectMult: 4.0,
+    desc: '溢彩满 100 时<b class="term-resource">重击</b>替换为<b class="term-resource">灵感碰撞</b>蓄力，按当前 <b class="term-resource">【流光】</b> 百分比线性放大伤害（满流光 atk×400%）。施放后清空流光，进入<b class="term-resource">绮彩巡游</b> 3 回合。'
+  },
+  '莫宁': {
+    // 协奏能量（175 上限，比通用角色更多）+ 干涉标记 / 谐振场
+    kind: 'gauge', resourceName: '协奏能量', max: 175,
+    gainPerNormal: 10, gainPerSkill: 25, gainPerBurst: 60,
+    effectType: 'enhancedBurst',
+    effectMult: 1.6,
+    desc: '协奏能量上限 175（较通用角色更多）。普攻/技能给目标附加<b class="term-resource">干涉标记</b>，莫宁对干涉目标伤害 +15%。共鸣解放·临界协议展开<b class="term-resource">谐振场</b>，全队偏谐值累积效率 +20%。'
+  },
+  '爱弥斯': {
+    // 同步率满 100 时共鸣技能替换为光翼共奏（视为共鸣解放伤害）
+    kind: 'gauge', resourceName: '同步率', max: 100,
+    gainPerNormal: 10, gainPerSkill: 25, gainPerBurst: 50, gainPerHeavy: 30,
+    effectType: 'enhancedSkill',
+    effectMult: 4.0,
+    desc: '同步率上限 100。普攻+10/技能+25/重击+30/解放+50。<b class="term-resource">【同步率】</b>满 100 时共鸣技能替换为<b class="term-resource">光翼共奏</b>（atk×400% 导电 AOE，视为共鸣解放伤害）。震谐模态附加震谐轨迹，聚爆模态引爆聚爆效应。'
+  },
+  '陆·赫斯': {
+    // 谐度破坏增幅辅助，满值共鸣解放 +60%（2链）
+    kind: 'gauge', resourceName: '谐度', max: 100,
+    gainPerNormal: 8, gainPerSkill: 18, gainPerBurst: 35,
+    effectType: 'enhancedBurst',
+    effectMult: 1.6,
+    desc: '攻击累积<b class="term-resource">谐度</b>。满 100 时共鸣解放·于永冻中释义触发<b class="term-resource">黄金的裁量</b>，伤害 ×1.6（2 链 +60%=×2.56）。攻击附加集谐·偏移，谐度破坏触发后转化为集谐·干涉，干涉层数决定全队伤害加深。'
+  },
+  '西格莉卡': {
+    // 凝语层数 + 「天赋？」层数，强化共鸣回路·我即语义
+    kind: 'stacks', resourceName: '凝语', max: 3,
+    gainPerNormal: 0, gainPerSkill: 1, gainPerBurst: 0, gainPerHeavy: 1,
+    effectType: 'enhancedSkill',
+    effectMult: 2.2,
+    desc: '凝语上限 3 层（1 链 +1）。普攻/技能写入符文（红/蓝/黄语义），重击消耗符文组合释放<b class="term-resource">我即语义</b>爆发（atk×220% 衍射 AOE）。每层<b class="term-resource">「天赋？」</b>使符语系列伤害+15%（6 链至多 +60%）+ 无视 7.5% 防御（至多 30%）。'
+  },
+  '绯雪': {
+    // 心念 + 寒意 + 雪锈 stacks；满心念 300 解锁重击·寒簇·常世身
+    kind: 'gauge', resourceName: '心念', max: 300,
+    gainPerNormal: 30, gainPerSkill: 60, gainPerBurst: 100, gainPerHeavy: 50,
+    effectType: 'enhancedHeavy',
+    effectMult: 2.0,
+    desc: '<b class="term-resource">心念</b>上限 300。满值时解锁<b class="term-resource">重击·寒簇·常世身</b>（atk×200% 冷凝 AOE）。重击后进入<b class="term-resource">预求身</b>状态，普攻替换为<b class="term-resource">居合斩</b>。<b class="term-resource">雪锈</b>层数（0-3）让霜渐效应附加额外倍率，3 层时霜冻效应最终伤害+25%。'
+  },
+  '达妮娅': {
+    // 黯核 stacks + 虚质粒子，双形态切换
+    kind: 'stacks', resourceName: '黯核', max: 3,
+    gainPerNormal: 0, gainPerSkill: 1, gainPerBurst: 0,
+    effectType: 'enhancedBurst',
+    effectMult: 1.5,
+    desc: '<b class="term-resource">黯核</b>上限 3（3 链 +5）。布景形态下普攻/技能积累黯核，幻灭形态消耗黯核让共鸣解放·帷幕终景伤害 ×1.5/枚。形态切换由重击键触发（无实际重击伤害）。'
+  },
+  '露西': {
+    // Ram 点数（初始 24，2 链 32）+ SQL层数 + 欺骗程式
+    kind: 'gauge', resourceName: '传输协议', max: 100,
+    gainPerNormal: 8, gainPerSkill: 20, gainPerBurst: 35, gainPerHeavy: 15,
+    effectType: 'enhancedBurst',
+    effectMult: 1.5,
+    desc: '<b class="term-resource">传输协议</b>上限 100。满 100 时共鸣技能替换为<b class="term-resource">死锁</b>（atk×220% 衍射），并进入<b class="term-resource">算法压缩</b>状态获得 1 层 SQL。共鸣解放·网络行者展开协议界面，覆写篡改对标记目标造成衍射重击伤害。'
+  },
+  '丽贝卡': {
+    // 狂热 120，满后重击替换；街头直觉 stacks
+    kind: 'gauge', resourceName: '狂热', max: 120,
+    gainPerNormal: 10, gainPerSkill: 20, gainPerBurst: 40, gainPerHeavy: 25,
+    effectType: 'enhancedHeavy',
+    effectMult: 1.5,
+    desc: '<b class="term-resource">狂热</b>上限 120。满值时重击替换为<b class="term-resource">重击·哒哒哒！·猎手</b>或<b class="term-resource">重击·砰砰砰！·铁胆</b>（atk×150% 导电）。每次施放重击获得 2 层<b class="term-resource">街头直觉</b>（上限 20 层），每层重击伤害+5%。共鸣解放·狂欢时间！切换为重机枪模式持续射击。'
+  },
+  '洛瑟菈': {
+    // 印象 gauge + 照片 stacks；追忆状态强化断舍离
+    kind: 'gauge', resourceName: '印象', max: 100,
+    gainPerNormal: 8, gainPerSkill: 20, gainPerBurst: 30,
+    effectType: 'enhancedSkill',
+    effectMult: 1.8,
+    desc: '<b class="term-resource">印象</b>上限 100。施放共鸣技能·幻象定帧积累<b class="term-resource">【照片】</b>（上限 3 张）。普攻·溯念留形第 3 段消耗 1 张照片施放<b class="term-resource">遗忘</b>（atk×180% 湮灭）。消耗全部 3 张施放<b class="term-resource">断舍离</b>（atk×320% 湮灭 AOE，每张额外印象倍率+30%）。共鸣解放进入追忆状态，强化断舍离。'
   }
 };
 

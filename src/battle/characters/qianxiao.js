@@ -236,7 +236,7 @@ export function qianxiaoOnSkill(self, ctx) {
       battle.team.forEach(t => {
         if (!t.alive) return;
         t.buffs = (t.buffs || []).filter(b => b.src !== '千咲链2');
-        t.buffs.push({ type: 'elemAllUp', value: 0.50, duration: MARK_DURATION, src: '千咲链2' });
+        t.buffs.push({ type: 'elemAllUp', value: 0.50, duration: MARK_DURATION, src: '千咲链2', installer: self.idx });
       });
       battle.log.push({
         type: 'mechanic', src: self.name,

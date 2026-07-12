@@ -25,6 +25,8 @@ export function shorekeeperOnSkill(self, ctx) {
   shorekeeperSkillHeal(self, ctx.battle);
 }
 
+import { pushTeamBuffs } from '../pushBuff.js';
+
 // 共鸣解放 · 终末回环 → 展开「星域」
 export function shorekeeperStarfield(self, battle) {
   if (self.name !== '守岸人') return;
@@ -38,18 +40,18 @@ export function shorekeeperStarfield(self, battle) {
   const fieldCdmg = 0.30 * heal1chain;
   const fieldAtk = (self.fieldExtraAtk || 0) * heal1chain;
 
-  battle.team.forEach(t => {
-    if (!t.alive) return;
-    t.buffs = (t.buffs || []).filter(b => b.src !== '星域');
-    const hot = Math.round((self.hp * 0.08 + self.atk * 0.8) * healUp * heal1chain);
-    if (!sampleHot) sampleHot = hot;
-    t.buffs.push({ type: 'healOverTime', value: hot, duration: baseDur, src: '星域', persistent: !!self.fieldPersistOnSwitch });
-    t.buffs.push({ type: 'crateUp', value: fieldCrate, duration: baseDur, src: '星域', persistent: !!self.fieldPersistOnSwitch });
-    t.buffs.push({ type: 'cdmgUp', value: fieldCdmg, duration: baseDur, src: '星域', persistent: !!self.fieldPersistOnSwitch });
-    if (fieldAtk > 0) {
-      t.buffs.push({ type: 'atkUp', value: fieldAtk, duration: baseDur, src: '星域', persistent: !!self.fieldPersistOnSwitch });
-    }
-  });
+  const hot = Math.round((self.hp * 0.08 + self.atk * 0.8) * healUp * heal1chain);
+  sampleHot = hot;
+
+  const buffs = [
+    { type: 'healOverTime', value: hot, duration: baseDur, src: '星域', scope: 'team', persistent: !!self.fieldPersistOnSwitch },
+    { type: 'crateUp', value: fieldCrate, duration: baseDur, src: '星域', scope: 'team', persistent: !!self.fieldPersistOnSwitch },
+    { type: 'cdmgUp', value: fieldCdmg, duration: baseDur, src: '星域', scope: 'team', persistent: !!self.fieldPersistOnSwitch },
+  ];
+  if (fieldAtk > 0) {
+    buffs.push({ type: 'atkUp', value: fieldAtk, duration: baseDur, src: '星域', scope: 'team', persistent: !!self.fieldPersistOnSwitch });
+  }
+  pushTeamBuffs(self, battle, buffs);
   battle.log.push({
     type: 'mechanic', src: self.name,
     msg: `「星域 · 终末回环」展开 · 全队每回合回血 ~${sampleHot} · 暴击 +${(fieldCrate*100).toFixed(0)}% · 暴伤 +${(fieldCdmg*100).toFixed(0)}%${fieldAtk > 0 ? ` · 攻击 +${(fieldAtk * 100).toFixed(0)}%` : ''}（${baseDur} 回合${self.fieldPersistOnSwitch ? ' · 切人不结束' : ''}）`

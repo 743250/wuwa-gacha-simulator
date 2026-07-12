@@ -123,7 +123,7 @@ export function chunSwitchIn({ to, battle }) {
     battle.team.forEach(t => {
       if (!t.alive) return;
       t.buffs = (t.buffs || []).filter(b => b.src !== '根茎永恒');
-      t.buffs.push({ type: 'normalDmgUp', value: 0.25, duration: 4 + 1, src: '根茎永恒' });
+      t.buffs.push({ type: 'normalDmgUp', value: 0.25, duration: 4 + 1, src: '根茎永恒', installer: self.idx });
     });
     battle.log.push({ type: 'mechanic', src: self.name, msg: '根茎永恒 · 全队普攻 +25%（4 回合）' });
   }

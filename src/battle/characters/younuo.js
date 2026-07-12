@@ -177,7 +177,7 @@ export function younuoExecuteZhenWan(self, battle) {
     battle.team.forEach(t => {
       if (!t.alive) return;
       t.buffs = (t.buffs || []).filter(b => b.src !== '尤诺4链');
-      t.buffs.push({ type: 'atkUp', value: 0.10, duration: 2, src: '尤诺4链' });
+      t.buffs.push({ type: 'atkUp', value: 0.10, duration: 2, src: '尤诺4链', installer: self.idx });
     });
     battle.log.push({
       type: 'mechanic', src: self.name,
@@ -318,7 +318,7 @@ export function younuoOnBurst(self, ctx) {
     battle.team.forEach(t => {
       if (!t.alive) return;
       t.buffs = (t.buffs || []).filter(b => b.src !== '尤诺2链');
-      t.buffs.push({ type: 'allDmgUp', value: 0.20, duration: 2, src: '尤诺2链' });
+      t.buffs.push({ type: 'allDmgUp', value: 0.20, duration: 2, src: '尤诺2链', installer: self.idx });
     });
     battle.log.push({
       type: 'mechanic', src: self.name,
@@ -337,7 +337,7 @@ export function younuoOnVariation(self, ctx) {
     ctx.battle.team.forEach(t => {
       if (!t.alive) return;
       t.buffs = (t.buffs || []).filter(b => b.src !== '尤诺2链');
-      t.buffs.push({ type: 'allDmgUp', value: 0.20, duration: 2, src: '尤诺2链' });
+      t.buffs.push({ type: 'allDmgUp', value: 0.20, duration: 2, src: '尤诺2链', installer: self.idx });
     });
     ctx.battle.log.push({
       type: 'mechanic', src: self.name,

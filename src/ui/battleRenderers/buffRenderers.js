@@ -255,7 +255,7 @@ export function collectEnemyBadges(e, b) {
 }
 
 // 角色状态：合并 buff/debuff/资源/控制
-// opts.includeTeamGlobal: 是否包含 TEAM_BUFF_TYPES（顶部 stripe 用 true 去重，卡内联用 false 过滤）
+// opts.includeTeamGlobal: 是否包含 TEAM_BUFF_TYPES（顶部 stripe 用 false 过滤；卡内联用 'installer' 表示只显示本人施放的全队 buff）
 export function collectUnitBadges(unit, battle, opts = {}) {
   if (!unit || !unit.alive) return [];
   const out = [];
@@ -265,6 +265,11 @@ export function collectUnitBadges(unit, battle, opts = {}) {
   (unit.buffs || []).forEach(buf => {
     const isTeamGlobal = TEAM_BUFF_TYPES.has(buf.type);
     if (isTeamGlobal && !includeTeamGlobal) return;
+    // 全队 buff：默认本人施放时才在卡内联显示（installer === unit.idx）
+    // includeTeamGlobal === true 表示允许全部显示（顶部 stripe 等场景）
+    if (isTeamGlobal && includeTeamGlobal === 'installer') {
+      if (buf.installer !== unit.idx) return;
+    }
     const r = BUFF_RENDERERS[buf.type];
     if (!r) return;
     out.push({

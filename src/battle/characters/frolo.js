@@ -258,7 +258,7 @@ export function furoloExecuteDirge(self, battle) {
     battle.team.forEach(t => {
       if (!t.alive) return;
       t.buffs = (t.buffs || []).filter(b => b.src !== '弗洛洛4链');
-      t.buffs.push({ type: 'elemAllUp', value: 0.20, duration: 4, src: '弗洛洛4链' });
+      t.buffs.push({ type: 'elemAllUp', value: 0.20, duration: 4, src: '弗洛洛4链', installer: self.idx });
     });
     battle.log.push({
       type: 'mechanic', src: self.name,
@@ -339,7 +339,7 @@ export function furoloHecateAssist(owner, battle, dmgType) {
   });
   if (isAugment && owner.chain >= 3) {
     target.buffs = (target.buffs || []).filter(b => b.src !== '弗洛洛3链');
-    target.buffs.push({ type: 'atkDown', value: 0.20, duration: 2, src: '弗洛洛3链' });
+    target.buffs.push({ type: 'atkDown', value: 0.20, duration: 2, src: '弗洛洛3链', installer: owner.idx });
     battle.log.push({
       type: 'mechanic', src: '赫卡忒',
       msg: '3 链 · 强化攻击命中 · 目标攻击 -20%（2 回合）'

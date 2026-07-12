@@ -232,7 +232,7 @@ export function aogusitaSwitchIn({ to, battle }) {
     battle.team.forEach(t => {
       if (!t.alive) return;
       t.buffs = (t.buffs || []).filter(b => b.src !== '奥古斯塔4链');
-      t.buffs.push({ type: 'atkUp', value: 0.20, duration: 2, src: '奥古斯塔4链' });
+      t.buffs.push({ type: 'atkUp', value: 0.20, duration: 2, src: '奥古斯塔4链', installer: self.idx });
     });
     battle.log.push({
       type: 'mechanic', src: to.name,

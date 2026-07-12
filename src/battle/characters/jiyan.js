@@ -83,7 +83,7 @@ export function jiyanQiZheng(self, battle) {
   battle.team.forEach(t => {
     if (!t.alive) return;
     t.buffs = (t.buffs || []).filter(b => b.src !== '奇正');
-    t.buffs.push({ type: 'heavyDmgUp', value: cfg.value, duration: cfg.dur + 1, src: '奇正' });
+    t.buffs.push({ type: 'heavyDmgUp', value: cfg.value, duration: cfg.dur + 1, src: '奇正', installer: self.idx });
   });
   battle.log.push({
     type: 'mechanic', src: self.name,

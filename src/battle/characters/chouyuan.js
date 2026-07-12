@@ -175,7 +175,7 @@ export function chouyuanFinishSkill(self, battle, form) {
       t.buffs = (t.buffs || []).filter(b => b.src !== '仇远竹照');
       let totalAllDmg = BAMBOO_ALL_DMG;
       if (self.chain >= 2) totalAllDmg += BAMBOO_C2_EXTRA;
-      t.buffs.push({ type: 'teamAllDmg', value: totalAllDmg, duration: BAMBOO_DURATION, src: '仇远竹照' });
+      t.buffs.push({ type: 'teamAllDmg', value: totalAllDmg, duration: BAMBOO_DURATION, src: '仇远竹照', installer: self.idx });
     });
   }
   battle.log.push({
@@ -223,7 +223,7 @@ export function chouyuanEnterDrunk(self, battle) {
       t.buffs = (t.buffs || []).filter(b => b.src !== '仇远竹照');
       let totalAllDmg = BAMBOO_ALL_DMG;
       if (self.chain >= 2) totalAllDmg += BAMBOO_C2_EXTRA;
-      t.buffs.push({ type: 'teamAllDmg', value: totalAllDmg, duration: BAMBOO_DURATION, src: '仇远竹照' });
+      t.buffs.push({ type: 'teamAllDmg', value: totalAllDmg, duration: BAMBOO_DURATION, src: '仇远竹照', installer: self.idx });
     });
   }
 
@@ -280,7 +280,7 @@ export function chouyuanOnBurst(self, ctx) {
       // 为登场角色（仇远自身）加暴伤buff
       const target = ctx.target || self;
       target.buffs = (target.buffs || []).filter(b => b.src !== '仇远解放暴伤');
-      target.buffs.push({ type: 'cdmg', value: bonus, duration: 3, src: '仇远解放暴伤' });
+      target.buffs.push({ type: 'cdmg', value: bonus, duration: 3, src: '仇远解放暴伤', installer: self.idx });
       ctx.battle.log.push({
         type: 'mechanic', src: self.name,
         msg: `解放·万钧一断 · 击${(crate*100).toFixed(0)}%>50% · 登场角色暴伤+${(bonus*100).toFixed(0)}%（3回合）`

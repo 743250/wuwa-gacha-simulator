@@ -186,7 +186,7 @@ export function cartethyiaApplyErosion(self, target, battle, isBurst = false) {
     team.forEach(t => {
       // 同源不叠加：移除旧的链4 buff
       t.buffs = (t.buffs || []).filter(b => b.src !== '链4');
-      t.buffs.push({ type: 'elemAllUp', value: self.cartethyiaErosionTeamBuff, duration: dur, src: '链4' });
+      t.buffs.push({ type: 'elemAllUp', value: self.cartethyiaErosionTeamBuff, duration: dur, src: '链4', installer: self.idx });
     });
     battle.log.push({
       type: 'mechanic', src: self.name,

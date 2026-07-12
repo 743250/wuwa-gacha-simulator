@@ -718,17 +718,17 @@ export const SKILL_HINTS = {
     intro: '冷凝 · 臂铠 · 副C · 「诗中物对偶/联珠」',
     customLines: makeSkillLines({
       element: '冷凝',
-      normalName: '匣中拳', skillName: '匣中问祯', burstName: '诗中物·终幕', varName: '酣睡入场',
+      normalName: '霜坠', skillName: '匣中问祯', burstName: '如意卜', varName: '遂心匣',
       skillFollowUp: '靠<b class="term-resource">诗中物</b><b class="term-skill">对偶</b>/<b class="term-skill">联珠</b>/<b class="term-skill">合说</b>叠层。 1 链：技能·问祯有 10% 概率免伤。 2 链：<b class="term-skill">对偶</b>/<b class="term-skill">联珠</b>对诗中物效果二次触发。 4 链：20% 概率技能不进 CD。',
-      burstFollowUp: '<b class="term-burst">诗中物·终幕</b>清场。 3 链：攻击 +20%。 5 链：变奏·遂心匣后暴击 +15%。 6 链：奇珍赏获<b class="term-resource">霁青</b> 4 层（暴击伤害 +60%）。'
+      burstFollowUp: '<b class="term-burst">如意卜</b>清场。 3 链：攻击 +20%。 5 链：变奏·遂心匣后暴击 +15%。 6 链：奇珍赏获<b class="term-resource">霁青</b> 4 层（暴击伤害 +60%）。'
     }),
     forteDesc: '釉瑚是<b style="color:#7bd6ff">冷凝副C</b>：靠<b class="term-resource">诗中物</b>的对偶/联珠/合说叠层放大伤害。<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>共鸣技能·匣中问祯起手 → 普攻补段叠层 → 共鸣解放爆发。'
   },
   '灯灯': {
     intro: '导电 · 长刃 · 副C · 「啾啾专送」',
     customLines: makeSkillLines({
-      element: '衍射',
-      normalName: '快递投掷', skillName: '强化·前扑', burstName: '啾啾专送', varName: '派送入场',
+      element: '导电',
+      normalName: '前路领航', skillName: '灯光探照', burstName: '啾啾专送', varName: '专项派送',
       skillFollowUp: '<b class="term-skill">强化·前扑/后撤</b>无视防御。 1 链：<b class="term-skill">强化·后撤</b>回耐力。 2 链：<b class="term-skill">强化·前扑</b>/后撤无视 20% 防御。 5 链：光能满时强光穿射倍率 +100%。',
       burstFollowUp: '3 链：共鸣解放·啾啾专送 +30%。 4 链：普攻伤害加成 +30%。 6 链：解放时全队攻击 +20%。'
     }),
@@ -1425,7 +1425,7 @@ export const SKILL_HINTS = {
         {
           icon: '⚔', name: '普攻 · 基态校准 / 广域观测模式', cost: '1 AP',
           color: 'var(--text)',
-          desc: `对目标造成 <span class="tip" data-tip='${normalTip}'><b style="color:var(--text)">${normalDmg}</b> 点</span><b class="term-normal">冷凝伤害</b>，回复 12 能量、+8 协奏。<br>进入<b class="term-resource">广域观测模式</b>后普攻替换为 3 段观测射击。<br><span class="tip" data-tip='${markTip}'>附加<b class="term-resource">干涉标记</b> + <b class="term-resource">观测标记</b></span>（核心增伤 debuff）。`
+          desc: `对目标造成 <span class="tip" data-tip='${normalTip}'><b style="color:var(--text)">${normalDmg}</b> 点</span><b class="term-normal">冷凝伤害</b>，回复 12 能量、+8 协奏。<br>进入<b class="term-resource">广域观测模式</b>后普攻替换为 3 段观测射击。<br><span class="tip" data-tip='${markTip}'>附加<b class="term-resource">干涉标记</b> + <b class="term-resource">观测标记</b></span>（核心增伤标记）。`
         },
         {
           icon: '✦', name: '共鸣技能 · 分布式阵列', cost: '1 AP · 冷却 3 回合',

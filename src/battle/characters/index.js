@@ -33,7 +33,18 @@ const LIGHTWEIGHT = {
   '露帕':     { hasHeavy: true },
   '相里要':   { hasHeavy: true },
   '维里奈':   { hasHeavy: false },
-  '凌阳':     { hasHeavy: false }
+  '凌阳':     { hasHeavy: false },
+  // ── 3.0-3.4 限定 5★（A 级工厂，暂无专属状态机）──
+  '琳奈':     { hasHeavy: true },   // 蓄力重击 → 灵感碰撞
+  '莫宁':     { hasHeavy: false },
+  '爱弥斯':   { hasHeavy: true },   // 蓄力重击 → 同步率爆发
+  '陆·赫斯':  { hasHeavy: false },
+  '西格莉卡': { hasHeavy: true },   // 黄语义符文入口
+  '绯雪':     { hasHeavy: true },   // 进入预求身入口
+  '达妮娅':   { hasHeavy: false },  // 重击键替换为形态切换
+  '露西':     { hasHeavy: true },   // 快速编码入口
+  '丽贝卡':   { hasHeavy: true },   // 铁胆形态入口
+  '洛瑟菈':   { hasHeavy: false }
 };
 
 const FULL = {

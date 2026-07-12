@@ -36,7 +36,7 @@ function yinlinTriggerJudgment(self, battle, source) {
     battle.team.forEach(t => {
       if (!t.alive) return;
       t.buffs = (t.buffs || []).filter(b => b.src !== '前行的鼓舞');
-      t.buffs.push({ type: 'atkUp', value: cfg.value, duration: cfg.dur + 1, src: '前行的鼓舞' });
+      t.buffs.push({ type: 'atkUp', value: cfg.value, duration: cfg.dur + 1, src: '前行的鼓舞', installer: self.idx });
     });
     battle.log.push({
       type: 'mechanic', src: self.name,
@@ -116,7 +116,7 @@ export function yinlinBurst(self, primary, battle) {
     battle.team.forEach(t => {
       if (!t.alive) return;
       t.buffs = (t.buffs || []).filter(b => b.src !== '前行的鼓舞');
-      t.buffs.push({ type: 'atkUp', value: cfg.value, duration: cfg.dur + 1, src: '前行的鼓舞' });
+      t.buffs.push({ type: 'atkUp', value: cfg.value, duration: cfg.dur + 1, src: '前行的鼓舞', installer: self.idx });
     });
     battle.log.push({ type: 'mechanic', src: self.name, msg: `前行的鼓舞 · 全队攻击 +${(cfg.value*100).toFixed(0)}%（${cfg.dur} 回合）` });
   }

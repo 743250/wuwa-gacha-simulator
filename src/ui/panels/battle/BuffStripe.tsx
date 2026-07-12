@@ -1,6 +1,6 @@
 // 顶部 buff 横条
 import { h } from 'preact';
-import { collectUnitBadges, collectEnemyBadges } from '../../../ui/battleRenderers/buffRenderers.js';
+import { collectUnitBadges, collectEnemyBadges, TEAM_BUFF_TYPES } from '../../../ui/battleRenderers/buffRenderers.js';
 import { displayName } from './helpers';
 
 interface BuffStripeProps {
@@ -15,9 +15,10 @@ let lastTurnForBuff = -1;
 export function renderBuffStripeItems(battle: any): Array<{ key: string; html: string; isNew: boolean }> {
   const items: Array<{ key: string; label: string; cls: string; icon: string; dur: number | null; tip: string }> = [];
 
+  // 全队 buff 不在顶部 stripe 显示——挂在施放者头像下（TeamRow 卡内联）
   battle.team.forEach((t: any) => {
     if (!t.alive) return;
-    const badges = collectUnitBadges(t, battle, { includeTeamGlobal: true });
+    const badges = collectUnitBadges(t, battle, { includeTeamGlobal: false });
     badges.forEach((bd: any) => {
       items.push({ ...bd, key: bd.key, label: `${displayName(t)} ${bd.label}` });
     });

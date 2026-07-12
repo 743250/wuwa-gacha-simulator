@@ -6,3 +6,4 @@ single/*
 !single/鸣潮模拟器-单文件版.html
 .vite/
 *.log
+.claude/worktrees/

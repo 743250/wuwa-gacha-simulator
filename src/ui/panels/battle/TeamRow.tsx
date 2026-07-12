@@ -100,7 +100,8 @@ export function TeamRow({ battle }: TeamRowProps) {
         const fPct = f ? (f.current / f.max) : 0;
         const fReady = f && f.ready;
         const concertoPct = ((t.concerto || 0) / 100);
-        const badges = collectUnitBadges(t, battle, { includeTeamGlobal: false });
+        // 全队 buff 只显示本角色施放的（installer === t.idx），如星域挂在守岸人头像下
+    const badges = collectUnitBadges(t, battle, { includeTeamGlobal: 'installer' as any });
         const badgeHtml = badges.length ? `<div class="bf-status-row">${badges.map(renderBadge).join('')}</div>` : '';
         const summons = (battle.summons || []).filter((s: any) => s.alive && s.ownerIdx === i);
 

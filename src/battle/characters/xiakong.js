@@ -210,7 +210,7 @@ export function xiakongOnBurst(self, ctx) {
     battle.team.forEach(t => {
       if (!t.alive) return;
       t.buffs = (t.buffs || []).filter(b => b.src !== '夏空2链');
-      t.buffs.push({ type: 'elemAeroUp', value: 0.40, duration: PERFORM_DURATION, src: '夏空2链' });
+      t.buffs.push({ type: 'elemAeroUp', value: 0.40, duration: PERFORM_DURATION, src: '夏空2链', installer: self.idx });
     });
     battle.log.push({
       type: 'mechanic', src: self.name,
@@ -223,7 +223,7 @@ export function xiakongOnBurst(self, ctx) {
     battle.team.forEach(t => {
       if (!t.alive) return;
       t.buffs = (t.buffs || []).filter(b => b.src !== '夏空5链');
-      t.buffs.push({ type: 'allDmgDown', value: 0.30, duration: PERFORM_DURATION, src: '夏空5链' });
+      t.buffs.push({ type: 'allDmgDown', value: 0.30, duration: PERFORM_DURATION, src: '夏空5链', installer: self.idx });
     });
     battle.log.push({
       type: 'mechanic', src: self.name,
