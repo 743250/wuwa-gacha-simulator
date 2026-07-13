@@ -45,15 +45,25 @@ function yinlinTriggerJudgment(self, battle, source) {
   }
 }
 
+function syncVerdictForte(self) {
+  if (!self.forte) return;
+  self.forte.current = self.verdict || 0;
+  self.forte.ready = (self.verdict || 0) >= 100;
+}
+
 export function yinlinGainVerdict(self, amount, source, battle) {
   if (self.name !== '吟霖') return;
   const before = self.verdict || 0;
   self.verdict = Math.min(100, before + amount);
   if (self.verdict >= 100) {
     self.verdict = 0;
+    syncVerdictForte(self);
     yinlinTriggerJudgment(self, battle, source);
   } else if (self.verdict > before) {
+    syncVerdictForte(self);
     battle.log.push({ type: 'mechanic', src: self.name, msg: `${source} → 审判值 ${self.verdict}/100` });
+  } else {
+    syncVerdictForte(self);
   }
 }
 
@@ -64,6 +74,7 @@ export function yinlinOnHit(self, target, dmgType, battle, helpers) {
   if (self.yinlinMarkRefund) {
     self.verdict = Math.min(100, (self.verdict || 0) + self.yinlinMarkRefund.verdict);
     self.energy = Math.min(self.energyMax, Math.round(self.energy + self.yinlinMarkRefund.energy));
+    syncVerdictForte(self);
   }
   yinlinAddMark(target, 1);
   if (dmgType === 'normal' && self.yinlinJiTingActive && !self._jiTingFiredThisTurn && self.yinlinJiTing) {

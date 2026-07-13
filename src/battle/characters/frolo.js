@@ -142,7 +142,13 @@ function furoloRefreshEchoesCdmgBuff(self, battle) {
 
 export function furoloHpCore(self, dmgType, opts = {}) {
   if (self.name !== '弗洛洛') return null;
-  const mults = { normal: NORMAL_HP_MULT, skill: SKILL_HP_MULT, heavy: HEAVY_HP_MULT, burst: 0.16 };
+  const mults = {
+    normal: NORMAL_HP_MULT,
+    skill: SKILL_HP_MULT,
+    heavy: HEAVY_HP_MULT,
+    burst: 0.16,
+    variation: furoloInCommand(self) ? VARIATION_COMMAND_MULT : VARIATION_HP_MULT
+  };
   return {
     baseStat: 'hpMax',
     hpMultOverride: (opts.explicitHpMult || dmgType === 'burst') ? null : (mults[dmgType] ?? null)
@@ -247,10 +253,11 @@ export function furoloExecuteDirge(self, battle) {
     msg: `谱曲终末 · 消耗 ${consumed} 乐声 · 进入定音状态(解锁共鸣解放)`
   });
   if (self.chain >= 2) {
+    const capBefore = furoloInCommand(self) ? ECHOES_MAX_IN_COMMAND : ECHOES_MAX;
     furoloGainEchoes(self, 14, battle);
     battle.log.push({
       type: 'mechanic', src: self.name,
-      msg: `2 链 · 谱曲终末额外 +14 余响（${self.furoloEchoes}/${ECHOES_MAX_IN_COMMAND}）`
+      msg: `2 链 · 谱曲终末额外 +14 余响（${self.furoloEchoes}/${capBefore}）`
     });
   }
   // 4 链:全队全属性伤害 +20%(4回合)

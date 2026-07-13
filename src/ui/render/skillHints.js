@@ -1,6 +1,6 @@
 import { makeSkillLines } from './skillLines.js';
 
-// 角色技能与机制简要描述（模拟器抽象，参考 AI 第三轮校准）
+// 角色技能与机制简要描述（玩家可见）
 export const SKILL_HINTS = {
   '忌炎': {
     intro: '气动 · 长刃 · 主C · 「锐意之势」',
@@ -67,10 +67,10 @@ export const SKILL_HINTS = {
         const detail = [
           chain >= 2 ? `· 共鸣链 2「通变」：破阵 +30、攻击 +28%（2 回合）` : '',
           chain >= 5 ? `· 共鸣链 5「明断」：攻击 +45%（2 回合）` : '',
-          chain >= 5 ? `· 合计攻击 ${atk} → <b style="color:#ff8c5e">${Math.round(atk*(1+totalAtkUp))}</b>` : ''
+          chain >= 5 ? `· 合计攻击 ${atk}，提升至 <b style="color:#ff8c5e">${Math.round(atk*(1+totalAtkUp))}</b>` : ''
         ].filter(Boolean).join('<br>');
         const varBuffTip = tipAttr(`<b style="color:var(--gold)">变奏入场加成</b><br>${detail}`);
-        chainHints = `<br>切换上场时还会触发 <span class="tip" data-tip='${varBuffTip}'>共鸣链入场 buff（攻击 +${(totalAtkUp*100).toFixed(0)}%）</span>`;
+        chainHints = `<br>切换上场时还会触发 <span class="tip" data-tip='${varBuffTip}'>共鸣链入场效果（攻击 +${(totalAtkUp*100).toFixed(0)}%）</span>`;
       }
 
       return [
@@ -102,24 +102,60 @@ export const SKILL_HINTS = {
       ];
     },
     forteName: '破阵值',
-    forteDesc: '<b class="term-resource">破阵值</b>（0-100）由普攻 +12 / 技能 +25 / 解放 +40 积累，满后下次<b class="term-normal">普攻</b>进入<b style="color:var(--gold)">枪扫风定·强化连段</b>（伤害 ×2）。<br><br>真正的核心是<b class="term-resource">锐意之势</b>—— <b class="term-heavy">重击</b> / <b class="term-skill">共鸣技能</b> / <b class="term-variation">变奏入场</b> 每次 +1 层，<b class="term-burst">共鸣解放</b>消耗全部层数放大终结伤害。<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>切人入场（积 1 锐意 + 攻击 buff）→ 共鸣技能（2 锐意）→ 重击（满 3 锐意 / 6 链）→ 共鸣解放清场。'
+    forteDesc: '<b class="term-resource">破阵值</b>（0-100）由普攻 +12 / 技能 +25 / 解放 +40 积累，满后下次<b class="term-normal">普攻</b>进入<b style="color:var(--gold)">枪扫风定·强化连段</b>（伤害 ×2）。<br><br>真正的核心是<b class="term-resource">锐意之势</b>—— <b class="term-heavy">重击</b> / <b class="term-skill">共鸣技能</b> / <b class="term-variation">变奏入场</b> 每次 +1 层，<b class="term-burst">共鸣解放</b>消耗全部层数放大终结伤害。<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>切人入场（积 1 锐意并提升攻击），共鸣技能（2 锐意），重击（满 3 锐意 / 6 链），共鸣解放清场。'
   },
   '今汐': {
     intro: '衍射 · 长刃 · 主C · 「韶光」',
-    customLines: makeSkillLines({
-      element: '衍射',
-      normalName: '浮光霁寒', skillName: '流光夕影', heavyName: '重击·霁月', burstName: '移岁诛邪', varName: '蟠龙清辉',
-      hasHeavy: true,
-      normalMech: '<span style="color:var(--muted)">资源积累：</span>普攻不加韶光；技能 +<b>1</b> 层、变奏入场 +<b>2</b> 层<b class="term-resource">韶光层数</b>（上限 4）。',
-      skillMech: '<span style="color:var(--muted)">形态判定：</span>未满 4 层时为<b>逐天取月</b>（+1 层韶光）；满 <b>4</b> 层时下次共鸣技能替换为<b style="color:var(--gold)">惊龙破空</b>，消耗全部韶光层数，伤害 ×1.8。',
-      heavyMech: '<span style="color:var(--muted)">标准重击：</span>220% 攻击 · 削破韧 25 · +15 能量。',
-      burstMech: '<span style="color:var(--muted)">爆发窗口：</span>共鸣解放 +<b>2</b> 层<b class="term-resource">韶光层数</b>。优先在满 4 层后释放解放 + 惊龙破空循环爆发。',
-      skillFollowUp: '6 链：共鸣技能·惊龙破空倍率 +45%，消耗韶光时再 +45%。',
-      heavyFollowUp: '5 链：重击倍率额外 +20%。',
-      burstFollowUp: '5 链：解放·移岁诛邪倍率 +120%。'
-    }),
+    customLines: (stats, role) => {
+      const tipAttr = s => s.replace(/&/g, '&amp;').replace(/'/g, '&#39;');
+      const chain = role.chain || 0;
+      const atk = stats.atk;
+      const energyMax = stats.maxEnergy || 125;
+      const skillBonus = role.skillBonus || 0; // C1 +0.8
+      const burstBonus = role.burstBonus || 0; // C5 +1.2
+      const jingMult = 1.8 + (chain >= 6 ? 0.4 : 0); // FORTE_BOOST
+      const normalDmg = Math.round(atk * 1.0);
+      const skillBase = Math.round(atk * 1.8 * (1 + skillBonus));
+      const jingDmg = Math.round(atk * 1.8 * jingMult * (1 + skillBonus));
+      const heavyDmg = Math.round(atk * 2.2);
+      const burstMain = Math.round(atk * 4.0 * (1 + burstBonus));
+      const burstSide = Math.round(atk * 2.0 * (1 + burstBonus));
+      const varDmg = Math.round(atk * 0.8);
+      const skillTip = tipAttr(
+        `<b style="color:var(--gold)">共鸣技能</b><br>` +
+        `· 流光夕影：攻击 <b>${atk}</b> × 180%${skillBonus ? ` × (1+${(skillBonus * 100).toFixed(0)}%)` : ''} = <b>${skillBase}</b><br>` +
+        `· 惊龙破空（满 4 层韶光）：180% × <b>${jingMult.toFixed(1)}</b>${skillBonus ? ` × (1+${(skillBonus * 100).toFixed(0)}%)` : ''} = <b style="color:var(--accent)">${jingDmg}</b>`
+      );
+      const burstTip = tipAttr(
+        `<b style="color:var(--gold)">解放 · 移岁诛邪</b><br>` +
+        `主目标：攻击 <b>${atk}</b> × 400%${burstBonus ? ` × (1+${(burstBonus * 100).toFixed(0)}%)` : ''} = <b>${burstMain}</b><br>` +
+        `副目标：攻击 <b>${atk}</b> × 200%${burstBonus ? ` × (1+${(burstBonus * 100).toFixed(0)}%)` : ''} = <b>${burstSide}</b>`
+      );
+      return [
+        {
+          icon: '⚔', name: '普攻 · 浮光霁寒', cost: '1 AP', color: 'var(--text)',
+          desc: `对目标造成 <b style="color:var(--text)">${normalDmg}</b> 点<b class="term-normal">衍射伤害</b>。不积攒<b class="term-resource">韶光层数</b>。`
+        },
+        {
+          icon: '✦', name: '共鸣技能 · 流光夕影', cost: '1 AP · 冷却 3 回合', color: 'var(--accent)',
+          desc: `对目标造成 <span class="tip" data-tip='${skillTip}'><b style="color:var(--accent)">${skillBase}</b></span> 点<b class="term-skill">衍射伤害</b>，<b class="term-resource">韶光</b> +<b>1</b>。<br>满 <b>4</b> 层时替换为<b style="color:var(--gold)">惊龙破空</b>（×<b>${jingMult.toFixed(1)}</b>，约 <b style="color:var(--gold)">${jingDmg}</b>），消耗全部韶光。${chain >= 4 ? `<br>4 链：惊龙破空后全队全伤害 +<b>20%</b>（2 回合）。` : ''}${chain >= 1 ? `<br>1 链：共鸣技能伤害 +<b>80%</b>。` : ''}`
+        },
+        {
+          icon: '💥', name: '重击 · 霁月', cost: '2 AP · 冷却 1 回合', color: 'var(--text)',
+          desc: `对目标造成 <b style="color:var(--text)">${heavyDmg}</b> 点<b class="term-heavy">衍射伤害</b>。`
+        },
+        {
+          icon: '⚡', name: '共鸣解放 · 移岁诛邪', cost: `3 AP · 需共鸣能量满 ${energyMax}`, color: 'var(--gold)',
+          desc: `对主目标造成 <span class="tip" data-tip='${burstTip}'><b style="color:#ff8c5e">${burstMain}</b></span>、副目标 <b style="color:#ff8c5e">${burstSide}</b> 点<b class="term-burst">衍射伤害</b>，<b class="term-resource">韶光</b> +<b>2</b>。${chain >= 4 ? `<br>4 链：解放后全队全伤害 +<b>20%</b>（2 回合）。` : ''}${chain >= 5 ? `<br>5 链：解放伤害 +<b>120%</b>。` : ''}`
+        },
+        {
+          icon: '🎵', name: '变奏技能 · 蟠龙清辉', cost: '切换上场时触发', color: '#c39bff',
+          desc: `入场对主目标造成 <b style="color:var(--accent)">${varDmg}</b> 点伤害，<b class="term-resource">韶光</b> +<b>2</b>。${chain >= 3 ? `<br>3 链：获得<b class="term-resource">谪仙</b>，攻击 +<b>50%</b>。` : ''}`
+        }
+      ];
+    },
     forteName: '韶光层数',
-    forteDesc: '<span style="color:var(--gold);font-size:11px">▸ 资源条（层数 · 上限 4）</span><br>· 普攻 +<b>0</b> / 共鸣技能 +<b>1</b> / 变奏入场 +<b>2</b> 层<br>· 共鸣解放 +<b>2</b> 层<br>· 满 <b>4</b> 层时，下次<b class="term-skill">共鸣技能</b>替换为<b style="color:var(--gold)">惊龙破空</b>，消耗全部韶光层数，伤害 ×<b>1.8</b><br><br><span style="color:var(--gold);font-size:11px">▸ 推荐战斗节奏</span><br>变奏入场 + 技能积韶光层数 → 满 4 层 → 惊龙破空爆发 → 共鸣解放清场。'
+    forteDesc: '<span style="color:var(--gold);font-size:11px">▸ 资源条（层数 · 上限 4）</span><br>· 普攻 +<b>0</b> / 共鸣技能 +<b>1</b> / 变奏入场 +<b>2</b> 层<br>· 共鸣解放 +<b>2</b> 层<br>· 满 <b>4</b> 层时，下次<b class="term-skill">共鸣技能</b>替换为<b style="color:var(--gold)">惊龙破空</b>，消耗全部韶光层数，伤害 ×<b>1.8</b>（6 链 ×<b>2.2</b>）<br><br><span style="color:var(--gold);font-size:11px">▸ 推荐战斗节奏</span><br>变奏入场并技能积韶光层数，满 4 层后惊龙破空爆发，再共鸣解放清场。'
   },
   '长离': {
     intro: '热熔 · 迅刀 · 副C · 「离火 · 心眼」',
@@ -127,16 +163,16 @@ export const SKILL_HINTS = {
       element: '热熔',
       normalName: '衔火洞明', skillName: '赫羽三相', heavyName: '焚身以火', burstName: '离火照丹心', varName: '天道持枢',
       hasHeavy: true,
-      normalMech: '<span style="color:var(--muted)">资源积累：</span>普攻命中获得 <b>1</b> 层<b class="term-resource">离火</b>（上限 6）。<span style="color:var(--muted)">心眼态：</span>变身<b class="term-skill">心眼·征</b>，倍率 100%→<b>180%</b>、转<b>共鸣技能</b>伤害，消耗 2 层离火抵 1 AP。',
-      skillMech: '<span style="color:var(--muted)">资源积累：</span>共鸣技能命中获得 <b>1</b> 层<b class="term-resource">离火</b>。<span style="color:var(--muted)">心眼态：</span>变身<b class="term-skill">心眼·劫</b>，倍率 180%→<b>200%</b>，消耗 2 层离火抵 1 AP、不吃冷却。',
-      heavyMech: '<span style="color:var(--muted)">资源积累：</span>重击命中获得 <b>1</b> 层<b class="term-resource">离火</b>。<span style="color:var(--muted)">心眼态：</span>变身<b class="term-skill">心眼·冲</b>（爆发顶点），倍率 220%→<b>400%</b>、转<b>共鸣技能</b>伤害，消耗 4 层离火抵 2 AP。',
+      normalMech: '<span style="color:var(--muted)">资源积累：</span>普攻命中获得 <b>1</b> 层<b class="term-resource">离火</b>（上限 6）。<span style="color:var(--muted)">心眼态：</span>变身<b class="term-skill">心眼·征</b>，倍率 100% 提升至 <b>180%</b>、转<b>共鸣技能</b>伤害，消耗 2 层离火抵 1 AP。',
+      skillMech: '<span style="color:var(--muted)">资源积累：</span>共鸣技能命中获得 <b>1</b> 层<b class="term-resource">离火</b>。<span style="color:var(--muted)">心眼态：</span>变身<b class="term-skill">心眼·劫</b>，倍率 180% 提升至 <b>200%</b>，消耗 2 层离火抵 1 AP、不吃冷却。',
+      heavyMech: '<span style="color:var(--muted)">资源积累：</span>重击命中获得 <b>1</b> 层<b class="term-resource">离火</b>。<span style="color:var(--muted)">心眼态：</span>变身<b class="term-skill">心眼·冲</b>（爆发顶点），倍率 220% 提升至 <b>400%</b>、转<b>共鸣技能</b>伤害，消耗 4 层离火抵 2 AP。',
       burstMech: '<span style="color:var(--muted)">爆发增益：</span>造成热熔伤害、获得 <b>3</b> 层<b class="term-resource">离火</b>，进入<b class="term-buff">焰羽</b>（2 回合攻击 +50%、无视 40% 防御）。',
-      skillFollowUp: '2 链：持有离火时暴击 +25%。',
-      heavyFollowUp: '1 链：共鸣技能/重击伤害 +10%。 5 链：重击伤害 +100%。',
-      burstFollowUp: '3 链：共鸣解放·离火照丹心 +80%。 6 链：所有攻击无视 40% 防御。'
+      skillFollowUp: '1 链：共鸣技能与重击伤害提升 10%。 2 链：持有离火时暴击提升 25%。',
+      heavyFollowUp: '5 链：重击·焚身以火伤害提升 100%。 6 链：共鸣技能、重击与共鸣解放忽视目标 40% 防御。',
+      burstFollowUp: '3 链：共鸣解放·离火照丹心伤害提升 80%。 4 链：变奏后全队攻击提升 20%，持续 2 回合。'
     }),
     forteName: '离火',
-    forteDesc: '<span style="color:var(--gold);font-size:11px">▸ 离火（核心资源 · 0-6 层）</span><br>· 普攻/技能/重击各 +1 层，解放 +3 层<br>· 每持有 1 层，<b style="color:#ff8c5e">热熔伤害 +5%</b>（满 6 层 +30%），随层数实时变化<br>· 攒满 <b>6</b> 层进入<b style="color:#ff8c5e">心眼模式</b><br><br><span style="color:var(--gold);font-size:11px">▸ 心眼模式（变身爆发窗口）</span><br>· 三招变身<b class="term-skill">心眼·征/劫/冲</b>，倍率与伤害类型一起拔高（普攻打出 180% 共鸣技能伤害）<br>· 出招优先用离火抵 AP：<b>每 2 层离火 = 1 点 AP</b>，缺口用回合 AP 补<br>· 离火 &lt; 2 层时退出心眼，三招还原<br><br><span style="color:var(--gold);font-size:11px">▸ 推荐战斗节奏</span><br>普攻/技能攒离火 → 解放 +3 层开焰羽 → 凑满 6 层进心眼 → 心眼·冲(400%)+心眼·征(180%) 倾泻、不花回合 AP → 烧空退出再攒。'
+    forteDesc: '<span style="color:var(--gold);font-size:11px">▸ 离火（核心资源 · 0-6 层）</span><br>· 普攻/技能/重击各 +1 层，解放 +3 层<br>· 每持有 1 层，<b style="color:#ff8c5e">热熔伤害 +5%</b>（满 6 层 +30%），随层数实时变化<br>· 攒满 <b>6</b> 层进入<b style="color:#ff8c5e">心眼模式</b><br><br><span style="color:var(--gold);font-size:11px">▸ 心眼模式（变身爆发窗口）</span><br>· 三招变身<b class="term-skill">心眼·征/劫/冲</b>，倍率与伤害类型一起拔高（普攻打出 180% 共鸣技能伤害）<br>· 出招优先用离火抵 AP：<b>每 2 层离火 = 1 点 AP</b>，缺口用回合 AP 补<br>· 离火 &lt; 2 层时退出心眼，三招还原<br><br><span style="color:var(--gold);font-size:11px">▸ 推荐战斗节奏</span><br>普攻/技能攒离火，解放 +3 层开焰羽，凑满 6 层进心眼，心眼·冲(400%)与心眼·征(180%)倾泻且不花回合 AP，烧空后退出再攒。'
   },
   '守岸人': {
     intro: '衍射 · 音感仪 · 辅助 · 「星域」',
@@ -152,14 +188,14 @@ export const SKILL_HINTS = {
       // ===== 共鸣链相关参数 =====
       const fieldDur   = chain >= 1 ? 5 : 3;
       const fieldMult  = chain >= 1 ? 2.5 : 1.0;             // 1 链：增益强度 ×2.5
-      const heal4Mult  = chain >= 4 ? 1.7 : 1.0;             // 4 链：持续治疗再 ×1.7
+      const heal4Mult  = chain >= 4 ? 1.7 : 1.0;             // 4 链：仅技能治疗 ×1.7
       const fieldAtkPct  = Math.round((chain >= 2 ? 40 : 0) * fieldMult);
       const fieldCratePct = Math.round(20 * fieldMult);
       const fieldCdmgPct  = Math.round(30 * fieldMult);
 
       // ===== 真实伤害/治疗数（命中前结算）=====
       const normalDmg = Math.round(atk * 1.0);
-      const skillDmg  = Math.round(atk * 1.8);
+      const skillDmg  = Math.round(atk * 0.8);               // 设计 80%，非通用 180%
       const burstDmg  = Math.round(atk * 4.0);
       const burstSide = Math.round(atk * 2.0);
 
@@ -167,8 +203,8 @@ export const SKILL_HINTS = {
       const skillHealBase  = Math.round(hp * 0.06 + atk * 0.5);
       const skillHealTotal = Math.round(skillHealBase * (1 + healBonus) * heal4Mult);
 
-      // 星域每回合持续治疗（生命×8% + 攻击×80%）（共鸣链 4 / 1 共同放大）
-      const hotTotal = Math.round((hp * 0.08 + atk * 0.8) * (1 + healBonus) * heal4Mult * fieldMult);
+      // 星域每回合持续治疗（生命×8% + 攻击×80%）；1 链 ×2.5；4 链不进 HOT
+      const hotTotal = Math.round((hp * 0.08 + atk * 0.8) * (1 + healBonus) * fieldMult);
 
       // 变奏伤害（守岸人 6 链：×6 倍率）
       const varDmg       = Math.round(atk * 0.8);
@@ -183,7 +219,7 @@ export const SKILL_HINTS = {
       );
       const skillTip = tipAttr(
         `<b style="color:var(--gold)">共鸣技能伤害公式</b><br>` +
-        `= 攻击 <b>${atk}</b> × 180% = <b style="color:var(--accent)">${skillDmg}</b>`
+        `= 攻击 <b>${atk}</b> × 80% = <b style="color:var(--accent)">${skillDmg}</b>`
       );
       const burstTip = tipAttr(
         `<b style="color:var(--gold)">解放伤害公式</b><br>` +
@@ -201,7 +237,6 @@ export const SKILL_HINTS = {
         `<b style="color:var(--gold)">星域每回合治疗公式</b><br>` +
         `= (生命 <b>${hp}</b> × 8% + 攻击 <b>${atk}</b> × 80%)<br>` +
         `&nbsp;&nbsp;× (1 + 治疗加成 ${(healBonus*100).toFixed(1)}%)` +
-        (chain >= 4 ? `<br>&nbsp;&nbsp;× <b style="color:var(--gold)">共鸣链 4 倍率 1.7</b>` : '') +
         (chain >= 1 ? `<br>&nbsp;&nbsp;× <b style="color:var(--gold)">共鸣链 1 增益 ×2.5</b>` : '') +
         `<br>= <b style="color:var(--green)">${hotTotal}</b>`
       );
@@ -230,7 +265,7 @@ export const SKILL_HINTS = {
       );
       const fieldTip = tipAttr(
         `<b style="color:var(--gold)">星域总览</b>（持续 <b>${fieldDur}</b> 回合${chain>=1?' · 切人不消散':''}）<br>` +
-        `· 每回合治疗：<b style="color:var(--green)">${hotTotal}</b>（生命×8% + 攻击×80%${chain>=4?' × 1.7':''}${chain>=1?' × 2.5':''}）<br>` +
+        `· 每回合治疗：<b style="color:var(--green)">${hotTotal}</b>（生命×8% + 攻击×80%${chain>=1?' × 2.5':''}）<br>` +
         `· 全队暴击 +<b style="color:#ffd96b">${fieldCratePct}%</b><br>` +
         `· 全队暴伤 +<b style="color:#ffd96b">${fieldCdmgPct}%</b>` +
         (chain >= 2 ? `<br>· 全队攻击 +<b style="color:#ff8c5e">${fieldAtkPct}%</b>（共鸣链 2）` : '')
@@ -266,22 +301,44 @@ export const SKILL_HINTS = {
       ];
     },
     forteName: '协奏',
-    forteDesc: '<b class="term-burst">共鸣解放·终末回环</b>展开<b class="term-resource">星域</b>，为全队提供每回合治疗、暴击率 +20%、暴击伤害 +30%。<br>2 链追加全队攻击 +40%，1 链延长持续并切人不散。<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>普攻/技能积攒能量与协奏 → 解放展开星域 → 切换主力输出 → 在星域加成下输出。'
+    forteDesc: '<b class="term-burst">共鸣解放·终末回环</b>展开<b class="term-resource">星域</b>，为全队提供每回合治疗、暴击率 +20%、暴击伤害 +30%。<br>2 链追加全队攻击 +40%，1 链延长持续并切人不散。<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>普攻/技能积攒能量与协奏，解放展开星域，切换主力输出，在星域加成下输出。'
   },
   '椿': {
-    intro: '湮灭 · 迅刀 · 主C · 「红椿·蕊 → 永生花 → 含苞酣梦」',
-    customLines: makeSkillLines({
-      element: '湮灭',
-      normalName: '育种', skillName: '盛放与凋零的轮舞', burstName: '芳华绽烬', varName: '八千春秋',
-      normalMech: '<span style="color:var(--muted)">资源积累：</span>每段普攻 +<b>10</b> <b class="term-resource">红椿·蕊</b>。<b class="term-resource">含苞</b>状态下普攻 ×1.5（6 链 ×2.5）。',
-      skillMech: '<span style="color:var(--muted)">形态切换：</span><b class="term-resource">红椿·蕊</b>满 <b>100</b> 且协奏 ≥ <b>50</b> 时，共鸣技能替换为<b style="color:var(--gold)">永生花</b>：消耗 50 蕊 + 50 协奏，造成 atk ×250% 湮灭，进入<b class="term-resource">含苞</b>状态 <b>3</b> 回合（普攻/技能 ×1.5；6 链 ×2.5）。<br><span style="color:var(--muted)">未达触发条件：</span>正常共鸣技能，每次 +<b>15</b> 蕊。',
-      burstMech: '<span style="color:var(--muted)">含苞期间释放：</span>解放伤害 ×1.5（6 链 ×2.5）+ 3 链时自身攻击 +58%。',
-      skillFollowUp: '2 链：永生花倍率 +120%（×2.2）。 6 链：含苞酣梦 ×1.5 → ×2.5，含苞期间可再放一次永生花（每场 1 次）。',
-      burstFollowUp: '3 链：解放·芳华绽烬 +50%，含苞期间攻击 +58%。',
-      varFollowUp: '1 链：变奏后暴伤 +28%。 4 链：变奏后全队普攻 +25%。 5 链：变奏倍率 +303%。'
-    }),
+    intro: '湮灭 · 迅刀 · 主C · 「红椿·蕊 · 永生花 · 含苞酣梦」',
+    hasHeavy: true,
+    customLines: (stats, role) => {
+      const atk = stats.atk || 0;
+      const chain = role.chain || 0;
+      const tip = s => s.replace(/&/g, '&amp;').replace(/'/g, '&#39;');
+      const yongBase = 2.5 * (chain >= 2 ? 2.2 : 1);
+      const yong = Math.round(atk * yongBase);
+      const hanbao = chain >= 6 ? 2.5 : 1.5;
+      const skill = Math.round(atk * 1.8);
+      const burstMain = Math.round(atk * 4.0);
+      return [
+        {
+          name: '普攻 · 育种',
+          desc: `造成 <b class="tip-num" data-tip='${tip(`= 攻击 ${atk} × 100%`)}'>${Math.round(atk)}</b> 点湮灭伤害，红椿·蕊 +10。含苞期间 ×${hanbao}。`
+        },
+        {
+          name: '共鸣技能 · 盛放与凋零的轮舞',
+          desc: `造成 <b class="tip-num" data-tip='${tip(`= 攻击 ${atk} × 180%`)}'>${skill}</b> 点湮灭伤害，红椿·蕊 +15。含苞期间 ×${hanbao}。`
+        },
+        {
+          name: '永生花',
+          desc: `红椿·蕊满 100 且协奏 ≥ 50 时技能替换。造成 <b class="tip-num" data-tip='${tip(`= 攻击 ${atk} × ${(yongBase * 100).toFixed(0)}%`)}'>${yong}</b> 点湮灭伤害，消耗 50 蕊 + 50 协奏，进入含苞 3 回合。` +
+            (chain >= 2 ? ' <span style="color:var(--gold)">[2链] 倍率 +120%。</span>' : '') +
+            (chain >= 6 ? ' <span style="color:var(--gold)">[6链] 含苞中可再放 1 次续窗，酣梦 ×2.5。</span>' : '')
+        },
+        {
+          name: '共鸣解放 · 芳华绽烬',
+          desc: `主目标 <b class="tip-num" data-tip='${tip(`= 攻击 ${atk} × 400%`)}'>${burstMain}</b> / 副目标 <b class="tip-num" data-tip='${tip(`= 攻击 ${atk} × 200%`)}'>${Math.round(atk * 2)}</b> 湮灭伤害。` +
+            (chain >= 3 ? ' <span style="color:var(--gold)">[3链] 含苞期间攻击 +58%、解放 +50%。</span>' : '')
+        }
+      ];
+    },
     forteName: '红椿·蕊',
-    forteDesc: '<span style="color:var(--gold);font-size:11px">▸ 双资源 → 形态切换</span><br>· <b style="color:var(--text)">红椿·蕊</b>（个人资源 0-100）：普攻 +10 / 技能 +15 / 解放 +30 / 变奏 +20<br>· <b style="color:var(--text)">协奏</b>（团队资源 0-100）：通用协奏机制积累<br>· <b style="color:var(--gold)">永生花触发</b>：蕊满 100 + 协奏 ≥ 50 → 共鸣技能变为<b style="color:var(--gold)">永生花</b>，消耗 50 蕊 + 50 协奏，进入<b class="term-resource">含苞</b>状态<br>· <b style="color:#c39bff">含苞 · 酣梦</b>：3 回合，普攻/技能 ×<b>1.5</b>（6 链 ×<b>2.5</b>）+ 3 链自身攻击 +58%<br><br><span style="color:var(--gold);font-size:11px">▸ 推荐战斗节奏</span><br>变奏起手 → 普攻/技能积蕊 + 协奏 → 满 100 蕊 + 协奏 ≥ 50 释放<b style="color:var(--gold)">永生花</b>进入含苞 → 含苞 3 回合全程爆发 → 共鸣解放收尾。6 链含苞期间再满双资源可续窗永生花。'
+    forteDesc: '椿双资源：<b class="term-resource">红椿·蕊</b>（0-100）+ 协奏。<br>· 普攻 +10 / 技能 +15 / 解放 +30 / 变奏 +20。<br>· 红椿·蕊满 100 且协奏 ≥ 50 时，共鸣技能替换为<b class="term-skill">永生花</b>（攻击 ×250%，2 链 ×550%），进入<b class="term-resource">含苞</b> 3 回合（普攻/技能 ×1.5，6 链 ×2.5）。'
   },
   '折枝': {
     intro: '冷凝 · 音感仪 · 副C · 「墨鹤领域」',
@@ -290,12 +347,12 @@ export const SKILL_HINTS = {
       element: '冷凝',
       normalName: '轻云淡墨', skillName: '以形写神', burstName: '虚实境趣', varName: '柔翰生辉',
       skillFollowUp: '领域内命中补 <b>1</b> 只<b class="term-resource">墨鹤</b>（上限内）。 6 链：额外召唤 <b>1</b> 只<b class="term-resource">白鹤</b>（atk × 120% 共鸣技能伤害）。',
-      burstFollowUp: '展开墨鹤领域 <b>3</b> 回合并初召 <b>6</b> 只<b class="term-resource">墨鹤</b>。 2 链：上限 +6 → 12 只。 4 链：解放时全队攻击 +20%。 5 链：累计召唤 3 只 → 额外 +1 只 140% 伤害。',
+      burstFollowUp: '展开墨鹤领域 <b>3</b> 回合并初召 <b>6</b> 只<b class="term-resource">墨鹤</b>。 2 链：上限增加 6 只，合计 12 只。 4 链：解放时全队攻击 +20%。 5 链：累计召唤 3 只时额外召唤 1 只，造成 140% 伤害。',
       heavyName: '点睛',
       heavyFollowUp: '消耗 ⌊墨鹤/2⌋ 只（至少 1 只）转全队护盾，每只 atk × 50%。剩余墨鹤继续追击。CD 2 回合。'
     }),
     forteName: '墨鹤',
-    forteDesc: '折枝是召唤型副C：<b class="term-burst">共鸣解放·虚实境趣</b>展开<b class="term-resource">墨鹤领域</b> 3 回合并初召 6 只<b class="term-resource">墨鹤</b>。<br>· <b>墨鹤追击</b>：领域内己方攻击命中主目标时消耗 1 只墨鹤，atk × 35% 冷凝追击。墨鹤耗尽则停止。<br>· <b>重击点睛</b>：消耗半数墨鹤转全队护盾，每只 atk × 50%。<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>共鸣技能 + 普攻积能量 → 释放解放召唤墨鹤 → 切到主C → 墨鹤跟手追击 → 折枝回场点睛转护盾保命。'
+    forteDesc: '折枝是召唤型副C：<b class="term-burst">共鸣解放·虚实境趣</b>展开<b class="term-resource">墨鹤领域</b> 3 回合并初召 6 只<b class="term-resource">墨鹤</b>。<br>· <b>墨鹤追击</b>：领域内己方攻击命中主目标时消耗 1 只墨鹤，atk × 35% 冷凝追击。墨鹤耗尽则停止。<br>· <b>重击点睛</b>：消耗半数墨鹤转全队护盾，每只 atk × 50%。<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>共鸣技能与普攻积能量，释放解放召唤墨鹤，切到主C，墨鹤跟手追击，折枝回场点睛转护盾保命。'
   },
   '相里要': {
     intro: '导电 · 臂铠 · 副C · 「衍构」',
@@ -306,7 +363,7 @@ export const SKILL_HINTS = {
       burstFollowUp: '释放后进入<b class="term-resource">洞见状态</b>2 回合，普攻/技能伤害 +50%。 4 链：解放时全队共鸣解放 +25%。 5 链：解放·思维矩阵倍率 +100%。'
     }),
     forteName: '衍构',
-    forteDesc: '<b class="term-resource">衍构</b>是相里要的资源条（0-100）。攒满后释放<b class="term-burst">共鸣解放·思维矩阵</b>进入<b class="term-resource">洞见状态</b>，持续 2 回合，期间普攻/技能伤害 +50%（6 链后 +90%）。3 链后洞见状态下技能伤害再永久 +63%。<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>普攻/技能攒衍构 → 攒满释放解放进洞见状态 → 洞见窗口内连甩强化技能倾泻。'
+    forteDesc: '<b class="term-resource">衍构</b>是相里要的资源条（0-100）。攒满后释放<b class="term-burst">共鸣解放·思维矩阵</b>进入<b class="term-resource">洞见状态</b>，持续 2 回合，期间普攻/技能伤害 +50%（6 链后 +90%）。3 链后洞见状态下技能伤害再永久 +63%。<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>普攻/技能攒衍构，攒满释放解放进入洞见状态，洞见窗口内连甩强化技能倾泻。'
   },
   '珂莱塔': {
     intro: '冷凝 · 佩枪 · 主C · 「解离」',
@@ -322,7 +379,7 @@ export const SKILL_HINTS = {
       burstFollowUp: '射击命中附加<b class="term-resource">焕彩</b><b class="term-resource">停滞</b>效果。 1 链：对<b class="term-resource">解离</b>目标暴击 +12.5%。 2 链：解放·致死以终 +126%。 6 链：死兆射击 + 晶体翻倍 = 解放 +186.6%。'
     }),
     forteName: '灵萃',
-    forteDesc: '<span style="color:var(--gold);font-size:11px">▸ 强化条件</span><br>· 共鸣技能命中带<b class="term-resource">解离</b>/<b class="term-resource">变彩</b>的目标 → 回复<b class="term-resource">灵萃</b><br>· 灵萃满后，下次共鸣技能进入<b style="color:var(--gold)">暴力美学</b>强化形态<br>· <b class="term-heavy">重击·末路见行</b>是主要爆发段（4 链给全队共鸣技能 +25%）<br><br><span style="color:var(--gold);font-size:11px">▸ 推荐战斗节奏</span><br>共鸣技能挂解离/变彩 → 继续技能回灵萃 → 灵萃满释放暴力美学 → 重击末路见行 → 共鸣解放死兆附加焕彩停滞。'
+    forteDesc: '<span style="color:var(--gold);font-size:11px">▸ 强化条件</span><br>· 共鸣技能命中带<b class="term-resource">解离</b>/<b class="term-resource">变彩</b>的目标时回复<b class="term-resource">灵萃</b><br>· 灵萃满后，下次共鸣技能进入<b style="color:var(--gold)">暴力美学</b>强化形态<br>· <b class="term-heavy">重击·末路见行</b>是主要爆发段（4 链给全队共鸣技能 +25%）<br><br><span style="color:var(--gold);font-size:11px">▸ 推荐战斗节奏</span><br>共鸣技能挂解离/变彩，继续技能回灵萃，灵萃满释放暴力美学，重击末路见行，共鸣解放死兆附加焕彩停滞。'
   },
   '洛可可': {
     intro: '湮灭 · 臂铠 · 副C · 「想象力」',
@@ -336,7 +393,7 @@ export const SKILL_HINTS = {
       burstFollowUp: '开场强化普攻 + 重击。 2 链：普攻每层给全队湮灭 +10%（满 3 层 +40%）。 3 链：变奏后暴击/暴伤 +10%/+30%。 5 链：解放开场 +20%，重击 +80%。 6 链：解放期间普攻无视 60% 防御。'
     }),
     forteName: '想象力',
-    forteDesc: '洛可可是<b style="color:#a78bff">湮灭副C</b>：<b class="term-skill">共鸣技能·高难度设计</b>回 100 想象力 + 10 协奏；普攻每段给全队<b class="term-resource">湮灭伤害 +10%</b>（满 3 层 +40%）。<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>变奏起手积湮灭 buff → 共鸣技能 → 普攻铺 3 层 → 切到主C 享受湮灭团 buff。'
+    forteDesc: '洛可可是<b style="color:#a78bff">湮灭副C</b>：<b class="term-skill">共鸣技能·高难度设计</b>回 100 想象力 + 10 协奏；普攻每段给全队<b class="term-resource">湮灭伤害 +10%</b>（满 3 层 +40%）。<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>变奏起手积湮灭伤害加成，共鸣技能，普攻铺 3 层，切到主C 享受全队湮灭伤害加成。'
   },
   '菲比': {
     intro: '衍射 · 音感仪 · 主C · 「赦罪/告解双形态」',
@@ -346,13 +403,13 @@ export const SKILL_HINTS = {
       hasHeavy: true,
       skillMech: '<span style="color:var(--muted)">形态切换：</span>消耗 <b>1</b> 点<b class="term-resource">福音</b>，<b style="color:var(--gold)">赦罪</b>↔<b style="color:#a78bff">告解</b>形态切换（战斗开始默认<b style="color:var(--gold)">赦罪</b>）。召唤<b class="term-resource">镜之环</b>对范围内目标附加<b class="term-resource">光噪效应</b>。',
       heavyMech: '<span style="color:var(--muted)">形态差异：</span><b style="color:var(--gold)">赦罪</b>下重击普通倍率；<b style="color:#a78bff">告解</b>下重击大幅强化（3 链 +249%）。消耗<b class="term-resource">福音</b>。',
-      burstMech: '<span style="color:var(--muted)">形态差异：</span><b style="color:var(--gold)">赦罪</b>下解放高倍率（1 链 255% → 480%）；<b style="color:#a78bff">告解</b>下解放叠满<b class="term-resource">光噪</b>（1 链）。',
+      burstMech: '<span style="color:var(--muted)">形态差异：</span><b style="color:var(--gold)">赦罪</b>下解放高倍率（1 链 255% 提升至 480%）；<b style="color:#a78bff">告解</b>下解放叠满<b class="term-resource">光噪</b>（1 链）。',
       skillFollowUp: '6 链：召唤<b class="term-resource">镜之环</b>时攻击 +10%。',
       heavyFollowUp: '2 链：赦罪状态下延奏对光噪目标 +120%。 3 链：重击·星辉 +91%。',
-      burstFollowUp: '1 链：赦罪状态解放倍率从 255% → 480%。 5 链：自身衍射伤害 +12%。'
+      burstFollowUp: '1 链：赦罪状态解放倍率从 255% 提升至 480%。 5 链：自身衍射伤害 +12%。'
     }),
     forteName: '福音',
-    forteDesc: '<span style="color:var(--gold);font-size:11px">▸ 形态切换</span><br>· <b style="color:var(--gold)">赦罪</b>（默认）：强化<b class="term-burst">共鸣解放</b>（解放倍率 +225%）<br>· <b style="color:#a78bff">告解</b>：强化<b class="term-heavy">重击·星辉</b>（重击 +249%）+ FFF 镜之环叠满光噪<br>· 施放<b class="term-skill">共鸣技能·FFF</b>消耗 <b>1</b> 点<b class="term-resource">福音</b>切换形态；战斗开始默认赦罪<br><br><span style="color:var(--gold);font-size:11px">▸ 推荐战斗节奏</span><br>普攻铺<b class="term-resource">光噪效应</b> → FFF 召唤<b class="term-resource">镜之环</b> 切换告解 → 重击·星辉爆发 → 再 FFF 切回赦罪 → 共鸣解放·启明之誓愿清场。'
+    forteDesc: '<span style="color:var(--gold);font-size:11px">▸ 形态切换</span><br>· <b style="color:var(--gold)">赦罪</b>（默认）：强化<b class="term-burst">共鸣解放</b>（解放倍率 +225%）<br>· <b style="color:#a78bff">告解</b>：强化<b class="term-heavy">重击·星辉</b>（重击 +249%）+ FFF 镜之环叠满光噪<br>· 施放<b class="term-skill">共鸣技能·FFF</b>消耗 <b>1</b> 点<b class="term-resource">福音</b>切换形态；战斗开始默认赦罪<br><br><span style="color:var(--gold);font-size:11px">▸ 推荐战斗节奏</span><br>普攻铺<b class="term-resource">光噪效应</b>，FFF 召唤<b class="term-resource">镜之环</b>切换告解，重击·星辉爆发，再 FFF 切回赦罪，共鸣解放·启明之誓愿清场。'
   },
   '卡提希娅': {
     intro: '气动 · 迅刀 · 主C · 「决意·芙露德莉斯」',
@@ -453,7 +510,7 @@ export const SKILL_HINTS = {
           color: 'var(--gold)',
           desc: `<b style="color:#a78bff">进入芙露德莉斯形态，无直接伤害。</b><br><br>` +
                 `<b>消耗当前全部【决意】层数</b>，根据层数获得形态之力：<br>` +
-                `<span style="color:var(--muted)">· 1 层 →</span> <b class="term-resource">人权</b> <span style="color:var(--muted)">· 2 层 →</span> <b class="term-resource">神权</b> <span style="color:var(--muted)">· 3 层 →</span> <b class="term-resource">异权</b><br><br>` +
+                `<span style="color:var(--muted)">· 1 层：</span> <b class="term-resource">人权</b> <span style="color:var(--muted)">· 2 层：</span> <b class="term-resource">神权</b> <span style="color:var(--muted)">· 3 层：</span> <b class="term-resource">异权</b><br><br>` +
                 `切换至<span class="tip" data-tip='${furTip}'><b style="color:#a78bff">芙露德莉斯形态</b></span>，持续 <b>3</b> 回合。${chain>=4?`<br><span style="color:var(--gold)">[4链]</span> 附加风蚀时全队元素伤害 +20%（2 回合）。`:''}`
         },
         {
@@ -476,23 +533,51 @@ export const SKILL_HINTS = {
       '满决意后施放<b class="term-burst">共鸣解放·听骑士从心祈愿</b>进入<b style="color:#a78bff">芙露德莉斯形态</b>（3 回合）。<br>' +
       '芙露德莉斯形态下：攻击附加<b class="term-resource">风蚀效应</b> · 命中额外回能 · 可施放终结解放。<br><br>' +
       '<span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>' +
-      '叠满 3 层决意 → 解放·听骑士从心祈愿进芙露德莉斯形态 → 攻击叠风蚀 → 解放·看潮怒风哮之刃爆发 → 回到常态重新循环。'
+      '叠满 3 层决意，解放·听骑士从心祈愿进入芙露德莉斯形态，攻击叠风蚀，解放·看潮怒风哮之刃爆发，回到常态重新循环。'
   },
   '嘉贝莉娜': {
-    intro: '热熔 · 佩枪 · 主C · 「余火」',
-    customLines: makeSkillLines({
-      element: '热熔',
-      normalName: '炼羽射击', skillName: '裁决', heavyName: '炼羽裁决', burstName: '永恒位格', varName: '声骸入场',
-      heavyMech: '<span style="color:var(--muted)">爆发段：</span><b class="term-heavy">重击·炼羽裁决</b>是永恒位格期间的主输出。',
-      burstMech: '<span style="color:var(--muted)">形态切换：</span>释放<b class="term-burst">共鸣解放·永恒位格</b>后进入<b class="term-resource">永恒位格</b>强化状态；6 链时自身伤害 +60%，余火满层热熔加深 +35%。',
-      skillMech: '<span style="color:var(--muted)">资源积累：</span>普攻/技能积攒<b class="term-resource">余火</b>（0-10 点），余火越高暴击伤害越高（1 链）。',
-      hasHeavy: true,
-      skillFollowUp: '积<b class="term-resource">余火</b>。 1 链：余火 10 点 × 8% = 暴击伤害 +80%。 5 链：共鸣技能伤害 +150%。',
-      heavyFollowUp: '炼羽裁决是嘉贝主输出段。 2 链：内燃烧攻击 +150%。',
-      burstFollowUp: '进入<b class="term-resource">永恒位格</b>，自身全面增益。 3 链：共鸣解放 +130%。 4 链：声骸后全队伤害 +20%。 6 链：永恒位格自身伤害 +60%，余火满层热熔加深 +35%。'
-    }),
-    forteName: '余火',
-    forteDesc: '<span style="color:var(--gold);font-size:11px">▸ 形态切换</span><br>· 常态：普攻/技能积攒<b class="term-resource">余火</b>（0-10）<br>· 释放<b class="term-burst">共鸣解放·永恒位格</b> → 进入永恒位格强化状态<br>· 永恒位格期间：自身伤害提升（6 链 +60%），重击·炼羽裁决主输出；余火越高，热熔加深越高<br><br><span style="color:var(--gold);font-size:11px">▸ 推荐战斗节奏</span><br>普攻/技能积余火 → 余火接近满层 → 共鸣解放进入永恒位格 → 重击·炼羽裁决爆发。'
+    intro: '热熔 · 佩枪 · 主C · 「猎杀阈值」强化解放爆发',
+    hasHeavy: true,
+    customLines: (stats, role) => {
+      const atk = stats.atk || 0;
+      const chain = role.chain || 0;
+      const tip = s => s.replace(/&/g, '&amp;').replace(/'/g, '&#39;');
+      const skillMult = 1.8 * (1 + (chain >= 5 ? 1.5 : 0));
+      const burstBase = 4.0 * (1 + (chain >= 3 ? 1.3 : 0));
+      const threshMult = chain >= 6 ? 2.1 : 1.6;
+      const allDmg = chain >= 6 ? 0.6 : 0;
+      const skill = Math.round(atk * skillMult * (1 + allDmg));
+      const heavy = Math.round(atk * 2.2 * (1 + allDmg));
+      const burstMain = Math.round(atk * burstBase * (1 + allDmg));
+      const burstSide = Math.round(atk * 2.0 * (1 + (chain >= 3 ? 1.3 : 0)) * (1 + allDmg));
+      const burstMainFull = Math.round(atk * burstBase * threshMult * (1 + allDmg));
+      return [
+        {
+          name: '普攻',
+          desc: `造成 <b class="tip-num" data-tip='${tip(`= 攻击 ${atk} × 100%`)}'>${Math.round(atk * (1 + allDmg))}</b> 点热熔伤害，猎杀阈值 +8。`
+        },
+        {
+          name: '共鸣技能',
+          desc: `造成 <b class="tip-num" data-tip='${tip(`= 攻击 ${atk} × ${(skillMult * 100).toFixed(0)}%`)}'>${skill}</b> 点热熔伤害，猎杀阈值 +18。` +
+            (chain >= 5 ? ' <span style="color:var(--gold)">[5链] 技能伤害 +150%。</span>' : '')
+        },
+        {
+          name: '重击',
+          desc: `造成 <b class="tip-num" data-tip='${tip(`= 攻击 ${atk} × 220%`)}'>${heavy}</b> 点热熔伤害，猎杀阈值 +12。`
+        },
+        {
+          name: '共鸣解放 · 炼净',
+          desc: `主目标 <b class="tip-num" data-tip='${tip(`= 攻击 ${atk} × ${(burstBase * 100).toFixed(0)}%`)}'>${burstMain}</b> / 副目标 <b class="tip-num" data-tip='${tip(`= 攻击 ${atk} × ${(200 * (1 + (chain >= 3 ? 1.3 : 0))).toFixed(0)}%`)}'>${burstSide}</b> 热熔伤害。猎杀阈值满时 ×${threshMult.toFixed(1)}，主目标 <b class="tip-num" data-tip='${tip(`满阈值 = 攻击 ${atk} × ${(burstBase * 100).toFixed(0)}% × ${threshMult}`)}'>${burstMainFull}</b>。` +
+            (chain >= 1 ? ' <span style="color:var(--gold)">[1链] 暴伤 +80%。</span>' : '') +
+            (chain >= 2 ? ' <span style="color:var(--gold)">[2链] 攻击 +150%。</span>' : '') +
+            (chain >= 3 ? ' <span style="color:var(--gold)">[3链] 解放伤害 +130%。</span>' : '') +
+            (chain >= 4 ? ' <span style="color:var(--gold)">[4链] 解放后全队全伤害 +20%（3 回合）。</span>' : '') +
+            (chain >= 6 ? ' <span style="color:var(--gold)">[6链] 全伤害 +60%；满阈值解放 ×2.1。</span>' : '')
+        }
+      ];
+    },
+    forteName: '猎杀阈值',
+    forteDesc: '嘉贝莉娜核心资源 <b class="term-resource">猎杀阈值</b>（0-100）：<br>· <b class="term-normal">普攻</b>+8，<b class="term-skill">共鸣技能</b>+18，<b class="term-heavy">重击</b>+12，<b class="term-burst">共鸣解放</b>+25。<br>· 满 100 时下一发<b class="term-burst">共鸣解放·炼净</b>伤害 ×1.6（6 链 ×2.1），施放后重置。<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>普攻/技能/重击攒阈值，满阈值开炼净爆发。'
   },
   '卡卡罗': {
     intro: '导电 · 长刃 · 主C · 「杀戮武装」',
@@ -507,7 +592,7 @@ export const SKILL_HINTS = {
       burstFollowUp: '进入 <b style="color:var(--gold)">Deathblade</b> 形态：普攻/技能 +50%（持续 2 回合）。 3 链：解放期间导电 +25%。 4 链：延奏后全队导电 +20%。 5 链：变奏伤害 +50%。'
     }),
     forteName: '杀意',
-    forteDesc: '<span style="color:var(--gold);font-size:11px">▸ 形态切换</span><br>· 常态：普攻/技能攒能量<br>· 释放<b class="term-burst">共鸣解放·杀戮武装</b> → 进入<b class="term-resource">Deathblade</b>形态 <b>2</b> 回合<br>· Deathblade 期间：普攻/技能 +50%；重击·死告是爆发终结段；6 链召唤猎杀影协同<br><br><span style="color:var(--gold);font-size:11px">▸ 推荐战斗节奏</span><br>共鸣技能攒能量 → 满能量开杀戮武装 → 2 回合内普攻/技能输出 → 重击·死告收尾。'
+    forteDesc: '<span style="color:var(--gold);font-size:11px">▸ 形态切换</span><br>· 常态：普攻/技能攒能量<br>· 释放<b class="term-burst">共鸣解放·杀戮武装</b>进入<b class="term-resource">Deathblade</b>形态 <b>2</b> 回合<br>· Deathblade 期间：普攻/技能 +50%；重击·死告是爆发终结段；6 链召唤猎杀影协同<br><br><span style="color:var(--gold);font-size:11px">▸ 推荐战斗节奏</span><br>共鸣技能攒能量，满能量开杀戮武装，2 回合内普攻/技能输出，重击·死告收尾。'
   },
   '布兰特': {
     intro: '热熔 · 迅刀 · 辅助 · 「火焰归亡曲」',
@@ -523,7 +608,7 @@ export const SKILL_HINTS = {
       burstFollowUp: '满航路时解放：全队治疗。 2 链：延奏后下个角色技能触发爆炸 atk × 440%。 3 链：火焰归亡曲伤害 +42%。 4 链：护盾 +20% + 全队回血。 5 链：普攻伤害 +15%。 6 链：解放后再燃 +30%。'
     }),
     forteName: '航路',
-    forteDesc: '布兰特是<b style="color:#ff8c5e">热熔辅助</b>：<b class="term-variation">变奏·为我！</b>获 3 层<b class="term-resource">乘风</b>（每层 +20% 伤害，满 +60%），<b class="term-burst">火焰归亡曲</b>给全队治疗。满<b class="term-resource">航路</b>时解放倍率 ×1.6。<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>变奏入场叠 3 层乘风 → 攒满航路 → 共鸣解放·火焰归亡曲治疗全队 + AOE 输出 → 切主C 爆发（2 链延奏爆炸）。'
+    forteDesc: '布兰特是<b style="color:#ff8c5e">热熔辅助</b>：<b class="term-variation">变奏·为我！</b>获 3 层<b class="term-resource">乘风</b>（每层 +20% 伤害，满 +60%），<b class="term-burst">火焰归亡曲</b>给全队治疗。满<b class="term-resource">航路</b>时解放倍率 ×1.6。<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>变奏入场叠 3 层乘风，攒满航路，共鸣解放·火焰归亡曲治疗全队并造成范围伤害，切主C 爆发（2 链延奏爆炸）。'
   },
   '坎特蕾拉': {
     intro: '湮灭 · 音感仪 · 副C · 「蜃境」',
@@ -535,11 +620,11 @@ export const SKILL_HINTS = {
       burstMech: '<span style="color:var(--muted)">形态切换：</span>释放<b class="term-burst">陷溺</b>给目标附加<b class="term-resource">迷梦</b>，触发<b class="term-resource">惊醒</b>爆发；3 链时释放后直接进入<b class="term-resource">蜃境</b>。',
       skillMech: '<span style="color:var(--muted)">资源积累：</span>施放共鸣技能回复 <b>1</b> 点<b class="term-resource">迷离</b>。迷离满后配合解放·陷溺进入<b class="term-resource">蜃境</b>。',
       skillFollowUp: '回 1 点<b class="term-resource">迷离</b>。 1 链：共鸣技能 +50%。',
-      heavyFollowUp: '持有迷离时重击→浮潜幻海进入蜃境。',
+      heavyFollowUp: '持有迷离时，重击变为浮潜幻海并进入蜃境。',
       burstFollowUp: '附加<b class="term-resource">迷梦</b>状态，触发<b class="term-resource">惊醒</b>。 2 链：惊醒伤害倍率 +245%。 3 链：解放·陷溺 +370% + 直接进入蜃境。 4 链：蜃境治疗加成 +25%。 6 链：解放期间无视 30% 防御。'
     }),
     forteName: '迷离',
-    forteDesc: '<span style="color:var(--gold);font-size:11px">▸ 形态切换</span><br>· 共鸣技能每次 +1 <b class="term-resource">迷离</b><br>· 释放<b class="term-burst">共鸣解放·陷溺</b>给目标附加<b class="term-resource">迷梦</b>，后续命中触发<b class="term-resource">惊醒</b><br>· 3 链：释放陷溺后直接进入<b class="term-resource">蜃境</b>；无 3 链时需迷离满才进入<br>· 蜃境期间治疗 +25%（4 链）并强化输出<br><br><span style="color:var(--gold);font-size:11px">▸ 推荐战斗节奏</span><br>共鸣技能积迷离 → 共鸣解放·陷溺挂迷梦 → 触发惊醒 → 进入蜃境继续输出。'
+    forteDesc: '<span style="color:var(--gold);font-size:11px">▸ 形态切换</span><br>· 共鸣技能每次 +1 <b class="term-resource">迷离</b><br>· 释放<b class="term-burst">共鸣解放·陷溺</b>给目标附加<b class="term-resource">迷梦</b>，后续命中触发<b class="term-resource">惊醒</b><br>· 3 链：释放陷溺后直接进入<b class="term-resource">蜃境</b>；无 3 链时需迷离满才进入<br>· 蜃境期间治疗 +25%（4 链）并强化输出<br><br><span style="color:var(--gold);font-size:11px">▸ 推荐战斗节奏</span><br>共鸣技能积迷离，共鸣解放·陷溺挂迷梦，触发惊醒，进入蜃境继续输出。'
   },
 
   // ===== 常驻 5★ =====
@@ -552,7 +637,7 @@ export const SKILL_HINTS = {
       burstFollowUp: '<b class="term-burst">解放</b>给全队挂<b class="term-resource">光合标记</b>（持续治疗）。 3 链：<b class="term-resource">光合标记</b>治疗加成 +12%。 4 链：重击/解放/延奏后全队衍射 +15%。 5 链：治疗低 HP 角色时治疗 +20%。 6 链：重击·星星花绽放 +20% + <b class="term-resource">协同攻击</b>。'
     }),
     forteName: '光合能量',
-    forteDesc: '维里奈是<b style="color:var(--accent)">衍射治疗</b>位：<b class="term-burst">共鸣解放·草木生长</b>给全队<b class="term-resource">光合标记</b>持续回血，<b class="term-resource">延奏·盛放</b>给登场角色额外回血。<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>普攻技能积能量 → 解放铺光合标记 → 切到主C → 后续切回挂延奏。'
+    forteDesc: '维里奈是<b style="color:var(--accent)">衍射治疗</b>位：<b class="term-burst">共鸣解放·草木生长</b>给全队<b class="term-resource">光合标记</b>持续回血，<b class="term-resource">延奏·盛放</b>给登场角色额外回血。<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>普攻技能积能量，解放铺光合标记，切到主C，后续切回挂延奏。'
   },
   '安可': {
     intro: '热熔 · 佩枪 · 主C · 「黑咩」',
@@ -587,7 +672,7 @@ export const SKILL_HINTS = {
       burstFollowUp: '开启<b style="color:var(--gold)">行狮形态</b>。 2 链：变奏额外回 10 能量。 3 链：解放期间普攻 +20% / 技能 +10%。 4 链：延奏给全队冷凝 +20%。 5 链：解放额外 atk × 200% 冷凝伤害。'
     }),
     forteName: '行狮',
-    forteDesc: '<span style="color:var(--gold);font-size:11px">▸ 形态切换</span><br>· 常态：普通普攻/技能循环<br>· 释放<b class="term-burst">共鸣解放·狮子奋迅</b> → 进入<b class="term-resource">行狮</b>形态<br>· 行狮期间：3 链给普攻 +20% / 技能 +10%；6 链每次技能后下次普攻 +100%<br><br><span style="color:var(--gold);font-size:11px">▸ 推荐战斗节奏</span><br>变奏入场 → 共鸣解放进入行狮 → 技能 → 强化普攻 → 重复循环。'
+    forteDesc: '<span style="color:var(--gold);font-size:11px">▸ 形态切换</span><br>· 常态：普通普攻/技能循环<br>· 释放<b class="term-burst">共鸣解放·狮子奋迅</b>进入<b class="term-resource">行狮</b>形态<br>· 行狮期间：3 链给普攻 +20% / 技能 +10%；6 链每次技能后下次普攻 +100%<br><br><span style="color:var(--gold);font-size:11px">▸ 推荐战斗节奏</span><br>变奏入场，共鸣解放进入行狮，技能，强化普攻，重复循环。'
   },
   '鉴心': {
     intro: '气动 · 臂铠 · 辅助 · 「涤净力场」',
@@ -600,7 +685,7 @@ export const SKILL_HINTS = {
       burstFollowUp: '<b class="term-burst">涤净力场</b>清场。 4 链：重击·混元气旋时解放 +80%。 5 链：解放额外回 20 能量。 6 链：气动伤害 +20%。'
     }),
     forteName: '架势',
-    forteDesc: '<span style="color:var(--gold);font-size:11px">▸ 派生条件</span><br>· 施放<b class="term-skill">共鸣技能·静气循行</b> → 进入<b class="term-resource">架势</b><br>· 架势保持 <b>1</b> 回合后，再次施放技能 → <b class="term-skill">行气反击</b><br>· 6 链：重击·混元气旋期间可施放特殊行气反击（atk×557% 重击类型）<br><br><span style="color:var(--gold);font-size:11px">▸ 推荐战斗节奏</span><br>共鸣技能进入架势 → 等 1 回合/或技能派生 → 行气反击 → 重击·混元气旋 → 共鸣解放·涤净力场。'
+    forteDesc: '<span style="color:var(--gold);font-size:11px">▸ 派生条件</span><br>· 施放<b class="term-skill">共鸣技能·静气循行</b>进入<b class="term-resource">架势</b><br>· 架势保持 <b>1</b> 回合后，再次施放技能触发<b class="term-skill">行气反击</b><br>· 6 链：重击·混元气旋期间可施放特殊行气反击（atk×557% 重击类型）<br><br><span style="color:var(--gold);font-size:11px">▸ 推荐战斗节奏</span><br>共鸣技能进入架势，等待 1 回合或技能派生，行气反击，重击·混元气旋，共鸣解放·涤净力场。'
   },
 
   // ===== 4★ 角色 =====
@@ -612,7 +697,7 @@ export const SKILL_HINTS = {
       skillFollowUp: '4 链：技能命中后全队热熔 +12%。',
       burstFollowUp: '<b class="term-burst">浮翼狂想</b>协同窗口：主C 用技能时莫特斐补刀。 1 链：解放期间共鸣技能触发协同。 2 链：声骸后额外回 10 能量。 3 链：加强音暴伤 +30%。 4 链：解放时长 +7 秒。 5 链：共鸣技能命中触发协同。 6 链：解放·暴烈终曲时全队攻击 +20%。'
     }),
-    forteDesc: '莫特斐是<b style="color:#ff8c5e">热熔副C</b>：<b class="term-burst">共鸣解放·浮翼狂想</b>开启协同窗口，主C 用技能时莫特斐补刀。<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>解放铺协同 buff → 切到主C 用技能触发莫特斐协同。'
+    forteDesc: '莫特斐是<b style="color:#ff8c5e">热熔副C</b>：<b class="term-burst">共鸣解放·浮翼狂想</b>开启协同窗口，主C 用技能时莫特斐补刀。<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>解放铺协同攻击窗口，切到主C 用技能触发莫特斐协同。'
   },
   '散华': {
     intro: '冷凝 · 迅刀 · 副C · 「霜色」',
@@ -624,17 +709,17 @@ export const SKILL_HINTS = {
       heavyFollowUp: '4 链：解放后下次重击·爆裂 +120%。 6 链：重击·爆裂倍率 +50%。',
       burstFollowUp: '消耗<b class="term-resource">冰绽</b>。 4 链：解放回 10 能量。 5 链：<b class="term-resource">冰绽</b>暴击伤害 +100%，冰棘/冰棱/冰川消失时直接爆炸。 6 链：引爆冰棱/冰川后全队攻击 +10%×2 层。'
     }),
-    forteDesc: '散华是<b style="color:#7bd6ff">冷凝副C</b>：核心是<b class="term-heavy">重击·爆裂</b>，配合 4 链解放后的高倍率爆发。<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>普攻 5 段 → 共鸣技能 → 共鸣解放 → 重击·爆裂爆发。'
+    forteDesc: '散华是<b style="color:#7bd6ff">冷凝副C</b>：核心是<b class="term-heavy">重击·爆裂</b>，配合 4 链解放后的高倍率爆发。<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>普攻 5 段，共鸣技能，共鸣解放，重击·爆裂爆发。'
   },
   '卜灵': {
     intro: '导电 · 音感仪 · 辅助 · 「五雷荡煞阵」',
     customLines: makeSkillLines({
       element: '导电',
       normalName: '符咒', skillName: '五雷荡煞阵', burstName: '飞雷诀·归一', varName: '索拉云游',
-      skillFollowUp: '<b class="term-resource">五雷荡煞阵</b>给团队电磁 debuff + 治疗。 5 链：荡煞阵生成时附加 6 层<b class="term-resource">电磁效应</b>。',
+      skillFollowUp: '<b class="term-resource">五雷荡煞阵</b>给团队附加电磁效应并治疗。 5 链：荡煞阵生成时附加 6 层<b class="term-resource">电磁效应</b>。',
       burstFollowUp: '<b class="term-burst">飞雷诀</b>清场。 1 链：解放暴击 +20%。 2 链：<b class="term-resource">阴阳相生</b>回 25 能量。 3 链：荡煞阵期间全队 HP <50% 时治疗。 4 链：治疗加成 +20%。 6 链：<b class="term-resource">雷法·三才合一</b>时全队共鸣技能 +50%。'
     }),
-    forteDesc: '卜灵是<b style="color:#7bd6ff">导电辅助</b>：<b class="term-skill">五雷荡煞阵</b>给团队电磁 debuff + 治疗，最强的 6 链全队<b class="term-skill">共鸣技能 +30%</b> 是核心辅助价值。<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>开场共鸣技能铺雷阵 → 解放·飞雷诀爆发 → 切到主C 享受全队技能 buff。'
+    forteDesc: '卜灵是<b style="color:#7bd6ff">导电辅助</b>：<b class="term-skill">五雷荡煞阵</b>给团队附加电磁效应并治疗，最强的 6 链全队<b class="term-skill">共鸣技能 +30%</b> 是核心辅助价值。<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>开场共鸣技能铺雷阵，解放·飞雷诀爆发，切到主C 享受全队共鸣技能伤害提升。'
   },
   '丹瑾': {
     intro: '湮灭 · 长刃 · 副C · 「朱蚀之刻」',
@@ -644,7 +729,7 @@ export const SKILL_HINTS = {
       skillFollowUp: '给目标附加<b class="term-resource">朱蚀之刻</b>。 1 链：攻击带朱蚀目标 +5%/层（满 6 层 +30%）。 2 链：攻击带朱蚀目标伤害 +20%。',
       burstFollowUp: '3 链：共鸣解放伤害加成 +30%。 4 链：彤华 ≥ 60 时暴击 +15%。 5 链：湮灭伤害 +15%。 6 链：重击·缭乱后全队攻击 +20%。'
     }),
-    forteDesc: '丹瑾是<b style="color:#a78bff">湮灭副C</b>：核心是<b class="term-resource">朱蚀之刻</b>给目标打 debuff，攻击朱蚀目标享受所有 1/2 链加成。<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>共鸣技能挂朱蚀 → 普攻/重击堆攻击层数 → 共鸣解放爆发。'
+    forteDesc: '丹瑾是<b style="color:#a78bff">湮灭副C</b>：核心是<b class="term-resource">朱蚀之刻</b>给目标附加朱蚀之刻，攻击朱蚀目标享受所有 1/2 链加成。<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>共鸣技能挂朱蚀，普攻/重击堆攻击层数，共鸣解放爆发。'
   },
   '白芷': {
     intro: '冷凝 · 音感仪 · 治疗 · 「念意」',
@@ -657,7 +742,7 @@ export const SKILL_HINTS = {
       burstFollowUp: '<b class="term-burst">刹那合弥</b>触发<b class="term-skill">频隙回响</b>。 3 链：变奏后生命上限 +12%。 4 链：<b class="term-skill">频隙回响</b> +2 段 + 治疗 +20%。 5 链：复活倒下队友（每场战斗 1 次）。 6 链：拾取<b class="term-resource">天籁</b>时全队冷凝 +12%。'
     }),
     forteName: '念意',
-    forteDesc: '<span style="color:var(--gold);font-size:11px">▸ 治疗循环</span><br>· <b class="term-resource">念意</b> 0-4：普攻积攒，技能消耗念意治疗队友<br>· 满 4 念意时，共鸣技能治疗更强（2 链：冷凝/治疗 +15%）<br>· 释放<b class="term-burst">共鸣解放·刹那合弥</b> → 触发<b class="term-skill">频隙回响</b>多段治疗<br>· 5 链：白芷存活时可复活一次倒下队友<br><br><span style="color:var(--gold);font-size:11px">▸ 推荐战斗节奏</span><br>普攻积念意 → 共鸣技能治疗 → 能量满放解放持续回血 → 切主C 输出。'
+    forteDesc: '<span style="color:var(--gold);font-size:11px">▸ 治疗循环</span><br>· <b class="term-resource">念意</b> 0-4：普攻积攒，技能消耗念意治疗队友<br>· 满 4 念意时，共鸣技能治疗更强（2 链：冷凝/治疗 +15%）<br>· 释放<b class="term-burst">共鸣解放·刹那合弥</b>触发<b class="term-skill">频隙回响</b>多段治疗<br>· 5 链：白芷存活时可复活一次倒下队友<br><br><span style="color:var(--gold);font-size:11px">▸ 推荐战斗节奏</span><br>普攻积念意，共鸣技能治疗，能量满放解放持续回血，切主C 输出。'
   },
   '秋水': {
     intro: '气动 · 佩枪 · 副C · 「雾化分身」',
@@ -669,7 +754,7 @@ export const SKILL_HINTS = {
       skillFollowUp: '生成<b class="term-resource">雾化分身</b><b class="term-resource">嘲讽</b>敌人。 1 链：技能冷却 -1 回合。 2 链：攻击被<b class="term-resource">嘲讽</b>目标时攻击 +15%。 3 链：穿<b class="term-resource">虚实之门</b>额外生成 2 颗子弹。 4 链：共鸣技能·雾化子弹 +30%。',
       burstFollowUp: '5 链：<b class="term-resource">迷雾潜行</b>时气动 +25%。 6 链：解放暴击 +8%；重击穿<b class="term-resource">虚实之门</b> +50%。'
     }),
-    forteDesc: '<span style="color:var(--gold);font-size:11px">▸ 机制说明</span><br>· <b class="term-skill">共鸣技能·移位戏法</b>召唤<b class="term-resource">雾化分身</b>，分身嘲讽目标<br>· <b class="term-resource">虚实之门</b>：普攻/重击穿过门时获得额外子弹/伤害<br>· <b class="term-resource">迷雾潜行</b>：释放解放后进入，期间减伤；5 链气动伤害 +25%<br><br><span style="color:var(--gold);font-size:11px">▸ 推荐战斗节奏</span><br>共鸣技能召分身 + 虚实之门 → 普攻穿门追加子弹 → 共鸣解放进入迷雾潜行 → 重击穿门爆发。'
+    forteDesc: '<span style="color:var(--gold);font-size:11px">▸ 机制说明</span><br>· <b class="term-skill">共鸣技能·移位戏法</b>召唤<b class="term-resource">雾化分身</b>，分身嘲讽目标<br>· <b class="term-resource">虚实之门</b>：普攻/重击穿过门时获得额外子弹/伤害<br>· <b class="term-resource">迷雾潜行</b>：释放解放后进入，期间减伤；5 链气动伤害 +25%<br><br><span style="color:var(--gold);font-size:11px">▸ 推荐战斗节奏</span><br>共鸣技能召分身并开虚实之门，普攻穿门追加子弹，共鸣解放进入迷雾潜行，重击穿门爆发。'
   },
   '炽霞': {
     intro: '热熔 · 佩枪 · 副C · 「炽烈焰火」',
@@ -679,7 +764,7 @@ export const SKILL_HINTS = {
       skillFollowUp: '1 链：共鸣技能·轰轰必定暴击。 6 链：触发技能·轰轰后全队普攻 +25%。',
       burstFollowUp: '<b class="term-resource">热压弹</b> 60 发持续输出。 2 链：解放期间击败目标回 5 能量。 3 链：解放对低 HP 目标 +40%。 4 链：获 60 弹 + 重置技能 CD。 5 链：<b class="term-resource">加麻加辣</b>满层时攻击 +30%。'
     }),
-    forteDesc: '炽霞是<b style="color:#ff8c5e">热熔副C</b>，核心是<b class="term-burst">共鸣解放·炽烈焰火</b>的 60 发热压弹 + 重置技能 CD。<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>共鸣技能·轰轰 → 共鸣解放·炽烈焰火 → 60 弹高速输出 → 重置 CD 再放技能。'
+    forteDesc: '炽霞是<b style="color:#ff8c5e">热熔副C</b>，核心是<b class="term-burst">共鸣解放·炽烈焰火</b>的 60 发热压弹 + 重置技能 CD。<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>共鸣技能·轰轰，共鸣解放·炽烈焰火，60 弹高速输出，重置冷却后再放技能。'
   },
   '秧秧': {
     intro: '气动 · 迅刀 · 副C · 「流息·空中释羽」',
@@ -691,7 +776,7 @@ export const SKILL_HINTS = {
       heavyFollowUp: '<b class="term-heavy">空中释羽</b>是核心输出段。 4 链：<b class="term-heavy">空中释羽</b> +95%。',
       burstFollowUp: '1 链：变奏后气动 +15%。 2 链：重击命中回 10 能量。 5 链：解放·朔风旋涌 +85%。 6 链：<b class="term-heavy">空中释羽</b>后全队攻击 +20%。',
     }),
-    forteDesc: '秧秧是<b style="color:var(--green)">气动副C</b>：<b class="term-skill">流风载域</b>牵引敌人 + <b class="term-heavy">空中释羽</b>主输出。<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>共鸣技能铺风场 → 变奏入场叠气动 buff → 空中重击释羽爆发。'
+    forteDesc: '秧秧是<b style="color:var(--green)">气动副C</b>：<b class="term-skill">流风载域</b>牵引敌人 + <b class="term-heavy">空中释羽</b>主输出。<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>共鸣技能铺风场，变奏入场叠气动伤害加成，空中重击释羽爆发。'
   },
   '桃祈': {
     intro: '湮灭 · 长刃 · 辅助 · 「磐岩护壁·攻防转换」',
@@ -702,7 +787,7 @@ export const SKILL_HINTS = {
       skillFollowUp: '<b class="term-skill">固若金汤</b>给全队护盾。 3 链：磐岩护壁持续延长。 6 链：磐岩护壁期间普攻/重击 +40%。',
       burstFollowUp: '<b class="term-burst">不动如山</b>反击爆发。 1 链：护盾量 +40%。 2 链：解放暴击/暴伤 +20%。 4 链：重击发后制人触发时回血 + 防御 +50%。 5 链：<b class="term-resource">攻防转换</b>命中回 20 能量。'
     }),
-    forteDesc: '桃祈是<b style="color:#a78bff">湮灭辅助</b>（护盾型）：<b class="term-skill">固若金汤</b>给全队护盾，<b class="term-burst">共鸣解放·不动如山</b>反击爆发。<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>共鸣技能上护盾 → 重击发后制人触发反击 → 共鸣解放收尾。'
+    forteDesc: '桃祈是<b style="color:#a78bff">湮灭辅助</b>（护盾型）：<b class="term-skill">固若金汤</b>给全队护盾，<b class="term-burst">共鸣解放·不动如山</b>反击爆发。<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>共鸣技能上护盾，重击发后制人触发反击，共鸣解放收尾。'
   },
   '渊武': {
     intro: '导电 · 臂铠 · 辅助 · 「雷之楔」',
@@ -712,7 +797,7 @@ export const SKILL_HINTS = {
       skillFollowUp: '<b class="term-skill">拳震凌武</b>展开雷之楔。 3 链：<b class="term-skill">雷之楔</b>命中按 20% 防御加伤。',
       burstFollowUp: '<b class="term-burst">寂土重明</b>给全队护盾。 1 链：雷厉风行状态攻速 +20%。 2 链：变奏·轰雷回 15 能量。 5 链：<b class="term-skill">雷之楔</b>在场时解放 +50%。 6 链：<b class="term-skill">雷之楔</b>范围内全队防御 +32%。'
     }),
-    forteDesc: '渊武是<b style="color:#7bd6ff">导电辅助</b>：<b class="term-skill">拳震凌武</b>展开雷之楔，<b class="term-burst">共鸣解放·寂土重明</b>给全队护盾。<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>变奏入场积能量 → 共鸣技能召楔 → 共鸣解放给全队护盾。'
+    forteDesc: '渊武是<b style="color:#7bd6ff">导电辅助</b>：<b class="term-skill">拳震凌武</b>展开雷之楔，<b class="term-burst">共鸣解放·寂土重明</b>给全队护盾。<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>变奏入场积能量，共鸣技能召楔，共鸣解放给全队护盾。'
   },
   '釉瑚': {
     intro: '冷凝 · 臂铠 · 副C · 「诗中物对偶/联珠」',
@@ -722,7 +807,7 @@ export const SKILL_HINTS = {
       skillFollowUp: '靠<b class="term-resource">诗中物</b><b class="term-skill">对偶</b>/<b class="term-skill">联珠</b>/<b class="term-skill">合说</b>叠层。 1 链：技能·问祯有 10% 概率免伤。 2 链：<b class="term-skill">对偶</b>/<b class="term-skill">联珠</b>对诗中物效果二次触发。 4 链：20% 概率技能不进 CD。',
       burstFollowUp: '<b class="term-burst">如意卜</b>清场。 3 链：攻击 +20%。 5 链：变奏·遂心匣后暴击 +15%。 6 链：奇珍赏获<b class="term-resource">霁青</b> 4 层（暴击伤害 +60%）。'
     }),
-    forteDesc: '釉瑚是<b style="color:#7bd6ff">冷凝副C</b>：靠<b class="term-resource">诗中物</b>的对偶/联珠/合说叠层放大伤害。<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>共鸣技能·匣中问祯起手 → 普攻补段叠层 → 共鸣解放爆发。'
+    forteDesc: '釉瑚是<b style="color:#7bd6ff">冷凝副C</b>：靠<b class="term-resource">诗中物</b>的对偶/联珠/合说叠层放大伤害。<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>共鸣技能·匣中问祯起手，普攻补段叠层，共鸣解放爆发。'
   },
   '灯灯': {
     intro: '导电 · 长刃 · 副C · 「啾啾专送」',
@@ -732,7 +817,7 @@ export const SKILL_HINTS = {
       skillFollowUp: '<b class="term-skill">强化·前扑/后撤</b>无视防御。 1 链：<b class="term-skill">强化·后撤</b>回耐力。 2 链：<b class="term-skill">强化·前扑</b>/后撤无视 20% 防御。 5 链：光能满时强光穿射倍率 +100%。',
       burstFollowUp: '3 链：共鸣解放·啾啾专送 +30%。 4 链：普攻伤害加成 +30%。 6 链：解放时全队攻击 +20%。'
     }),
-    forteDesc: '灯灯是<b style="color:var(--accent)">导电副C</b>：<b class="term-skill">强化·前扑/后撤</b>无视防御，<b class="term-normal">普攻</b>主输出。<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>强化前扑/后撤 → 普攻铺伤害 → 共鸣解放·啾啾专送清场。'
+    forteDesc: '灯灯是<b style="color:var(--accent)">导电副C</b>：<b class="term-skill">强化·前扑/后撤</b>无视防御，<b class="term-normal">普攻</b>主输出。<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>强化前扑/后撤，普攻铺伤害，共鸣解放·啾啾专送清场。'
   },
 
   '吟霖': {
@@ -756,7 +841,7 @@ export const SKILL_HINTS = {
       const skillDmg  = Math.round(atk * 1.8);
       const burstMainDmg = Math.round(atk * 4.0);
       const burstSideDmg = Math.round(atk * 2.0);
-      // 对印记目标的额外加成：debuffBonus × 1链(技能/解放) × 5链(解放) × 3链每层
+      // 对印记目标的额外加成：易伤 × 1链(技能/解放) × 5链(解放) × 3链每层
       const maxStacks = 3;
       const vulnFull = 1 + markVulnPerStack * maxStacks;   // 满 3 层易伤总倍率
       const markedSkillDmg = chain >= 1 ? Math.round(skillDmg * markSkillMult * vulnFull) : skillDmg;
@@ -825,79 +910,247 @@ export const SKILL_HINTS = {
       ];
     },
     forteName: '审判值',
-    forteDesc: '吟霖不依赖普通的破阵/技能循环，而是<b class="term-resource">审判值</b>（0-100）：<b class="term-normal">普攻</b> +<b>15</b> / <b class="term-skill">共鸣技能</b> +<b>30</b>。<br>满 <b>100</b> 自动触发<b class="term-resource">审判之雷</b>：给当前主目标挂 <b>1</b> 层<b class="term-resource">审判印记</b>（持续 3 回合，最高 3 层）。<br><br><b class="term-resource">审判印记</b>是吟霖的真正价值 —— <b>全队</b>对印记目标输出时享受加成（3 链 +10%/层 易伤；吟霖自己技能/解放 1 链 ×1.7、5 链 ×1.5）。<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>开场普攻/技能堆审判 → 满 100 标记主目标 → 切到主C 让队友打印记目标 → 能量满放解放给主目标补印记 + 全队 atk buff。'
+    forteDesc: '吟霖不依赖普通的破阵/技能循环，而是<b class="term-resource">审判值</b>（0-100）：<b class="term-normal">普攻</b> +<b>15</b> / <b class="term-skill">共鸣技能</b> +<b>30</b>。<br>满 <b>100</b> 自动触发<b class="term-resource">审判之雷</b>：给当前主目标挂 <b>1</b> 层<b class="term-resource">审判印记</b>（持续 3 回合，最高 3 层）。<br><br><b class="term-resource">审判印记</b>是吟霖的真正价值 —— <b>全队</b>对印记目标输出时享受加成（3 链 +10%/层 易伤；吟霖自己技能/解放 1 链 ×1.7、5 链 ×1.5）。<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>开场普攻/技能堆审判，满 100 标记主目标，切到主C 让队友打印记目标，能量满放解放给主目标补印记并提升全队攻击。'
   },
 
   // ═══════════════════════════════════════════════════════════════
   // 2.3+ & 3.0+ 新增角色 · 工厂版 SKILL_HINTS
   // ═══════════════════════════════════════════════════════════════
 
-  // 2.3 · 赞妮（主C 衍射 臂铠 · HP 核）— 灼焰形态·焰光·重斩·终绝将至之刻
+  // 2.3 · 赞妮（主C 衍射 臂铠 · HP 核）— 灼焰形态 / 焰光 / 重斩 / 终绝
   '赞妮': {
     intro: '衍射 · 臂铠 · 主C · 「灼焰形态」',
     hasHeavy: true,
-    customLines: makeSkillLines({
-      element: '衍射', hasHeavy: true,
-      normalName: '例行交涉',
-      skillName: '无眠守望',
-      burstName: '晨昏交替之时',
-      heavyName: '例行交涉 · 重击',
-      varName: '即刻执行',
-      forteName: '焰光',
-      skillMech: '对目标造成 HP 7.5% 衍射伤害；非灼焰形态下使用。',
-      burstMech: '对主目标造成 HP 16% 衍射伤害（5 链 ×2.2）+ 进入灼焰形态 3 回合：焰光 +50、每回合 +10、普攻键替换为重斩（HP 12%，消耗 20 焰光）。形态结束自动施放终绝将至之刻。',
-      heavyMech: '非灼焰形态下：HP 9% 衍射伤害。灼焰形态下重击按钮禁用（普攻键已替换为重斩）。',
-      heavyFollowUp: '6 链：重斩 ×1.4；焰光 <70 立即回 70（每场 1 次）；灼焰形态内致死不倒（每场 1 次）。'
-    }),
+    customLines: (stats, role) => {
+      const tipAttr = s => s.replace(/&/g, '&amp;').replace(/'/g, '&#39;');
+      const chain = role.chain || 0;
+      const hp = stats.hp;
+
+      const normalMult = 0.04;
+      const skillMult = 0.075 * (chain >= 2 ? 1.8 : 1);
+      const heavyMult = 0.09;
+      const slashMult = 0.12 * (chain >= 6 ? 1.4 : 1);
+      const burstMainMult = 0.16 * (chain >= 5 ? 2.2 : 1);
+      const burstSideMult = burstMainMult * 0.5;
+      const finalBase = 0.20;
+      const varMult = 0.03;
+
+      const normalDmg = Math.round(hp * normalMult);
+      const skillDmg = Math.round(hp * skillMult);
+      const heavyDmg = Math.round(hp * heavyMult);
+      const slashDmg = Math.round(hp * slashMult);
+      const burstMainDmg = Math.round(hp * burstMainMult);
+      const burstSideDmg = Math.round(hp * burstSideMult);
+      const finalDmg = Math.round(hp * finalBase);
+      const varDmg = Math.round(hp * varMult);
+
+      const normalTip = tipAttr(
+        '<b style="color:var(--gold)">普攻·例行交涉(HP 核)</b><br>' +
+        '= 最大生命 <b>' + hp + '</b> × 4% = <b style="color:var(--text)">' + normalDmg + '</b>'
+      );
+      const skillTip = tipAttr(
+        '<b style="color:var(--gold)">共鸣技能·无眠守望(HP 核)</b><br>' +
+        '= 最大生命 <b>' + hp + '</b> × 7.5%' +
+        (chain >= 2 ? ' × 1.8(2链+80%)' : '') +
+        ' = <b style="color:var(--accent)">' + skillDmg + '</b>'
+      );
+      const heavyTip = tipAttr(
+        '<b style="color:var(--gold)">重击(非灼焰形态·HP 核)</b><br>' +
+        '= 最大生命 <b>' + hp + '</b> × 9% = <b style="color:#ff8c5e">' + heavyDmg + '</b><br>' +
+        '灼焰形态下重击禁用，普攻键替换为重斩'
+      );
+      const slashTip = tipAttr(
+        '<b style="color:var(--gold)">重斩·破晓(灼焰形态普攻)</b><br>' +
+        '= 最大生命 <b>' + hp + '</b> × 12%' +
+        (chain >= 6 ? ' × 1.4(6链)' : '') +
+        ' = <b style="color:#ff9b3a">' + slashDmg + '</b><br>' +
+        '消耗 20 焰光，伤害类型为重击'
+      );
+      const burstTip = tipAttr(
+        '<b style="color:var(--gold)">共鸣解放·重燃(HP 核)</b><br>' +
+        '= 最大生命 <b>' + hp + '</b> × 16%' +
+        (chain >= 5 ? ' × 2.2(5链+120%)' : '') +
+        '<br>主: <b style="color:var(--gold)">' + burstMainDmg + '</b> · 副: <b>' + burstSideDmg + '</b><br>' +
+        '进入<b class="term-state">灼焰形态</b> 3 回合：焰光+50、每回+10、普攻变为重斩'
+      );
+      const finalTip = tipAttr(
+        '<b style="color:var(--gold)">终绝将至之刻(形态结束自动)</b><br>' +
+        '基础 HP × 20% = <b style="color:var(--gold)">' + finalDmg + '</b><br>' +
+        (chain >= 3
+          ? '3 链：每消耗 1 点焰光 +2%（上限 +200%，最高 HP×60%）'
+          : '3 链未激活时无焰光加成')
+      );
+      const varTip = tipAttr(
+        '<b style="color:var(--gold)">变奏·即刻执行(HP 核)</b><br>' +
+        '= 最大生命 <b>' + hp + '</b> × 3% = <b style="color:var(--accent)">' + varDmg + '</b>'
+      );
+
+      return [
+        {
+          icon: '⚔', name: '普攻 · 例行交涉 / 重斩', cost: '1 AP',
+          color: 'var(--text)',
+          desc: '非<b class="term-state">灼焰形态</b>时对主目标造成 <span class="tip" data-tip="' + normalTip + '"><b style="color:var(--text)">' + normalDmg + '</b> 点</span><b class="term-normal">衍射伤害</b>。' +
+          '灼焰形态下普攻替换为<span class="tip" data-tip="' + slashTip + '"><b class="term-heavy">重斩·破晓</b></span>（HP×12%，消耗 20 <b class="term-resource">焰光</b>）。'
+        },
+        {
+          icon: '✦', name: '共鸣技能 · 无眠守望', cost: '1 AP · CD 3 回合',
+          color: 'var(--accent)',
+          desc: '对主目标造成 <span class="tip" data-tip="' + skillTip + '"><b style="color:var(--accent)">' + skillDmg + '</b> 点</span><b class="term-skill">衍射伤害</b>。' +
+          (chain >= 1 ? '<br><span style="color:var(--gold)">[1 链]</span> 施放后衍射伤害 +50%（2 回合）。' : '') +
+          (chain >= 2 ? '<br><span style="color:var(--gold)">[2 链]</span> 技能倍率 +80%。' : '')
+        },
+        {
+          icon: '☄', name: '重击 · 例行交涉', cost: '2 AP · CD 1 回合',
+          color: '#ff8c5e',
+          desc: '非灼焰形态下对主目标造成 <span class="tip" data-tip="' + heavyTip + '"><b style="color:#ff8c5e">' + heavyDmg + '</b> 点</span><b class="term-heavy">衍射伤害</b>。灼焰形态下不可用。' +
+          (chain >= 6 ? '<br><span style="color:var(--gold)">[6 链]</span> 重斩 ×1.4；焰光&lt;70 回 70（每场 1 次）；致死不倒（每场 1 次）。' : '')
+        },
+        {
+          icon: '⚡', name: '共鸣解放 · 重燃 / 终绝将至之刻', cost: '3 AP · 需能量满',
+          color: 'var(--gold)',
+          desc: '对主目标造成 <span class="tip" data-tip="' + burstTip + '"><b style="color:var(--gold)">' + burstMainDmg + '</b> 点</span>，副目标 <b>' + burstSideDmg + '</b> 点<b class="term-burst">衍射伤害</b>，进入灼焰形态 3 回合。' +
+          '形态结束自动施放<span class="tip" data-tip="' + finalTip + '"><b class="term-burst">终绝将至之刻</b></span>（基础 HP×20%）。' +
+          (chain >= 3 ? '<br><span style="color:var(--gold)">[3 链]</span> 每消耗 1 焰光终绝 +2%（上限 +200%）。' : '') +
+          (chain >= 5 ? '<br><span style="color:var(--gold)">[5 链]</span> 重燃倍率 +120%。' : '')
+        },
+        {
+          icon: '♫', name: '变奏入场 · 即刻执行', cost: '切换上场时触发',
+          color: '#c39bff',
+          desc: '切换上场时对主目标造成 <span class="tip" data-tip="' + varTip + '"><b style="color:var(--accent)">' + varDmg + '</b> 点</span><b class="term-variation">衍射伤害</b>。' +
+          (chain >= 4 ? '<br><span style="color:var(--gold)">[4 链]</span> 全队攻击 +20%（2 回合）。' : '')
+        }
+      ];
+    },
     forteName: '焰光',
-    forteDesc: '赞妮的核心资源 <b class="term-resource">焰光</b>（上限 100）：<br>· <b class="term-burst">共鸣解放·重燃</b>进入<b class="term-state">灼焰形态</b>时 +50 焰光。<br>· 灼焰形态内每回合 +10（<b class="term-state">烈阳余烬</b>简化转化）。<br>· <b class="term-heavy">重斩</b>消耗 20 焰光。<br>· 形态结束时按本场消耗焰光强化<b class="term-burst">终绝将至之刻</b>（3 链每点 +2%，最多 +200%）。<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>解放进灼焰 → 重斩连段消耗焰光 → 形态结束终绝爆发。'
+    forteDesc: '赞妮的核心资源 <b class="term-resource">焰光</b>（上限 100）：' +
+      '<br>• <b class="term-burst">共鸣解放·重燃</b>进入<b class="term-state">灼焰形态</b>时 +50 焰光' +
+      '<br>• 灼焰形态内每回合 +10（<b class="term-state">烈阳余烬</b>简化）' +
+      '<br>• <b class="term-heavy">重斩</b>消耗 20 焰光' +
+      '<br>• 形态结束按消耗焰光强化<b class="term-burst">终绝将至之刻</b>（3 链每点 +2%，最多 +200%）' +
+      '<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>' +
+      '解放进入灼焰，重斩连段消耗焰光，形态结束终绝爆发'
   },
 
-    // 2.3 · 夏空（辅助 气动 佩枪）— 「合奏音影·风蚀效应」
+
   '夏空': {
     intro: '气动 · 佩枪 · 辅助 · 「合奏音影·风蚀效应」',
     hasHeavy: false,
-    customLines: makeSkillLines({
-      element: '气动', hasHeavy: false,
-      normalName: '四拍的舞曲',
-      skillName: '谐律速奏',
-      burstName: '歌者的三重华彩',
-      varName: '携风吟游',
-      forteName: '音律',
-      normalMech: '普攻第4段叠加 <b class="term-resource">风蚀效应</b>+1 层、进入 <b class="term-resource">音律独奏</b>（全队气动伤害 +<b>24%</b>，演绎下翻倍至 +<b>48%</b>），并获得 <b>1</b> 音律。',
-      skillMech: '为目标叠加 <b class="term-resource">风蚀效应</b>+1 层。3 链后 CD 从 3→2 回合。',
-      burstMech: '施放后进入 <b class="term-resource">演绎状态</b> 2 回合：<b class="term-resource">音律独奏</b>效果翻倍，夏空获得 HP×100% 护盾。切人不中断。',
-      varMech: '为目标叠加 <b class="term-resource">风蚀效应</b>+1 层，获得 <b>1</b> 格音律。',
-      normalFollowUp: '1 链：普攻时攻击 +35%；3 链：普攻第4段额外 +1 音律；4 链：四拍重奏无视 45% 防御；6 链：进入音律独奏时造成 220% 气动伤害（共鸣解放类型）。',
-      skillFollowUp: '3 链：谐律速奏 CD-1 回合（3→2）；4 链：共鸣解放无视 45% 防御。',
-      burstFollowUp: '2 链：演绎状态期间全队气动 +40%；5 链：解放伤害 +40%，全队受伤 -30%。'
-    }),
+    customLines: (stats, role) => {
+      const tipAttr = s => s.replace(/&/g, '&amp;').replace(/'/g, '&#39;');
+      const chain = role.chain || 0;
+      const atk = stats.atk || 375;
+      const normalDmg = Math.round(atk * 1.0);
+      const skillDmg = Math.round(atk * 1.5);
+      const quadDmg = Math.round(atk * 2.0);
+      const burstBonus = chain >= 5 ? 0.4 : 0;
+      const burstMain = Math.round(atk * 3.5 * (1 + burstBonus));
+      const burstSide = Math.round(atk * 1.75 * (1 + burstBonus));
+      const varDmg = Math.round(atk * 0.8);
+      const skillCd = chain >= 3 ? 2 : 3;
+
+      const normalTip = tipAttr(`<b style="color:var(--gold)">普攻伤害公式</b><br>= 攻击 <b>${atk}</b> × 100% = <b>${normalDmg}</b>`);
+      const skillTip = tipAttr(`<b style="color:var(--gold)">共鸣技能伤害公式</b><br>= 攻击 <b>${atk}</b> × 150% = <b style="color:var(--accent)">${skillDmg}</b>`);
+      const quadTip = tipAttr(`<b style="color:var(--gold)">四拍重奏伤害公式</b><br>= 攻击 <b>${atk}</b> × 200% = <b style="color:#ff8c5e">${quadDmg}</b>（重击类型）`);
+      const burstTip = tipAttr(
+        `<b style="color:var(--gold)">共鸣解放伤害公式</b><br>` +
+        `· 主：攻击 <b>${atk}</b> × 350%${burstBonus ? ' × (1+40%)' : ''} = <b style="color:var(--gold)">${burstMain}</b><br>` +
+        `· 副：攻击 <b>${atk}</b> × 175%${burstBonus ? ' × (1+40%)' : ''} = <b>${burstSide}</b>`
+      );
+      const varTip = tipAttr(`<b style="color:var(--gold)">变奏伤害公式</b><br>= 攻击 <b>${atk}</b> × 80% = <b>${varDmg}</b>`);
+
+      const parts = [];
+      if (chain >= 1) parts.push(`<span style="color:var(--gold)">[1链]</span> 进入音律独奏时攻击 +35%（2 回合）`);
+      if (chain >= 2) parts.push(`<span style="color:var(--gold)">[2链]</span> 演绎期间全队气动 +40%`);
+      if (chain >= 3) parts.push(`<span style="color:var(--gold)">[3链]</span> 普攻额外 +1 音律；技能 CD ${skillCd} 回合`);
+      if (chain >= 4) parts.push(`<span style="color:var(--gold)">[4链]</span> 四拍重奏/解放无视 45% 防御`);
+      if (chain >= 5) parts.push(`<span style="color:var(--gold)">[5链]</span> 解放伤害 +40%；演绎期间全队受伤 -30%`);
+      if (chain >= 6) parts.push(`<span style="color:var(--gold)">[6链]</span> 进入音律独奏时 220% 气动 AOE（解放类型）`);
+      const chainHints = parts.length
+        ? '<br><span style="color:var(--muted);font-size:10px">·</span> ' + parts.join('<br><span style="color:var(--muted);font-size:10px">·</span> ')
+        : '';
+
+      return [
+        {
+          icon: '\u2694', name: '普攻 · 四拍的舞曲', cost: '1 AP',
+          color: 'var(--text)',
+          desc: `对目标造成 <span class="tip" data-tip='${normalTip}'><b>${normalDmg}</b> 点</span>气动伤害。叠 <b class="term-resource">风蚀效应</b> +1，进入 <b class="term-resource">音律独奏</b>（全队气动 +24%，演绎下 +48%），<b class="term-resource">音律</b> +1。<br>满 3 音律时替换为 <span class="tip" data-tip='${quadTip}'><b class="term-heavy">四拍重奏</b>（${quadDmg} 点）</span>，消耗全部音律。${chainHints}`
+        },
+        {
+          icon: '\u2726', name: '共鸣技能 · 谐律速奏', cost: `1 AP · 冷却 ${skillCd} 回合`,
+          color: 'var(--accent)',
+          desc: `对目标造成 <span class="tip" data-tip='${skillTip}'><b style="color:var(--accent)">${skillDmg}</b> 点</span>气动伤害（atk×150%）。叠风蚀 +1。`
+        },
+        {
+          icon: '\u2605', name: '共鸣解放 · 歌者的三重华彩', cost: '3 AP · 满能量',
+          color: 'var(--gold)',
+          desc: `主 <span class="tip" data-tip='${burstTip}'><b style="color:var(--gold)">${burstMain}</b></span> / 副 <b>${burstSide}</b> 点气动伤害（atk×350%/175%）。进入 <b class="term-state">演绎状态</b> 2 回合，获得 HP×100% 护盾。`
+        },
+        {
+          icon: '\u21c4', name: '变奏 · 携风吟游', cost: '0 AP · 切人',
+          color: 'var(--muted)',
+          desc: `切人入场造成 <span class="tip" data-tip='${varTip}'><b>${varDmg}</b> 点</span>气动伤害。叠风蚀 +1，音律 +1。`
+        }
+      ];
+    },
     forteName: '音律',
-    forteDesc: '夏空的专属资源 <b class="term-resource">音律</b>（上限 3 格）：<br>· <b class="term-normal">普攻第4段</b>、<b class="term-variation">变奏入场</b>各获得 <b>1</b> 格音律。<br>· 3 链：普攻第4段额外 +1 音律。<br>· 满 <b>3</b> 格时普攻替换为<b class="term-heavy">四拍重奏</b>（atk×200% 气动，牵引+叠风蚀）。<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>普攻4段/变奏攒音律 → 满3格放四拍重奏叠风蚀 → 解放开演绎 → 延奏翻倍风蚀 → 切主C爆发。'
+    forteDesc: '<span style="color:var(--gold);font-size:11px">▸ 共鸣回路 · 音律</span><br>· <b class="term-resource">音律</b>（0-3）：普攻 +1（3 链再 +1）/ 变奏 +1。满 3 格普攻替换为 <b class="term-heavy">四拍重奏</b>（atk×200% 重击，叠风蚀）。<br>· <b class="term-resource">音律独奏</b>：普攻后进入，全队气动 +24%（演绎下 +48%），持续至回合结束。<br>· <b class="term-state">演绎状态</b>：解放后 2 回合，独奏翻倍 + 护盾。'
   },
 
-  // 2.4 · 露帕（副C 热熔 长刃）— 「狼焰·荣光·追猎」
+  // 2.4 · 露帕（副C 热熔 长刃）— 「狼焰·荣光·追猎」· 手写对账（勿走工厂假强化）
   '露帕': {
     intro: '热熔 · 长刃 · 副C · 「狼焰·荣光·追猎」',
     hasHeavy: true,
-    customLines: makeSkillLines({
-      element: '热熔', hasHeavy: true,
-      normalName: '燃星',
-      skillName: '凶噬',
-      burstName: '荣光欢酣于火',
-      heavyName: '狼 / 锐',
-      varName: '你在看哪里？',
-      forteName: '狼焰',
-      normalMech: '积累狼焰 +<b>10</b>。',
-      skillMech: '对目标造成 atk×180% 热熔伤害，狼焰 +<b>15</b>。',
-      heavyMech: '对目标造成 atk×220% 热熔伤害，狼焰 +<b>20</b>。<br>狼焰满 100 时共鸣技能换为<b class="term-heavy">狼舞·决意·极</b>（atk×320% 热熔，视为共鸣解放伤害）。',
-      burstMech: '施放后狼焰回满，激活 <b class="term-resource">追猎</b>（全队热熔 +10%）和 <b class="term-resource">荣光</b>（全队无视热熔抗性）状态。',
-      heavyFollowUp: '2 链：放重击/解放时全队热熔伤害 +40%（持续 4 回合）；4 链：狼舞·决意·极倍率 +125%（×2.25=atk×720%）；6 链：狼舞/解放/变奏无视 30% 防御。',
-      varFollowUp: '3 链：变奏伤害 +100%（80%×2=160%），荣光变为 15% 无视热熔抗性；6 链：变奏不再清除追猎/荣光。',
-      burstFollowUp: '1 链：解放时暴击 +20%；5 链：变奏后首次解放伤害 +15%。'
-    }),
+    customLines: (stats, role) => {
+      const atk = stats.atk || 0;
+      const chain = role.chain || 0;
+      const tip = s => s.replace(/&/g, '&amp;').replace(/'/g, '&#39;');
+      const skill = Math.round(atk * 1.8);
+      const heavy = Math.round(atk * 2.2);
+      const burstMain = Math.round(atk * 4.0);
+      const burstSide = Math.round(atk * 2.0);
+      let langwuMult = 3.2;
+      if (chain >= 6) langwuMult += 0.4;
+      if (chain >= 4) langwuMult *= (1 + 1.25);
+      const langwu = Math.round(atk * langwuMult);
+      const lines = [
+        {
+          name: '普攻 · 燃星',
+          desc: `造成 <b class="tip-num" data-tip='${tip(`= 攻击 ${atk} × 100%`)}'>${Math.round(atk)}</b> 点热熔伤害，狼焰 +10。`
+        },
+        {
+          name: '共鸣技能 · 凶噬',
+          desc: `造成 <b class="tip-num" data-tip='${tip(`= 攻击 ${atk} × 180%`)}'>${skill}</b> 点热熔伤害，狼焰 +15。` +
+            (chain >= 6 ? ' <span style="color:var(--gold)">[6链] 命中额外回 100 狼焰（冷却 2 回合）。</span>' : '')
+        },
+        {
+          name: '重击 · 狼 / 锐',
+          desc: `造成 <b class="tip-num" data-tip='${tip(`= 攻击 ${atk} × 220%`)}'>${heavy}</b> 点热熔伤害，狼焰 +20。` +
+            (chain >= 2 ? ' <span style="color:var(--gold)">[2链] 放重击时全队热熔 +40%（4 回合）。</span>' : '')
+        },
+        {
+          name: '狼舞·决意·极',
+          desc: `狼焰满时技能替换。造成 <b class="tip-num" data-tip='${tip(`= 攻击 ${atk} × ${(langwuMult * 100).toFixed(0)}%（视为共鸣解放）`)}'>${langwu}</b> 点热熔伤害（视为共鸣解放），消耗全部狼焰。` +
+            (chain >= 4 ? ' <span style="color:var(--gold)">[4链] 倍率 +125%。</span>' : '') +
+            (chain >= 6 ? ' <span style="color:var(--gold)">[6链] 无视 30% 防御。</span>' : '')
+        },
+        {
+          name: '共鸣解放 · 荣光欢酣于火',
+          desc: `主目标 <b class="tip-num" data-tip='${tip(`= 攻击 ${atk} × 400%`)}'>${burstMain}</b> / 副目标 <b class="tip-num" data-tip='${tip(`= 攻击 ${atk} × 200%`)}'>${burstSide}</b> 热熔伤害。狼焰回满；激活追猎（全队热熔 +10%）与荣光（无视热熔抗性 ${chain >= 3 ? '15%' : '3%'}，4 回合）。` +
+            (chain >= 1 ? ' <span style="color:var(--gold)">[1链] 本次暴击 +20%。</span>' : '') +
+            (chain >= 2 ? ' <span style="color:var(--gold)">[2链] 全队热熔 +40%（4 回合）。</span>' : '') +
+            (chain >= 5 ? ' <span style="color:var(--gold)">[5链] 变奏后首次解放伤害 +15%。</span>' : '')
+        },
+        {
+          name: '变奏 · 你在看哪里？',
+          desc: chain >= 3
+            ? `造成 atk×160% 热熔伤害（3 链 +100%）。`
+            : `造成 atk×80% 热熔伤害。`
+        }
+      ];
+      return lines;
+    },
     forteName: '狼焰',
-    forteDesc: '露帕的核心资源 <b class="term-resource">狼焰</b>（0-100）：<br>· <b class="term-normal">普攻</b>+10，<b class="term-skill">凶噬</b>+15，<b class="term-heavy">重击</b>+20，<b class="term-burst">共鸣解放</b>全满。<br>· 满 100 进 <b class="term-resource">追猎</b>（全队热熔伤害 +10%），共鸣技能替换为<b class="term-heavy">狼舞·决意·极</b>。<br>· <b class="term-burst">共鸣解放</b>激活 <b class="term-resource">荣光</b>（全队无视热熔抗性，3 链后 15%），持续 4 回合。<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗奏</span><br>技能/重击攒狼焰 → 满 100 放狼舞·决意·极爆发 → 解放开荣光 → 切主C输出。'
+    forteDesc: '露帕的核心资源 <b class="term-resource">狼焰</b>（0-100）：<br>· <b class="term-normal">普攻</b>+10，<b class="term-skill">凶噬</b>+15，<b class="term-heavy">重击</b>+20，<b class="term-burst">共鸣解放</b>全满。<br>· 满 100 时共鸣技能替换为<b class="term-heavy">狼舞·决意·极</b>（atk×320% 热熔，视为共鸣解放伤害）。<br>· <b class="term-burst">共鸣解放</b>激活 <b class="term-resource">追猎</b>（全队热熔 +10%）与 <b class="term-resource">荣光</b>（全队无视热熔抗性，3 链 15%），持续 4 回合。<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>技能/重击攒狼焰，满 100 放狼舞·决意·极，解放开荣光，切主C。'
   },
 
   // 2.5 · 弗洛洛（主C 湮灭 音感仪 · HP 核）— 乐声·谱曲终末·定音·指挥状态·赫卡忒
@@ -909,17 +1162,19 @@ export const SKILL_HINTS = {
       const chain = role.chain || 0;
       const hp = stats.hp;
 
-      // HP 核倍率
-      const normalMult = 0.04 * (chain >= 1 ? 1.80 : 1);   // 普攻 HP×4%（1链+80%）
-      const skillMult  = 0.075 * (chain >= 1 ? 1.80 : 1);  // 技能 HP×7.5%（1链+80%）
+      // HP 核倍率（1 链 skillDmg 0.8 仅技能伤害 ×1.80，对普攻/重击无效）
+      const normalMult = 0.04;                              // 普攻 HP×4%
+      const skillMult  = 0.075 * (chain >= 1 ? 1.80 : 1);  // 技能 HP×7.5%（1链 ×1.80）
       const heavyMult  = 0.09;                              // 普通重击 HP×9%
-      // 谱曲终末:HP×20% × (1 + 余响层数×0.60[2链×1.05])，平滑无满层突跳
+      // 谱曲终末:HP×20% × (1 + 余响层数×0.60[2链×1.05]) × (1 + 0.80[3链 heavyDmg])
       // 展示满 24 层余响时的伤害数值
       const perLayer = chain >= 2 ? 1.05 : 0.60;
       const dirgeBase = 0.20 * (chain >= 2 ? 1.75 : 1);
-      const dirgeFull = dirgeBase * (1 + 24 * perLayer);
+      const dirgeHeavyBonus = chain >= 3 ? 1.80 : 1;  // 3 链 heavyDmg +80%
+      const dirgeFull = dirgeBase * (1 + 24 * perLayer) * dirgeHeavyBonus;
       const hecastAutoMult = 0.12;
       const hecastAugMult = 0.24 * (chain >= 6 ? 1.24 : 1);
+      const c6PhantomMult = 0.08;  // 6 链重世幻象 HP×8%
       const varMult = 0.033;
 
       const normalDmg = Math.round(hp * normalMult);
@@ -928,11 +1183,12 @@ export const SKILL_HINTS = {
       const dirgeDmg  = Math.round(hp * dirgeFull);
       const hecastAutoDmg = Math.round(hp * hecastAutoMult);
       const hecastAugDmg  = Math.round(hp * hecastAugMult);
+      const c6PhantomDmg  = Math.round(hp * c6PhantomMult);
       const varDmg    = Math.round(hp * varMult);
 
       const normalTip = tipAttr(
         `<b style="color:var(--gold)">普攻伤害公式（HP 核）</b><br>` +
-        `= 最大生命 <b>${hp}</b> × 4%${chain>=1?` × 1.80（1链）`:''} = <b style="color:var(--text)">${normalDmg}</b><br>` +
+        `= 最大生命 <b>${hp}</b> × 4% = <b style="color:var(--text)">${normalDmg}</b><br>` +
         `命中后 +1 乐声 +3 余响`
       );
       const skillTip = tipAttr(
@@ -948,8 +1204,8 @@ export const SKILL_HINTS = {
       const dirgeTip = tipAttr(
         `<b style="color:var(--gold)">谱曲终末伤害公式</b><br>` +
         `= 最大生命 <b>${hp}</b> × 20%${chain>=2?` × 1.75（2链）`:''}<br>` +
-        `× (1 + 24 层余响 × ${perLayer*100}%) × 3.0（满层）<br>` +
-        `= <b style="color:#ff6b9d">${dirgeDmg}</b><br>` +
+        `× (1 + 余响层数 × ${perLayer*100}%) · 满 24 层时 × ${(1 + 24 * perLayer).toFixed(1)}${chain>=3?` × 1.80（3链）`:''}<br>` +
+        `= <b style="color:#ff6b9d">${dirgeDmg}</b>（满余响时）<br>` +
         `消耗全部 6 枚乐声，进入定音状态`
       );
       const hecastTip = tipAttr(
@@ -969,7 +1225,7 @@ export const SKILL_HINTS = {
         {
           icon: '⚔', name: '普攻 · 生与死的乐章', cost: '1 AP',
           color: 'var(--text)',
-          desc: `对主目标造成 <span class="tip" data-tip='${normalTip}'><b style="color:var(--text)">${normalDmg}</b> 点</span><b class="term-normal">湮灭伤害</b>。命中后获得 1 枚<b class="term-resource">乐声</b>、3 层<b class="term-resource">余响</b>。${chain>=6?'<br><span style="color:var(--gold)">[6 链]</span> 施放时召唤赫卡忒施放重世幻象·赫卡忒追击，造成弗洛洛最大生命 8% 的湮灭伤害，并获得 8 层余响。':''}`
+          desc: `对主目标造成 <span class="tip" data-tip='${normalTip}'><b style="color:var(--text)">${normalDmg}</b> 点</span><b class="term-normal">湮灭伤害</b>。命中后获得 1 枚<b class="term-resource">乐声</b>、3 层<b class="term-resource">余响</b>。${chain>=6?'<br><span style="color:var(--gold)">[6 链]</span> 施放时召唤赫卡忒施放重世幻象·赫卡忒追击，造成弗洛洛最大生命 <b>8%</b>（<b>'+c6PhantomDmg+'</b>）的湮灭伤害，并获得 8 层余响。':''}`
         },
         {
           icon: '✦', name: '共鸣技能 · 稍纵即逝的梦呓', cost: '1 AP · CD 3 回合',
@@ -1005,42 +1261,109 @@ export const SKILL_HINTS = {
       element: '导电', hasHeavy: true,
       normalName: '逐狩 · 烁雷连斩',
       skillName: '斩锋 / 不败恒阳',
-      burstName: '誓锋不殃 / 赫日威临',
+      burstName: '誓锋不殒 / 赫日威临',
       heavyName: '鸣铁 / 烁雷',
       varName: '灼金的巡行',
       forteName: '众愿 / 威慑',
-      normalMech: '对主目标造成 HP×4.5% 导电伤害。积攒协奏与能量。',
-      skillMech: '对主目标造成 HP×8.1% 导电伤害。冕层≥1层时强化为不败恒阳，伤害提升至 HP×12.2%（×1.5）。获得1层冕层。',
-      heavyMech: '对主目标造成 HP×9.9% 导电重击伤害。冕层≥1层时强化为烁雷，伤害提升至 HP×14.9%（×1.5）。获得1层冕层。6链额外+2层并触发怒霆（HP×4.5%×2）。',
-      burstMech: '誓锋不殃：主目标 HP×18% / 副目标 HP×9% 导电重击伤害（不消耗威慑）。<br>赫日威临：消耗2层威慑，主目标 HP×36% / 副目标 HP×18%，进入俯首之刻2回合（不可切人），普攻替换为烈阳（HP×8.5%）。',
-      varMech: '切换入场时触发，对主目标造成 HP×8.5% 导电伤害。获得1层冕层。',
-      skillFollowUp: '1 链：冕层上限+1，冕层提供爆伤+15%。<br>2 链：溢出暴击转爆伤。<br>6 链：冕层上限+2（共4层），烁雷额外+2层并触发怒霆。'
+      normalMech: '对主目标造成 HP×4.5% 导电伤害。积攒协奏与能量。赫日威临窗口内替换为烈阳（HP×8.5%，重击伤害）。',
+      skillMech: '对主目标造成 HP×8.1% 导电伤害。冕层≥1 时强化为不败恒阳（×1.5，HP×12.2%；3 链再 ×1.25）。1 链起命中 +1 冕层。',
+      heavyMech: '对主目标造成 HP×9.9% 导电重击伤害。冕层≥1 时强化为烁雷（×1.5，HP×14.9%；3 链再 ×1.25）。1 链起命中 +1 冕层；6 链再 +2 冕层并触发怒霆（HP×4.5%×2）。',
+      burstMech: '誓锋不殒：主目标 HP×18% / 副目标 HP×9%（耗能量，不耗威慑）。<br>赫日威临：威慑≥2 时替换，耗 2 威慑不耗能量；主 HP×36% / 副 HP×18%（3 链 ×1.25），进入俯首之刻 2 回合（不可切人），普攻变为烈阳；窗口结束冕层与威慑清零。',
+      varMech: '切换入场时对主目标造成 HP×3.6% 导电伤害。1 链起 +1 冕层；4 链全队攻击 +20%（2 回合）。',
+      skillFollowUp: '1 链：冕层上限 2，每层暴伤 +15%，变奏/技能/重击叠冕层。<br>2 链：每层暴击 +20%。<br>3 链：技能/重击/烈阳/赫日威临倍率 +25%。<br>4 链：变奏后全队攻击 +20%（2 回合）。<br>5 链：减伤 30%。<br>6 链：冕层上限 4；烁雷额外 +2 冕层并怒霆。'
     }),
     forteName: '以众愿为冕 / 威慑',
-    forteDesc: '<span style="color:var(--gold);font-size:11px">▸ 共鸣回路 · 以众愿为冕 / 威慑</span><br>· <b class="term-resource">以众愿为冕</b>（层数型）：上限1层（C0）/2层（C1）/4层（C6）。每层导电伤害+15%。<br>· <b class="term-resource">威慑</b>（阈值型·2层上限）：非战斗开始补至1层。消耗2层将解放替换为赫日威临。<br>· <b class="term-state">俯首之刻</b>（爆发窗口2回合）：不可切人，普攻替换为<b class="term-heavy">烈阳</b>（HP×8.5%）。窗口内可施放<b class="term-heavy">不朽者之肃</b>终结窗口。'
+    forteDesc: '<span style="color:var(--gold);font-size:11px">▸ 共鸣回路 · 以众愿为冕 / 威慑</span><br>· <b class="term-resource">以众愿为冕</b>：上限 1（C0）/ 2（C1）/ 4（C6）。每层全元素伤害 +15%；1 链每层暴伤 +15%；2 链每层暴击 +20%。来源：延奏 +1、1 链起变奏/技能/重击 +1（6 链重击再 +2）。<br>· <b class="term-resource">威慑</b>（上限 2）：战斗开始补至 1；延奏离场 +1。满 2 层将解放替换为赫日威临（耗 2 威慑）。<br>· <b class="term-state">俯首之刻</b>（2 回合）：不可切人，普攻替换为<b class="term-heavy">烈阳</b>（HP×8.5%）。窗口结束冕层与威慑清零。'
   },
 
   // 2.6 · 尤诺（主C 气动 臂铠）— 月相流转·满月领域
+  // 重击为满月终结 atk×400%/C6×2000%，不可走工厂 220% 通用重击
   '尤诺': {
     intro: '气动 · 臂铠 · 主C · 「月相流转·满月领域」',
     hasHeavy: true,
-    customLines: makeSkillLines({
-      element: '气动', hasHeavy: true,
-      normalName: '祭者独步',
-      skillName: '告终的喧响 / 越限的弦引',
-      burstName: '溺失月海',
-      heavyName: '至臻的完满',
-      varName: '照我以显',
-      forteName: '灵性',
-      normalMech: '对主目标造成 <b>atk×100%</b> 气动伤害。灵性+12（月相流转中+20）。',
-      skillMech: '告终的喧响：非月相流转时可用。对主目标造成 <b>atk×180%</b> 气动伤害（共鸣技能类型），进入月相流转。灵性+25。<br>越限的弦引：月相流转时替换。对主目标造成 <b>atk×180%</b> 气动伤害（视为共鸣解放伤害）。灵性+25。2次充能。',
-      heavyMech: '仅满月领域内可用。对主目标造成 <b>atk×400%</b> 气动重击伤害。6链：倍率+1600%（变2000%），施放后重置新月状态+满灵性+重置越限充能。',
-      burstMech: '对主目标造成 <b>atk×400%</b> / 副目标 <b>atk×200%</b> 气动伤害。进入月相流转状态。灵性+40。',
-      varMech: '切换入场时触发，对主目标造成 <b>atk×80%</b> 气动伤害。灵性+15。',
-      skillFollowUp: '1 链：月相流转中攻击 +40%。<br>2 链：变奏/解放后全队全伤害加深20%。<br>6 链：至臻完满倍率+1600%，施放后重置月相流转。'
-    }),
+    customLines: (stats, role) => {
+      const tipAttr = s => s.replace(/&/g, '&amp;').replace(/'/g, '&#39;');
+      const chain = role.chain || 0;
+      const atk = stats.atk || 450;
+      const normalDmg = Math.round(atk * 1.0);
+      const skillDmg = Math.round(atk * 1.8);
+      const heavyBase = Math.round(atk * 4.0);
+      const heavyC6 = Math.round(atk * 20.0);
+      const heavyShown = chain >= 6 ? heavyC6 : heavyBase;
+      const burstMain = Math.round(atk * 4.0);
+      const burstSide = Math.round(atk * 2.0);
+      const burstBonus = chain >= 5 ? 0.2 : 0;
+      const finalBurstMain = Math.round(burstMain * (1 + burstBonus));
+      const finalBurstSide = Math.round(burstSide * (1 + burstBonus));
+      const varDmg = Math.round(atk * 0.8);
+
+      const normalTip = tipAttr(
+        `<b style="color:var(--gold)">普攻伤害公式</b><br>` +
+        `= 攻击 <b>${atk}</b> × 100% = <b style="color:var(--text)">${normalDmg}</b>`
+      );
+      const skillTip = tipAttr(
+        `<b style="color:var(--gold)">共鸣技能伤害公式</b><br>` +
+        `= 攻击 <b>${atk}</b> × 180% = <b style="color:var(--accent)">${skillDmg}</b><br>` +
+        `月相流转中：<b class="term-skill">越限的弦引</b>按共鸣解放伤害类型结算`
+      );
+      const heavyTip = tipAttr(
+        `<b style="color:var(--gold)">重击·至臻的完满公式</b><br>` +
+        `· 基础：攻击 <b>${atk}</b> × 400% = <b style="color:#ff8c5e">${heavyBase}</b><br>` +
+        (chain >= 6
+          ? `· 6 链 +1600%：攻击 <b>${atk}</b> × 2000% = <b style="color:#ff8c5e">${heavyC6}</b>`
+          : `· 6 链：倍率 +1600%（变 2000%）`)
+      );
+      const burstTip = tipAttr(
+        `<b style="color:var(--gold)">共鸣解放伤害公式</b><br>` +
+        `· 主目标：攻击 <b>${atk}</b> × 400%${burstBonus ? ` × (1 + 解放加成 20%)` : ''} = <b style="color:var(--gold)">${finalBurstMain}</b><br>` +
+        `· 副目标：攻击 <b>${atk}</b> × 200%${burstBonus ? ` × (1 + 解放加成 20%)` : ''} = <b style="color:var(--gold)">${finalBurstSide}</b>`
+      );
+      const varTip = tipAttr(
+        `<b style="color:var(--gold)">变奏伤害公式</b><br>` +
+        `= 攻击 <b>${atk}</b> × 80% = <b>${varDmg}</b>`
+      );
+
+      const parts = [];
+      if (chain >= 1) parts.push(`<span style="color:var(--gold)">[1链]</span> 月相流转中攻击 +40%`);
+      if (chain >= 2) parts.push(`<span style="color:var(--gold)">[2链]</span> 变奏/解放后全队全伤害加深 +40%（2 回合）`);
+      if (chain >= 3) parts.push(`<span style="color:var(--gold)">[3链]</span> 月相流转中全伤害 +65%`);
+      if (chain >= 4) parts.push(`<span style="color:var(--gold)">[4链]</span> 至臻完满后全队攻击 +10%（3 回合）`);
+      if (chain >= 5) parts.push(`<span style="color:var(--gold)">[5链]</span> 共鸣解放伤害 +20%`);
+      if (chain >= 6) parts.push(`<span style="color:var(--gold)">[6链]</span> 至臻完满 ×2000%，施放后重置月相流转 + 满灵性 + 技能 CD`);
+      const chainHints = parts.length
+        ? '<br><span style="color:var(--muted);font-size:10px">·</span> ' + parts.join('<br><span style="color:var(--muted);font-size:10px">·</span> ')
+        : '';
+
+      return [
+        {
+          icon: '\u2694', name: '普攻 · 祭者独步', cost: '1 AP',
+          color: 'var(--text)',
+          desc: `对目标造成 <span class="tip" data-tip='${normalTip}'><b style="color:var(--text)">${normalDmg}</b> 点</span><b class="term-normal">气动伤害</b>。<br><b class="term-resource">灵性</b> +<b>12</b>（<b class="term-state">月相流转</b>中 +<b>20</b>）。`
+        },
+        {
+          icon: '\u2726', name: '共鸣技能 · 告终的喧响 / 越限的弦引', cost: '1 AP · 冷却 3 回合',
+          color: 'var(--accent)',
+          desc: `· <b class="term-skill">告终的喧响</b>（非月相）：造成 <span class="tip" data-tip='${skillTip}'><b style="color:var(--accent)">${skillDmg}</b> 点</span><b class="term-skill">气动伤害</b>，进入<b class="term-state">月相流转</b>。<br>· <b class="term-skill">越限的弦引</b>（月相中）：同倍率，视为共鸣解放伤害。<br><b class="term-resource">灵性</b> +<b>25</b>。${chainHints}`
+        },
+        {
+          icon: '\u2600', name: '重击 · 至臻的完满', cost: '2 AP · 冷却 1 回合',
+          color: '#ff8c5e',
+          desc: `仅<b class="term-resource">满月领域</b>内可用。对目标造成 <span class="tip" data-tip='${heavyTip}'><b style="color:#ff8c5e">${heavyShown}</b> 点</span><b class="term-heavy">气动伤害</b>（atk×${chain >= 6 ? '2000' : '400'}%）。施放后退出月相并清空灵性。`
+        },
+        {
+          icon: '\u2605', name: '共鸣解放 · 溺失月海', cost: '3 AP · 满能量',
+          color: 'var(--gold)',
+          desc: `主目标 <span class="tip" data-tip='${burstTip}'><b style="color:var(--gold)">${finalBurstMain}</b> 点</span> / 副目标 <b>${finalBurstSide}</b> 点气动伤害。进入<b class="term-state">月相流转</b>。<b class="term-resource">灵性</b> +<b>40</b>。`
+        },
+        {
+          icon: '\u21c4', name: '变奏 · 照我以显', cost: '0 AP · 切人',
+          color: 'var(--muted)',
+          desc: `切人入场时对目标造成 <span class="tip" data-tip='${varTip}'><b>${varDmg}</b> 点</span>气动伤害。<b class="term-resource">灵性</b> +<b>15</b>。`
+        }
+      ];
+    },
     forteName: '灵性',
-    forteDesc: '<span style="color:var(--gold);font-size:11px">▸ 共鸣回路 · 于盈亏间涨落</span><br>· <b class="term-resource">灵性</b>（0-100）：普攻+12（月相流转中+20）、技能+25、变奏+15、解放+40。满100进入<b class="term-state">月相流转</b>，展开<b class="term-resource">满月领域</b>3回合。<br>· <b class="term-state">月相流转</b>（3回合）：攻击力+20%（1链+40%）。解锁<b class="term-heavy">至臻的完满</b>。<br>· <b class="term-resource">满月领域</b>（3回合）：灵性满时自动展开，内解锁至臻的完满。'
+    forteDesc: '<span style="color:var(--gold);font-size:11px">▸ 共鸣回路 · 于盈亏间涨落</span><br>· <b class="term-resource">灵性</b>（0-100）：普攻+12（月相流转中+20）、技能+25、变奏+15、解放+40。满100进入<b class="term-state">月相流转</b>并展开<b class="term-resource">满月领域</b>3回合。<br>· <b class="term-state">月相流转</b>（3回合）：攻击力+20%（1链+40%）；技能替换为越限的弦引。<br>· <b class="term-resource">满月领域</b>（3回合）：解锁<b class="term-heavy">至臻的完满</b>（atk×400%，6链×2000%）。'
   },
 
   // 2.7 · 仇（主C 气动 迅刀）— 漓醉墨·答剑连爆发
@@ -1104,7 +1427,7 @@ export const SKILL_HINTS = {
       let chainHints = '';
       const parts = [];
       if (chain >= 1) parts.push(`<span style="color:var(--gold)">[1链]</span> 暴击 +20%`);
-      if (chain >= 2) parts.push(`<span style="color:var(--gold)">[2链]</span> <b class="term-resource">竹照</b>全属性伤害 +30% → +60%`);
+      if (chain >= 2) parts.push(`<span style="color:var(--gold)">[2链]</span> <b class="term-resource">竹照</b>全属性伤害由 +30% 提升至 +60%`);
       if (chain >= 3) parts.push(`<span style="color:var(--gold)">[3链]</span> 解放 +500%；协奏满时技能替换为<b class="term-resource">荷蓑出林</b>（atk×500% 气动，直接满挑灯问剑进入淋漓醉墨）；下次答剑三连 +600%；延奏替换为<b class="term-resource">新筠坠箨</b>`);
       if (chain >= 4) parts.push(`<span style="color:var(--gold)">[4链]</span> 攻击 +20%`);
       if (chain >= 5) parts.push(`<span style="color:var(--gold)">[5链]</span> 无视目标 15% 防御`);
@@ -1125,12 +1448,12 @@ export const SKILL_HINTS = {
         {
           icon: '\u2728', name: '重击 · 答剑三连（淋漓醉墨中）', cost: '2 AP · 冷却 1 回合',
           color: '#ff8c5e',
-          desc: `仅在<b class="term-resource">淋醉墨</b>状态中可用。三段合并结算：<span class="tip" data-tip='${heavyTip}'><b style="color:#ff8c5e">${heavyBase}</b> 点</span><b class="term-heavy">气动伤害</b>，消耗全部<b class="term-resource">挑灯问剑</b>。<br>· <b class="term-resource">且从容</b> ×1.5：<b style="color:#ff8c5e">${heavyCalm}</b>${c3Active?`<br>· C3 +600%（×7）：<b style="color:#ff8c5e">${heavyC3}</b> / +且从容：<b style="color:#ff8c5e">${heavyCalmC3}</b>`:''}<br>· 忠烈死节回复 <b>30</b> 协奏。<br>· 退出淋漓醉墨。<br>· <b class="term-resource">竹照</b>全队全属性伤害 +30%（3 回合）。`
+          desc: `仅在<b class="term-resource">淋漓醉墨</b>状态中可用。三段合并结算：<span class="tip" data-tip='${heavyTip}'><b style="color:#ff8c5e">${heavyBase}</b> 点</span><b class="term-heavy">气动伤害</b>，消耗全部<b class="term-resource">挑灯问剑</b>。<br>· <b class="term-resource">且从容</b> ×1.5：<b style="color:#ff8c5e">${heavyCalm}</b>${c3Active?`<br>· C3 +600%（×7）：<b style="color:#ff8c5e">${heavyC3}</b> / +且从容：<b style="color:#ff8c5e">${heavyCalmC3}</b>`:''}<br>· 忠烈死节回复 <b>30</b> 协奏。<br>· 退出淋漓醉墨。<br>· <b class="term-resource">竹照</b>全队全属性伤害 +30%（3 回合）。`
         },
         {
-          icon: '\u26A1', name: '共鸣解放 · 万钧一断', cost: '3 AP · 需共能量满 ${stats.maxEnergy || 125}',
+          icon: '\u26A1', name: '共鸣解放 · 万钧一断', cost: `3 AP · 需共鸣能量满 ${stats.maxEnergy || 125}`,
           color: 'var(--gold)',
-          desc: `对主目标造成 <span class="tip" data-tip='${burstTip}'><b style="color:var(--gold)">${burstMain}</b> 点</span>、副目标 <span class="tip" data-tip='${burstTip}'><b style="color:var(--gold)">${burstSide}</b> 点</span><b class="term-burst">气动伤害</b>${c3Active?`（C3 +500%：主 <b style="color:#ff8c5e">${c3BurstMain}</b>）`:''}。<br>· 暴击 >50% 时，每 1% 超出暴击 → 登场角色 <b>+2%</b> 暴伤（上限 30%，3 回合）。<br>· <b class="term-resource">挑灯问剑</b> +<b>40</b>。${chainHints}`
+          desc: `对主目标造成 <span class="tip" data-tip='${burstTip}'><b style="color:var(--gold)">${burstMain}</b> 点</span>、副目标 <span class="tip" data-tip='${burstTip}'><b style="color:var(--gold)">${burstSide}</b> 点</span><b class="term-burst">气动伤害</b>${c3Active?`（C3 +500%：主 <b style="color:#ff8c5e">${c3BurstMain}</b>）`:''}。<br>· 暴击 >50% 时，每 1% 超出暴击使登场角色 <b>+2%</b> 暴伤（上限 30%，3 回合）。<br>· <b class="term-resource">挑灯问剑</b> +<b>40</b>。${chainHints}`
         },
         {
           icon: '\u266C', name: '变奏 · 攻其必救', cost: '切换上场时触发',
@@ -1140,7 +1463,7 @@ export const SKILL_HINTS = {
       ];
     },
     forteName: '挑灯问剑',
-    forteDesc: '<b class="term-resource">挑灯问剑</b>（0-100）由普攻+<b>10</b> / 共鸣技能+<b>25</b> / 共鸣解放+<b>40</b> / 变奏+<b>5</b> 积累。<br>满值时进入<b class="term-resource">淋漓醉墨</b>状态 2 回合：<b class="term-resource">重击</b>替换为<b class="term-resource">答剑三连</b>（atk×550% 气动。<br>首次进触发<b class="term-resource">且从容</b>（答剑三连×1.5，每场 1 次）。<br>进时触发<b class="term-resource">竹照</b>：全队全属性伤害+30%（3 回合）。<br>非当前角色时每回合-5。<br><br><span style="color:var(--gold);font-size:10px">\u25B8 推荐战斗节奏</span><br>普攻/能攒挑灯问剑 → 淋漓醉墨 → 且从容×1.5答剑三连爆发 → 退出后继续攒。'
+    forteDesc: '<b class="term-resource">挑灯问剑</b>（0-100）由普攻+<b>10</b> / 共鸣技能+<b>25</b> / 共鸣解放+<b>40</b> / 变奏+<b>5</b> 积累。<br>满值时进入<b class="term-resource">淋漓醉墨</b>状态 2 回合：<b class="term-resource">重击</b>替换为<b class="term-resource">答剑三连</b>（atk×550% 气动）。<br>首次进入触发<b class="term-resource">且从容</b>（答剑三连×1.5，每场 1 次）。<br>进入时触发<b class="term-resource">竹照</b>：全队全属性伤害+30%（3 回合）。<br>非当前角色时每回合-5。<br><br><span style="color:var(--gold);font-size:10px">\u25B8 推荐战斗节奏</span><br>普攻/技能攒挑灯问剑，进入淋漓醉墨，且从容×1.5答剑三连爆发，退出后继续攒。'
   },
 
 
@@ -1155,105 +1478,111 @@ export const SKILL_HINTS = {
 
       const normalMult = 0.041;
       const skillMult  = 0.073;
-      const sawSlashCombined = 0.053 * 3;
+      const sawSlashCombined = 0.053 * 3; // 15.9%
       const sawFinishMult = 0.122;
       const burstMainMult = 0.163 * (chain >= 5 ? 2 : 1);
       const burstSideMult = 0.081 * (chain >= 5 ? 2 : 1);
       const varMult = 0.033;
       const chiguiMult = 0.073;
 
-      const sawBonusMult = 1 + 1.20 + (chain >= 3 ? 1.20 : 0);
+      // 展示：基础倍率；万缕·汇终 / 链3 写在 follow-up，不默认乘进主数字
+      const wanlvMult = 1 + 1.20;
+      const c3Mult = chain >= 3 ? (1 + 1.20 + 1.20) : wanlvMult;
 
       const normalDmg    = Math.round(hp * normalMult);
       const skillDmg     = Math.round(hp * skillMult);
       const chiguiDmg    = Math.round(hp * chiguiMult);
-      const sawSlashDmg  = Math.round(hp * sawSlashCombined * sawBonusMult);
-      const sawFinishDmg = Math.round(hp * sawFinishMult * sawBonusMult);
+      const sawSlashBase = Math.round(hp * sawSlashCombined);
+      const sawFinishBase = Math.round(hp * sawFinishMult);
+      const sawSlashWanlv = Math.round(hp * sawSlashCombined * wanlvMult);
+      const sawFinishWanlv = Math.round(hp * sawFinishMult * wanlvMult);
+      const sawSlashC3 = Math.round(hp * sawSlashCombined * c3Mult);
+      const sawFinishC3 = Math.round(hp * sawFinishMult * c3Mult);
       const burstMainDmg = Math.round(hp * burstMainMult);
       const burstSideDmg = Math.round(hp * burstSideMult);
       const varDmg       = Math.round(hp * varMult);
 
       const normalTip = tipAttr(
-        '<b style="color:var(--gold)">\u666e\u653b\u4f24\u5bb3\u516c\u5f0f(HP \u6838)</b><br>' +
-        '= \u6700\u5927\u751f\u547d <b>' + hp + '</b> \u00d7 4.1% = <b style="color:var(--text)">' + normalDmg + '</b>'
+        '<b style="color:var(--gold)">普攻·俱寂伤害公式(HP 核)</b><br>' +
+        '= 最大生命 <b>' + hp + '</b> × 4.1% = <b style="color:var(--text)">' + normalDmg + '</b>'
       );
       const skillTip = tipAttr(
-        '<b style="color:var(--gold)">\u5171\u9e23\u6280\u80fd\u00b7\u547d\u5f26\u7565\u884c\u4f24\u5bb3\u516c\u5f0f</b><br>' +
-        '= \u6700\u5927\u751f\u547d <b>' + hp + '</b> \u00d7 7.3% = <b style="color:var(--accent)">' + skillDmg + '</b><br>' +
-        '\u547d\u4e2d\u540e <b class="term-resource">\u952f\u73af\u6b8b\u54cd</b> +25\uff0c\u9644\u52a0<b class="term-resource">\u865a\u65e0\u7ede\u75d5</b>'
+        '<b style="color:var(--gold)">共鸣技能·碎面构图伤害公式</b><br>' +
+        '= 最大生命 <b>' + hp + '</b> × 7.3% = <b style="color:var(--accent)">' + skillDmg + '</b><br>' +
+        '命中后 <b class="term-resource">锯环残响</b> +25，附加<b class="term-resource">虚无绞痕</b>'
       );
       const chiguiTip = tipAttr(
-        '<b style="color:var(--gold)">\u9f7f\u8f68\u8f6e\u56de\u4f24\u5bb3\u516c\u5f0f</b><br>' +
-        '= \u6700\u5927\u751f\u547d <b>' + hp + '</b> \u00d7 7.3% = <b style="color:var(--accent)">' + chiguiDmg + '</b><br>' +
-        '\u6d88\u8017\u5168\u90e8\u6b8b\u54cd\uff0c\u8fdb\u5165<b class="term-state">\u7535\u952f\u6a21\u5f0f</b> 3 \u56de\u5408\uff0c\u9644\u52a0\u865a\u65e0\u7ede\u75d5'
+        '<b style="color:var(--gold)">齿轨轮回伤害公式</b><br>' +
+        '= 最大生命 <b>' + hp + '</b> × 7.3% = <b style="color:var(--accent)">' + chiguiDmg + '</b><br>' +
+        '消耗全部残响，进入<b class="term-state">电锯模式</b> 3 回合，附加虚无绞痕'
       );
       const sawSlashTip = tipAttr(
-        '<b style="color:var(--gold)">\u952f\u73af\u00b7\u75be\u653b\u4f24\u5bb3\u516c\u5f0f(\u7535\u952f\u6a21\u5f0f\u666e\u653b)</b><br>' +
-        '= \u6700\u5927\u751f\u547d <b>' + hp + '</b> \u00d7 5.3% \u00d7 3 \u6bb5 = HP\u00d715.9%<br>' +
-        '\u00d7 ' + sawBonusMult.toFixed(2) + ' (\u4e07\u7f2a\u6c47\u7ec8+120%' + (chain >= 3 ? ' + \u94fe3+120%' : '') + ')<br>' +
-        '= <b style="color:var(--text)">' + sawSlashDmg + '</b><br>' +
-        '\u6bcf\u6bb5+12 \u6b8b\u54cd\uff0c\u4e09\u6bb5+36<br>' +
-        '\u4e07\u7f2a\u00b7\u6c47\u7ec8\u671f\u95f4: <b style="color:#ff6b9d">' + sawSlashDmg + '</b>'
+        '<b style="color:var(--gold)">锯环·疾攻伤害公式(电锯模式普攻)</b><br>' +
+        '= 最大生命 <b>' + hp + '</b> × 5.3% × 3 段 = HP×15.9%<br>' +
+        '基础: <b style="color:var(--text)">' + sawSlashBase + '</b><br>' +
+        '万缕·汇终(+120%): <b style="color:#ff6b9d">' + sawSlashWanlv + '</b>' +
+        (chain >= 3 ? '<br>万缕+链3(+240%): <b style="color:var(--gold)">' + sawSlashC3 + '</b>' : '') +
+        '<br>每段+12 残响，三段+36'
       );
       const sawFinishTip = tipAttr(
-        '<b style="color:var(--gold)">\u952f\u73af\u00b7\u7ec8\u7ed3\u4f24\u5bb3\u516c\u5f0f(\u7535\u952f\u6a21\u5f0f\u7ec8\u7ed3\u6280)</b><br>' +
-        '= \u6700\u5927\u751f\u547d <b>' + hp + '</b> \u00d7 12.2%<br>' +
-        '\u00d7 ' + sawBonusMult.toFixed(2) + ' (\u4e07\u7f2a\u6c47\u7ec8+120%' + (chain >= 3 ? ' + \u94fe3+120%' : '') + ')<br>' +
-        '= <b style="color:#ff8c5e">' + sawFinishDmg + '</b><br>' +
-        '\u6d88\u8017\u5168\u90e8\u6b8b\u54cd\uff0c\u9000\u51fa\u7535\u952f\u6a21\u5f0f<br>' +
-        '\u4e07\u7f2a\u00b7\u6c47\u7ec8\u671f\u95f4: <b style="color:#ff6b9d">' + sawFinishDmg + '</b>'
+        '<b style="color:var(--gold)">锯环·终结伤害公式</b><br>' +
+        '= 最大生命 <b>' + hp + '</b> × 12.2%<br>' +
+        '基础: <b style="color:#ff8c5e">' + sawFinishBase + '</b><br>' +
+        '万缕·汇终(+120%): <b style="color:#ff6b9d">' + sawFinishWanlv + '</b>' +
+        (chain >= 3 ? '<br>万缕+链3(+240%): <b style="color:var(--gold)">' + sawFinishC3 + '</b>' : '') +
+        '<br>消耗全部残响，退出电锯模式'
       );
       const burstTip = tipAttr(
-        '<b style="color:var(--gold)">\u5171\u9e23\u89e3\u653e\u00b7\u5373\u523b\u00b7\u5f52\u65e0\u4f24\u5bb3\u516c\u5f0f(HP \u6838)</b><br>' +
-        '= \u6700\u5927\u751f\u547d <b>' + hp + '</b> \u00d7 16.3%' +
-        (chain >= 5 ? ' \u00d7 2(5\u94fe+100%)' : '') +
-        '<br>= \u4e3b\u76ee\u6807: <b style="color:var(--gold)">' + burstMainDmg + '</b><br>' +
-        '\u526f\u76ee\u6807: <b style="color:var(--text)">' + burstSideDmg + '</b><br>' +
-        '\u65bd\u653e\u540e\u8fdb\u5165<b class="term-resource">\u4e07\u7f2a\u00b7\u6c47\u7ec8</b> 2 \u56de\u5408\uff0c\u5168\u961f\u56de\u8840 HP\u00d75%'
+        '<b style="color:var(--gold)">共鸣解放·即刻·归无伤害公式(HP 核)</b><br>' +
+        '= 最大生命 <b>' + hp + '</b> × 16.3%' +
+        (chain >= 5 ? ' × 2(5链+100%)' : '') +
+        '<br>= 主目标: <b style="color:var(--gold)">' + burstMainDmg + '</b><br>' +
+        '副目标: <b style="color:var(--text)">' + burstSideDmg + '</b><br>' +
+        '施放后进入<b class="term-resource">万缕·汇终</b> 2 回合，全队回血 HP×5%'
       );
       const varTip = tipAttr(
-        '<b style="color:var(--gold)">\u53d8\u594f\u4f24\u5bb3\u516c\u5f0f(HP \u6838)</b><br>' +
-        '= \u6700\u5927\u751f\u547d <b>' + hp + '</b> \u00d7 3.3% = <b style="color:var(--accent)">' + varDmg + '</b>'
+        '<b style="color:var(--gold)">变奏·鸣响·再临伤害公式(HP 核)</b><br>' +
+        '= 最大生命 <b>' + hp + '</b> × 3.3% = <b style="color:var(--accent)">' + varDmg + '</b>'
       );
 
       return [
         {
-          icon: '\u2694', name: '\u666e\u653b \u00b7 \u547d\u5f26\u00b7\u7565\u884c / \u952f\u73af\u7cfb\u5217', cost: '1 AP',
+          icon: '⚔', name: '普攻 · 俱寂 / 锯环系列', cost: '1 AP',
           color: 'var(--text)',
-          desc: '\u975e<b class="term-state">\u7535\u952f\u6a21\u5f0f</b>\u65f6\u5bf9\u4e3b\u76ee\u6807\u9020\u6210 <span class="tip" data-tip="' + normalTip + '"><b style="color:var(--text)">' + normalDmg + '</b> \u70b9</span><b class="term-normal">\u6e6e\u706d\u4f24\u5bb3</b>\uff0c<b class="term-resource">\u952f\u73af\u6b8b\u54cd</b> +10\u3002' +
-          '\u7535\u952f\u6a21\u5f0f\u4e0b\u66ff\u6362\u4e3a\u952f\u73af\u7cfb\u5217\uff1a<br>' +
-          '\u2022 <b class="term-heavy">\u952f\u73af\u00b7\u75be\u653b</b> <span class="tip" data-tip="' + sawSlashTip + '"><b style="color:var(--text)">' + sawSlashDmg + '</b> \u70b9</span>(3\u6bb5\u5408\u5e76)\u6b8b\u54cd+36<br>' +
-          '\u2022 \u6b8b\u54cd\u6ee1\u65f6\u66ff\u6362\u4e3a<b class="term-heavy">\u952f\u73af\u00b7\u7ec8\u7ed3</b> <span class="tip" data-tip="' + sawFinishTip + '"><b style="color:#ff8c5e">' + sawFinishDmg + '</b> \u70b9</span>\uff0c\u6d88\u8017\u5168\u90e8\u6b8b\u54cd\u9000\u51fa\u7535\u952f\u6a21\u5f0f'
+          desc: '非<b class="term-state">电锯模式</b>时对主目标造成 <span class="tip" data-tip="' + normalTip + '"><b style="color:var(--text)">' + normalDmg + '</b> 点</span><b class="term-normal">湮灭伤害</b>，<b class="term-resource">锯环残响</b> +10。' +
+          '电锯模式下替换为锯环系列：<br>' +
+          '• <b class="term-heavy">锯环·疾攻</b> <span class="tip" data-tip="' + sawSlashTip + '"><b style="color:var(--text)">' + sawSlashBase + '</b> 点</span>(3段合并)残响+36<br>' +
+          '• 残响满时替换为<b class="term-heavy">锯环·终结</b> <span class="tip" data-tip="' + sawFinishTip + '"><b style="color:#ff8c5e">' + sawFinishBase + '</b> 点</span>，消耗全部残响退出电锯模式'
         },
         {
-          icon: '\u2726', name: '\u5171\u9e23\u6280\u80fd \u00b7 \u547d\u5f26\u00b7\u7565\u884c', cost: '1 AP \u00b7 CD 3 \u56de\u5408',
+          icon: '✦', name: '共鸣技能 · 碎面构图', cost: '1 AP · CD 3 回合',
           color: 'var(--accent)',
-          desc: '\u975e\u7535\u952f\u6a21\u5f0f\u4e0b\u5bf9\u4e3b\u76ee\u6807\u9020\u6210 <span class="tip" data-tip="' + skillTip + '"><b style="color:var(--accent)">' + skillDmg + '</b> \u70b9</span><b class="term-skill">\u6e6e\u706d\u4f24\u5bb3</b>\u3002<b class="term-resource">\u952f\u73af\u6b8b\u54cd</b> +25\u3002\u9644\u52a0<b class="term-resource">\u865a\u65e0\u7ede\u75d5</b>\u3002' +
-          '\u6b8b\u54cd\u6ee1 100 \u65f6\u66ff\u6362\u4e3a<span class="tip" data-tip="' + chiguiTip + '"><b style="color:var(--accent)">\u9f7f\u8f68\u8f6e\u56de</b></span>\uff1a\u6d88\u8017\u5168\u90e8\u6b8b\u54cd\uff0c\u8fdb\u5165\u7535\u952f\u6a21\u5f0f 3 \u56de\u5408\u3002' +
-          (chain >= 1 ? '<br><span style="color:var(--gold)">[1 \u94fe]</span> \u9644\u52a0\u865a\u65e0\u7ede\u75d5\u65f6\u653b\u51fb +30%(2 \u56de\u5408)\u3002' : '') +
-          (chain >= 2 ? '<br><span style="color:var(--gold)">[2 \u94fe]</span> <b class="term-resource">\u865a\u6e6e\u4e4b\u7ebf</b>\uff1a\u5168\u961f\u5168\u5c5e\u6027\u4f24\u5bb3 +50%\u3002' : '')
+          desc: '非电锯模式下对主目标造成 <span class="tip" data-tip="' + skillTip + '"><b style="color:var(--accent)">' + skillDmg + '</b> 点</span><b class="term-skill">湮灭伤害</b>。<b class="term-resource">锯环残响</b> +25。附加<b class="term-resource">虚无绞痕</b>。' +
+          '残响满 100 时替换为<span class="tip" data-tip="' + chiguiTip + '"><b style="color:var(--accent)">齿轨轮回</b></span>：消耗全部残响，进入电锯模式 3 回合。' +
+          (chain >= 1 ? '<br><span style="color:var(--gold)">[1 链]</span> 附加虚无绞痕时攻击 +30%(2 回合)。' : '') +
+          (chain >= 2 ? '<br><span style="color:var(--gold)">[2 链]</span> <b class="term-resource">虚湮之线</b>：全队全属性伤害 +50%。' : '')
         },
         {
-          icon: '\u26a1', name: '\u5171\u9e23\u89e3\u653e \u00b7 \u5373\u523b\u00b7\u5f52\u65e0', cost: '3 AP \u00b7 \u9700\u80fd\u91cf\u6ee1',
+          icon: '⚡', name: '共鸣解放 · 即刻·归无', cost: '3 AP · 需能量满',
           color: 'var(--gold)',
-          desc: '\u5bf9\u4e3b\u76ee\u6807\u9020\u6210 <span class="tip" data-tip="' + burstTip + '"><b style="color:var(--gold)">' + burstMainDmg + '</b> \u70b9</span>\uff0c\u5bf9\u526f\u76ee\u6807\u9020\u6210 <b style="color:var(--text)">' + burstSideDmg + '</b> \u70b9<b class="term-burst">\u6e6e\u706d\u4f24\u5bb3</b>\u3002<br>\u65bd\u653e\u540e\u8fdb\u5165<b class="term-resource">\u4e07\u7f2a\u00b7\u6c47\u7ec8</b> 2 \u56de\u5408\uff1a<b class="term-heavy">\u952f\u73af\u00b7\u75be\u653b</b>/<b class="term-heavy">\u7ec8\u7ed3</b>\u500d\u7387 +120%\uff0c\u5168\u961f\u56de\u8840 HP\u00d75%\u3002' +
-          (chain >= 5 ? '<br><span style="color:var(--gold)">[5 \u94fe]</span> \u89e3\u653e\u4f24\u5bb3 +100%\u3002' : '') +
-          (chain >= 6 ? '<br><span style="color:var(--gold)">[6 \u94fe]</span> \u7535\u952f\u6a21\u5f0f\u4e0b\u81f4\u547d\u4f24\u4e0d\u5012(\u6bcf\u573a 1 \u6b21)\uff0c\u865a\u65e0\u7ede\u75d5\u5347\u7ea7\u4e3a<b class="term-resource">\u7ec8\u7109</b>\uff1a\u76ee\u6807\u53d7\u5343\u54b2\u4f24\u5bb3 +40%\u3002' : '')
+          desc: '对主目标造成 <span class="tip" data-tip="' + burstTip + '"><b style="color:var(--gold)">' + burstMainDmg + '</b> 点</span>，对副目标造成 <b style="color:var(--text)">' + burstSideDmg + '</b> 点<b class="term-burst">湮灭伤害</b>。<br>施放后进入<b class="term-resource">万缕·汇终</b> 2 回合：<b class="term-heavy">锯环·疾攻</b>/<b class="term-heavy">终结</b>倍率 +120%，全队回血 HP×5%。' +
+          (chain >= 5 ? '<br><span style="color:var(--gold)">[5 链]</span> 解放伤害 +100%。' : '') +
+          (chain >= 6 ? '<br><span style="color:var(--gold)">[6 链]</span> 电锯模式下致死伤不倒(每场 1 次)，虚无绞痕升级为<b class="term-resource">虚无绞痕·终焉</b>：目标受千咲伤害 +40%。' : '')
         },
         {
-          icon: '\u266b', name: '\u53d8\u594f\u5165\u573a \u00b7 \u6697\u5f71\u5165\u573a', cost: '\u5207\u6362\u4e0a\u573a\u65f6\u89e6\u53d1',
+          icon: '♫', name: '变奏入场 · 鸣响·再临', cost: '切换上场时触发',
           color: '#c39bff',
-          desc: '\u5207\u6362\u4e0a\u573a\u65f6\uff0c\u5bf9\u4e3b\u76ee\u6807\u9020\u6210 <span class="tip" data-tip="' + varTip + '"><b style="color:var(--accent)">' + varDmg + '</b> \u70b9</span><b class="term-variation">\u6e6e\u706d\u4f24\u5bb3</b>\u3002\u7535\u952f\u6a21\u5f0f\u4e0b\u53d8\u594f\u63a5<b class="term-heavy">\u952f\u73af\u00b7\u75be\u653b</b>\u7b2c2\u6bb5\u3002'
+          desc: '切换上场时，对主目标造成 <span class="tip" data-tip="' + varTip + '"><b style="color:var(--accent)">' + varDmg + '</b> 点</span><b class="term-variation">湮灭伤害</b>。电锯模式下变奏接<b class="term-heavy">锯环·疾攻</b>第2段。'
         }
       ];
     },
-    forteName: '\u952f\u73af\u6b8b\u54cd',
-    forteDesc: '\u5343\u54b2\u7684\u6838\u5fc3\u8d44\u6e90 <b class="term-resource">\u952f\u73af\u6b8b\u54cd</b>(0-100)\uff1a' +
-      '<br>\u2022 <b class="term-normal">\u666e\u653b</b>+10 / <b class="term-skill">\u547d\u5f26\u00b7\u7565\u884c</b>+25 / <b class="term-heavy">\u952f\u73af\u00b7\u75be\u653b</b>\u6bcf\u6bb5+12(\u4e09\u6bb5+36)' +
-      '<br>\u2022 \u6ee1 100 \u65f6\u5171\u9e23\u6280\u80fd\u66ff\u6362\u4e3a<b class="term-resource">\u9f7f\u8f68\u8f6e\u56de</b>(\u6d88\u8017\u5168\u90e8\u6b8b\u54cd\uff0c\u8fdb\u5165<b class="term-state">\u7535\u952f\u6a21\u5f0f</b> 3 \u56de\u5408)' +
-      '<br>\u2022 \u7535\u952f\u6a21\u5f0f\u4e0b\u666e\u653b\u66ff\u6362\u4e3a<b class="term-heavy">\u952f\u73af\u00b7\u75be\u653b</b>(3\u6bb5\uff0c\u6b8b\u54cd+36)\uff0c\u518d\u6b21\u6ee1\u65f6\u66ff\u6362\u4e3a<b class="term-heavy">\u952f\u73af\u00b7\u7ec8\u7ed3</b>(\u6d88\u8017\u5168\u90e8\u6b8b\u54cd\uff0c\u9000\u51fa\u7535\u952f\u6a21\u5f0f)' +
-      '<br><br><span style="color:var(--gold);font-size:10px">\u25b8 \u63a8\u8350\u6218\u6597\u8282\u594f</span><br>' +
-      '\u666e\u653b/\u6280\u80fd\u6512\u6b8b\u54cd \u2192 \u9f7f\u8f68\u8f6e\u56de\u8fdb\u7535\u952f\u6a21\u5f0f \u2192 \u952f\u73af\u75be\u653b\u8fde\u6bb5 \u2192 \u6b8b\u54cd\u6ee1\u653e\u952f\u73af\u7ec8\u7ed3 \u2192 \u89e3\u653e\u4e07\u7f2a\u6c47\u7ec8\u518d\u8fdb\u7535\u952f'
+    forteName: '锯环残响',
+    forteDesc: '千咲的核心资源 <b class="term-resource">锯环残响</b>(0-100)：' +
+      '<br>• <b class="term-normal">普攻</b>+10 / <b class="term-skill">碎面构图</b>+25 / <b class="term-heavy">锯环·疾攻</b>每段+12(三段+36)' +
+      '<br>• 满 100 时共鸣技能替换为<b class="term-resource">齿轨轮回</b>(消耗全部残响，进入<b class="term-state">电锯模式</b> 3 回合)' +
+      '<br>• 电锯模式下普攻替换为<b class="term-heavy">锯环·疾攻</b>(3段，残响+36)，再次满时替换为<b class="term-heavy">锯环·终结</b>(消耗全部残响，退出电锯模式)' +
+      '<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>' +
+      '普攻/技能攒残响，齿轨轮回进入电锯模式，锯环疾攻连段，残响满放锯环终结，解放万缕汇终后再进电锯'
   },
 
   // 3.0 · 琳奈（副C 衍射 佩枪）— 颜料·流光·绮彩巡游
@@ -1342,7 +1671,7 @@ export const SKILL_HINTS = {
         {
           icon: '⛸', name: '灵感碰撞（蓄力转换）', cost: '按住普攻',
           color: '#6bb5ff',
-          desc: `<span class="tip" data-tip='${chargeTip}'>光学取样阶段满<b class="term-resource">溢彩</b>时按住普攻蓄力</span> → 每 0.2 秒转换 15 溢彩 → 12.5%<b class="term-resource">流光</b>。<br><b class="term-resource">流光</b> ≥ 120 时进入<b style="color:var(--gold)">加色混合</b>爆发状态，绮彩巡游普攻第 1/4 段追击能力提升。`
+          desc: `<span class="tip" data-tip='${chargeTip}'>光学取样阶段满<b class="term-resource">溢彩</b>时按住普攻蓄力</span>：每 0.2 秒转换 15 溢彩为 12.5%<b class="term-resource">流光</b>。<br><b class="term-resource">流光</b> ≥ 120 时进入<b style="color:var(--gold)">加色混合</b>爆发状态，绮彩巡游普攻第 1/4 段追击能力提升。`
         },
         {
           icon: '⚡', name: '共鸣解放 · 爆炸喷涂', cost: `3 AP · 需共鸣能量满 ${stats.maxEnergy || 125}`,
@@ -1357,7 +1686,7 @@ export const SKILL_HINTS = {
       ];
     },
     forteName: '溢彩 / 流光',
-    forteDesc: '<span style="color:var(--gold);font-size:11px">▸ 资源系统</span><br>· <b class="term-resource">溢彩</b>（0-100）：战斗积累，光学取样阶段非战斗回复<br>· <b class="term-resource">流光</b>（0-120）：蓄力将溢彩转换为流光<br>· <b class="term-resource">加色混合</b>（流光 ≥ 120）：进入爆发状态，普攻/重击强化<br><br><span style="color:var(--gold);font-size:11px">▸ 绮彩巡游</span><br>· 进入后普攻替换为轮滑射击（最多 5 段）<br>· <b class="term-heavy">空中重击</b>：绮彩巡游期间核心输出段<br>· 流光 ≥ 120 时第 1/4 段追击能力提升<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>普攻/技能攒溢彩 → 光学取样蓄力转流光 → 流光 ≥ 120 进加色混合 → 绮彩巡游空中重击连段 → 解放爆炸喷涂终结。'
+    forteDesc: '<span style="color:var(--gold);font-size:11px">▸ 资源系统</span><br>· <b class="term-resource">溢彩</b>（0-100）：战斗积累，光学取样阶段非战斗回复<br>· <b class="term-resource">流光</b>（0-120）：蓄力将溢彩转换为流光<br>· <b class="term-resource">加色混合</b>（流光 ≥ 120）：进入爆发状态，普攻/重击强化<br><br><span style="color:var(--gold);font-size:11px">▸ 绮彩巡游</span><br>· 进入后普攻替换为轮滑射击（最多 5 段）<br>· <b class="term-heavy">空中重击</b>：绮彩巡游期间核心输出段<br>· 流光 ≥ 120 时第 1/4 段追击能力提升<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>普攻/技能攒溢彩，光学取样蓄力转流光，流光 ≥ 120 进加色混合，绮彩巡游空中重击连段，解放爆炸喷涂终结。'
   },
 
   // 3.0 · 莫宁（主C 冷凝 迅刀）— 干涉标记·谐振场
@@ -1445,7 +1774,7 @@ export const SKILL_HINTS = {
       ];
     },
     forteName: '相对动能 / 谐振场',
-    forteDesc: '<span style="color:var(--gold);font-size:11px">▸ 核心资源</span><br>· <b class="term-resource">相对动能</b>（0-100）：普攻/技能积累，满值可触发额外效果<br>· <b class="term-resource">干涉标记</b>：普攻/技能给目标附加，莫宁对干涉目标伤害提升；2 链全队暴伤 +32%<br>· <b class="term-resource">观测标记</b>：广域观测模式下的特殊标记<br><br><span style="color:var(--gold);font-size:11px">▸ 谐振场</span><br>· 共鸣解放展开<b class="term-resource">谐振场</b>，提升全队偏谐值累积效率<br>· 能量上限 <b>175</b>，较普通角色更多（125→175）<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>普攻挂干涉标记 → 广域观测模式射击 → 共鸣技能积累相对动能 → 共鸣解放·临界协议展开谐振场 → 谐振场持续中全队输出。'
+    forteDesc: '<span style="color:var(--gold);font-size:11px">▸ 核心资源</span><br>· <b class="term-resource">相对动能</b>（0-100）：普攻/技能积累，满值可触发额外效果<br>· <b class="term-resource">干涉标记</b>：普攻/技能给目标附加，莫宁对干涉目标伤害提升；2 链全队暴伤 +32%<br>· <b class="term-resource">观测标记</b>：广域观测模式下的特殊标记<br><br><span style="color:var(--gold);font-size:11px">▸ 谐振场</span><br>· 共鸣解放展开<b class="term-resource">谐振场</b>，提升全队偏谐值累积效率<br>· 能量上限 <b>175</b>，较普通角色更多（通常 125）<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>普攻挂干涉标记，广域观测模式射击，共鸣技能积累相对动能，共鸣解放·临界协议展开谐振场，谐振场持续中全队输出。'
   },
 
   // 3.1 · 爱弥斯（主C 导电 长刃）— 震谐/聚爆双模态
@@ -1522,7 +1851,7 @@ export const SKILL_HINTS = {
         {
           icon: '✦', name: '共鸣技能 · 光翼共奏', cost: '1 AP · 冷却 3 回合',
           color: 'var(--accent)',
-          desc: `对目标造成 <span class="tip" data-tip='${skillTip}'><b style="color:var(--accent)">${skillDmg}</b> 点</span><b class="term-skill">导电伤害</b>，回复 22 能量。<br>效果取决于当前模态：震谐→追加震谐伤害；聚爆→引爆聚爆效应。`
+          desc: `对目标造成 <span class="tip" data-tip='${skillTip}'><b style="color:var(--accent)">${skillDmg}</b> 点</span><b class="term-skill">导电伤害</b>，回复 22 能量。<br>效果取决于当前模态：震谐模态追加震谐伤害，聚爆模态引爆聚爆效应。`
         },
         {
           icon: '💢', name: '重击 · 蓄力（进入即刻响应）', cost: '1 AP · 蓄力 1-2 段',
@@ -1532,7 +1861,7 @@ export const SKILL_HINTS = {
         {
           icon: '⚡', name: '共鸣解放 · 星辉破界而来', cost: `3 AP · 需共鸣能量满 ${stats.maxEnergy || 125}`,
           color: 'var(--gold)',
-          desc: `对主目标造成 <span class="tip" data-tip='${burstTip}'><b style="color:#ff8c5e">${burstMain}</b> 点</span>、副目标 <span class="tip" data-tip='${burstTip}'><b style="color:#ff8c5e">${burstSide}</b> 点</span><b class="term-burst">导电伤害</b>。<br>· 震谐模态 → <b>星辉·终结</b>（高倍率单体）<br>· 聚爆模态 → <b>星辉·过载</b>（范围引爆）${chainHints}`
+          desc: `对主目标造成 <span class="tip" data-tip='${burstTip}'><b style="color:#ff8c5e">${burstMain}</b> 点</span>、副目标 <span class="tip" data-tip='${burstTip}'><b style="color:#ff8c5e">${burstSide}</b> 点</span><b class="term-burst">导电伤害</b>。<br>· 震谐模态：<b>星辉·终结</b>（高倍率单体）<br>· 聚爆模态：<b>星辉·过载</b>（范围引爆）${chainHints}`
         },
         {
           icon: '🎵', name: '变奏技能 · 以旋律穿越长空', cost: '切换上场时触发',
@@ -1542,7 +1871,7 @@ export const SKILL_HINTS = {
       ];
     },
     forteName: '同步率 / 模态',
-    forteDesc: '<span style="color:var(--gold);font-size:11px">▸ 双模态系统</span><br>· <b style="color:var(--text)">震谐模态</b>：追加额外震谐伤害，适合持续单体输出<br>· <b style="color:var(--accent)">聚爆模态</b>：引爆聚爆效应，适合范围爆发<br>· 通过<b class="term-skill">光翼共奏</b>切换模态<br><br><span style="color:var(--gold);font-size:11px">▸ 核心资源</span><br>· <b class="term-resource">同步率</b>（0-100）：重击蓄力（即刻响应）积累，满值增强技能<br>· <b class="term-resource">即刻响应</b>：重击蓄力进入，快速完成二段蓄力<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>选择模态 → 重击蓄力进即刻响应 → 光翼共奏（模态对应效果）→ 共鸣解放·星辉破界而来（终结/过载）→ 循环。'
+    forteDesc: '<span style="color:var(--gold);font-size:11px">▸ 双模态系统</span><br>· <b style="color:var(--text)">震谐模态</b>：追加额外震谐伤害，适合持续单体输出<br>· <b style="color:var(--accent)">聚爆模态</b>：引爆聚爆效应，适合范围爆发<br>· 通过<b class="term-skill">光翼共奏</b>切换模态<br><br><span style="color:var(--gold);font-size:11px">▸ 核心资源</span><br>· <b class="term-resource">同步率</b>（0-100）：重击蓄力（即刻响应）积累，满值增强技能<br>· <b class="term-resource">即刻响应</b>：重击蓄力进入，快速完成二段蓄力<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>选择模态，重击蓄力进即刻响应，光翼共奏（模态对应效果），共鸣解放·星辉破界而来（终结/过载），循环。'
   },
 
   // 3.1 · 陆·赫斯（辅助 冷凝 臂铠）— 黄金的裁量·谐度破坏
@@ -1561,7 +1890,7 @@ export const SKILL_HINTS = {
       skillFollowUp: '4 链：全队谐度破坏后伤害 +20%。'
     }),
     forteName: '谐度破坏',
-    forteDesc: '陆·赫斯的核心机制 <b class="term-resource">谐度破坏</b>：<br>· 攻击附加集谐·干涉层数。<br>· 谐度破坏增幅提升全队伤害。<br>· <b class="term-resource">黄金的裁量</b>状态大幅强化空中攻击和斩杀日冕。<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>挂谐度破坏 → 进黄金的裁量 → 空中攻击连段 + 解放。'
+    forteDesc: '陆·赫斯的核心机制 <b class="term-resource">谐度破坏</b>：<br>· 攻击附加集谐·干涉层数。<br>· 谐度破坏增幅提升全队伤害。<br>· <b class="term-resource">黄金的裁量</b>状态大幅强化空中攻击和斩杀日冕。<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>挂谐度破坏，进黄金的裁量，空中攻击连段并解放。'
   },
 
   // 3.2 · 西格莉卡（主C 衍射 音感仪）— 语义·凝语·天赋
@@ -1580,7 +1909,7 @@ export const SKILL_HINTS = {
       skillFollowUp: '6 链：天赋？每层伤害加深 15%，最多 60%。'
     }),
     forteName: '凝语',
-    forteDesc: '西格莉卡通过普攻/技能积累<b class="term-resource">凝语</b>层数。<br>· <b class="term-resource">「天赋？」</b>层数上限 3→4（1 链），全面提升符语系列伤害。<br>· 超过 4 秒非战斗获得专注状态。<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>普攻/技能攒凝语和天赋？→ 叠满后解放爆发。'
+    forteDesc: '西格莉卡通过普攻/技能积累<b class="term-resource">凝语</b>层数。<br>· <b class="term-resource">「天赋？」</b>层数上限由 3 提升至 4（1 链），全面提升符语系列伤害。<br>· 超过 4 秒非战斗获得专注状态。<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>普攻/技能攒凝语和天赋？，叠满后解放爆发。'
   },
 
   // 3.3 · 绯雪（主C 冷凝 迅刀）— 预求身·居合·霜渐效应
@@ -1599,7 +1928,7 @@ export const SKILL_HINTS = {
       skillFollowUp: '6 链：见心/归刃暴击伤害 +500%；全队角色附加霜渐时额外异常倍率。'
     }),
     forteName: '锻雪·归刃',
-    forteDesc: '绯雪的<b class="term-resource">锻雪·归刃</b>是非战斗回复机制：<br>· 脱离战斗 4 秒后回复 3 点锻雪。<br>· <b class="term-resource">雪锈</b>层数提升霜渐效应附加效率。<br>· 2 层雪锈时霜渐额外倍率 +488%。<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>普攻连段 → 居合追击 → 触发霜渐 → 解放归刃终结。'
+    forteDesc: '绯雪的<b class="term-resource">锻雪·归刃</b>是非战斗回复机制：<br>· 脱离战斗 4 秒后回复 3 点锻雪。<br>· <b class="term-resource">雪锈</b>层数提升霜渐效应附加效率。<br>· 2 层雪锈时霜渐额外倍率 +488%。<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>普攻连段，居合追击，触发霜渐，解放归刃终结。'
   },
 
   // 3.3 · 达妮娅（主C 热熔 佩枪）— 布景/幻灭双形态·黯核
@@ -1618,7 +1947,7 @@ export const SKILL_HINTS = {
       skillFollowUp: '3 链：黯核上限 5 枚，熵变强化大幅提升技能倍率。<br>6 链：熵变强化时攻击 +60%，热熔伤害 +60%。'
     }),
     forteName: '黯核 / 虚质粒子',
-    forteDesc: '达妮娅的核心资源 <b class="term-resource">黯核</b>（上限 3）和<b class="term-resource">虚质粒子</b>：<br>· 布景形态远程消耗黯核输出。<br>· 幻灭形态近战消耗虚质粒子。<br>· 进入战斗时黯核与虚质粒子回满。<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>选择形态 → 消耗黯核/粒子输出 → 进熵变强化 → 解放终结。'
+    forteDesc: '达妮娅的核心资源 <b class="term-resource">黯核</b>（上限 3）和<b class="term-resource">虚质粒子</b>：<br>· 布景形态远程消耗黯核输出。<br>· 幻灭形态近战消耗虚质粒子。<br>· 进入战斗时黯核与虚质粒子回满。<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>选择形态，消耗黯核/粒子输出，进熵变强化，解放终结。'
   },
 
   // 3.4 · 露西（主C 衍射 佩枪）— 欺骗程式·骇破
@@ -1639,7 +1968,7 @@ export const SKILL_HINTS = {
       skillFollowUp: '4 链：全队附加骇破·偏移后全属性伤害 +20%。'
     }),
     forteName: 'Ram',
-    forteDesc: '露西通过技能积累<b class="term-resource">Ram</b>点数（初始 0，上限 32+6 链）：<br>· 欺骗程式·义体故障/突破协议/运动失能/武装故障/赛博精神病。<br>· 击败带欺骗程式的目标可记录并激活快捷响应。<br>· 骇破响应·数据崩解触发停滞效果。<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>附加欺骗程式 → 积累 Ram → 解放覆写 → 骇破触发。'
+    forteDesc: '露西通过技能积累<b class="term-resource">Ram</b>点数（初始 0，上限 32+6 链）：<br>· 欺骗程式·义体故障/突破协议/运动失能/武装故障/赛博精神病。<br>· 击败带欺骗程式的目标可记录并激活快捷响应。<br>· 骇破响应·数据崩解触发停滞效果。<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>附加欺骗程式，积累 Ram，解放覆写，骇破触发。'
   },
 
   // 3.4 · 丽贝卡（副C 导电 佩枪）— 街头直觉·手感火热
@@ -1659,7 +1988,7 @@ export const SKILL_HINTS = {
       skillFollowUp: '2 链：全队全属性伤害 +20%；附加骇破·偏移时全伤害加深 15%。'
     }),
     forteName: '手感火热',
-    forteDesc: '丽贝卡通过战斗积累<b class="term-resource">手感火热</b>/<b class="term-resource">狂热</b>：<br>· 获得<b class="term-resource">街头直觉</b>层数提升闪避和输出。<br>· 战术闪避消耗街头直觉回复耐力。<br>· 狂热满值可进入爆发状态。<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>普攻攒手感火热 → 叠街头直觉 → 战术闪避 → 解放爆发。'
+    forteDesc: '丽贝卡通过战斗积累<b class="term-resource">手感火热</b>/<b class="term-resource">狂热</b>：<br>· 获得<b class="term-resource">街头直觉</b>层数提升闪避和输出。<br>· 战术闪避消耗街头直觉回复耐力。<br>· 狂热满值可进入爆发状态。<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>普攻攒手感火热，叠街头直觉，战术闪避，解放爆发。'
   },
 
   // 3.4 · 洛瑟菈（副C 湮灭 音感仪）— 追忆·聚焦·照片
@@ -1679,6 +2008,6 @@ export const SKILL_HINTS = {
       skillFollowUp: '2 链：解放时根据模态提供霜渐/声骸伤害加成。<br>6 链：铭记 3 层使断舍离伤害 +600%。'
     }),
     forteName: '印象 / 照片',
-    forteDesc: '洛瑟菈的核心资源 <b class="term-resource">印象</b>（0-150）和<b class="term-resource">照片</b>：<br>· 追忆状态期间消耗<b class="term-resource">照片</b>强化断舍离。<br>· 每消耗 1 张照片获得 1 层<b class="term-resource">铭记</b>（上限 3 层）。<br>· 击败目标获得怀恋——非战斗时回复印象。<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>聚焦 → 进追忆 → 消耗照片叠铭记 → 断舍离终结。'
+    forteDesc: '洛瑟菈的核心资源 <b class="term-resource">印象</b>（0-150）和<b class="term-resource">照片</b>：<br>· 追忆状态期间消耗<b class="term-resource">照片</b>强化断舍离。<br>· 每消耗 1 张照片获得 1 层<b class="term-resource">铭记</b>（上限 3 层）。<br>· 击败目标获得怀恋——非战斗时回复印象。<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>聚焦，进追忆，消耗照片叠铭记，断舍离终结。'
   },
 };

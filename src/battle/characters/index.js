@@ -24,13 +24,13 @@ import qianxiao from './qianxiao.js';
 import aogusita from './aogusita.js';
 import xiakong from './xiakong.js';
 import younuo from './younuo.js';
+import lupa from './lupa.js';
+import gaberina from './gaberina.js';
 
 // 轻量角色：仅标记 hasHeavy，无完整 mechanic 文
 const LIGHTWEIGHT = {
-  '嘉贝莉娜': { hasHeavy: true },
   '洛可可':   { hasHeavy: true },
   '鉴心':     { hasHeavy: true },
-  '露帕':     { hasHeavy: true },
   '相里要':   { hasHeavy: true },
   '维里奈':   { hasHeavy: false },
   '凌阳':     { hasHeavy: false },
@@ -56,7 +56,9 @@ const FULL = {
   '千咲': qianxiao,
   '奥古斯塔': aogusita,
   '夏空': xiakong,
-  '尤诺': younuo
+  '尤诺': younuo,
+  '露帕': lupa,
+  '嘉贝莉娜': gaberina
 };
 
 const ALL = { ...LIGHTWEIGHT, ...FULL };

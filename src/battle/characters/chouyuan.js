@@ -11,6 +11,7 @@
 // Chain 6 退出 AOE、停滞由状态机内部处理。
 
 import { registerSwitchHook, registerSwitchOutHook } from '../switchHooks.js';
+import { calcDamage, dealDamage } from '../combat/damage.js';
 
 // ── 量 ──
 const STACK_MAX = 100;
@@ -90,34 +91,82 @@ export function chouyuanConsumeAllStack(self, battle) {
   return consumed;
 }
 
-// 非当前角色衰减
+// 非当前角色衰减（battle.active 为当前出手下标）
 function chouyuanDecayStack(self, battle) {
-  if (self.name !== '仇远') return;
-  // 战斗中非当前角色
-  if (battle?.currentIdx !== undefined && battle.team?.[battle.currentIdx]?.name !== '仇远') {
-    const before = self.chouyuanStack || 0;
-    self.chouyuanStack = Math.max(0, before - DECAY_BENCH);
-    if (self.chouyuanStack !== before) {
-      battle.log.push({
-        type: 'mechanic', src: self.name,
-        msg: `挑灯问剑 -${DECAY_BENCH}（非当前角色衰减 · ${before} → ${self.chouyuanStack}/${STACK_MAX}）`
-      });
-    }
+  if (self.name !== '仇远' || !battle) return;
+  const active = battle.team?.[battle.active];
+  if (active && active.name === '仇远') return;
+  const before = self.chouyuanStack || 0;
+  if (before <= 0) return;
+  self.chouyuanStack = Math.max(0, before - DECAY_BENCH);
+  if (self.chouyuanStack !== before) {
+    battle.log.push({
+      type: 'mechanic', src: self.name,
+      msg: `挑灯问剑 -${DECAY_BENCH}（非当前角色衰减 · ${before} → ${self.chouyuanStack}/${STACK_MAX}）`
+    });
+  }
+  syncChouyuanForte(self);
+}
+
+function syncChouyuanForte(self) {
+  if (self.forte) {
+    self.forte.current = self.chouyuanStack || 0;
+    self.forte.ready = (self.chouyuanStack || 0) >= STACK_MAX;
   }
 }
 
 // ── 答剑三连倍率 ──
 function chouyuanAnswerSwordMult(self) {
   let mult = HEAVY_BASE_MULT; // 550%
-  // 且从容 ×1.5（每场1次，第一次进入淋漓醉墨时已标记）
-  if (self.chouyuanCalmUsed) {
+  // 且从容 ×1.5：仅本场第一次淋漓醉墨窗口内生效
+  if (self.chouyuanCalmActive) {
     mult *= CALM_HEAVY_MULT; // 825%
   }
-  // 链3荷蓑出林后 +600%（独立乘数×7 → 3850% 或 5775% 含且从容）
+  // 链3荷蓑出林后 +600%（独立乘数×7）
   if (self._chouyuanC3BoostActive) {
     mult *= (1 + C3_HEAVY_BOOST); // ×7 from base
   }
   return mult;
+}
+
+// 普攻积攒挑灯问剑
+export function chouyuanOnAttack(self, ctx) {
+  if (self.name !== '仇远') return;
+  if (chouyuanInDrunk(self)) return;
+  chouyuanGainStack(self, GAIN_NORMAL, ctx?.battle);
+  syncChouyuanForte(self);
+}
+
+// 技能积攒；荷蓑出林由 finishSkill 处理（先 finish 再 onSkill 时已进醉墨，此处跳过）
+export function chouyuanOnSkill(self, ctx) {
+  if (self.name !== '仇远') return;
+  if (chouyuanInDrunk(self)) return;
+  chouyuanGainStack(self, GAIN_SKILL, ctx?.battle);
+  syncChouyuanForte(self);
+}
+
+// 答剑后：C6 停滞（退出 AOE 在 exitDrunk 内即时结算）
+export function chouyuanOnHeavy(self, ctx) {
+  if (self.name !== '仇远') return;
+  const target = ctx?.target;
+  if (self._chouyuanStunPending && target) {
+    target.suppressed = Math.max(target.suppressed || 0, 1);
+    self._chouyuanStunPending = false;
+  }
+}
+
+function settleExitAoe(self, battle) {
+  if (!self._chouyuanExitAoePending || !battle) return;
+  const alive = battle.enemies.filter(e => e.alive);
+  const results = alive.map(e => {
+    const { dmg, crit } = calcDamage(self, e, C6_EXIT_AOE_MULT, 'burst');
+    const real = dealDamage(e, dmg);
+    return { tgt: e.name, dmg: real, crit };
+  });
+  if (results.length) {
+    battle.log.push({ type: 'burst', src: self.name, results, action: '6链 · 退出淋漓醉墨' });
+  }
+  self._chouyuanExitAoePending = false;
 }
 
 // ── 招式 hook ──
@@ -145,7 +194,7 @@ export function chouyuanResolveSkill(self, battle) {
   return {
     mult: HESUOCHULIN_MULT,
     dmgType: 'skill',
-    label: '荷出林',
+    label: '荷蓑出林',
     isHeSuoChuLin: true
   };
 }
@@ -154,35 +203,23 @@ export function chouyuanResolveSkill(self, battle) {
 export function chouyuanFinishSkill(self, battle, form) {
   if (self.name !== '仇远' || !form?.isHeSuoChuLin) return;
   self.concerto = Math.max(0, (self.concerto || 0) - HESUOCHULIN_CONCERTO_COST);
-  self.chouyuanStack = STACK_MAX; // 满挑灯问剑
+  self.chouyuanStack = STACK_MAX;
   self._chouyuanHeSuoUsed = true;
-  // 标记下次进入淋漓醉墨时+600%倍率
   self._chouyuanC3BoostActive = true;
-  // 且从容荷蓑出林提前结束（官方），直接进入淋漓醉墨
-  // 注意：此时且从容已用标记保留（防止双算）
-  // 但荷蓑出林进入的淋漓醉墨不触发且从容（官方：提前结束且从容）
-  // 所以标记且从容为已用，但不给×1.5
-  // 实际上 design doc 说 "荷蓑出林后下次淋漓醉墨无法获得且从容" - 这里的"且从容"是指新的且从容
-  // 等待用户确认。目前实现：荷蓑出林→满资源→进淋漓醉墨（无且从容×1.5）
+  // 荷蓑出林进入的淋漓醉墨不触发且从容
   self._chouyuanC3NoCalm = true;
-  // 直接进入淋漓醉墨（且从容已被提前结束）
   self.chouyuanDrunkTurns = DRUNK_DURATION;
-  // 竹照
-  self.chouyuanBambooTurns = BAMBOO_DURATION;
-  if (battle && battle.team) {
-    battle.team.forEach(t => {
-      if (!t.alive) return;
-      t.buffs = (t.buffs || []).filter(b => b.src !== '仇远竹照');
-      let totalAllDmg = BAMBOO_ALL_DMG;
-      if (self.chain >= 2) totalAllDmg += BAMBOO_C2_EXTRA;
-      t.buffs.push({ type: 'teamAllDmg', value: totalAllDmg, duration: BAMBOO_DURATION, src: '仇远竹照', installer: self.idx });
-    });
+  applyBambooBuff(self, battle);
+  // 链6：荷蓑出林时暴伤 +100%（1 回合）
+  if (self.chain >= 6) {
+    self.buffs = (self.buffs || []).filter(b => b.src !== '仇远链6');
+    self.buffs.push({ type: 'cdmgUp', value: 1.0, duration: 1, src: '仇远链6', installer: self.idx });
   }
-  battle.log.push({
+  syncChouyuanForte(self);
+  battle?.log.push({
     type: 'mechanic', src: self.name,
     msg: '链3 · 荷蓑出林 · 消耗60协奏 · 满挑灯问剑 · 进入淋漓醉墨 · 答剑三连+600%准备就绪'
   });
-  // 延奏替换标记
   self._chouyuanXinYunReady = true;
 }
 
@@ -190,50 +227,58 @@ export function chouyuanFinishSkill(self, battle, form) {
 export function chouyuanFinishHeavy(self, battle, form) {
   if (self.name !== '仇远' || !form?.isAnswerSword) return;
   chouyuanConsumeAllStack(self, battle);
-  // 且从容 忠烈死节+30协奏
-  if (self.chouyuanCalmUsed) {
+  syncChouyuanForte(self);
+  // 且从容 忠烈死节+30协奏（本窗口）
+  if (self.chouyuanCalmActive) {
     self.concerto = Math.min(100, (self.concerto || 0) + CALM_CONCERTO_GAIN);
-    battle.log.push({
+    battle?.log.push({
       type: 'mechanic', src: self.name,
       msg: '且从容 · 忠烈死节 · 协奏 +30'
     });
+    self.chouyuanCalmActive = false;
   }
-  // 链6 忠烈死节停滞（标记，由combat.js处理）
   if (self.chain >= 6) {
-    battle.log.push({
+    battle?.log.push({
       type: 'mechanic', src: self.name,
       msg: '6链 · 忠烈死节 · 目标停滞1回合'
     });
     self._chouyuanStunPending = true;
   }
-  // 答剑三连后退出淋漓醉墨
   chouyuanExitDrunk(self, battle);
+}
+
+function applyBambooBuff(self, battle) {
+  self.chouyuanBambooTurns = BAMBOO_DURATION;
+  if (!battle?.team) return;
+  let totalAllDmg = BAMBOO_ALL_DMG;
+  if (self.chain >= 2) totalAllDmg += BAMBOO_C2_EXTRA;
+  battle.team.forEach(t => {
+    if (!t.alive) return;
+    t.buffs = (t.buffs || []).filter(b => b.src !== '仇远竹照');
+    // damage.js 认 elemAllUp
+    t.buffs.push({
+      type: 'elemAllUp', value: totalAllDmg, duration: BAMBOO_DURATION,
+      src: '仇远竹照', installer: self.idx
+    });
+  });
 }
 
 // ── 形态进入 ──
 export function chouyuanEnterDrunk(self, battle) {
   if (self.name !== '仇远' || chouyuanInDrunk(self)) return;
   self.chouyuanDrunkTurns = DRUNK_DURATION;
+  applyBambooBuff(self, battle);
 
-  // 竹照
-  self.chouyuanBambooTurns = BAMBOO_DURATION;
-  if (battle && battle.team) {
-    battle.team.forEach(t => {
-      if (!t.alive) return;
-      t.buffs = (t.buffs || []).filter(b => b.src !== '仇远竹照');
-      let totalAllDmg = BAMBOO_ALL_DMG;
-      if (self.chain >= 2) totalAllDmg += BAMBOO_C2_EXTRA;
-      t.buffs.push({ type: 'teamAllDmg', value: totalAllDmg, duration: BAMBOO_DURATION, src: '仇远竹照', installer: self.idx });
-    });
-  }
-
-  // 且从：每场1次；荷蓑出林进入时不触发
+  // 且从容：每场 1 次；荷蓑出林进入时不触发
   if (!self.chouyuanCalmUsed && !self._chouyuanC3NoCalm) {
     self.chouyuanCalmUsed = true;
+    self.chouyuanCalmActive = true;
     battle?.log.push({
       type: 'mechanic', src: self.name,
       msg: '且从容 · 答剑三连伤害×1.5 · 忠烈死节回复30协奏'
     });
+  } else {
+    self.chouyuanCalmActive = false;
   }
 
   battle?.log.push({
@@ -242,19 +287,21 @@ export function chouyuanEnterDrunk(self, battle) {
   });
 }
 
-function chouyuanExitDrunk(self, battle) {
+// opts.suppressAoe：切人退出不触发 C6 AOE（需为登场角色）
+function chouyuanExitDrunk(self, battle, opts = {}) {
   if (!chouyuanInDrunk(self)) return;
   self.chouyuanDrunkTurns = 0;
-  // C3增益仅持续一次淋漓醉墨，退出时清除
+  self.chouyuanCalmActive = false;
   self._chouyuanC3BoostActive = false;
   self._chouyuanC3NoCalm = false;
-  // 链6：退出时600% AOE
-  if (self.chain >= 6 && battle) {
+  const isActive = !!(battle && battle.team?.[battle.active] === self);
+  if (self.chain >= 6 && battle && isActive && !opts.suppressAoe) {
     battle.log.push({
       type: 'mechanic', src: self.name,
       msg: '6链 · 退出淋漓醉墨 · 对全体敌人造成600%气动AOE'
     });
     self._chouyuanExitAoePending = true;
+    settleExitAoe(self, battle);
   }
   battle?.log.push({
     type: 'mechanic', src: self.name,
@@ -265,8 +312,8 @@ function chouyuanExitDrunk(self, battle) {
 // ── 解放 hook ──
 export function chouyuanResolveBurstMult(self) {
   if (self.name !== '仇远') return null;
-  // 基础倍率，链3+500%由 chains.js burstDmg: 5 处
-  // 此处只返回基础值，链加成走 chainBonuses
+  // 链3：解放倍率 +500% → 主 900% / 副 450%（状态机权威，registry 不写 flat burstDmg）
+  if (self.chain >= 3) return { baseMain: 9.0, baseSide: 4.5 };
   return { baseMain: 4.0, baseSide: 2.0 };
 }
 
@@ -280,7 +327,7 @@ export function chouyuanOnBurst(self, ctx) {
       // 为登场角色（仇远自身）加暴伤buff
       const target = ctx.target || self;
       target.buffs = (target.buffs || []).filter(b => b.src !== '仇远解放暴伤');
-      target.buffs.push({ type: 'cdmg', value: bonus, duration: 3, src: '仇远解放暴伤', installer: self.idx });
+      target.buffs.push({ type: 'cdmgUp', value: bonus, duration: 3, src: '仇远解放暴伤', installer: self.idx });
       ctx.battle.log.push({
         type: 'mechanic', src: self.name,
         msg: `解放·万钧一断 · 击${(crate*100).toFixed(0)}%>50% · 登场角色暴伤+${(bonus*100).toFixed(0)}%（3回合）`
@@ -342,9 +389,9 @@ export function chouyuanSwitchIn({ to, battle, ctx }) {
 
 export function chouyuanSwitchOut({ from, to, battle }) {
   if (from?.name !== '仇远') return;
-  // 切人退出淋漓醉墨
+  // 切人退出淋漓醉墨（非登场，不触发 C6 退出 AOE）
   if (chouyuanInDrunk(from)) {
-    chouyuanExitDrunk(from, battle);
+    chouyuanExitDrunk(from, battle, { suppressAoe: true });
   }
 }
 
@@ -358,12 +405,14 @@ export function chouyuanBattleStart(self, { battle }) {
   self.chouyuanDrunkTurns = 0;
   self.chouyuanBambooTurns = 0;
   self.chouyuanCalmUsed = false;
+  self.chouyuanCalmActive = false;
   self._chouyuanC3BoostActive = false;
   self._chouyuanC3NoCalm = false;
   self._chouyuanHeSuoUsed = false;
   self._chouyuanXinYunReady = false;
   self._chouyuanExitAoePending = false;
   self._chouyuanStunPending = false;
+  syncChouyuanForte(self);
 }
 
 // ── 徽 ──
@@ -395,6 +444,9 @@ export default {
   resolveHeavy: chouyuanResolveHeavy,
   resolveSkill: chouyuanResolveSkill,
   resolveBurstMult: chouyuanResolveBurstMult,
+  onAttack: chouyuanOnAttack,
+  onSkill: chouyuanOnSkill,
+  onHeavy: chouyuanOnHeavy,
   onBurst: chouyuanOnBurst,
   finishHeavy: chouyuanFinishHeavy,
   finishSkill: chouyuanFinishSkill,

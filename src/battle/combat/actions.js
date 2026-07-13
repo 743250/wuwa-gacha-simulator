@@ -13,6 +13,7 @@ import { fireSwitchHook, fireSwitchOutHook } from '../switchHooks.js';
 import { fireCharacterHook, queryCharacterHook } from '../characters/index.js';
 import { calcDamage, dealDamage, setCurrentBattle } from './damage.js';
 import { applyReflect } from './enemyAI.js';
+import { addErosion } from './erosion.js';
 import {
   resolveActionCost, fireCraneAssist,
   gainConcerto, consumeConcerto,
@@ -95,7 +96,10 @@ export function doAttack(battle, targetIdx) {
   else if (zyForm) mult = zyForm.mult;
   else mult = fEnh ? ACTION_MULTIPLIER.normal * fEnh.effectMult : ACTION_MULTIPLIER.normal;
   const dmgType = meForm ? meForm.dmgType : (zyForm ? zyForm.dmgType : 'normal');
-  const { dmg, crit } = calcDamage(self, target, mult, dmgType);
+  // resolveNormal 提供的 mult 对 HP 核是生命%（烈阳/重斩等），须 explicitHpMult 以免被普攻/重击表覆写
+  const { dmg, crit } = calcDamage(self, target, mult, dmgType, {
+    explicitHpMult: !!(zyForm && (zyForm.explicitHpMult || zyForm.isSunstrike || zyForm.mult != null))
+  });
   const real = dealDamage(target, dmg);
   reduceVibration(target, VIBRATION_DAMAGE.normal + (fEnh ? VIBRATION_DAMAGE.normalForteBonus : 0), battle, self);
   applyReflect(battle, self, target, real);
@@ -151,7 +155,10 @@ export function doAttack(battle, targetIdx) {
   fireEchoSetTrigger(self, 'normal_or_heavy_hit', battle);
   fireEchoSetOnHitErosion(self, target, battle);
   fireRoleEchoTriggers(self, 'normal_hit', target, battle);
-  fireCharacterHook(self, 'onAttack', { battle, target, cost, helpers: { calcDamage, dealDamage } });
+  fireCharacterHook(self, 'onAttack', {
+    battle, target, cost, form: zyForm || meForm,
+    helpers: { calcDamage, dealDamage }
+  });
   finishIfBattleEnded(battle, 'win');
   return { ok: true };
 }
@@ -170,11 +177,19 @@ export function doSkill(battle, targetIdx) {
   const chunForm = queryCharacterHook(self, 'resolveSkill', battle);
   if (chunForm) queryCharacterHook(self, 'enterHanbao', battle, chunForm.isRefresh);
   const fEnh = (meForm || chunForm) ? null : forteEnhances(self, 'skill');
+  // HP 核等角色可提供 skillMult（生命%）；未提供时走通用 ATK 技能倍率
+  const characterSkillMult = (!meForm && !chunForm) ? queryCharacterHook(self, 'skillMult') : null;
   let mult;
   if (meForm) mult = meForm.mult;
   else if (chunForm) mult = chunForm.mult;
+  else if (characterSkillMult != null) mult = characterSkillMult;
   else mult = (fEnh && fEnh.effectMult ? ACTION_MULTIPLIER.skill * fEnh.effectMult : ACTION_MULTIPLIER.skill);
-  const { dmg, crit } = calcDamage(self, target, mult, 'skill');
+  // resolveSkill 生命%（齿轨轮回 isChigui / explicitHpMult）勿再套 skill 表 override
+  const skillExplicitHp = characterSkillMult != null
+    || !!(chunForm && (chunForm.explicitHpMult || chunForm.isChigui));
+  const { dmg, crit } = calcDamage(self, target, mult, chunForm?.dmgType || 'skill', {
+    explicitHpMult: skillExplicitHp
+  });
   const real = dealDamage(target, dmg);
   reduceVibration(target, VIBRATION_DAMAGE.skill + (fEnh ? VIBRATION_DAMAGE.skillForteBonus : 0), battle, self);
   applyReflect(battle, self, target, real);
@@ -192,9 +207,13 @@ export function doSkill(battle, targetIdx) {
   }
 
   if (fEnh && fEnh.effectType === 'erosion') {
-    target.debuffs = target.debuffs || [];
-    target.debuffs.push({ type: 'erosion', element: '气动', value: fEnh.effectMult, duration: 3 });
-    battle.log.push({ type: 'mechanic', src: self.name, msg: `${target.name} 进入气动侵蚀（受气动伤害 +${(fEnh.effectMult*100).toFixed(0)}%）` });
+    // 统一走 wind_erosion 效应（兼容旧 forte effectType:'erosion'）
+    const n = Math.max(1, Math.round(Number(fEnh.effectStacks) || 1));
+    addErosion(target, n, battle, { src: self.name });
+    battle.log.push({
+      type: 'mechanic', src: self.name,
+      msg: `${target.name} 附加风蚀效应 ×${n}`
+    });
   }
   fireTrigger(self, 'skill_hit', { battle, target });
   fireEchoSetTrigger(self, 'skill_hit', battle);
@@ -205,11 +224,18 @@ export function doSkill(battle, targetIdx) {
   if (self.type === '辅助' || self.type === '治疗') {
     fireTrigger(self, 'heal_skill', { battle });
   }
+  let skillAction = meForm ? meForm.label : (chunForm ? chunForm.label : (fEnh ? `${fEnh.resourceName}强化技能` : '共鸣技能'));
+  // 仇远荷蓑出林等：resolveSkill 后 finishSkill 收尾（协奏/进窗）
+  if (chunForm) {
+    const finished = queryCharacterHook(self, 'finishSkill', battle, chunForm);
+    if (typeof finished === 'string') skillAction = finished;
+    else if (chunForm.label) skillAction = chunForm.label;
+  }
   battle.log.push({
     type: 'skill', src: self.name, tgt: target.name, dmg: real, crit,
-    action: meForm ? meForm.label : (chunForm ? chunForm.label : (fEnh ? `${fEnh.resourceName}强化技能` : '共鸣技能'))
+    action: skillAction
   });
-  fireCharacterHook(self, 'onSkill', { battle, target, cost, helpers: { calcDamage, dealDamage } });
+  fireCharacterHook(self, 'onSkill', { battle, target, cost, form: chunForm, forteEnh: fEnh, helpers: { calcDamage, dealDamage } });
   fireCraneAssist(battle, target);
   finishIfBattleEnded(battle, 'win');
   return { ok: true };
@@ -238,6 +264,9 @@ export function doBurst(battle) {
   const primary = (battle.enemies[targetIdx] && battle.enemies[targetIdx].alive) ? battle.enemies[targetIdx] : aliveEnemies[0];
   const fEnh = forteEnhances(self, 'burst');
   const { ruiyiMult = 1.0 } = queryCharacterHook(self, 'burstRuiyi', battle) || {};
+  // 先结算 AP 消耗,再跑角色 hook:resolveBurstDamage 可能改变角色形态(卡提希娅第一次解放→芙露形态),
+  // 若在 damage hook 之后才查 resolveBurstCost,会读到形态已切换后的状态而回落默认值。
+  battle.ap -= queryCharacterHook(self, 'resolveBurstCost', battle) ?? ACTION_COST.burst;
   const characterBurstDamage = queryCharacterHook(self, 'resolveBurstDamage', battle, {
     calcDamage,
     dealDamage,
@@ -256,8 +285,8 @@ export function doBurst(battle) {
     applyReflect(battle, self, e, real);
     return { tgt: e.name, dmg: real, crit, primary: e === primary };
   });
-  battle.ap -= queryCharacterHook(self, 'resolveBurstCost', battle) ?? ACTION_COST.burst;
-  self.energy = 0;
+  // 赫日威临等「不耗能量」解放：resolveBurstMult 可带 keepEnergy
+  if (!characterBurstMult?.keepEnergy) self.energy = 0;
   gainConcerto(self, 30);
   gainForte(self, 'burst');
   if (fEnh) consumeForte(self);
@@ -330,18 +359,27 @@ export function doHeavy(battle, targetIdx) {
 
   const target = battle.enemies[targetIdx];
 
-  const furoloDirgeForm = queryCharacterHook(self, 'resolveHeavy', battle);
-
-  // 安可特殊重击:失序值满时重击改为白咩·失控之炎 / 黑咩·暴走之炎
-  const encoreForm = queryCharacterHook(self, 'resolveHeavy');
+  // resolveHeavy: 弗洛洛谱曲终末 / 仇远答剑 / 尤诺至臻 / 夏空四拍 等返回 {mult,dmgType}
+  // 安可失序满返回 {special:true,mult,...}；安可常态返回 {special:false} 无 mult，走通用重击
+  const resolveHeavy = queryCharacterHook(self, 'resolveHeavy', battle);
+  const encoreForm = resolveHeavy?.special ? resolveHeavy : null;
+  const formHeavy = (resolveHeavy && resolveHeavy.mult != null && !resolveHeavy.special) ? resolveHeavy : null;
   const meForm = queryCharacterHook(self, 'mindEyeForm', 'heavy');
-  const heavyMult = furoloDirgeForm
-    ? furoloDirgeForm.mult
+  const characterHeavyMult = (!formHeavy && !meForm && !encoreForm)
+    ? queryCharacterHook(self, 'heavyMult')
+    : null;
+  const heavyMult = formHeavy
+    ? formHeavy.mult
     : (meForm
         ? meForm.mult
-        : (encoreForm?.special ? encoreForm.mult : ACTION_MULTIPLIER.heavy));
-  const heavyType = furoloDirgeForm ? furoloDirgeForm.dmgType : (meForm ? meForm.dmgType : (encoreForm?.special ? encoreForm.dmgType : 'heavy'));
-  const { dmg, crit } = calcDamage(self, target, heavyMult, heavyType, { explicitHpMult: !!furoloDirgeForm });
+        : (encoreForm?.special ? encoreForm.mult
+          : (characterHeavyMult != null ? characterHeavyMult : ACTION_MULTIPLIER.heavy)));
+  const heavyType = formHeavy
+    ? formHeavy.dmgType
+    : (meForm ? meForm.dmgType : (encoreForm?.special ? encoreForm.dmgType : 'heavy'));
+  const { dmg, crit } = calcDamage(self, target, heavyMult, heavyType, {
+    explicitHpMult: !!formHeavy || characterHeavyMult != null
+  });
   const real = dealDamage(target, dmg);
   reduceVibration(target, encoreForm?.special ? VIBRATION_DAMAGE.heavySpecial : VIBRATION_DAMAGE.heavy, battle, self);
   applyReflect(battle, self, target, real);
@@ -358,11 +396,12 @@ export function doHeavy(battle, targetIdx) {
   fireEchoSetOnHitErosion(self, target, battle);
   fireRoleEchoTriggers(self, 'heavy_hit', target, battle);
   let heavyAction = meForm ? meForm.label : '重击';
-  if (furoloDirgeForm) heavyAction = furoloDirgeForm.label;
-  fireCharacterHook(self, 'onHeavy', { battle, target, form: furoloDirgeForm });
-  const encoreHeavyAction = queryCharacterHook(self, 'finishHeavy', battle, encoreForm);
+  if (formHeavy?.label) heavyAction = formHeavy.label;
+  if (encoreForm?.action) heavyAction = encoreForm.action;
+  const encoreHeavyAction = queryCharacterHook(self, 'finishHeavy', battle, encoreForm || resolveHeavy);
   if (encoreHeavyAction) heavyAction = encoreHeavyAction;
   battle.log.push({ type: 'heavy', src: self.name, tgt: target.name, dmg: real, crit, action: heavyAction });
+  fireCharacterHook(self, 'onHeavy', { battle, target, form: formHeavy || resolveHeavy, cost });
   // 重击也能击破绿泡
   if (target._bubbleHp > 0) {
     target._bubbleHp -= real;
@@ -382,7 +421,6 @@ export function doHeavy(battle, targetIdx) {
       battle.log.push({ type: 'mechanic', src: self.name, msg: '击破绿泡！全队获得治疗' });
     }
   }
-  fireCharacterHook(self, 'onHeavy', { battle, target, cost });
   finishIfBattleEnded(battle, 'win');
   return { ok: true };
 }
@@ -418,6 +456,9 @@ export function doSwitch(battle, toIdx) {
   // 雷霆墙:锁定切换
   const cur = battle.team[battle.active];
   if (cur && (cur._wallLocked || 0) > 0) return { ok: false, err: `被雷霆墙锁定，不可切换` };
+  // 角色态锁定（如奥古斯塔赫日威临俯首之刻）
+  const switchBlock = queryCharacterHook(cur, 'canSwitch', battle);
+  if (switchBlock && switchBlock.ok === false) return switchBlock;
   const prev = cur;
   const concertoFull = prev && (prev.concerto || 0) >= 100;
   battle.active = toIdx;
@@ -439,7 +480,7 @@ export function doSwitch(battle, toIdx) {
     if (target.variationBonus > 0) {
       variMult *= (1 + target.variationBonus);
     }
-    const { dmg, crit } = calcDamage(target, tgt, variMult, 'normal');
+    const { dmg, crit } = calcDamage(target, tgt, variMult, 'variation');
     const real = dealDamage(tgt, dmg);
     reduceVibration(tgt, concertoFull ? VIBRATION_DAMAGE.concertoVariation : VIBRATION_DAMAGE.variation, battle, target);
     applyReflect(battle, target, tgt, real);

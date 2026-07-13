@@ -82,6 +82,7 @@ export function qianxiaoHpMult(dmgType) {
     case 'normal': return NORMAL_HP_MULT;
     case 'skill':  return SKILL_HP_MULT;
     case 'burst':  return null;   // 由 resolveBurstMult 提供解放倍率
+    case 'variation': return VARIATION_HP_MULT;
     default:       return null;
   }
 }
@@ -106,13 +107,17 @@ export function qianxiaoResolveBurstMult(self) {
   return { baseMain: main, baseSide: side };
 }
 
-// ── 虚无绞痕伤害加成（damage.js debuffBonus 中查询） ──
-export function qianxiaoGetMarkDamageBonus(defender) {
-  if (!defender) return 1.0;
+// ── 虚无绞痕 / 终焉伤害加成（damage.js debuffBonus 经 getMarkDamageBonus 查询） ──
+export function qianxiaoGetMarkDamageBonus(self, defender) {
+  if (!defender || self?.name !== '千咲') return 1.0;
   let mult = 1.0;
   // 虚无绞痕 +15%
   if (defender.qianxiaoMark && defender.qianxiaoMark > 0) {
     mult *= 1.15;
+  }
+  // 链6 终焉：对带终焉标记的目标 +40%
+  if (self.chain >= 6 && defender.qianxiaoTerminal) {
+    mult *= 1.40;
   }
   return mult;
 }
@@ -134,7 +139,7 @@ export function qianxiaoResolveNormal(self, battle) {
   return {
     mult: qianxiaoSawSlashMult(self),
     dmgType: 'burst',
-    label: '环·疾攻',
+    label: '锯环·疾攻',
     isSawSlash: true
   };
 }
@@ -152,12 +157,20 @@ export function qianxiaoResolveSkill(self, battle) {
   };
 }
 
+function syncQianxiaoForte(self) {
+  if (self.forte) {
+    self.forte.current = self.qianxiaoStack || 0;
+    self.forte.ready = (self.qianxiaoStack || 0) >= RESOURCE_MAX;
+  }
+}
+
 // ── 普攻命中后 hook（电锯模式下资源增减） ──
 export function qianxiaoOnAttack(self, ctx) {
   if (self.name !== '千咲') return;
   if (!qianxiaoInSaw(self)) {
     // 非电锯模式：普攻+10残响
     self.qianxiaoStack = Math.min(RESOURCE_MAX, (self.qianxiaoStack || 0) + NORMAL_RESOURCE_GAIN);
+    syncQianxiaoForte(self);
     return;
   }
   const battle = ctx.battle;
@@ -184,7 +197,7 @@ export function qianxiaoOnAttack(self, ctx) {
     self.qianxiaoStack = Math.min(RESOURCE_MAX, before + SAWSLASH_RESOURCE_GAIN * 3);
     battle.log.push({
       type: 'mechanic', src: self.name,
-      msg: `锯环·攻 · 响 +36（${before} → ${self.qianxiaoStack}/${RESOURCE_MAX}）`
+      msg: `锯环·疾攻 · 残响 +36（${before} → ${self.qianxiaoStack}/${RESOURCE_MAX}）`
     });
     if (self.qianxiaoStack >= RESOURCE_MAX) {
       battle.log.push({
@@ -193,6 +206,7 @@ export function qianxiaoOnAttack(self, ctx) {
       });
     }
   }
+  syncQianxiaoForte(self);
 }
 
 // ── 共鸣技能命中后 hook ──
@@ -207,6 +221,7 @@ export function qianxiaoOnSkill(self, ctx) {
     const before = self.qianxiaoStack || 0;
     self.qianxiaoStack = Math.min(RESOURCE_MAX, before + SKILL_RESOURCE_GAIN);
     qianxiaoApplyMark(self, target, battle);
+    syncQianxiaoForte(self);
     battle.log.push({
       type: 'mechanic', src: self.name,
       msg: `共鸣技能 · 残响 +${SKILL_RESOURCE_GAIN}（${before} → ${self.qianxiaoStack}/${RESOURCE_MAX}）· 附加虚无绞痕`
@@ -244,6 +259,7 @@ export function qianxiaoOnSkill(self, ctx) {
       });
     }
 
+    syncQianxiaoForte(self);
     battle.log.push({
       type: 'mechanic', src: self.name,
       msg: `齿轨轮回 · 消耗全部残响 · 进入电锯模式（${SAW_DURATION} 回合）`
@@ -264,6 +280,7 @@ export function qianxiaoOnSkill(self, ctx) {
       });
     }
 
+    syncQianxiaoForte(self);
     battle.log.push({
       type: 'mechanic', src: self.name,
       msg: `共鸣技能 · 残响 +${SKILL_RESOURCE_GAIN}（${before} → ${self.qianxiaoStack}/${RESOURCE_MAX}）· 附加虚无绞痕`
@@ -359,6 +376,7 @@ export function qianxiaoTick(self, battle) {
     if (self.qianxiaoSawTurns <= 0) {
       self.qianxiaoSawTurns = 0;
       self.qianxiaoStack = 0;
+      syncQianxiaoForte(self);
       results.push('电锯模式结束 · 残响清零');
       battle.log.push({
         type: 'mechanic', src: self.name,
@@ -448,6 +466,7 @@ export default {
   resolveBurstMult: qianxiaoResolveBurstMult,
   resolveNormal: qianxiaoResolveNormal,
   resolveSkill: qianxiaoResolveSkill,
+  getMarkDamageBonus: qianxiaoGetMarkDamageBonus,
   onAttack: qianxiaoOnAttack,
   onSkill: qianxiaoOnSkill,
   onBurst: qianxiaoOnBurst,

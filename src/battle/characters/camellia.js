@@ -62,12 +62,14 @@ export function chunEnterHanbao(self, battle, isRefresh = false) {
   self.concerto = Math.max(0, (self.concerto || 0) - YONGSHENG_CONCERTO_COST);
   self.forte.hanbao = HANBAO_DURATION + 1;  // +1 补偿本回合 endTurn -1
   if (self.chain >= 3) {
-    self.buffs = (self.buffs || []).filter(b => b.src !== '含苞·酣梦');
+    self.buffs = (self.buffs || []).filter(b => b.src !== '含苞·酣梦' && b.src !== '含苞·解放');
     self.buffs.push({ type: 'atkUp', value: 0.58, duration: HANBAO_DURATION + 1, src: '含苞·酣梦' });
+    // C3：含苞期间解放 +50%（非常驻 flat burstDmg）
+    self.buffs.push({ type: 'burstDmgUp', value: 0.5, duration: HANBAO_DURATION + 1, src: '含苞·解放' });
   }
   if (isRefresh) self._chunYongshengFired = true;
   const mult = chunHanbaoMult(self);
-  battle.log.push({
+  battle?.log?.push({
     type: 'mechanic', src: self.name,
     msg: isRefresh
       ? `永生花·续窗！消耗 ${YONGSHENG_RUI_COST} 红椿·蕊 + ${YONGSHENG_CONCERTO_COST} 协奏 → 含苞重置 ${HANBAO_DURATION} 回合（酣梦 ×${mult}）`
@@ -96,15 +98,16 @@ export function chunWindowMultiplier(self, dmgType) {
   return chunHanbaoMult(self);
 }
 
-// turnCleanup: 含苞 duration 递减
-export function chunTick(self, battle) {
+// turnCleanup: 含苞 duration 递减（query 传入 { battle } 或 battle）
+export function chunTick(self, ctx) {
   if (self.name !== '椿' || !self.forte) return;
+  const battle = ctx?.battle || ctx;
   if (self.forte.hanbao && self.forte.hanbao > 0) {
     self.forte.hanbao--;
     if (self.forte.hanbao <= 0) {
       self.forte.hanbao = 0;
-      self.buffs = (self.buffs || []).filter(b => b.src !== '含苞·酣梦');
-      battle?.log.push({ type: 'mechanic', src: self.name, msg: '含苞状态结束' });
+      self.buffs = (self.buffs || []).filter(b => b.src !== '含苞·酣梦' && b.src !== '含苞·解放');
+      battle?.log?.push({ type: 'mechanic', src: self.name, msg: '含苞状态结束' });
     }
   }
 }
@@ -123,9 +126,10 @@ export function chunSwitchIn({ to, battle }) {
     battle.team.forEach(t => {
       if (!t.alive) return;
       t.buffs = (t.buffs || []).filter(b => b.src !== '根茎永恒');
-      t.buffs.push({ type: 'normalDmgUp', value: 0.25, duration: 4 + 1, src: '根茎永恒', installer: self.idx });
+      // 文案 2 回合；+1 补偿 endTurn 当回合衰减
+      t.buffs.push({ type: 'normalDmgUp', value: 0.25, duration: 2 + 1, src: '根茎永恒', installer: self.idx });
     });
-    battle.log.push({ type: 'mechanic', src: self.name, msg: '根茎永恒 · 全队普攻 +25%（4 回合）' });
+    battle.log.push({ type: 'mechanic', src: self.name, msg: '根茎永恒 · 全队普攻 +25%（2 回合）' });
   }
 }
 

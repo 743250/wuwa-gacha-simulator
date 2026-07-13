@@ -53,7 +53,10 @@ export function fireTrigger(unit, eventName, ctx = {}) {
 function checkCondition(condition, ctx) {
   if (!ctx.target) return false;
   if (condition === 'enemy_has_erosion_aero') {
-    return (ctx.target.debuffs || []).some(d => d.type === 'erosion' && d.element === '气动');
+    return (ctx.target.debuffs || []).some(d =>
+      (d.type === 'effect' && d.effect === 'wind_erosion' && (d.stacks || 0) > 0) ||
+      (d.type === 'erosion' && d.element === '气动') // 兼容历史残片
+    );
   }
   if (condition === 'enemy_has_spectro_frazzle') {
     return (ctx.target.debuffs || []).some(d => d.type === 'spectro_frazzle');

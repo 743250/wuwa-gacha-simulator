@@ -7,3 +7,5 @@ single/*
 .vite/
 *.log
 .claude/worktrees/
+single/assets/
+single/index.html

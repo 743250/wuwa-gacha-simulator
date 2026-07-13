@@ -107,9 +107,10 @@ export function getEffectDef(effectType) {
 
 // 附加 N 层效应（默认刷新持续时间）
 export function addEffect(target, effectType, n, battle, opts = {}) {
-  if (!target || !target.debuffs || n <= 0) return;
+  if (!target || n <= 0) return;
   const def = EFFECT_DEFS[effectType];
   if (!def) return;
+  // spawnEnemy 等路径可能未初始化 debuffs，这里兜底
   target.debuffs = target.debuffs || [];
   let entry = getEffectEntry(target, effectType);
   if (!entry) {

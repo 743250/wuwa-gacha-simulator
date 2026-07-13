@@ -183,6 +183,20 @@ export function applyChainBonuses(unit) {
       case 'yinlinJiTing':
         unit.yinlinJiTing = { value: e.value || 1.0, dur: e.dur || 2 };
         break;
+      // ===== 今汐「韶光 / 谪仙」=====
+      case 'jinhsiZheXian':
+        unit.jinhsiZheXian = true;
+        break;
+      case 'jinhsiTeamAllDmg':
+        unit.jinhsiTeamAllDmg = true;
+        break;
+      // ===== 珂莱塔「解离 / 重击拐」=====
+      case 'carlottaCrateVsDebuff':
+        unit.carlottaCrateVsDebuff = (unit.carlottaCrateVsDebuff || 0) + (e.value || 0);
+        break;
+      case 'carlottaTeamSkillAfterHeavy':
+        unit.carlottaTeamSkillAfterHeavy = e.value || 0.25;
+        break;
       // ===== 折枝「墨鹤召唤」=====
       case 'zhezhiCraneCapBonus':
         unit.zhezhiCraneCapBonus = (unit.zhezhiCraneCapBonus || 0) + (e.value || 6);

@@ -12,6 +12,7 @@
 //   的 applyTempStat / removeTempStat / computeStat / tickTempStats。
 
 import { applyTempStat, removeTempStat, clearTempStat, computeStat, hasTempStat, tickTempStats } from './tempStats.js';
+import { addErosion } from './combat/erosion.js';
 
 function isMechanicTurn(m, turn) {
   return !!(m?.cycle && turn % m.cycle === 0);
@@ -181,9 +182,10 @@ const LEGACY_MECHANICS = {
       if (!isMechanicTurn(m, battle.turn)) return;
       const tgt = helpers.pickTeamTarget(battle);
       if (!tgt) return;
-      tgt.debuffs = tgt.debuffs || [];
-      tgt.debuffs.push({ type: 'erosion', element: '气动', value: m.value || 0.15, duration: m.duration || 2 });
-      battle.log.push({ type: 'mechanic', src: enemy.name, msg: `${tgt.name} 受到气动侵蚀` });
+      // 统一 wind_erosion；层数默认 1（旧 value 百分比路径已废弃）
+      const n = Math.max(1, Math.round(Number(m.stacks) || 1));
+      addErosion(tgt, n, battle, { src: enemy.name });
+      battle.log.push({ type: 'mechanic', src: enemy.name, msg: `${tgt.name} 受到气动风蚀 ×${n}` });
     }
   }
 };

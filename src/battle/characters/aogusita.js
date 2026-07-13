@@ -14,11 +14,12 @@
 //   普通解放HP×18%主9%副 / 赫日威临HP×36%主18%副 / 烈阳HP×8.5% / 变奏HP×3.6%
 
 import { calcDamage, dealDamage } from '../combat/damage.js';
-import { registerSwitchHook } from '../switchHooks.js';
+import { registerSwitchHook, registerSwitchOutHook } from '../switchHooks.js';
 
 // ── 常量 ──
 const WEISHE_MAX = 2;
 const BURST_WINDOW_TURNS = 2;
+const ACTION_COST_BURST = 3;
 
 const NORMAL_HP_MULT = 0.045;
 const SKILL_HP_MULT = 0.081;
@@ -117,6 +118,7 @@ export function aogusitaHpMult(dmgType) {
     case 'skill':  return SKILL_HP_MULT;
     case 'heavy':  return HEAVY_HP_MULT;
     case 'burst':  return BURST_NORMAL_HP_MULT;
+    case 'variation': return VARIATION_HP_MULT;
     default:       return null;
   }
 }
@@ -152,7 +154,8 @@ export function aogusitaResolveBurstMult(self) {
     let m = BURST_MAJESTIC_HP_MULT;
     let s = BURST_MAJESTIC_SIDE_MULT;
     if (self.chain >= 3) { m *= 1.25; s *= 1.25; }
-    return { baseMain: m, baseSide: s };
+    // 赫日威临：消耗威慑，不耗共鸣能量
+    return { baseMain: m, baseSide: s, keepEnergy: true };
   }
   return { baseMain: BURST_NORMAL_HP_MULT, baseSide: BURST_NORMAL_SIDE_MULT };
 }
@@ -185,12 +188,18 @@ export function aogusitaCanHeavy(self) {
 }
 
 // ── 解放可用性 ──
+// 威慑≥2：赫日威临仍耗 3 AP，但不耗共鸣能量（通用路径会查 energy，此处跳过）
 export function aogusitaCanBurst(self, battle) {
   if (self.name !== '奥古斯塔') return null;
   if (aogusitaInBurstWindow(self)) {
     return { ok: false, err: '赫日威临窗口内不可再次解放' };
   }
   if ((self.aogusitaWeiShe || 0) >= WEISHE_MAX) {
+    if (self.frozenTurns > 0) return { ok: false, err: `当前角色被冻结（${self.frozenTurns} 回合）` };
+    if (battle?.finished) return { ok: false, err: '战斗已结束' };
+    if ((battle?.ap ?? 0) < ACTION_COST_BURST) {
+      return { ok: false, err: `AP 不足（需 ${ACTION_COST_BURST}）` };
+    }
     const alive = battle?.enemies?.filter(e => e.alive);
     if (!alive || !alive.length) return { ok: false, err: '没有目标' };
     return { ok: true };
@@ -232,7 +241,7 @@ export function aogusitaSwitchIn({ to, battle }) {
     battle.team.forEach(t => {
       if (!t.alive) return;
       t.buffs = (t.buffs || []).filter(b => b.src !== '奥古斯塔4链');
-      t.buffs.push({ type: 'atkUp', value: 0.20, duration: 2, src: '奥古斯塔4链', installer: self.idx });
+      t.buffs.push({ type: 'atkUp', value: 0.20, duration: 2, src: '奥古斯塔4链', installer: to.idx });
     });
     battle.log.push({
       type: 'mechanic', src: to.name,
@@ -241,6 +250,28 @@ export function aogusitaSwitchIn({ to, battle }) {
   }
 }
 registerSwitchHook('奥古斯塔', aogusitaSwitchIn);
+
+// ── 延奏离场：给队伍中的奥古斯塔 +1 威慑 +1 冕层（设计：延奏·不屈的战歌）──
+export function aogusitaSwitchOut({ from, to, battle }) {
+  if (from?.name !== '奥古斯塔' || !from.alive) return;
+  // 延奏给「队伍中的奥古斯塔」自身叠威慑/冕层（模拟器单奥古斯塔）
+  gainWeiShe(from, 1, battle);
+  gainCrown(from, 1, battle);
+  battle?.log?.push({
+    type: 'mechanic', src: from.name,
+    msg: '延奏 · 不屈的战歌 · 威慑 +1 · 以众愿为冕 +1'
+  });
+}
+registerSwitchOutHook('奥古斯塔', aogusitaSwitchOut);
+
+// ── 俯首之刻不可切人 ──
+export function aogusitaCanSwitch(self) {
+  if (self?.name !== '奥古斯塔') return null;
+  if (aogusitaInBurstWindow(self)) {
+    return { ok: false, err: '俯首之刻期间不可切换角色' };
+  }
+  return null;
+}
 
 // ── 战斗开始（炽盛决意: 威慑补至 1 层） ──
 export function aogusitaBattleStart(self, ctx) {
@@ -335,6 +366,7 @@ export default {
   inBurstWindow: aogusitaInBurstWindow,
   canHeavy: aogusitaCanHeavy,
   canBurst: aogusitaCanBurst,
+  canSwitch: aogusitaCanSwitch,
   hpMult: aogusitaHpMult,
   hpCore: aogusitaHpCore,
   skillMult: aogusitaSkillMult,
@@ -347,6 +379,7 @@ export default {
   onHeavy: aogusitaOnHeavy,
   battleStart: aogusitaBattleStart,
   switchIn: aogusitaSwitchIn,
+  switchOut: aogusitaSwitchOut,
   tick: aogusitaTick,
   turnCleanup: aogusitaTurnCleanup,
   collectBadges: aogusitaCollectBadges

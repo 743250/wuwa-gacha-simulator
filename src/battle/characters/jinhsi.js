@@ -1,32 +1,64 @@
-// 今汐「韶光层数 / 惊蛰」爆发型主C
+// 今汐「韶光层数」爆发型主C
 //
-// 创作者思路：今汐是「攒韶光 → 惊龙破空」的爆发流主C
-//   普攻/技能积韶光层数（上限 4），满层时共鸣技能进入惊龙破空强化形态
-//   1 链惊蛰：普攻/逐天取月额外叠惊蛰层（4 层），惊龙破空消耗惊蛰 +20%/层
-//   3 链谪仙：变奏入场获得攻击 +25%/层 ×2 层
+//   技能 +1 / 解放 +2 / 变奏 +2 韶光（上限 4）；满层下次技能 = 惊龙破空 ×effectMult（基 1.8，6 链 FORTE_BOOST）
+//   3 链谪仙：变奏入场 atk +50%（registry 占位 jinhsiZheXian）
+//   4 链：惊龙破空或解放后全队 allDmgUp +20% · 2 回合（registry 占位 jinhsiTeamAllDmg）
 
 import { registerSwitchHook } from '../switchHooks.js';
 
+const SRC_C4 = '自甘佑凡尘';
+const C4_ALL_DMG = 0.20;
+const C4_TURNS = 2;
+
+function applyC4TeamAllDmg(self, battle, source) {
+  if (!self.jinhsiTeamAllDmg || !battle) return;
+  battle.team.forEach(t => {
+    if (!t.alive) return;
+    t.buffs = (t.buffs || []).filter(b => b.src !== SRC_C4);
+    t.buffs.push({
+      type: 'allDmgUp',
+      value: C4_ALL_DMG,
+      duration: C4_TURNS + 1,
+      src: SRC_C4,
+      installer: self.idx
+    });
+  });
+  battle.log.push({
+    type: 'mechanic', src: self.name,
+    msg: `${source} · 全队全伤害 +${(C4_ALL_DMG * 100).toFixed(0)}%（${C4_TURNS} 回合）`
+  });
+}
+
 export function jinhsiSwitchIn(self, battle) {
   if (self.name !== '今汐') return;
-  // 3 链谪仙：变奏入场攻击 +50%（2 层 ×25%）
   if (self.jinhsiZheXian) {
     self.buffs = (self.buffs || []).filter(b => b.src !== '谪仙');
     self.buffs.push({ type: 'atkUp', value: 0.50, duration: 21, src: '谪仙' });
-    battle.log.push({ type: 'mechanic', src: self.name, msg: '谪仙 · 攻击 +50%（2 层）' });
+    battle.log.push({ type: 'mechanic', src: self.name, msg: '谪仙 · 攻击 +50%' });
   }
-  // 变奏入场积韶光（2 层）
   if (self.forte && self.forte.resourceName === '韶光层数') {
     self.forte.current = Math.min(self.forte.max, self.forte.current + 2);
     if (self.forte.current >= self.forte.max) self.forte.ready = true;
   }
 }
 
-// Step E：切人入场钩子（3 链谪仙 + 韶光 +2）
+export function jinhsiOnSkill(self, ctx) {
+  if (self.name !== '今汐') return;
+  // actions 传入 forteEnh：满韶光惊龙破空时非 null
+  if (ctx?.forteEnh) applyC4TeamAllDmg(self, ctx.battle, '惊龙破空');
+}
+
+export function jinhsiOnBurst(self, ctx) {
+  if (self.name !== '今汐') return;
+  applyC4TeamAllDmg(self, ctx?.battle, '移岁诛邪');
+}
+
 registerSwitchHook('今汐', ({ to, battle }) => jinhsiSwitchIn(to, battle));
 
 export default {
   name: '今汐',
   hasHeavy: true,
-  switchIn: jinhsiSwitchIn
+  switchIn: jinhsiSwitchIn,
+  onSkill: jinhsiOnSkill,
+  onBurst: jinhsiOnBurst
 };

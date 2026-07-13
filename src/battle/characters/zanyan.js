@@ -56,6 +56,7 @@ export function zanYanHpMult(self, dmgType) {
     case 'skill':  return chain >= 2 ? SKILL_HP_MULT * 1.8 : SKILL_HP_MULT;  // 2链集中压制/破袭反击 +80%
     case 'heavy':  return HEAVY_HP_MULT;
     case 'burst':  return BURST_REKIND_HP_MULT;  // 重燃主目标
+    case 'variation': return 0.03;  // 变奏 HP × 3%
     default:       return null;
   }
 }
@@ -256,6 +257,33 @@ export function zanYanSwitchIn({ to, battle }) {
 }
 registerSwitchHook('赞妮', zanYanSwitchIn);
 
+// ── 技能/重击生命%（非灼焰形态；供 actions doSkill/doHeavy） ──
+export function zanYanSkillMult(self) {
+  if (self.name !== '赞妮') return null;
+  return zanYanHpMult(self, 'skill');
+}
+
+export function zanYanHeavyMult(self) {
+  if (self.name !== '赞妮') return null;
+  if (zanYanInBlaze(self)) return null; // 形态内重击禁用，由 canHeavy 拦
+  return HEAVY_HP_MULT;
+}
+
+// ── onSkill：1 链施放技能后衍射 +50%（2 回合） ──
+export function zanYanOnSkill(self, ctx) {
+  if (self.name !== '赞妮') return;
+  if (self.chain < 1) return;
+  const battle = ctx.battle;
+  self.buffs = (self.buffs || []).filter(b => b.src !== '赞妮链1');
+  self.buffs.push({
+    type: 'echoElemDmg', element: '衍射', value: 0.5, duration: 2, src: '赞妮链1'
+  });
+  battle.log.push({
+    type: 'mechanic', src: self.name,
+    msg: '1 链 · 施放共鸣技能 · 衍射伤害 +50%（2 回合）'
+  });
+}
+
 // ── onBurst hook（解放·重燃进入灼焰形态） ──
 export function zanYanOnBurst(self, ctx) {
   if (self.name !== '赞妮') return;
@@ -286,6 +314,8 @@ export default {
   canHeavy: zanYanCanHeavy,
   hpMult: zanYanHpMult,
   hpCore: zanYanHpCore,
+  skillMult: zanYanSkillMult,
+  heavyMult: zanYanHeavyMult,
   heavySlashMult: zanYanHeavySlashMult,
   finalMult: zanYanFinalMult,
   rekindleMult: zanYanRekindleMult,
@@ -297,6 +327,7 @@ export default {
   tick: zanYanTick,
   turnCleanup: zanYanTurnCleanup,
   switchIn: zanYanSwitchIn,
+  onSkill: zanYanOnSkill,
   onBurst: zanYanOnBurst,
   collectBadges: zanYanCollectBadges
 };

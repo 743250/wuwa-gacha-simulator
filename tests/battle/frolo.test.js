@@ -322,4 +322,27 @@ describe('battle/characters/frolo — 弗洛洛状态机', () => {
       expect(battle.summons.length).toBe(0);
     });
   });
+
+  // ===== DoD 收口：C0 flat 双算 + skillHints 有数 =====
+  describe('DoD 门禁', () => {
+    let skillHints;
+    let charDoD;
+    beforeAll(async () => {
+      skillHints = await import('../../src/ui/render/skillHints.js');
+      charDoD = await import('./helpers/charDoD.js');
+    });
+
+    it('C0 无常驻 typeBonus 双算嫌疑', () => {
+      const battle = quickBattle();
+      const f = getFurolo(battle);
+      expect(charDoD.expectNoFlatDoubleCount(f)).toBe(true);
+    });
+
+    it('skillHints customLines 有数字', () => {
+      const entry = skillHints.SKILL_HINTS['弗洛洛'];
+      expect(entry).toBeTruthy();
+      const smoke = charDoD.skillHintsSmoke(entry, 0);
+      expect(smoke.ok, smoke.reason).toBe(true);
+    });
+  });
 });

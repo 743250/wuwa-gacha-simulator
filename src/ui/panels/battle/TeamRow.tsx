@@ -92,9 +92,13 @@ export function TeamRow({ battle }: TeamRowProps) {
         const enPct = t.energy / t.energyMax;
         const isActive = i === battle.active;
         const elemColor = ELEMENT_COLOR[t.element] || '#fff';
-        const canSwitch = !isActive && t.alive && t.frozenTurns === 0 && !battle.switchUsedThisTurn;
+        const activeUnit = battle.team[battle.active];
+        // 俯首之刻等角色态锁定（与 doSwitch canSwitch hook 对齐）
+        const switchLocked = !!(activeUnit as any)?.aogusitaBurstTurns;
+        const canSwitch = !isActive && t.alive && t.frozenTurns === 0 && !battle.switchUsedThisTurn && !switchLocked;
         const swapHint = !isActive
-          ? (battle.switchUsedThisTurn ? '本回合不能再切' : (battle.team[battle.active]?.concerto >= 100 ? '点击切换 · 强化变奏!' : '点击切换 · 触发变奏'))
+          ? (switchLocked ? '俯首之刻期间不可切换'
+            : (battle.switchUsedThisTurn ? '本回合不能再切' : (activeUnit?.concerto >= 100 ? '点击切换 · 强化变奏!' : '点击切换 · 触发变奏')))
           : '';
         const f = t.forte;
         const fPct = f ? (f.current / f.max) : 0;

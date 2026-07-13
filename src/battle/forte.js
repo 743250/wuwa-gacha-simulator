@@ -74,10 +74,10 @@ export const FORTE = {
   },
   '嘉贝莉娜': {
     kind: 'threshold', resourceName: '猎杀阈值', max: 100,
-    gainPerNormal: 8, gainPerSkill: 18, gainPerBurst: 25,
+    gainPerNormal: 8, gainPerSkill: 18, gainPerBurst: 25, gainPerHeavy: 12,
     effectType: 'enhancedBurst',
     effectMult: 1.6,
-    desc: '阈值满时共鸣解放伤害 ×1.6'
+    desc: '普攻+8/技能+18/重击+12/解放+25。满100时共鸣解放伤害×1.6（6链FORTE_BOOST→×2.1），施放后重置'
   },
   '赞妮': {
     kind: 'gauge', resourceName: '焰光', max: 100,
@@ -117,7 +117,8 @@ export const FORTE = {
   '露帕': {
     kind: 'gauge', resourceName: '狼焰', max: 100,
     gainPerNormal: 10, gainPerSkill: 15, gainPerBurst: 100, gainPerHeavy: 20,
-    effectType: 'enhancedBurst',
+    // 满值由 lupa.js resolveSkill 替换为狼舞·决意·极，勿走 enhancedBurst（否则误乘解放）
+    effectType: 'lupaLangwu',
     effectMult: 3.2,
     desc: '普攻+10/技能+15/重击+20/解放全满。满100时共鸣技能替换为狼舞·决意·极（atk×320%热熔，视为共鸣解放伤害；链4+125%=×720%）并消耗全部狼焰'
   },
@@ -139,18 +140,22 @@ export const FORTE = {
 
   // ── 限定 5★（补）──
   '吟霖': {
+    // 审判值由 yinlin.js 的 self.verdict 状态机控制（普攻+15/技能+30，满 100 触发审判之雷），
+    // 通用 gainForte 全部置 0，避免 UI 条与 verdict 双轨不同步。
     kind: 'gauge', resourceName: '审判值', max: 100,
-    gainPerNormal: 15, gainPerSkill: 30, gainPerBurst: 40,
+    gainPerNormal: 0, gainPerSkill: 0, gainPerBurst: 0, gainPerHeavy: 0,
     effectType: 'judgmentMark',
     effectMult: 1.0,
     desc: '满审判值触发审判之雷，给主目标挂审判印记（3 层上限，命中印记目标增伤）'
   },
   '折枝': {
-    kind: 'gauge', resourceName: '墨韵', max: 100,
-    gainPerNormal: 10, gainPerSkill: 20, gainPerBurst: 30,
-    effectType: 'enhancedSkill',
-    effectMult: 1.8,
-    desc: '墨韵满时共鸣技能强化，召唤墨鹤协同攻击（×1.8）'
+    // 墨鹤由 zhezhi.js 状态机控制（解放展开领域初召 6 / 技能补 1 / 追击消耗），
+    // 通用 gainForte 置 0；UI 条显示当前墨鹤数由战斗状态同步（可选）。
+    kind: 'gauge', resourceName: '墨鹤', max: 6,
+    gainPerNormal: 0, gainPerSkill: 0, gainPerBurst: 0, gainPerHeavy: 0,
+    effectType: 'zhezhiCranes',
+    effectMult: 1.0,
+    desc: '共鸣解放展开墨鹤领域并初召 6 只；领域内己方命中消耗墨鹤追击；重击点睛转护盾'
   },
   '相里要': {
     kind: 'gauge', resourceName: '衍构', max: 100,
@@ -443,5 +448,7 @@ export function forteEnhances(unit, actionType) {
   if (actionType === 'normal' && t === 'enhancedNormal') return unit.forte;
   if (actionType === 'skill' && t === 'enhancedSkill') return unit.forte;
   if (actionType === 'burst' && t === 'enhancedBurst') return unit.forte;
+  // 相里要等：满 gauge 解放进入 burstWindow（不改解放倍率，挂 2 回合窗）
+  if (actionType === 'burst' && t === 'burstWindow') return unit.forte;
   return null;
 }

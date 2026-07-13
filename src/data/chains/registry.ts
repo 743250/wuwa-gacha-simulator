@@ -77,13 +77,13 @@ export const REGISTRY: Record<string, CharacterChains> = {
     }
     ],
   },
-  // 今汐 共鸣链文案 — 实装文案,机制依据 src/battle/characters/jinhsi.js(韶光/惊蛰状态机)
+  // 今汐 共鸣链文案 — 实装文案,机制依据 src/battle/characters/jinhsi.js(韶光/谪仙)
   "今汐": {
     character: "今汐",
     chains: [
     {
       index: 1,
-      effect: {"effect":"skillDmg","value":0.8,"label":"惊蛰 4 层 × 20% = 共鸣技能伤害 +80%"},
+      effect: {"effect":"skillDmg","value":0.8,"label":"共鸣技能伤害 +80%"},
       text: { name: "沉海洄天溯", desc: "今汐<b class=\"term-skill\">共鸣技能·惊龙破空</b>伤害 +<b class=\"term-num\">80%</b>。" },
     },
     {
@@ -93,12 +93,14 @@ export const REGISTRY: Record<string, CharacterChains> = {
     },
     {
       index: 3,
-      effect: {"effect":"atk","value":0.5,"label":"谪仙 2 层 × 25% = 攻击 +50%"},
+      // 谪仙由 jinhsiSwitchIn 挂 atkUp；勿写 flat atk 常驻双算
+      effect: {"effect":"jinhsiZheXian","value":0.5,"label":"变奏入场谪仙攻击 +50%"},
       text: { name: "天定神子身", desc: "今汐<b class=\"term-variation\">变奏入场</b>后获得 <b class=\"term-num\">1</b> 层<b class=\"term-resource\">谪仙</b>，每层攻击 +<b class=\"term-num\">25%</b>，可叠 <b class=\"term-num\">2</b> 层；满层时攻击共 +<b class=\"term-num\">50%</b>。" },
     },
     {
       index: 4,
-      effect: {"effect":"teamAllDmg","value":0.2,"label":"全队全属性伤害 +20%"},
+      // 惊龙/解放后全队 allDmgUp 由 jinhsi onSkill/onBurst；勿写 teamAllDmg 常驻
+      effect: {"effect":"jinhsiTeamAllDmg","value":0.2,"label":"惊龙破空或解放后全队全伤害 +20%·2 回合"},
       text: { name: "自甘佑凡尘", desc: "今汐施放<b class=\"term-skill\">共鸣技能·惊龙破空</b>或<b class=\"term-burst\">共鸣解放·移岁诛邪</b>后，全队所有存活角色全属性伤害 +<b class=\"term-num\">20%</b>，持续 <b class=\"term-num\">2</b> 回合。" },
     },
     {
@@ -108,7 +110,8 @@ export const REGISTRY: Record<string, CharacterChains> = {
     },
     {
       index: 6,
-      effect: {"effect":"skillDmg","value":0.45,"label":"共鸣技能伤害 +45%（消耗韶光时再 +45%）"},
+      // 惊龙破空倍率由 FORTE_BOOST +0.4→×2.2；勿再写 skillDmg 常驻双算
+      effect: {"effect":"jinhsiC6Forte","value":0.4,"label":"惊龙破空倍率额外 +0.4（FORTE_BOOST）"},
       text: { name: "寒尽又逢春", desc: "今汐<b class=\"term-skill\">共鸣技能·惊龙破空</b>伤害 +<b class=\"term-num\">45%</b>。" },
     }
     ],
@@ -119,33 +122,36 @@ export const REGISTRY: Record<string, CharacterChains> = {
     chains: [
     {
       index: 1,
-      effect: {"effect":"allDmg","value":0.1,"label":"技能/重击造成伤害 +10%"},
-      text: { name: "隐我所思", desc: "长离<b class=\"term-skill\">共鸣技能·赫羽三相</b>与<b class=\"term-heavy\">重击·焚身以火</b>伤害 +<b class=\"term-num\">10%</b>。" },
+      // battleStart 写 skillBonus/heavyBonus；勿写 allDmg 常驻（会双算普攻/解放）
+      effect: {"effect":"changliC1SkillHeavy","value":0.1,"label":"共鸣技能与重击伤害 +10%"},
+      text: { name: "隐我所思", desc: "施放<b class=\"term-skill\">共鸣技能·赫羽三相</b>或<b class=\"term-heavy\">重击·焚身以火</b>时，造成的伤害提升 <b class=\"term-num\">10%</b>。" },
     },
     {
       index: 2,
-      effect: {"effect":"crate","value":0.25,"label":"获得离火时暴击 +25%"},
-      text: { name: "循我所望", desc: "长离获得<b class=\"term-resource\">离火</b>时，暴击 +<b class=\"term-num\">25%</b>（常驻面板加成）。" },
+      effect: {"effect":"crate","value":0.25,"label":"持有离火时暴击 +25%"},
+      text: { name: "循我所望", desc: "持有<b class=\"term-resource\">离火</b>时，暴击提升 <b class=\"term-num\">25%</b>。" },
     },
     {
       index: 3,
       effect: {"effect":"burstDmg","value":0.8,"label":"共鸣解放伤害 +80%"},
-      text: { name: "据我所闻", desc: "长离<b class=\"term-burst\">共鸣解放·离火照丹心</b>伤害 +<b class=\"term-num\">80%</b>。" },
+      text: { name: "据我所闻", desc: "<b class=\"term-burst\">共鸣解放·离火照丹心</b>造成的伤害提升 <b class=\"term-num\">80%</b>。" },
     },
     {
       index: 4,
-      effect: {"effect":"teamAtk","value":0.2,"label":"全队攻击 +20%"},
-      text: { name: "饰我所言", desc: "长离<b class=\"term-variation\">变奏入场</b>后，全队所有存活角色攻击 +<b class=\"term-num\">20%</b>，持续 <b class=\"term-num\">2</b> 回合。" },
+      // switchIn 全队 atkUp 2 回合；勿写 teamAtk 常驻光环
+      effect: {"effect":"changliC4SwitchAtk","value":0.2,"label":"变奏后全队攻击 +20%（2 回合）"},
+      text: { name: "饰我所言", desc: "施放<b class=\"term-variation\">变奏技能</b>后，队伍中的角色攻击提升 <b class=\"term-num\">20%</b>，持续 <b class=\"term-num\">2</b> 回合。" },
     },
     {
       index: 5,
       effect: {"effect":"heavyDmg","value":1,"label":"重击伤害 +100%"},
-      text: { name: "舍我所得", desc: "长离<b class=\"term-heavy\">重击·焚身以火</b>伤害 +<b class=\"term-num\">100%</b>。" },
+      text: { name: "舍我所得", desc: "<b class=\"term-heavy\">重击·焚身以火</b>造成的伤害提升 <b class=\"term-num\">100%</b>。" },
     },
     {
       index: 6,
-      effect: {"effect":"defPierce","value":0.4,"label":"无视目标 40% 防御"},
-      text: { name: "成我所谋", desc: "长离<b class=\"term-skill\">共鸣技能</b>、<b class=\"term-heavy\">重击</b>、<b class=\"term-burst\">共鸣解放</b>造成伤害时，无视目标 <b class=\"term-num\">40%</b> 防御。" },
+      // extraPierce hook 仅 skill/heavy/burst；勿写 flat defPierce 常驻
+      effect: {"effect":"changliC6Pierce","value":0.4,"label":"共鸣技能/重击/共鸣解放无视 40% 防御"},
+      text: { name: "成我所谋", desc: "<b class=\"term-skill\">共鸣技能</b>、<b class=\"term-heavy\">重击</b>与<b class=\"term-burst\">共鸣解放</b>造成伤害时，额外忽视目标 <b class=\"term-num\">40%</b> 防御。" },
     }
     ],
   },
@@ -155,21 +161,22 @@ export const REGISTRY: Record<string, CharacterChains> = {
     chains: [
     {
       index: 1,
-      effect: {"effect":"cdmg","value":0.28,"label":"变奏后暴击伤害 +28%"},
+      effect: {"effect":"chunC1Cdmg","value":0.28,"label":"变奏后暴伤 +28%"},
       text: { name: "在无人知晓的秘密小径", desc: "椿<b class=\"term-variation\">变奏入场</b>后，暴击伤害 +<b class=\"term-num\">28%</b>。" },
     },
     {
       index: 2,
-      text: { name: "呼唤那沉默之花的芬芳", desc: "<b class=\"term-skill\">共鸣回路·一日花</b>伤害倍率 +<b class=\"term-num\">120%</b>。" },
+      effect: {"effect":"chunC2Yongsheng","value":1.2,"label":"永生花倍率 +120%"},
+      text: { name: "呼唤那沉默之花的芬芳", desc: "<b class=\"term-skill\">永生花</b>伤害倍率 +<b class=\"term-num\">120%</b>。" },
     },
     {
       index: 3,
-      effect: {"effect":"burstDmg","value":0.5,"label":"含苞期间共鸣解放 +50% + 攻击 +58%"},
+      effect: {"effect":"chunC3Hanbao","value":0.5,"label":"含苞期间攻击 +58% / 解放 +50%"},
       text: { name: "一根荆棘胜过千颗花种", desc: "处于<b class=\"term-resource\">含苞·酣梦</b>状态期间，椿攻击 +<b class=\"term-num\">58%</b>，<b class=\"term-burst\">共鸣解放·芳华绽烬</b>伤害 +<b class=\"term-num\">50%</b>。" },
     },
     {
       index: 4,
-      effect: {"effect":"teamNormalDmg","value":0.25,"label":"变奏后全队普攻伤害 +25%"},
+      effect: {"effect":"chunC4TeamNormal","value":0.25,"label":"变奏后全队普攻 +25%·2回合"},
       text: { name: "它的根茎持续到永恒中", desc: "椿<b class=\"term-variation\">变奏入场</b>后，全队所有存活角色<b class=\"term-normal\">普攻</b>伤害 +<b class=\"term-num\">25%</b>，持续 <b class=\"term-num\">2</b> 回合。" },
     },
     {
@@ -179,6 +186,7 @@ export const REGISTRY: Record<string, CharacterChains> = {
     },
     {
       index: 6,
+      effect: {"effect":"chunC6Refresh","value":2.5,"label":"含苞续窗永生花·酣梦×2.5"},
       text: { name: "为你的千千万万次盛放", desc: "处于<b class=\"term-resource\">含苞·酣梦</b>状态下双资源再次充满时，<b class=\"term-skill\">共鸣技能</b>替换为<b class=\"term-skill\">永生花</b>（每场战斗仅 <b class=\"term-num\">1</b> 次）：消耗 <b class=\"term-num\">50</b> <b class=\"term-resource\">红椿·蕊</b> 与 <b class=\"term-num\">50</b> 协奏，造成攻击 <b class=\"term-num\">250%</b> 的湮灭伤害，重置 <b class=\"term-num\">3</b> 回合含苞并将酣梦倍率加成提升至 ×<b class=\"term-num\">2.5</b>。" },
     }
     ],
@@ -189,7 +197,8 @@ export const REGISTRY: Record<string, CharacterChains> = {
     chains: [
     {
       index: 1,
-      effect: {"effect":"crate","value":0.125,"label":"对解离目标暴击 +12.5%"},
+      // 对解离/变彩目标暴击由 carlottaCrateBonus；勿写常驻 crate
+      effect: {"effect":"carlottaCrateVsDebuff","value":0.125,"label":"对解离目标暴击 +12.5%"},
       text: { name: "美或死，璀璨即凋零", desc: "珂莱塔攻击带有<b class=\"term-resource\">解离</b>效果的目标时，该次伤害暴击 +<b class=\"term-num\">12.5%</b>。" },
     },
     {
@@ -204,7 +213,8 @@ export const REGISTRY: Record<string, CharacterChains> = {
     },
     {
       index: 4,
-      effect: {"effect":"teamSkillDmg","value":0.25,"label":"重击后全队共鸣技能伤害 +25%"},
+      // 重击后全队 skillDmgUp 由 carlotta onHeavy；勿写 teamSkillDmg 常驻
+      effect: {"effect":"carlottaTeamSkillAfterHeavy","value":0.25,"label":"重击后全队共鸣技能伤害 +25%·2 回合"},
       text: { name: "以旧雨，为颂赞的苦酒", desc: "珂莱塔施放<b class=\"term-heavy\">重击·末路见行</b>后，全队所有存活角色<b class=\"term-skill\">共鸣技能</b>伤害 +<b class=\"term-num\">25%</b>，持续 <b class=\"term-num\">2</b> 回合。" },
     },
     {
@@ -259,12 +269,12 @@ export const REGISTRY: Record<string, CharacterChains> = {
     chains: [
     {
       index: 1,
-      effect: {"effect":"cartethyiaErosionOnBreak","label":"破韧瞬间 → 主目标 +1 层风蚀"},
+      effect: {"effect":"cartethyiaErosionOnBreak","label":"击破韧性时主目标 +1 层风蚀"},
       text: { name: "因命运戴上冠冕", desc: "卡提希娅击破敌人韧性时，给该敌人附加 <b class=\"term-num\">1</b> 层<b class=\"term-resource\">风蚀效应</b>。" },
     },
     {
       index: 2,
-      effect: {"effect":"cartethyiaErosionOnSwitchIn","label":"变奏上场 → 主目标 +1 层风蚀"},
+      effect: {"effect":"cartethyiaErosionOnSwitchIn","label":"变奏上场时主目标 +1 层风蚀"},
       text: { name: "听风潮斩断利刃", desc: "卡提希娅<b class=\"term-variation\">变奏</b>上场时，给当前目标附加 <b class=\"term-num\">1</b> 层<b class=\"term-resource\">风蚀效应</b>。" },
     },
     {
@@ -309,8 +319,8 @@ export const REGISTRY: Record<string, CharacterChains> = {
     },
     {
       index: 4,
-      effect: {"effect":"teamAllDmg","value":0.2,"label":"全队伤害 +20%"},
-      text: { name: "承负无薪孤惧苦火", desc: "全队所有角色造成的伤害提升 <b class=\"term-num\">20%</b>。" },
+      effect: {"effect":"gaberinaC4TeamAllDmg","value":0.2,"label":"解放后全队全伤害 +20%·3回合"},
+      text: { name: "承负无薪孤惧苦火", desc: "嘉贝莉娜施放<b class=\"term-burst\">共鸣解放</b>时，使队伍中所有角色造成的伤害提升 <b class=\"term-num\">20%</b>，持续 <b class=\"term-num\">3</b> 回合。" },
     },
     {
       index: 5,
@@ -369,7 +379,7 @@ export const REGISTRY: Record<string, CharacterChains> = {
     },
     {
       index: 2,
-      effect: {"effect":"zhezhiCraneCapBonus","value":6,"label":"墨鹤上限 +6（6 → 12）"},
+      effect: {"effect":"zhezhiCraneCapBonus","value":6,"label":"墨鹤上限 +6（合计 12）"},
       text: { name: "气韵生动", desc: "<b class=\"term-resource\">墨鹤</b>的召唤上限增加 <b class=\"term-num\">6</b> 只。" },
     },
     {
@@ -1135,12 +1145,14 @@ export const REGISTRY: Record<string, CharacterChains> = {
     chains: [
     {
       index: 1,
-      effect: {"effect":"elemDmg","value":0.5,"element":"衍射","label":"施放共鸣技能后衍射伤害 +50%（2 回合）"},
+      // 状态机 onSkill：2 回合衍射 +50%；勿写常驻 elemDmg
+      effect: {"effect":"zanyanSkillElemBuff","value":0.5,"duration":2,"label":"施放共鸣技能后衍射伤害 +50%（2 回合）"},
       text: { name: "当清晨闹钟响起时", desc: "赞妮施放<b class=\"term-skill\">共鸣技能</b>后，衍射伤害加成提升 <b class=\"term-num\">50%</b>，持续 <b class=\"term-num\">2</b> 回合。" },
     },
     {
       index: 2,
-      effect: {"effect":"crate","value":0.2,"label":"暴击 +20%·集中压制/破袭反击 +80%"},
+      // crate 常驻；技能倍率 +80% 在 hpMult/skillMult 状态机
+      effect: {"effect":"crate","value":0.2,"label":"暴击 +20%·共鸣技能倍率 +80%"},
       text: { name: "冷面包配饮料", desc: "赞妮暴击提升 <b class=\"term-num\">20%</b>。<b class=\"term-skill\">共鸣技能</b>倍率提升 <b class=\"term-num\">80%</b>。" },
     },
     {
@@ -1150,17 +1162,20 @@ export const REGISTRY: Record<string, CharacterChains> = {
     },
     {
       index: 4,
-      effect: {"effect":"teamAtk","value":0.2,"label":"变奏·即刻执行时全队攻击 +20%（2 回合）"},
+      // 状态机 switchIn；勿写 teamAtk 常驻光环
+      effect: {"effect":"zanyanVariationTeamAtk","value":0.2,"duration":2,"label":"变奏·即刻执行时全队攻击 +20%（2 回合）"},
       text: { name: "高效节能主义者", desc: "赞妮施放<b class=\"term-variation\">变奏技能·即刻执行</b>时，队伍中所有角色攻击加成提升 <b class=\"term-num\">20%</b>，持续 <b class=\"term-num\">2</b> 回合。" },
     },
     {
       index: 5,
-      effect: {"effect":"burstDmg","value":1.2,"label":"共鸣解放·重燃倍率 +120%"},
+      // 状态机 rekindle ×2.2；勿写 burstDmg 全局
+      effect: {"effect":"zanyanRekindleBoost","value":1.2,"label":"共鸣解放·重燃倍率 +120%"},
       text: { name: "一切需求按时完成", desc: "赞妮<b class=\"term-burst\">共鸣解放·重燃</b>倍率提升 <b class=\"term-num\">120%</b>。" },
     },
     {
       index: 6,
-      effect: {"effect":"heavyDmg","value":0.4,"label":"重斩倍率 +40%"},
+      // 状态机重斩×1.4 + 焰光回复 + 致死不倒；勿写 heavyDmg 全局
+      effect: {"effect":"zanyanHeavySlashBoost","value":0.4,"label":"重斩×1.4 · 焰光回复 · 致死不倒"},
       text: { name: "当务之急？下班！", desc: "赞妮<b class=\"term-heavy\">重斩</b>倍率提升 <b class=\"term-num\">40%</b>。<b class=\"term-state\">灼焰形态</b>期间<b class=\"term-resource\">焰光</b>低于 <b class=\"term-num\">70</b> 点时立即回复至 <b class=\"term-num\">70</b> 点，每场战斗可触发 <b class=\"term-num\">1</b> 次。灼焰形态期间受到致死伤害时不会倒下，最少保留 <b class=\"term-num\">1</b> 点生命值，每场战斗可触发 <b class=\"term-num\">1</b> 次。" },
     }
     ],
@@ -1170,33 +1185,37 @@ export const REGISTRY: Record<string, CharacterChains> = {
     chains: [
     {
       index: 1,
-      effect: {"effect":"atk","value":0.35,"label":"施放普攻时攻击 +35%"},
-      text: { name: "故风的吟游序曲", desc: "夏空施放<b class=\"term-normal\">普攻</b>时，自身攻击力 +<b class=\"term-num\">35%</b>，持续 <b class=\"term-num\">2</b> 回合。" },
+      // 进音律独奏时 atkUp 2 回由 xiakong.js；勿写 flat atk 常驻
+      effect: {"effect":"xiakongC1Atk","value":0.35,"duration":2,"label":"进入音律独奏时攻击 +35%（2 回合）"},
+      text: { name: "故风的吟游序曲", desc: "夏空进入<b class=\"term-resource\">音律独奏</b>时，自身攻击力 +<b class=\"term-num\">35%</b>，持续 <b class=\"term-num\">2</b> 回合。" },
     },
     {
       index: 2,
-      effect: {"effect":"teamElemDmg","value":0.4,"element":"气动","label":"解放持续期间全队气动伤害 +40%"},
+      // 演绎期间全队 elemAeroUp 由 xiakong.js；勿写 teamElemDmg 常驻
+      effect: {"effect":"xiakongC2Aero","value":0.4,"duration":2,"label":"演绎期间全队气动 +40%"},
       text: { name: "四季的连奏之音", desc: "夏空处于<b class=\"term-state\">演绎状态</b>期间，全队所有存活角色的气动伤害加成 +<b class=\"term-num\">40%</b>。" },
     },
     {
       index: 3,
-      effect: {"effect":"skillCdReduce","value":1,"label":"共鸣技能 CD-1 回合（3→2）"},
-      text: { name: "星烁此时的即兴演奏", desc: "<b class=\"term-normal\">普攻</b>第 <b class=\"term-num\">4</b> 段额外获得 <b class=\"term-num\">1</b> 格<b class=\"term-resource\">音律</b>。<b class=\"term-skill\">共鸣技能</b>冷却时间从 <b class=\"term-num\">3</b> 回合缩短为 <b class=\"term-num\">2</b> 回合。" },
+      effect: {"effect":"skillCdReduce","value":1,"label":"共鸣技能冷却 -1 回合；普攻额外 +1 音律"},
+      text: { name: "星烁此时的即兴演奏", desc: "<b class=\"term-normal\">普攻</b>额外获得 <b class=\"term-num\">1</b> 格<b class=\"term-resource\">音律</b>。<b class=\"term-skill\">共鸣技能</b>冷却时间从 <b class=\"term-num\">3</b> 回合缩短为 <b class=\"term-num\">2</b> 回合。" },
     },
     {
       index: 4,
-      effect: {"effect":"defPierce","value":0.45,"label":"重击/解放无视 45% 防御"},
+      // extraPierce hook 仅 heavy/burst；勿写 flat defPierce 常驻
+      effect: {"effect":"xiakongC4Pierce","value":0.45,"label":"四拍重奏/解放无视 45% 防御"},
       text: { name: "托卡塔与赋格", desc: "<b class=\"term-heavy\">重击·四拍重奏</b>和<b class=\"term-burst\">共鸣解放·歌者的三重华彩</b>无视敌人 <b class=\"term-num\">45%</b> 防御。" },
     },
     {
       index: 5,
-      effect: {"effect":"burstDmg","value":0.4,"label":"共鸣解放伤害 +40%"},
+      // burstDmg flat OK；全队 allDmgDown 由 onBurst 状态机
+      effect: {"effect":"burstDmg","value":0.4,"label":"共鸣解放伤害 +40%；演绎期间全队减伤 30%"},
       text: { name: "献予长夏的永恒叙诗", desc: "<b class=\"term-burst\">共鸣解放</b>伤害 +<b class=\"term-num\">40%</b>。全队所有存活角色受到伤害 -<b class=\"term-num\">30%</b>，持续 <b class=\"term-num\">2</b> 回合。" },
     },
     {
       index: 6,
       effect: {"effect":"xiakongSoloEntryDmg","value":2.2,"label":"进入音律独奏时造成 220% 气动伤害（视为共鸣解放伤害）"},
-      text: { name: "终曲未终", desc: "夏空进入<b class=\"term-resource\">音律独奏</b>状态时，对主目标造成攻击力 <b class=\"term-num\">220%</b> 的气动伤害（视为<b class=\"term-burst\">共鸣解放</b>伤害类型）。每回合最多触发 <b class=\"term-num\">1</b> 次。" },
+      text: { name: "终曲未终", desc: "夏空进入<b class=\"term-resource\">音律独奏</b>状态时，对周围目标造成攻击力 <b class=\"term-num\">220%</b> 的气动伤害（视为<b class=\"term-burst\">共鸣解放</b>伤害类型）。每回合最多触发 <b class=\"term-num\">1</b> 次。" },
     }
     ],
   },
@@ -1205,32 +1224,32 @@ export const REGISTRY: Record<string, CharacterChains> = {
     chains: [
     {
       index: 1,
-      effect: {"effect":"crate","value":0.2,"label":"解放时暴击 +20%"},
+      effect: {"effect":"lupaC1Crate","value":0.2,"label":"解放时暴击 +20%"},
       text: { name: "看那无名之人", desc: "露帕施放<b class=\"term-burst\">共鸣解放·荣光欢酣于火</b>时，此次伤害的暴击率提升 <b class=\"term-num\">20%</b>。" },
     },
     {
       index: 2,
-      effect: {"effect":"teamElemDmg","value":0.4,"element":"热熔","label":"全队热熔伤害 +40%（可叠 2 层至 +40%）"},
+      effect: {"effect":"lupaC2TeamFusion","value":0.4,"element":"热熔","label":"解放/重击/狼舞时全队热熔 +40%"},
       text: { name: "所处皆为猎场", desc: "露帕施放<b class=\"term-burst\">共鸣解放</b>、<b class=\"term-heavy\">重击</b>或<b class=\"term-heavy\">狼舞·决意·极</b>时，队伍中所有角色热熔伤害加成提升 <b class=\"term-num\">40%</b>，持续 <b class=\"term-num\">4</b> 回合。" },
     },
     {
       index: 3,
-      effect: {"effect":"elemPierce","value":0.15,"label":"荣光：全队攻击无视 15% 热熔抗性"},
+      effect: {"effect":"lupaC3GloryVar","value":0.15,"label":"荣光 15% + 变奏×2"},
       text: { name: "狼影随焰咆哮", desc: "露帕<b class=\"term-variation\">变奏技能</b>的伤害倍率提升 <b class=\"term-num\">100%</b>。<b class=\"term-resource\">荣光</b>对热熔抗性的无视效果提升至 <b class=\"term-num\">15%</b>。" },
     },
     {
       index: 4,
-      effect: {"effect":"skillDmg","value":1.25,"label":"狼舞·决意·极倍率 +125%"},
+      effect: {"effect":"lupaC4Langwu","value":1.25,"label":"狼舞·决意·极倍率 +125%"},
       text: { name: "旗帜于火飞扬", desc: "露帕<b class=\"term-heavy\">狼舞·决意·极</b>的伤害倍率提升 <b class=\"term-num\">125%</b>。" },
     },
     {
       index: 5,
-      effect: {"effect":"burstDmg","value":0.15,"label":"变奏时解放伤害 +15%"},
+      effect: {"effect":"lupaC5BurstAfterVar","value":0.15,"label":"变奏后解放伤害 +15%"},
       text: { name: "胜利让掌声喝彩", desc: "露帕施放<b class=\"term-variation\">变奏技能</b>后，<b class=\"term-burst\">共鸣解放</b>伤害加成提升 <b class=\"term-num\">15%</b>，持续 <b class=\"term-num\">1</b> 回合。" },
     },
     {
       index: 6,
-      effect: {"effect":"defPierce","value":0.3,"label":"狼舞/解放/变奏无视 30% 防御"},
+      effect: {"effect":"lupaC6PierceFlame","value":0.3,"label":"狼舞/解放/变奏穿防 + 凶噬回狼焰"},
       text: { name: "致那最闪耀的焰星", desc: "露帕的<b class=\"term-heavy\">狼舞·决意·极</b>、<b class=\"term-burst\">共鸣解放·荣光欢酣于火</b>和<b class=\"term-variation\">变奏技能</b>造成的伤害无视目标 <b class=\"term-num\">30%</b> 防御。<b class=\"term-skill\">共鸣技能·凶噬</b>命中时额外回复 <b class=\"term-num\">100</b> 点<b class=\"term-resource\">狼焰</b>，冷却 <b class=\"term-num\">2</b> 回合。施放<b class=\"term-variation\">变奏技能</b>不再清除<b class=\"term-resource\">追猎</b>和<b class=\"term-resource\">荣光</b>效果。" },
     }
     ],
@@ -1245,7 +1264,7 @@ export const REGISTRY: Record<string, CharacterChains> = {
     },
     {
       index: 2,
-      effect: {"effect":"furoloDirgeBoost","valueMult":1.75,"echoBonusMult":1.75,"echoesGain":14,"label":"谱曲终末倍率+75%·余响增益效果+75%（每层+60%→+105%）·施放时+14余响"},
+      effect: {"effect":"furoloDirgeBoost","valueMult":1.75,"echoBonusMult":1.75,"echoesGain":14,"label":"谱曲终末倍率 +75%；余响增益 +75%；施放时 +14 余响"},
       text: { name: "绳索，重生更新的纽带", desc: "<b class=\"term-heavy\">谱曲终末</b>伤害倍率提升 <b class=\"term-num\">75%</b>，<b class=\"term-resource\">余响</b>对谱曲终末的倍率增加效果提升 <b class=\"term-num\">75%</b>。施放<b class=\"term-heavy\">谱曲终末</b>时获得 <b class=\"term-num\">14</b> 层<b class=\"term-resource\">余响</b>。" },
     },
     {
@@ -1310,23 +1329,27 @@ export const REGISTRY: Record<string, CharacterChains> = {
     chains: [
     {
       index: 1,
-      effect: {"effect":"atk","value":0.4,"label":"月相流转时攻击 +40%"},
+      // 月相流转 atkUp 由 younuo.js 状态机挂；勿写 flat atk 常驻
+      effect: {"effect":"younuoMoonAtk","value":0.4,"label":"月相流转时攻击 +40%"},
       text: { name: "圆与缺，皆替金枝镀色", desc: "尤诺处于<b class=\"term-resource\">月相流转</b>状态时，攻击提升 <b class=\"term-num\">40%</b>。" },
     },
     {
       index: 2,
-      effect: {"effect":"teamAllDmg","value":0.4,"label":"苍白死光的祝颂 10 层时全伤害加深 40%"},
-      text: { name: "昼或夜，且以它为永恒", desc: "队伍中的角色的苍白死光的祝颂叠加至 <b class=\"term-num\">10</b> 层时，其额外获得 <b class=\"term-num\">40%</b> 全伤害加深。" },
+      // 变奏/解放时 allDmgUp 由 younuo.js；勿写 teamAllDmg 常驻
+      effect: {"effect":"younuoC2TeamAllDmg","value":0.4,"duration":2,"label":"变奏/解放时全队全伤害加深 40%（2 回合）"},
+      text: { name: "昼或夜，且以它为永恒", desc: "尤诺施放<b class=\"term-variation\">变奏</b>或<b class=\"term-burst\">共鸣解放</b>时，队伍中的角色全伤害加深 <b class=\"term-num\">40%</b>，持续 <b class=\"term-num\">2</b> 回合。" },
     },
     {
       index: 3,
-      effect: {"effect":"allDmg","value":0.65,"label":"月弓普攻/技能/闪反伤害加深 65%"},
-      text: { name: "我痛饮他者的遗忘", desc: "尤诺处于<b class=\"term-resource\">月相流转</b>状态时，<b class=\"term-normal\">月弓·普攻</b>、<b class=\"term-skill\">共鸣技能·越限的弦引</b>造成的伤害加深 <b class=\"term-num\">65%</b>。" },
+      // 月相流转 allDmgUp 由 younuo.js；勿写 flat allDmg 常驻
+      effect: {"effect":"younuoMoonAllDmg","value":0.65,"label":"月相流转中全伤害加深 65%"},
+      text: { name: "我痛饮他者的遗忘", desc: "尤诺处于<b class=\"term-resource\">月相流转</b>状态时，造成的伤害加深 <b class=\"term-num\">65%</b>。" },
     },
     {
       index: 4,
-      effect: {"effect":"teamAtk","value":0.1,"label":"至臻完满时全队护盾效果"},
-      text: { name: "任雨季栖息于眼眸", desc: "施放<b class=\"term-heavy\">重击·至臻的完满</b>时，队伍中的角色获得一个基于尤诺攻击 <b class=\"term-num\">160%</b> 的护盾，持续 <b class=\"term-num\">3</b> 回合。" },
+      // 至臻完满后全队 atkUp 由 younuo.js；勿写 teamAtk 常驻
+      effect: {"effect":"younuoC4TeamAtk","value":0.1,"duration":3,"label":"至臻完满时全队攻击 +10%（3 回合）"},
+      text: { name: "任雨季栖息于眼眸", desc: "施放<b class=\"term-heavy\">重击·至臻的完满</b>时，队伍中的角色攻击提升 <b class=\"term-num\">10%</b>，持续 <b class=\"term-num\">3</b> 回合。" },
     },
     {
       index: 5,
@@ -1335,7 +1358,8 @@ export const REGISTRY: Record<string, CharacterChains> = {
     },
     {
       index: 6,
-      effect: {"effect":"heavyDmg","value":16,"label":"至臻完满倍率 +1600%"},
+      // 至臻完满 ×2000% + 重置循环由 younuo.js；勿写 flat heavyDmg
+      effect: {"effect":"younuoZhenWanC6","value":16,"label":"至臻完满倍率 +1600%；施放后重置月相"},
       text: { name: "我所在，即为不变的独一", desc: "<b class=\"term-heavy\">重击·至臻的完满</b>伤害倍率增加 <b class=\"term-num\">1600%</b>。尤诺施放<b class=\"term-heavy\">重击·至臻的完满</b>时，会再次进入<b class=\"term-resource\">月相流转</b>状态，获得 <b class=\"term-num\">100</b> 点<b class=\"term-resource\">灵性</b>并重置<b class=\"term-skill\">共鸣技能·越限的弦引</b>的全部冷却。" },
     }
     ],
@@ -1350,12 +1374,14 @@ export const REGISTRY: Record<string, CharacterChains> = {
     },
     {
       index: 2,
-      effect: {"effect":"teamAllDmg","value":0.3,"label":"竹照时全队全属性伤害 +30%"},
+      // 竹照额外 +30% 由 chouyuan.js applyBambooBuff 状态机挂 elemAllUp；勿写 teamAllDmg 常驻
+      effect: {"effect":"chouyuanBambooC2","value":0.3,"label":"竹照时全队全属性伤害额外 +30%"},
       text: { name: "剑啊，谓我弃绝弦歌不辍", desc: "<b class=\"term-resource\">竹照</b>获得时增加额外效果：队伍中的角色全属性伤害加深 <b class=\"term-num\">30%</b>，持续 <b class=\"term-num\">3</b> 回合。" },
     },
     {
       index: 3,
-      effect: {"effect":"burstDmg","value":5.0,"label":"解放倍率 +500%"},
+      // 解放 +500% / 荷蓑出林 / 答剑+600% 均由 chouyuan.js 状态机；勿写 flat burstDmg
+      effect: {"effect":"chouyuanC3HeSuo","value":5.0,"label":"解放倍率 +500%；荷蓑出林 / 答剑+600%"},
       text: { name: "剑啊，谓我弃绝割股之心", desc: "<b class=\"term-burst\">共鸣解放·万钧一断</b>伤害倍率增加 <b class=\"term-num\">500%</b>。协奏能量充满且不处于<b class=\"term-state\">淋漓醉墨</b>状态下时，<b class=\"term-skill\">共鸣技能</b>替换为<b class=\"term-skill\">荷蓑出林</b>，每场战斗可施放 <b class=\"term-num\">1</b> 次。施放<b class=\"term-skill\">荷蓑出林</b>时消耗 <b class=\"term-num\">60</b> 点协奏能量并回复<b class=\"term-resource\">挑灯问剑</b>至满值，对目标造成 <b class=\"term-num\">500%</b> 攻击的气动伤害。施放<b class=\"term-skill\">荷蓑出林</b>后下次进入<b class=\"term-state\">淋漓醉墨</b>时<b class=\"term-heavy\">答剑三连</b>伤害倍率增加 <b class=\"term-num\">600%</b>，延奏替换为<b class=\"term-variation\">新筠坠箨</b>（<b class=\"term-num\">500%</b> 攻击气动伤害）。" },
     },
     {
@@ -1370,7 +1396,8 @@ export const REGISTRY: Record<string, CharacterChains> = {
     },
     {
       index: 6,
-      effect: {"effect":"cdmg","value":1,"label":"荷蓑出林时暴击伤害 +100%"},
+      // 退出 AOE / 荷蓑暴伤 / 停滞 由 chouyuan.js；勿写 flat cdmg 常驻
+      effect: {"effect":"chouyuanC6Exit","value":6.0,"label":"退出淋漓醉墨 600% AOE；荷蓑出林暴伤 +100%"},
       text: { name: "如是我闻、我见、我言", desc: "退出<b class=\"term-state\">淋漓醉墨</b>状态且为队伍中登场角色时，对范围内敌人造成自身 <b class=\"term-num\">600%</b> 攻击的气动伤害。施放<b class=\"term-skill\">荷蓑出林</b>时，仇远暴击伤害增加 <b class=\"term-num\">100%</b>，持续 <b class=\"term-num\">1</b> 回合。" },
     }
     ],
@@ -1380,32 +1407,38 @@ export const REGISTRY: Record<string, CharacterChains> = {
     chains: [
     {
       index: 1,
-      effect: {"effect":"atk","value":0.3,"label":"附加虚无绞痕时攻击 +30%"},
+      // 状态机 onSkill：挂绞痕时 atkUp +30%×2 回；勿写 flat atk（会常驻双算）
+      effect: {"effect":"qianxiaoMarkAtk","value":0.3,"duration":2,"label":"附加虚无绞痕时攻击 +30%（2 回合）"},
       text: { name: "穿行于荒芜长廊", desc: "千咲附加<b class=\"term-resource\">虚无绞痕</b>时，自身攻击提升 <b class=\"term-num\">30%</b>，持续 <b class=\"term-num\">2</b> 回合。" },
     },
     {
       index: 2,
-      effect: {"effect":"teamAllDmg","value":0.5,"label":"虚湮之线状态全属性伤害 +50%"},
+      // 状态机挂虚湮之线 buff；勿写 teamAllDmg 常驻光环
+      effect: {"effect":"qianxiaoVoidLine","value":0.5,"label":"虚湮之线：全队全属性伤害 +50%"},
       text: { name: "织作牵绊的弦网", desc: "队伍中的角色处于<b class=\"term-resource\">虚湮之线</b>状态时，全属性伤害加成提升 <b class=\"term-num\">50%</b>。" },
     },
     {
       index: 3,
-      effect: {"effect":"skillDmg","value":1.2,"label":"锯环疾攻/终结/闪反倍率 +120%"},
+      // 状态机锯环倍率 +120% 与万缕加法；勿写 skillDmg 全局
+      effect: {"effect":"qianxiaoSawBoost","value":1.2,"label":"锯环疾攻/终结倍率 +120%"},
       text: { name: "踱过长夜的迷惘", desc: "<b class=\"term-normal\">锯环·疾攻</b>、<b class=\"term-heavy\">锯环·终结</b>的伤害倍率提升 <b class=\"term-num\">120%</b>，该倍率提升效果与<b class=\"term-resource\">万缕·汇终</b>的倍率提升效果相互叠加。" },
     },
     {
       index: 4,
-      effect: {"effect":"allDmg","value":0.15,"label":"虚无绞痕→附加虚湮效应"},
+      // 状态机 tick 每回叠 2 层；勿写 allDmg
+      effect: {"effect":"qianxiaoErosionCap","value":2,"label":"虚湮效应每回叠加上限 2 层"},
       text: { name: "斩断循环的劫章", desc: "<b class=\"term-resource\">虚湮效应</b>每回合叠加上限提升至 <b class=\"term-num\">2</b> 层。" },
     },
     {
       index: 5,
-      effect: {"effect":"burstDmg","value":1,"label":"共鸣解放·即刻·归无伤害 +100%"},
+      // 状态机 resolveBurstMult ×2；勿写 burstDmg 全局
+      effect: {"effect":"qianxiaoBurstBoost","value":1,"label":"共鸣解放·即刻·归无伤害 +100%"},
       text: { name: "万盏灯火将照亮归途所向", desc: "<b class=\"term-burst\">共鸣解放·即刻·归无</b>伤害加成提升 <b class=\"term-num\">100%</b>。" },
     },
     {
       index: 6,
-      effect: {"effect":"allDmg","value":0.4,"label":"虚无绞痕·终焉：千咲伤害 +40%"},
+      // 状态机 onLethal + 终焉 mark×1.4；勿写 allDmg 常驻
+      effect: {"effect":"qianxiaoTerminal","value":0.4,"label":"终焉：对标记目标伤害 +40% · 电锯致死不倒"},
       text: { name: "由此重铸希望，与天光", desc: "千咲施放<b class=\"term-normal\">锯环·疾攻</b>、<b class=\"term-heavy\">锯环·终结</b>期间受到致死伤害时不会倒下，最少保留 <b class=\"term-num\">1</b> 点生命（每场 <b class=\"term-num\">1</b> 次）。<b class=\"term-resource\">虚无绞痕</b>强化为<b class=\"term-resource\">虚无绞痕·终焉</b>：千咲对带有终焉标记的目标造成的伤害提升 <b class=\"term-num\">40%</b>。" },
     }
     ],

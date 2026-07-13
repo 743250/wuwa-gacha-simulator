@@ -234,13 +234,20 @@ export function collectEnemyBadges(e, b) {
     const arr = fn(e, b);
     if (Array.isArray(arr)) out.push(...arr);
   }
-  // 侵蚀 debuff（敌人身上）
+  // 效应 / 历史侵蚀 debuff（敌人身上）
   (e.debuffs || []).forEach(d => {
+    if (d.type === 'effect' && d.effect === 'wind_erosion' && (d.stacks || 0) > 0) {
+      out.push({
+        key: `we-${e.name}`, cls: 'debuff', icon: '☣',
+        label: `风蚀 ×${d.stacks}`, dur: d.duration,
+        tip: `<b>风蚀效应</b><br>${d.stacks} 层。气动异常，层数参与角色专属结算。`
+      });
+    }
     if (d.type === 'erosion') {
       out.push({
         key: `er-${e.name}-${d.element}`, cls: 'debuff', icon: '☣',
-        label: `${d.element}侵蚀 +${(d.value * 100).toFixed(0)}%`, dur: d.duration,
-        tip: `<b>${d.element}侵蚀</b><br>受到 ${d.element} 伤害时额外 +${(d.value * 100).toFixed(0)}%。`
+        label: `${d.element}侵蚀 +${((d.value || 0) * 100).toFixed(0)}%`, dur: d.duration,
+        tip: `<b>${d.element}侵蚀</b><br>历史路径；新逻辑请用风蚀效应。`
       });
     }
     if (d.type === 'spectro_frazzle') {
@@ -283,11 +290,18 @@ export function collectUnitBadges(unit, battle, opts = {}) {
 
   // debuffs（角色身上的）
   (unit.debuffs || []).forEach(d => {
+    if (d.type === 'effect' && d.effect === 'wind_erosion' && (d.stacks || 0) > 0) {
+      out.push({
+        key: `we-${unit.name}`, cls: 'debuff', icon: '☣',
+        label: `风蚀 ×${d.stacks}`, dur: d.duration,
+        tip: `<b>风蚀效应</b><br>${d.stacks} 层。`
+      });
+    }
     if (d.type === 'erosion') {
       out.push({
         key: `er-${unit.name}-${d.element}`, cls: 'debuff', icon: '☣',
         label: `${d.element}侵蚀`, dur: d.duration,
-        tip: `<b>${d.element}侵蚀</b><br>受到 ${d.element} 伤害时额外 +${(d.value * 100).toFixed(0)}%。`
+        tip: `<b>${d.element}侵蚀</b><br>历史路径；新逻辑请用风蚀效应。`
       });
     }
     if (d.type === 'havoc_erosion' && d.stacks > 0) {

@@ -10,9 +10,8 @@ import { addErosion, getErosionStacks, consumeAllErosion, doubleErosionStacks, e
 //   卡提希娅形态（常态）：普攻/技能/重击叠【决意】→ 第一次解放消耗决意获得【人权/神权/异权】→ 进芙露德莉斯形态
 //   芙露德莉斯形态：攻击/技能叠【风蚀效应】→ 第二次解放消耗全部风蚀层数,每层 +20% 爆发倍率（卡提希娅自己技能的爆发加成,非通用 debuff 的 perStack）→ 清空风蚀退出形态
 //
-// 风蚀效应：气动元素通用 debuff,通过 target.debuffs[{type:'erosion', element:'气动'}] 管理（见 combat/erosion.js）
-//   通用每层加深 +10% 气动伤害（所有气动角色共享）
-//   卡提希娅第二次解放的"每层 +20% 爆发"是她角色自己的技能倍率加成,独立计算,不动通用 debuff
+// 风蚀效应：气动元素通用 effect，经 combat/erosion.js → effects.js wind_erosion
+//   卡提希娅第二次解放的"每层 +20% 爆发"是她角色自己的技能倍率加成,独立于通用 DoT
 //
 // 决意系统：上限 3 层，每层 +10% 气动伤害，每层独立 2 回合衰减（表现为全局 timer=1，到时减 1 层并刷新）
 // 仅作为 buff 名，不复刻官方原文的「每攒 30/60/90/120 决意暴伤 +25%」集意/决意真机制
@@ -110,7 +109,7 @@ export function cartethyiaResolveMultiplier(self) {
   return 1 + pct / 100;
 }
 
-const CARTETHYIA_HP_MULT = { normal: 0.12, skill: 0.22, heavy: 0.26, burst: 0.462 };
+const CARTETHYIA_HP_MULT = { normal: 0.12, skill: 0.22, heavy: 0.26, burst: 0.462, variation: 0.10 };
 
 export function cartethyiaHpCore(self, dmgType) {
   if (self.name !== '卡提希娅') return null;

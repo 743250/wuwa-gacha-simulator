@@ -16,6 +16,7 @@
 //   · 后处理 hook（onAttack/onSkill/onHeavy/onBurst）走 fireCharacterHook
 
 import { registerStack, gainStack, getStack } from '../stacks.js';
+import { registerSwitchHook } from '../switchHooks.js';
 
 const LIHUO_PER_AP = 2;  // 每 2 层离火抵 1 点 AP
 const LIHUO_CAP = 6;
@@ -115,6 +116,35 @@ function changliEnterYanyu(self, battle) {
   battle?.log.push({ type: 'mechanic', src: self.name, msg: `离火照丹心 → 进入焰羽（攻击 +50%、无视 40% 防御，2 回合）` });
 }
 
+// C1：技能/重击 +10%（仅这两类，不碰普攻/解放）
+export function changliBattleStart(self) {
+  if (self.name !== '长离') return;
+  if ((self.chain || 0) >= 1) {
+    self.skillBonus = (self.skillBonus || 0) + 0.1;
+    self.heavyBonus = (self.heavyBonus || 0) + 0.1;
+  }
+}
+
+// C6：技能 / 重击 / 解放额外无视 40% 防御（普攻不吃）
+export function changliExtraPierce(self, dmgType) {
+  if (self.name !== '长离' || (self.chain || 0) < 6) return 0;
+  if (dmgType === 'skill' || dmgType === 'heavy' || dmgType === 'burst') return 0.4;
+  return 0;
+}
+
+// C4：变奏入场后全队攻击 +20%，2 回合
+export function changliSwitchIn({ to, battle }) {
+  if (to?.name !== '长离' || (to.chain || 0) < 4) return;
+  for (const t of battle.team) {
+    if (!t.alive) continue;
+    t.buffs = (t.buffs || []).filter(b => b.src !== '长离·饰我所言');
+    t.buffs.push({ type: 'atkUp', value: 0.2, duration: 2, src: '长离·饰我所言' });
+  }
+  battle.log.push({ type: 'mechanic', src: to.name, msg: '饰我所言 → 全队攻击 +20%，持续 2 回合' });
+}
+
+registerSwitchHook('长离', changliSwitchIn);
+
 // onAttack hook：普攻后离火处理（心眼态消耗 / 常态累积）
 export function changliOnAttack(self, ctx) {
   if (self.name !== '长离') return;
@@ -166,6 +196,9 @@ export default {
   inMindEye: changliInMindEye,
   mindEyeForm: changliMindEyeForm,
   resolveCost: changliResolveCost,
+  extraPierce: changliExtraPierce,
+  battleStart: changliBattleStart,
+  switchIn: changliSwitchIn,
   onAttack: changliOnAttack,
   onSkill: changliOnSkill,
   onHeavy: changliOnHeavy,

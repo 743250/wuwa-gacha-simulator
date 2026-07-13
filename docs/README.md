@@ -23,8 +23,10 @@
 | [plans/enemies/README.md](plans/enemies/README.md) | 敌人设计指导(机制类型 / 数值系统 / 17 BOSS 索引) |
 | [plans/mechanisms/README.md](plans/mechanisms/README.md) | 机制设计指导(副本 / 深塔 / 海墟 / 声骸) |
 | [plans/architecture/README.md](plans/architecture/README.md) | 架构优化计划(与游戏机制无关) |
+| [plans/architecture/project-management-optimization.md](plans/architecture/project-management-optimization.md) | **交付流程**：角色 DoD、看板、P0 横切 |
+| [plans/copy-ownership.md](plans/copy-ownership.md) | **文案/数值源归属**（registry / skillHints / terms） |
 
-单角色 / 单敌人 / 单机制计划分别在对应目录下。
+单角色 / 单敌人 / 单机制计划分别在对应目录下。角色进度两列见 [plans/characters/status.md](plans/characters/status.md)（代码落地 / 战斗验收）。
 
 ## 决策日志 decisions/
 

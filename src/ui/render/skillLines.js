@@ -55,7 +55,8 @@ export function makeSkillLines(cfg) {
     const varDmg    = Math.round(atk * 0.8);
     const varConcerto = Math.round(atk * 1.6);
 
-    // 读取已经被 applyChainBonuses 算进 stats 的加成
+    // typeBonus：须由 getSkillHintRoleContext（applyChainBonuses + battleStart）注入；
+    // 存档角色没有这些字段，会恒为 0 → 公式失真
     const normalBonus = (role.normalBonus || 0);
     const skillBonus  = (role.skillBonus  || 0);
     const burstBonus  = (role.burstBonus  || 0);

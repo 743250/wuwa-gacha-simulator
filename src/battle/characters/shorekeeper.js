@@ -27,13 +27,19 @@ export function shorekeeperOnSkill(self, ctx) {
 
 import { pushTeamBuffs } from '../pushBuff.js';
 
+// 技能倍率（设计 80%，非通用 180%）
+export function shorekeeperSkillMult(self) {
+  if (self.name !== '守岸人') return null;
+  return 0.8;
+}
+
 // 共鸣解放 · 终末回环 → 展开「星域」
+// 4 链只放大技能治疗，不进星域 HOT（见设计 §7 边界）
 export function shorekeeperStarfield(self, battle) {
   if (self.name !== '守岸人') return;
   const dur1Chain = self.fieldExtendDur || 0;
   const baseDur = 3 + dur1Chain;
-  const fourChain = self.healBuff4Chain || 0;
-  const healUp = 1 + (self.healBonus || 0) + fourChain;
+  const healUp = 1 + (self.healBonus || 0);
   const heal1chain = self.fieldPersistOnSwitch ? 2.5 : 1.0;
   let sampleHot = 0;
   const fieldCrate = (0.20 + (self.fieldExtraCrate || 0)) * heal1chain;
@@ -82,6 +88,7 @@ export function shorekeeperSkipGenericBurstHeal(self) {
 export default {
   name: '守岸人',
   hasHeavy: false,
+  skillMult: shorekeeperSkillMult,
   skillHeal: shorekeeperSkillHeal,
   onSkill: shorekeeperOnSkill,
   starfield: shorekeeperStarfield,

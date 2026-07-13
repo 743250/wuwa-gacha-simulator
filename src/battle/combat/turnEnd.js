@@ -189,7 +189,8 @@ export function endTurn(battle) {
         const results = aliveEnemies.map(e => {
           const isMain = (e === primary);
           const m = isMain ? cleanupResult.mult : cleanupResult.mult * 0.5;
-          const { dmg, crit } = calcDamage(t, e, m, 'burst');
+          // pendingFinal mult 为生命%（赞妮终绝等），须 explicitHpMult
+          const { dmg, crit } = calcDamage(t, e, m, 'burst', { explicitHpMult: true });
           const real = dealDamage(e, dmg);
           reduceVibration(e, VIBRATION_DAMAGE.burst, battle, t);
           return { tgt: e.name, dmg: real, crit, primary: isMain };
