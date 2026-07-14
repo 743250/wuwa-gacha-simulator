@@ -6,9 +6,11 @@ import { resetState, quickBattle, firstEnemy } from '../helpers.js';
 
 describe('battle/characters/frolo — 弗洛洛状态机', () => {
   let combat;
+  let frolo;
 
   beforeAll(async () => {
     combat = await import('../../src/battle/combat.js');
+    frolo = await import('../../src/battle/characters/frolo.js');
   });
 
   beforeEach(() => {
@@ -79,6 +81,25 @@ describe('battle/characters/frolo — 弗洛洛状态机', () => {
       combat.endTurn(battle);
       combat.doAttack(battle, firstEnemy(battle));
       expect(f.furoloNotes).toBe(6);
+    });
+  });
+
+  describe('1 链 · 亡与死的乐章 / 永不消逝的梦呓', () => {
+    it('只把合并后的普攻与技能 HP 倍率提升到 1.8 倍', () => {
+      const battle = quickBattle();
+      const f = getFurolo(battle);
+      f.chain = 1;
+
+      expect(frolo.furoloHpCore(f, 'normal').hpMultOverride).toBeCloseTo(0.04 * 1.8, 6);
+      expect(frolo.furoloHpCore(f, 'skill').hpMultOverride).toBeCloseTo(0.075 * 1.8, 6);
+      expect(frolo.furoloHpCore(f, 'heavy').hpMultOverride).toBeCloseTo(0.09, 6);
+    });
+
+    it('赫卡忒与重世幻象的显式 HP 追击不吃 1 链加成', () => {
+      const battle = quickBattle();
+      const f = getFurolo(battle);
+      f.chain = 1;
+      expect(frolo.furoloHpCore(f, 'skill', { explicitHpMult: true }).hpMultOverride).toBeNull();
     });
   });
 
@@ -343,6 +364,15 @@ describe('battle/characters/frolo — 弗洛洛状态机', () => {
       expect(entry).toBeTruthy();
       const smoke = charDoD.skillHintsSmoke(entry, 0);
       expect(smoke.ok, smoke.reason).toBe(true);
+    });
+
+    it('技能标题使用1链对应招式名并提供 tooltip 术语标签', () => {
+      const entry = skillHints.SKILL_HINTS['弗洛洛'];
+      const lines = entry.customLines({ hp: 10000 }, { chain: 1 });
+      expect(lines[0].name).toContain('亡与死的乐章');
+      expect(lines[0].nameHtml).toContain('term-skill');
+      expect(lines[1].name).toContain('永不消逝的梦呓');
+      expect(lines[1].nameHtml).toContain('term-skill');
     });
   });
 });

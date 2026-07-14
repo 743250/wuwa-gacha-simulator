@@ -15,6 +15,14 @@ describe('attachTermTips — data-tip 属性内不被二次包裹', () => {
     expect(out).toMatch(/风蚀效应/);
   });
 
+  it('弗洛洛1链的两个派生招式名都有术语下划线解释', () => {
+    const html = '<b class="term-skill">亡与死的乐章</b>、<b class="term-skill">永不消逝的梦呓</b>';
+    const out = attachTermTips(html);
+    expect((out.match(/class="tip-term"/g) || []).length).toBe(2);
+    expect(out).toContain('重世普攻派生');
+    expect(out).toContain('重世技能派生');
+  });
+
   it('data-tip 属性值内部的 <b class="term-x"> 保持原样,不嵌套 tip-term', () => {
     // 模拟卡提希娅的实际场景:外层已有 data-tip,内层公式说明也用了 term-resource 高亮
     const inner = "命中前结算,每层<b class=\"term-resource\">风蚀效应</b> +20% 最终伤害";

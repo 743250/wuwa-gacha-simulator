@@ -49,7 +49,12 @@ export function renderSkillsBlock(roleName, meta, { stats = {}, roleOverride = n
   if (s?.customLines) {
     const lines = typeof s.customLines === 'function' ? s.customLines(stats, roleOverride || {}) : s.customLines;
     linesContent = lines.map((L, i) => h('div', { key: i, style: { marginBottom: '8px' } },
-      h('b', { style: { color: L.color, minWidth: '70px', display: 'inline-block', fontSize: '14px' } }, `${L.icon} ${L.name}`),
+      L.nameHtml
+        ? h('span', {
+            style: { color: L.color, minWidth: '70px', display: 'inline-block', fontSize: '14px', fontWeight: '700' },
+            dangerouslySetInnerHTML: { __html: `${L.icon} ${attachTermTips(L.nameHtml)}` }
+          })
+        : h('b', { style: { color: L.color, minWidth: '70px', display: 'inline-block', fontSize: '14px' } }, `${L.icon} ${L.name}`),
       h('span', { style: { color: 'var(--muted)', fontSize: '12px' } }, ` · ${L.cost}`),
       h('div', {
         style: { color: 'var(--dim)', paddingLeft: '22px', marginTop: '4px', fontSize: '13px', lineHeight: '1.65' },

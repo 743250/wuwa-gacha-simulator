@@ -34,6 +34,7 @@ const CHAIN_TERM_PATTERNS = [
   { re: /(人权|神权|异权)/g, cls: 'term-resource' },
   // 弗洛洛 专属术语（长串优先 — 谱曲终末需排在乐声/余响前）
   { re: /(谱曲终末|往日深渊的圆舞曲)/g, cls: 'term-heavy' },
+  { re: /(亡与死的乐章|永不消逝的梦呓)/g, cls: 'term-skill' },
   { re: /(指挥状态|定音|赫卡忒|乐声|余响)/g, cls: 'term-resource' },
   { re: /(形态之力)/g, cls: 'term-forte' },
   // 千咲（2.8）专属术语

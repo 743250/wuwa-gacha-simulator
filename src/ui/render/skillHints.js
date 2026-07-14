@@ -1162,9 +1162,10 @@ export const SKILL_HINTS = {
       const chain = role.chain || 0;
       const hp = stats.hp;
 
-      // HP 核倍率（1 链 skillDmg 0.8 仅技能伤害 ×1.80，对普攻/重击无效）
-      const normalMult = 0.04;                              // 普攻 HP×4%
-      const skillMult  = 0.075 * (chain >= 1 ? 1.80 : 1);  // 技能 HP×7.5%（1链 ×1.80）
+      // 官方基础招式与重世派生在模拟器中合并为一次按钮；1 链只强化这两个按钮。
+      const c1RequiemMult = chain >= 1 ? 1.80 : 1;
+      const normalMult = 0.04 * c1RequiemMult;              // 亡与死的乐章 HP×4%（1链 ×1.80）
+      const skillMult  = 0.075 * c1RequiemMult;             // 永不消逝的梦呓 HP×7.5%（1链 ×1.80）
       const heavyMult  = 0.09;                              // 普通重击 HP×9%
       // 谱曲终末:HP×20% × (1 + 余响层数×0.60[2链×1.05]) × (1 + 0.80[3链 heavyDmg])
       // 展示满 24 层余响时的伤害数值
@@ -1188,7 +1189,7 @@ export const SKILL_HINTS = {
 
       const normalTip = tipAttr(
         `<b style="color:var(--gold)">普攻伤害公式（HP 核）</b><br>` +
-        `= 最大生命 <b>${hp}</b> × 4% = <b style="color:var(--text)">${normalDmg}</b><br>` +
+        `= 最大生命 <b>${hp}</b> × 4%${chain>=1?` × 1.80（1链）`:''} = <b style="color:var(--text)">${normalDmg}</b><br>` +
         `命中后 +1 乐声 +3 余响`
       );
       const skillTip = tipAttr(
@@ -1223,12 +1224,14 @@ export const SKILL_HINTS = {
 
       return [
         {
-          icon: '⚔', name: '普攻 · 生与死的乐章', cost: '1 AP',
+          icon: '⚔', name: '普攻 · 亡与死的乐章',
+          nameHtml: '普攻 · <b class="term-skill">亡与死的乐章</b>', cost: '1 AP',
           color: 'var(--text)',
-          desc: `对主目标造成 <span class="tip" data-tip='${normalTip}'><b style="color:var(--text)">${normalDmg}</b> 点</span><b class="term-normal">湮灭伤害</b>。命中后获得 1 枚<b class="term-resource">乐声</b>、3 层<b class="term-resource">余响</b>。${chain>=6?'<br><span style="color:var(--gold)">[6 链]</span> 施放时召唤赫卡忒施放重世幻象·赫卡忒追击，造成弗洛洛最大生命 <b>8%</b>（<b>'+c6PhantomDmg+'</b>）的湮灭伤害，并获得 8 层余响。':''}`
+          desc: `对主目标造成 <span class="tip" data-tip='${normalTip}'><b style="color:var(--text)">${normalDmg}</b> 点</span><b class="term-normal">湮灭伤害</b>。命中后获得 1 枚<b class="term-resource">乐声</b>、3 层<b class="term-resource">余响</b>。${chain>=1?'<br><span style="color:var(--gold)">[1 链]</span> 伤害倍率提升 80%。':''}${chain>=6?'<br><span style="color:var(--gold)">[6 链]</span> 施放时召唤赫卡忒施放重世幻象·赫卡忒追击，造成弗洛洛最大生命 <b>8%</b>（<b>'+c6PhantomDmg+'</b>）的湮灭伤害，并获得 8 层余响。':''}`
         },
         {
-          icon: '✦', name: '共鸣技能 · 稍纵即逝的梦呓', cost: '1 AP · CD 3 回合',
+          icon: '✦', name: '共鸣技能 · 永不消逝的梦呓',
+          nameHtml: '共鸣技能 · <b class="term-skill">永不消逝的梦呓</b>', cost: '1 AP · CD 3 回合',
           color: 'var(--accent)',
           desc: `对主目标造成 <span class="tip" data-tip='${skillTip}'><b style="color:var(--accent)">${skillDmg}</b> 点</span><b class="term-skill">湮灭伤害</b>。命中后获得 1 枚<b class="term-resource">乐声</b>、5 层<b class="term-resource">余响</b>。${chain>=1?'<br><span style="color:var(--gold)">[1 链]</span> 伤害倍率提升 80%。':''}${chain>=6?'<br><span style="color:var(--gold)">[6 链]</span> 施放时召唤赫卡忒施放重世幻象·赫卡忒追击。':''}`
         },

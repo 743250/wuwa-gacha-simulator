@@ -13,7 +13,7 @@
 //          overflow打主人;HP归零则消失,指挥状态立即结束。
 //
 // 共鸣链:
-//   1链:普攻/技能倍率+80%
+//   1链:合并后的亡与死的乐章/永不消逝的梦呓倍率+80%
 //   2链:谱曲终末倍率+75% + 余响增益效果+75%(每层+105%)+ 施放谱曲终末+14余响
 //   3链:谱曲终末伤害+80%(heavyDmg) + 强化追击命中目标攻击-20%(2回合)
 //   4链:施放谱曲终末时全队全属性伤害+20%(4回合)
@@ -38,6 +38,7 @@ const HEAVY_HP_MULT = 0.09;
 const DIRGE_HP_MULT = 0.20;
 const VARIATION_HP_MULT = 0.033;
 const VARIATION_COMMAND_MULT = 0.066;
+const C1_REQUIEM_MULT = 1.80;
 
 const COMMAND_DURATION = 3;
 const COMMAND_CDMG_BONUS = 1.20;
@@ -143,9 +144,16 @@ function furoloRefreshEchoesCdmgBuff(self, battle) {
 
 export function furoloHpCore(self, dmgType, opts = {}) {
   if (self.name !== '弗洛洛') return null;
+  // 模拟器把重世派生合并进普攻/技能按钮。1 链只强化这两个按钮；
+  // explicitHpMult 用于赫卡忒/重世幻象等独立追击，必须排除，避免通用 skillDmg 泄漏。
+  const c1Requiem = self.chain >= 1
+    && !opts.explicitHpMult
+    && (dmgType === 'normal' || dmgType === 'skill')
+    ? C1_REQUIEM_MULT
+    : 1;
   const mults = {
-    normal: NORMAL_HP_MULT,
-    skill: SKILL_HP_MULT,
+    normal: NORMAL_HP_MULT * c1Requiem,
+    skill: SKILL_HP_MULT * c1Requiem,
     heavy: HEAVY_HP_MULT,
     burst: 0.16,
     variation: furoloInCommand(self) ? VARIATION_COMMAND_MULT : VARIATION_HP_MULT

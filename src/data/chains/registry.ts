@@ -1259,8 +1259,8 @@ export const REGISTRY: Record<string, CharacterChains> = {
     chains: [
     {
       index: 1,
-      effect: {"effect":"skillDmg","value":0.8,"label":"亡与死的乐章/梦呓伤害倍率 +80%"},
-      text: { name: "钥匙，通往冥界的奥秘", desc: "亡与死的乐章、永不消逝的梦呓伤害倍率提升 <b class=\"term-num\">80%</b>。" },
+      effect: {"effect":"furoloC1RequiemBoost","value":0.8,"label":"亡与死的乐章/永不消逝的梦呓伤害倍率 +80%"},
+      text: { name: "钥匙，通往冥界的奥秘", desc: "<b class=\"term-skill\">亡与死的乐章</b>、<b class=\"term-skill\">永不消逝的梦呓</b>伤害倍率提升 <b class=\"term-num\">80%</b>。" },
     },
     {
       index: 2,
