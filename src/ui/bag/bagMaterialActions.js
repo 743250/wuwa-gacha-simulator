@@ -13,13 +13,14 @@ import { commit } from '../../state/commit.ts';
 export function usePotion(id, count) {
   const r = usePotionCore(id, count);
   if (!r.ok) { msg(r.err); return; }
-  msg(`回复 ${r.gained} 体力`, false);
+  if (r.kind === 'crystal') msg(`兑换 ${r.gained} 结晶波片`, false);
+  else msg(`回复 ${r.gained} 结晶波片`, false);
 }
 
 export function useAllPotions() {
   const gained = useAllPotionsCore();
-  if (gained === 0) { msg('没有药剂可用'); return; }
-  msg(`回复 ${gained} 体力`, false);
+  if (gained === 0) { msg('没有可兑换/可使用的体力道具'); return; }
+  msg(`补充 ${gained} 结晶波片`, false);
 }
 
 export function buyStamina() {

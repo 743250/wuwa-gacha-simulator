@@ -533,13 +533,14 @@ export const ENEMIES = {
     description: '今汐相关岁主，每 5 回合召唤分身'
   },
   '伤痕': {
-    hp: 65000, atk: 1200, def: 1680, element: '热熔', class: 'Calamity',
+    // 旧表残留过低；对齐海啸级日常/实验区体量（仍低于顶配灾厄）
+    hp: 780000, atk: 4800, def: 800, element: '热熔', class: 'Calamity',
     resist: res('热熔'),
     mechanic: { type: 'enrage', threshold: 0.5, atkBonus: 0.6 },
     description: '剧情 / 周本 BOSS（热熔+物理），HP 低于 50% 狂暴'
   },
   '伤痕·梦魇形态': {
-    hp: 80000, atk: 1300, def: 1720, element: '湮灭', class: 'Calamity',
+    hp: 860000, atk: 5100, def: 800, element: '湮灭', class: 'Calamity',
     resist: res('湮灭'),
     mechanic: { type: 'enrage', threshold: 0.4, atkBonus: 0.7 },
     description: '伤痕的湮灭变体，HP 低于 40% 狂暴'
@@ -584,8 +585,8 @@ export const ENEMIES = {
   },
 
   // ===== 无音区专属 BOSS（encore.moe Lv90 官方值 · 2.1+ 声骸套装守关）=====
-  '梦魇·哀声鸷': { // encore Lv90 · 梦魇精英 · 衍射
-    hp: 774546, atk: 5193, def: 800, element: '衍射', class: 'Elite',
+  '梦魇·哀声鸷': { // encore Lv90 · 无音区守关（原误标 Elite，HP 已是怒涛量级）
+    hp: 774546, atk: 5193, def: 800, element: '衍射', class: 'Overlord',
     resist: res('衍射'), mechanic: { type: 'none' },
     description: '梦魇形态哀声鸷。此间永驻之光（菲比）声骸守关 BOSS'
   },
@@ -678,11 +679,12 @@ export function spawnEnemy(name, opts = 1.0) {
     defMult = opts;
   } else if (opts && (opts.worldTier || opts.bossLevel)) {
     // 世界 BOSS 讨伐战：等级由三档机制决定（30-120），统一走 GrowthRates 非线性缩放
+    // 允许外层传入 hp/atk/def 倍率（日常阶级压缩）
     const level = opts.bossLevel || 40;
     enemyLv = level;
-    hpMult = 1.0;
-    atkMult = 1.0;
-    defMult = 1.0;
+    hpMult = typeof opts.hp === 'number' ? opts.hp : 1.0;
+    atkMult = typeof opts.atk === 'number' ? opts.atk : 1.0;
+    defMult = typeof opts.def === 'number' ? opts.def : 1.0;
   } else if (opts && typeof opts.hp === 'number') {
     // 细粒度 scale
     hpMult = opts.hp ?? opts.all ?? 1;
@@ -719,6 +721,7 @@ export function spawnEnemy(name, opts = 1.0) {
     hpMax: Math.round(finalHp),
     atk: Math.round(finalAtk),
     def: useDef,
+    level: enemyLv,              // 攻击方等级，供防御乘区 (800 + 8×lv) 使用
     element: data.element,
     resist: { ...data.resist },
     mechanic: { ...data.mechanic },

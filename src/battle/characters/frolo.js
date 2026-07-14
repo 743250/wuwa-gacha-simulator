@@ -135,7 +135,8 @@ function furoloRefreshEchoesCdmgBuff(self, battle) {
       type: 'cdmgUp',
       value: echoes * ECHOES_PER_LAYER_CDMG,
       duration: 99,
-      src: '弗洛洛余响暴伤'
+      src: '弗洛洛余响暴伤',
+      scope: 'self'
     });
   }
 }
@@ -294,9 +295,9 @@ export function furoloOnBurst(self, ctx) {
     self.furoloHecateSummonId = null;
   }
   self.buffs = (self.buffs || []).filter(b => b.src !== '弗洛洛指挥状态');
-  self.buffs.push({ type: 'cdmgUp', value: COMMAND_CDMG_BONUS, duration: COMMAND_DURATION, src: '弗洛洛指挥状态' });
+  self.buffs.push({ type: 'cdmgUp', value: COMMAND_CDMG_BONUS, duration: COMMAND_DURATION, src: '弗洛洛指挥状态', scope: 'self' });
   if (self.chain >= 5) {
-    self.buffs.push({ type: 'defense', value: 0.30, duration: COMMAND_DURATION, src: '弗洛洛5链' });
+    self.buffs.push({ type: 'defense', value: 0.30, duration: COMMAND_DURATION, src: '弗洛洛5链', scope: 'self' });
   }
   const ownerIdx = battle.team.indexOf(self);
   const hecate = spawnSummon(battle, {

@@ -99,7 +99,8 @@ export function StatsTab() {
             <div class="tb-label">{a.title.label}</div>
             <div class="tb-comment">{a.title.comment}</div>
             <div class="tb-summary">
-              综合评分 {a.title.score.toFixed(2)} · 出金率 {pct(a.overallRate)} · 歪率 {a.lossRateReliable ? pct(a.lossRate, 1) : '--'}
+              综合评分 {a.title.score.toFixed(2)} · 均抽 {a.avgPity > 0 ? num(a.avgPity, 1) : '--'} · 出金率 {pct(a.overallRate)} · 歪率 {a.lossRateReliable ? pct(a.lossRate, 1) : (a.lossRate != null ? pct(a.lossRate, 1) + '（样本少）' : '--')}
+              {a.title.flavor ? ` · ${a.title.flavor}` : ''}
             </div>
           </Fragment>
         )}

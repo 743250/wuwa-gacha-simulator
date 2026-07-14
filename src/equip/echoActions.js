@@ -2,7 +2,7 @@
 // 核心原则：不实现声骸主动技能，纯粹作为数据加成工具
 import { S, pick } from '../state.js';
 import { msg } from '../ui/services/toast.ts';
-import { ECHO_CATALOG, ECHO_SETS, MAIN_STAT_POOL, SUB_STAT_POOL, LEVEL_EXP, MAX_LEVEL_EXP, getEchoById, getSetById, mainStatAtLevel, ECHO_MAX_LEVEL } from '../data/echoes.js';
+import { ECHO_CATALOG, ECHO_SETS, MAIN_STAT_POOL, SUB_STAT_POOL, LEVEL_EXP, MAX_LEVEL_EXP, getEchoById, getSetById, mainStatAtLevel, secondaryStatAtLevel, ECHO_SECONDARY_MAIN, ECHO_MAX_LEVEL } from '../data/echoes.js';
 import { totalExp, consumeExp } from './actions.js';
 import { EXP_VALUES } from '../battle/stats.js';
 import { progressTask } from '../podcast/core.js';
@@ -80,12 +80,49 @@ export function generateEcho(echoId, preferSetId = null) {
     level: 1,
     exp: 0,
     mainStat: { key: mainDef.key, label: mainDef.label, value: mainStatAtLevel(mainDef, 1), maxValue: mainDef.value },
+    // 第二主词条（固有）：COST4/3 固定攻击、COST1 固定生命，随等级成长
+    secondaryStat: secondaryStatAtLevel(data.cost, 1),
     subStats,
     lock: false,
     equippedBy: null,
     equipSlot: null
   };
   S.echos.push(echo);
+  return echo;
+}
+
+/** 旧存档 / 半成品声骸：回填第二主词条与主词条 maxValue，并按当前等级重算数值 */
+export function ensureEchoStats(echo) {
+  if (!echo) return echo;
+  if (echo.mainStat) {
+    if (echo.mainStat.maxValue == null) {
+      const pool = MAIN_STAT_POOL[echo.cost];
+      const def = pool && pool.find(s => s.key === echo.mainStat.key);
+      if (def) echo.mainStat.maxValue = def.value;
+    }
+    // 防%/治疗/COST1 生命% 等满级锚点曾偏低，按当前池刷新 maxValue
+    const pool = MAIN_STAT_POOL[echo.cost];
+    const def = pool && pool.find(s => s.key === echo.mainStat.key);
+    if (def && def.value != null && echo.mainStat.maxValue !== def.value) {
+      echo.mainStat.maxValue = def.value;
+    }
+    if (echo.mainStat.maxValue != null) {
+      echo.mainStat.value = mainStatAtLevel(
+        { key: echo.mainStat.key, value: echo.mainStat.maxValue },
+        echo.level || 1
+      );
+    }
+  }
+  const secDef = ECHO_SECONDARY_MAIN[echo.cost];
+  if (secDef) {
+    if (!echo.secondaryStat || echo.secondaryStat.key !== secDef.key) {
+      echo.secondaryStat = secondaryStatAtLevel(echo.cost, echo.level || 1);
+    } else {
+      echo.secondaryStat.maxValue = secDef.value;
+      echo.secondaryStat.label = secDef.label;
+      echo.secondaryStat.value = mainStatAtLevel(secDef, echo.level || 1);
+    }
+  }
   return echo;
 }
 
@@ -184,12 +221,7 @@ export function levelUpEcho(echoId) {
   const echo = S.echos.find(e => e.id === echoId);
   if (!echo) return false;
   if (echo.level >= 25) { msg('声骸已满级'); return false; }
-  // 旧存档兼容：回填 maxValue（按 COST + 主词条类型查 MAIN_STAT_POOL）
-  if (echo.mainStat && echo.mainStat.maxValue == null) {
-    const pool = MAIN_STAT_POOL[echo.cost];
-    const def = pool && pool.find(s => s.key === echo.mainStat.key);
-    if (def) echo.mainStat.maxValue = def.value;
-  }
+  ensureEchoStats(echo);
   const cost = echoToNext(echo);
   if (totalExp() < cost) {
     msg(`经验不足（需 ${cost.toLocaleString()}）`);
@@ -198,10 +230,8 @@ export function levelUpEcho(echoId) {
   consumeExp(cost);
   echo.level++;
   echo.exp += cost;
-  // 主词条随等级线性上涨（占位公式：满级值 × Lv/25）
-  if (echo.mainStat && echo.mainStat.maxValue != null) {
-    echo.mainStat.value = mainStatAtLevel({ value: echo.mainStat.maxValue }, echo.level);
-  }
+  // 主词条 + 第二主词条：官方 Growth 曲线
+  ensureEchoStats(echo);
   // 每 5 级（5/10/15/20/25）激活下一个未解锁副词条槽位
   if (echo.level % 5 === 0) {
     const nextLocked = echo.subStats.find(s => !s.unlocked);

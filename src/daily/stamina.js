@@ -1,25 +1,57 @@
-// 体力系统 + 体力药剂
+// 体力系统 + 结晶单质 / 结晶溶剂
 //
-// 鸣潮官方有两个独立"体力补充"道具：
-//   1. 凝缩波片（Condensed Waveplate）：上限 5，每个 = 60 波片
-//      - 来自日常上线/联合等级奖励/部分活动
-//      - 满 5 个时不再产生（防囤积）→ 模拟器以 cap=5 实现
-//   2. 结晶溶剂（Crystal Solvent）：上限无（实际无 cap）
-//      - 来自周本/活动/月卡/通行证
-//      - 单个 = 60 波片
+// 官方（鸣潮）：
+//   1. 结晶单质（Waveplate Crystal）：波片自然恢复溢出时 1:1 压缩存储
+//      - 使用时 1 点单质 → 1 点结晶波片（兑回，不可超 staminaMax）
+//      - 持有上限约 480
+//   2. 结晶溶剂（Crystal Solvent）：真正的体力药
+//      - 使用后 +60 结晶波片（可临时超过 staminaMax，模拟器上探到 POTION_CAP）
+//      - 持有无实质硬顶（模拟器不 cap）
+//   3. 60 星声直接换 60 波片（紧急补救）
 //
-// 此外鸣潮还允许 60 星声直接换 60 波片（紧急补救通道，QoL）
-//
-// 模拟器：体力上限 240，使用药剂可临时上探到 480（POTION_CAP）
+// 历史错误：曾把单质误做成「凝缩波片 +60 / 上限 5」的第二种药。
 import { S } from '../state.js';
-import { msg } from '../ui/services/toast.ts';
 import { progressTask } from '../podcast/core.js';
 import { commit } from '../state/commit.ts';
 
-const RECOVER_MS = 6 * 60 * 1000; // 6 分钟/点（模拟器通过推日补满）
+export const POTION_CAP = 480;
+export const WAVEPLATE_CRYSTAL_CAP = 480;
+/** @deprecated 旧名，等于 WAVEPLATE_CRYSTAL_CAP */
+export const CONDENSED_CAP = WAVEPLATE_CRYSTAL_CAP;
+
+export const STAMINA_BUY_COST = 60;
+export const STAMINA_BUY_VALUE = 60;
+
+export const POTIONS = {
+  waveplate_crystal: {
+    id: 'waveplate_crystal',
+    name: '结晶单质',
+    kind: 'crystal',
+    value: 1,
+    desc: '溢出结晶波片的压缩存储 · 1 点单质兑换 1 点波片（兑至体力上限）',
+    hardCap: WAVEPLATE_CRYSTAL_CAP
+  },
+  crystal_solvent: {
+    id: 'crystal_solvent',
+    name: '结晶溶剂',
+    kind: 'potion',
+    value: 60,
+    desc: '使用后回复 60 点结晶波片（可临时超过日常上限）',
+    hardCap: null
+  }
+};
+
+// 兼容旧 id：存档迁移前若有残留调用，映射到结晶单质
+const ID_ALIASES = {
+  condensed_waveplate: 'waveplate_crystal'
+};
+
+function resolvePotionId(id) {
+  return ID_ALIASES[id] || id;
+}
 
 export function tickStamina() {
-  // 不用真实时钟，日期推进时自动补满
+  // 不用真实时钟，日期推进时结算溢出 → 单质
 }
 
 export function spendStamina(cost) {
@@ -33,62 +65,108 @@ export function refillStamina() {
   S.stamina = S.staminaMax;
 }
 
-// 药剂上限：使用后可超过 staminaMax，但不超过 POTION_CAP
-export const POTION_CAP = 480;
-// 凝缩波片"持有上限"：官方就是 5
-export const CONDENSED_CAP = 5;
+/** 发放结晶单质（受 WAVEPLATE_CRYSTAL_CAP 截断），返回实际入账数量 */
+export function grantWaveplateCrystal(count) {
+  const n = Math.max(0, Math.floor(Number(count) || 0));
+  if (!n) return 0;
+  if (!S.materials) S.materials = {};
+  const cur = S.materials.waveplate_crystal || 0;
+  const next = Math.min(WAVEPLATE_CRYSTAL_CAP, cur + n);
+  const gained = next - cur;
+  S.materials.waveplate_crystal = next;
+  return gained;
+}
 
-export const POTIONS = {
-  condensed_waveplate: {
-    id: 'condensed_waveplate',
-    name: '凝缩波片',
-    value: 60,
-    desc: '使用后回复 60 点结晶波片',
-    hardCap: CONDENSED_CAP
-  },
-  crystal_solvent: {
-    id: 'crystal_solvent',
-    name: '结晶溶剂',
-    value: 60,
-    desc: '使用后回复 60 点结晶波片',
-    hardCap: null
+/** @deprecated 旧 API 名 → grantWaveplateCrystal */
+export function grantCondensedWaveplate(count) {
+  // 旧调用按「个数」发药（每个约 60 体）；新体系按点数，兼容：count 视作点数
+  return grantWaveplateCrystal(count);
+}
+
+/**
+ * 推进 days 天时的自然恢复结算：
+ * - 体力未满：先补到 staminaMax，剩余恢复量转为结晶单质
+ * - 体力已满或超充：当日恢复量全部转为结晶单质
+ * - 超充（> staminaMax）本身不因跨日下降
+ */
+export function applyNaturalRecovery(daysPassed) {
+  const days = Math.max(0, Math.floor(Number(daysPassed) || 0));
+  if (!days) return { filled: 0, crystal: 0 };
+  const recover = days * (S.staminaMax || 240);
+  if (S.stamina >= S.staminaMax) {
+    const crystal = grantWaveplateCrystal(recover);
+    return { filled: 0, crystal };
   }
-};
+  const room = S.staminaMax - S.stamina;
+  const filled = Math.min(room, recover);
+  S.stamina += filled;
+  const overflow = recover - filled;
+  const crystal = overflow > 0 ? grantWaveplateCrystal(overflow) : 0;
+  return { filled, crystal };
+}
 
-// 使用药剂
+/**
+ * 使用药剂 / 兑换单质
+ * - crystal_solvent: count = 个数，每个 +60，可超充到 POTION_CAP
+ * - waveplate_crystal: count = 兑换点数（1:1），只补到 staminaMax
+ */
 export function usePotion(potionId, count = 1) {
   return commit(() => {
-    const p = POTIONS[potionId];
+    const id = resolvePotionId(potionId);
+    const p = POTIONS[id];
     if (!p) return { ok: false, err: '未知药剂' };
-    const have = S.materials[potionId] || 0;
-    if (have < count) return { ok: false, err: `${p.name}不足（持有 ${have}）` };
-    S.materials[potionId] = have - count;
-    const gained = p.value * count;
+    const n = Math.max(1, Math.floor(Number(count) || 1));
+    const have = S.materials[id] || 0;
+
+    if (p.kind === 'crystal') {
+      if (have <= 0) return { ok: false, err: `${p.name}不足（持有 ${have}）` };
+      if (S.stamina >= S.staminaMax) {
+        return { ok: false, err: '结晶波片已满，单质仅可兑至日常上限' };
+      }
+      const room = S.staminaMax - S.stamina;
+      const take = Math.min(n, have, room);
+      if (take <= 0) return { ok: false, err: '无法兑换' };
+      S.materials[id] = have - take;
+      S.stamina += take;
+      return { ok: true, gained: take, kind: 'crystal' };
+    }
+
+    // potion
+    if (have < n) return { ok: false, err: `${p.name}不足（持有 ${have}）` };
+    S.materials[id] = have - n;
+    const gained = p.value * n;
     S.stamina = Math.min(POTION_CAP, S.stamina + gained);
-    return { ok: true, gained };
+    return { ok: true, gained, kind: 'potion' };
   });
 }
 
-// 一键嗑光所有药剂（凝缩 + 溶剂都用）
+/** 一键：先兑满单质到日常上限，再嗑光溶剂（可超充） */
 export function useAllPotions() {
   return commit(() => {
     let totalGained = 0;
-    Object.values(POTIONS).forEach(p => {
-      const have = S.materials[p.id] || 0;
-      if (have > 0) {
-        const gained = p.value * have;
-        S.materials[p.id] = 0;
-        totalGained += gained;
-      }
-    });
-    S.stamina = Math.min(POTION_CAP, S.stamina + totalGained);
+
+    // 1) 结晶单质 1:1 兑到 staminaMax
+    const crystalHave = S.materials.waveplate_crystal || 0;
+    if (crystalHave > 0 && S.stamina < S.staminaMax) {
+      const take = Math.min(crystalHave, S.staminaMax - S.stamina);
+      S.materials.waveplate_crystal = crystalHave - take;
+      S.stamina += take;
+      totalGained += take;
+    }
+
+    // 2) 溶剂全嗑，可超充
+    const solv = POTIONS.crystal_solvent;
+    const solvHave = S.materials.crystal_solvent || 0;
+    if (solvHave > 0) {
+      const gained = solv.value * solvHave;
+      S.materials.crystal_solvent = 0;
+      S.stamina = Math.min(POTION_CAP, S.stamina + gained);
+      totalGained += gained;
+    }
+
     return totalGained;
   });
 }
-
-// 60 星声直接补 60 波片（鸣潮的紧急补救通道）
-export const STAMINA_BUY_COST = 60;
-export const STAMINA_BUY_VALUE = 60;
 
 export function buyStaminaWithAstrite() {
   return commit(() => {
@@ -102,13 +180,4 @@ export function buyStaminaWithAstrite() {
     S.stamina = Math.min(POTION_CAP, S.stamina + STAMINA_BUY_VALUE);
     return { ok: true, gained: STAMINA_BUY_VALUE };
   });
-}
-
-// 奖励发放时给凝缩波片：受 5 个 cap
-export function grantCondensedWaveplate(count) {
-  const cur = S.materials.condensed_waveplate || 0;
-  const newAmt = Math.min(CONDENSED_CAP, cur + count);
-  const actualGained = newAmt - cur;
-  S.materials.condensed_waveplate = newAmt;
-  return actualGained; // 真实拿到的数量（可能因 cap 被截掉）
 }

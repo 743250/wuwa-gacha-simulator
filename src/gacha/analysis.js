@@ -2,42 +2,69 @@
 //
 // 数据源：S 对象（state.js）
 //   - 全局计数器 S.total / S.five / S.four / S.upHits：准确累计
-//   - S.log：所有抽卡明细（每条 {r,n,t,pool,pity,up,no,date}），不裁剪
+//   - S.log：所有抽卡明细（每条 {r,n,t,pool,pity,up,no,date}）
+//     约定：新记录在前（actions.recordPullResults 用 unshift 风格）
 //   - S.pity：各池当前垫的抽数
 //
+// 欧非判定（贴近社区抽卡分析工具常见口径）：
+//   主指标 = 平均五星抽数 avgPity（相对硬保 80、软保 65 的期望约 62）
+//   辅指标 = 角色限定/联动池 50/50 歪率（样本不足时不参与）
+//   微调 = 近 100 抽（log 前 100 条 = 最新）出金率
+//
 // 关键约束：
-//   - 出金率用全局计数器算（avoid 任何裁剪导致失真）
-//   - 歪率只统计 eventChar/collabChar 这两个真正 50/50 的池子
-//     （武器池/常驻/新手/新旅都是 100% 或 0%，不算"歪"）
-//   - log 中 eventChar+collabChar 的 5★ 数 <1 时无歪率数据
+//   - 出金率用全局计数器算
+//   - 歪率只统计 eventChar/collabChar（真正 50/50）
+//   - 武器/常驻/新手/新旅不算「歪」
 
+// 鸣潮硬保 80；社区经验期望约 60~64 抽出金。主轴 = 平均抽数，辅轴 = 歪率/近况。
+// 称号档位对齐常见抽卡分析工具：不止「欧皇/非酋」，按均抽细分 + 组合副标。
 export const THRESHOLDS = {
+  // 平均五星抽数（越低越欧）— 分 9 档
+  avgPity: {
+    tianxuan: 42,  // ≤42 天选
+    ouhuang: 50,   // ≤50 欧皇
+    daou: 54,      // ≤54 大欧
+    xiaoou: 58,    // ≤58 小欧
+    pingwen: 64,   // ≤64 平稳（期望区）
+    xiaofei: 68,   // ≤68 小非
+    feiqiu: 72,    // ≤72 非酋
+    dafei: 76,     // ≤76 大非
+    // >76 绝非
+  },
   rate: {
-    ouhuang: 0.0160,   // >1.6% 欧皇
-    xiaoou: 0.0133,    // >1.33% 小欧
-    pingwen: 0.0105,   // 1.05%-1.33% 平稳
-    xiaofei: 0.0086,   // <1.05% 小非，<0.86% 非酋
-    dafei: 0.0070,     // <0.70% 大非酋
+    ouhuang: 0.0160,
+    xiaoou: 0.0133,
+    pingwen: 0.0105,
+    xiaofei: 0.0086,
+    dafei: 0.0070,
   },
   loss: {
-    ou: 0.35,          // <35% 不歪
-    fei: 0.65,         // >65% 爱歪
+    ou: 0.30,          // <30% 极不歪
+    mildOu: 0.40,      // <40% 偏不歪
+    fei: 0.60,         // >60% 偏歪
+    hardFei: 0.75,     // >75% 狂歪
+    minSamples: 5,     // 至少 5 个限定 5★ 才参与评分/副标
   },
   recent: {
     hot: 0.0160,
     cold: 0.0080,
+    window: 100,
   },
-  weight: { rate: 0.5, loss: 0.3, recent: 0.2 },
-  score: { ouhuang: 1.5, xiaoou: 0.5, pingwen: -0.5, xiaofei: -1.0, feiqiu: -1.8 },
+  // 主称号只由 avgPity 定档；loss/recent 最多让主档 ±1，并写进副标文案
+  adjustCap: 1,
 };
 
+// 主称号（按综合分）
 const TITLES = [
-  { key: 'ouhuang',  label: '欧皇',     comment: '天命所归，你被星声眷顾',     color: 'gold'   },
-  { key: 'xiaoou',   label: '小欧',     comment: '运气不错，今天适合抽卡',     color: 'gold'   },
-  { key: 'pingwen',  label: '平稳',     comment: '中规中矩，不欧不非',         color: 'accent' },
-  { key: 'xiaofei',  label: '小非',     comment: '有点黑，建议换个时间',       color: 'muted'  },
-  { key: 'feiqiu',   label: '非酋',     comment: '非洲大草原在召唤你',         color: 'red'    },
-  { key: 'dafei',    label: '大非酋',   comment: '呜… 看哭了，建议停手',       color: 'red'    },
+  { key: 'tianxuan', label: '天选之人', comment: '均抽离谱，星声在给你打工',     color: 'gold'   },
+  { key: 'ouhuang',  label: '欧皇',     comment: '天命所归，你被星声眷顾',       color: 'gold'   },
+  { key: 'daou',     label: '大欧',     comment: '运气在线，池子见你就软',       color: 'gold'   },
+  { key: 'xiaoou',   label: '小欧',     comment: '略优于期望，今天适合抽卡',     color: 'accent' },
+  { key: 'pingwen',  label: '平稳',     comment: '卡在期望线上，不欧不非',       color: 'accent' },
+  { key: 'xiaofei',  label: '小非',     comment: '略黑一截，再抽要心态管理',     color: 'muted'  },
+  { key: 'feiqiu',   label: '非酋',     comment: '非洲户口本已盖章',             color: 'red'    },
+  { key: 'dafei',    label: '大非酋',   comment: '软保底是你的主场',             color: 'red'    },
+  { key: 'juefei',   label: '绝非',     comment: '呜… 建议关掉唤取界面冷静',     color: 'red'    },
 ];
 
 // 真正的 50/50 池子（小保底机制）
@@ -48,48 +75,110 @@ function safeDiv(a, b) {
   return a / b;
 }
 
-function rateScore(rate) {
-  const t = THRESHOLDS.rate;
-  if (rate > t.ouhuang) return 2;
-  if (rate > t.xiaoou) return 1;
-  if (rate >= t.pingwen) return 0;
-  if (rate >= t.xiaofei) return -1;
-  if (rate >= t.dafei) return -2;
-  return -3;
+// 主档：只由平均抽数决定（社区工具主轴）
+function pityTierIndex(avgPity) {
+  if (!(avgPity > 0)) return 4; // 平稳占位，调用方会覆盖「命运未定」
+  const t = THRESHOLDS.avgPity;
+  if (avgPity <= t.tianxuan) return 0;
+  if (avgPity <= t.ouhuang) return 1;
+  if (avgPity <= t.daou) return 2;
+  if (avgPity <= t.xiaoou) return 3;
+  if (avgPity <= t.pingwen) return 4;
+  if (avgPity <= t.xiaofei) return 5;
+  if (avgPity <= t.feiqiu) return 6;
+  if (avgPity <= t.dafei) return 7;
+  return 8;
 }
 
-function lossScore(lossRate) {
-  if (lossRate == null) return 0;
-  if (lossRate < THRESHOLDS.loss.ou) return 1;
-  if (lossRate > THRESHOLDS.loss.fei) return -1;
-  return 0;
+// 辅轴只允许 ±1 档，避免「均抽平稳 + 不歪」直接跳欧皇
+function adjustDelta(lossRate, lossReliable, recentRate, recentSize) {
+  let d = 0;
+  if (lossReliable && lossRate != null) {
+    const t = THRESHOLDS.loss;
+    if (lossRate < t.ou) d -= 1;          // 不歪 → 更欧一档（idx 更小）
+    else if (lossRate > t.hardFei) d += 1; // 狂歪 → 更非一档
+  }
+  if (recentSize >= 50) {
+    if (recentRate > THRESHOLDS.recent.hot) d -= 0; // 近况只进 flavor，不再改主档
+    else if (recentRate < THRESHOLDS.recent.cold) d += 0;
+  }
+  const cap = THRESHOLDS.adjustCap;
+  return Math.max(-cap, Math.min(cap, d));
 }
 
-function recentScore(recentRate) {
-  if (recentRate > THRESHOLDS.recent.hot) return 1;
-  if (recentRate < THRESHOLDS.recent.cold) return -1;
-  return 0;
+function flavorSuffix(lossRate, lossReliable, recentRate, recentSize, luckiest, unluckiest) {
+  const bits = [];
+  if (lossReliable && lossRate != null) {
+    if (lossRate < THRESHOLDS.loss.ou) bits.push('不歪战士');
+    else if (lossRate < THRESHOLDS.loss.mildOu) bits.push('小保底友好');
+    else if (lossRate > THRESHOLDS.loss.hardFei) bits.push('五十必歪传说');
+    else if (lossRate > THRESHOLDS.loss.fei) bits.push('爱歪体质');
+  }
+  if (recentSize >= 50) {
+    if (recentRate > THRESHOLDS.recent.hot) bits.push('近况火热');
+    else if (recentRate < THRESHOLDS.recent.cold) bits.push('近况冰封');
+  }
+  if (typeof luckiest === 'number' && luckiest <= 20) bits.push(`最欧${luckiest}抽`);
+  if (typeof unluckiest === 'number' && unluckiest >= 78) bits.push(`最非${unluckiest}抽`);
+  return bits.length ? bits.join(' · ') : '';
 }
 
-function judgeTitle(overallRate, lossRate, lossReliable, recentRate) {
-  const w = THRESHOLDS.weight;
-  let score = rateScore(overallRate) * w.rate;
-  if (lossReliable) score += lossScore(lossRate) * w.loss;
-  score += recentScore(recentRate) * w.recent;
+function judgeTitle(avgPity, lossRate, lossReliable, recentRate, recentSize, luckiest, unluckiest) {
+  if (!(avgPity > 0)) {
+    return {
+      key: 'pingwen', label: '命运未定', comment: '还没出金，抽几发再来看',
+      score: 0, color: 'muted', flavor: '',
+    };
+  }
 
-  const s = THRESHOLDS.score;
-  let idx;
-  if (score >= s.ouhuang) idx = 0;
-  else if (score >= s.xiaoou) idx = 1;
-  else if (score > s.pingwen) idx = 2;
-  else if (score >= s.xiaofei) idx = 3;
-  else if (score >= s.feiqiu) idx = 4;
-  else idx = 5;
+  let idx = pityTierIndex(avgPity);
+  const delta = adjustDelta(lossRate, lossReliable, recentRate, recentSize);
+  idx = Math.max(0, Math.min(TITLES.length - 1, idx + delta));
 
-  return { ...TITLES[idx], score };
+  const base = TITLES[idx];
+  const flavor = flavorSuffix(lossRate, lossReliable, recentRate, recentSize, luckiest, unluckiest);
+  const comment = flavor ? `${base.comment}（${flavor}）` : base.comment;
+
+  // 展示分：均抽档位映射到 -2~+2 便于横幅摘要
+  const score = (4 - idx) * 0.45 - delta * 0.2;
+
+  let label = base.label;
+  if (lossReliable && lossRate != null) {
+    if (idx <= 2 && lossRate > THRESHOLDS.loss.hardFei) label = `${base.label}·爱歪`;
+    else if (idx >= 6 && lossRate < THRESHOLDS.loss.ou) label = `${base.label}·不歪`;
+    else if (idx <= 1 && lossRate < THRESHOLDS.loss.ou) label = `${base.label}·双修`;
+  }
+
+  return { ...base, label, comment, score, flavor };
 }
 
-// 计算分池统计：按 pool 分组
+// 平均 UP 成本：按池时间序合并「歪 + 大保底 UP」
+// fives 可为任意顺序；内部按 pool 分组再按 no 升序
+function computeAvgUpCost(fives) {
+  const byPool = {};
+  for (const x of fives) {
+    if (!x || !PVP_POOLS.has(x.pool) || typeof x.pity !== 'number') continue;
+    (byPool[x.pool] || (byPool[x.pool] = [])).push(x);
+  }
+  let costSum = 0, upCount = 0;
+  for (const list of Object.values(byPool)) {
+    list.sort((a, b) => (a.no || 0) - (b.no || 0));
+    let pendingLost = 0; // 尚未被 UP 吃掉的歪 pity 累计
+    for (const x of list) {
+      if (x.up) {
+        costSum += pendingLost + x.pity;
+        upCount++;
+        pendingLost = 0;
+      } else {
+        pendingLost += x.pity;
+      }
+    }
+    // 末尾未闭合的歪不计入（还没换到 UP）
+  }
+  return upCount > 0 ? costSum / upCount : 0;
+}
+
+// 计算分池统计：必须喂完整 log，不能只喂 5★
 function computePerPool(log) {
   const map = {};
   for (const x of log) {
@@ -138,21 +227,24 @@ export function computeAnalysis(S) {
     if (total === 0) return { ...empty, totalPulls: 0 };
 
     const overallRate = safeDiv(five, total);
-    // 所有 5★ 出金记录（log 不再裁剪，覆盖全期）
     const fives = log.filter(x => x && x.r === 5);
-    // 平均出金抽数：所有 5★ 出金时已垫的 pity 均值
+
+    // 平均出金抽数：所有 5★ 的 pity 均值
     let pitySum = 0, pityCount = 0;
-    let upPitySum = 0, upPityCount = 0;
     for (const x of fives) {
       if (typeof x.pity === 'number') {
         pitySum += x.pity; pityCount++;
-        if (x.up) { upPitySum += x.pity; upPityCount++; }
       }
     }
     const avgPity = pityCount > 0 ? pitySum / pityCount : 0;
-    const avgUpPity = upPityCount > 0 ? upPitySum / upPityCount : 0;
 
-    // 歪率：只看 eventChar/collabChar 池的 5★
+    // 平均 UP 抽数：拿到 1 次限定 UP 平均花多少抽
+    // 正确口径（社区工具同款）：按池时间序把「歪 + 随后大保底 UP」合并为一次成本
+    //   例：70 抽歪 → 65 抽 UP ⇒ 该次 UP 成本 135，不是 65
+    // 未闭合的歪（后面还没出 UP）不计入；武器/常驻/新旅不参与
+    const avgUpPity = computeAvgUpCost(fives);
+
+    // 歪率：只看 eventChar/collabChar
     let limitedFive = 0, limitedLost = 0;
     for (const x of fives) {
       if (PVP_POOLS.has(x.pool)) {
@@ -160,8 +252,8 @@ export function computeAnalysis(S) {
         if (!x.up) limitedLost++;
       }
     }
-    const lossRateReliable = limitedFive >= 1;
-    const lossRate = lossRateReliable ? safeDiv(limitedLost, limitedFive) : null;
+    const lossRateReliable = limitedFive >= THRESHOLDS.loss.minSamples;
+    const lossRate = limitedFive >= 1 ? safeDiv(limitedLost, limitedFive) : null;
 
     // 欧非极值
     let luckiest = null, unluckiest = null;
@@ -172,14 +264,15 @@ export function computeAnalysis(S) {
       }
     }
 
-    // 近 100 抽手感
-    const recent = log.slice(-100);
+    // 近 N 抽：log 新在前 → 取前 N 条
+    const win = THRESHOLDS.recent.window;
+    const recent = log.slice(0, win);
     const recentFive = recent.filter(x => x && x.r === 5).length;
-    const recent100Rate = safeDiv(recentFive, Math.min(100, log.length));
+    const recentSize = recent.length;
+    const recent100Rate = safeDiv(recentFive, recentSize);
 
-    const perPool = computePerPool(fives);
-
-    const title = judgeTitle(overallRate, lossRate, lossRateReliable, recent100Rate);
+    const perPool = computePerPool(log);
+    const title = judgeTitle(avgPity, lossRate, lossRateReliable, recent100Rate, recentSize, luckiest, unluckiest);
 
     return {
       totalPulls: total,
@@ -196,7 +289,7 @@ export function computeAnalysis(S) {
       unluckiestPity: unluckiest,
       recent100Rate,
       recent100Five: recentFive,
-      recent100Size: recent.length,
+      recent100Size: recentSize,
       perPool,
       title,
     };
@@ -205,7 +298,7 @@ export function computeAnalysis(S) {
   }
 }
 
-// 出金时间线数据：log 中所有 5★ 按 no 升序（旧的，正向）
+// 出金时间线数据：log 中所有 5★ 按 no 升序（旧→新）
 export function timelineFiveStars(S) {
   const log = Array.isArray(S.log) ? S.log : [];
   return log
@@ -229,7 +322,7 @@ export function timelineByPoolDesc(S) {
   return groups;
 }
 
-// 所有抽过的池键（log 中出现过该池的任何记录就算）
+// 所有抽过的池键
 export function poolsTouched(S) {
   const log = Array.isArray(S.log) ? S.log : [];
   const seen = new Set();
@@ -242,20 +335,15 @@ export function poolsTouched(S) {
   return order;
 }
 
-// 限定池（eventChar / collabChar）的判定信息，需要 banner 历史找目标 UP 角色
-// 这里只返回带"歪/UP"语义的标记，名字翻译留给 UI
-// 歪 = 出金但 up===false（官方常驻池 5★，注入到活动池里）
-// UP = 出金且 up===true（拿到了当期 UP）
-// 对于 weapon/novice/beginner/standard 等池，up 字段语义不是 50/50，标记为 'fixed'
+// 限定池 50/50 语义；其余池 fixed
 export function fiveStarKind(x) {
   if (!x) return 'fixed';
   if (x.pool === 'eventChar' || x.pool === 'collabChar') {
     return x.up ? 'up' : 'lost';
   }
-  return 'fixed';   // 武器/常驻/新手/新旅 — 这些池子没有"歪"概念
+  return 'fixed';
 }
 
-// 当前垫条：限定池（活动角色池）当前已垫抽数；只取当前 banner 池
 export function currentPity(S, poolKey) {
   return (S && S.pity && S.pity[poolKey]) || 0;
 }

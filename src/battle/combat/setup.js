@@ -10,6 +10,7 @@ import { applyChainBonuses, applyTeamAuras, getEnergyRefund } from '../chains.js
 import { spawnEnemy } from '../enemies.js';
 import { initForte } from '../forte.js';
 import { hasHeavyAttack, fireCharacterHook } from '../characters/index.js';
+import { getDungeonTypeHpScale } from '../balance.js';
 
 export function getCombatTeamNames(teamNames = S.team) {
   const seen = new Set();
@@ -46,11 +47,34 @@ export function createBattle(teamNames, enemyNames, opts = {}) {
 
   const expectedEnemies = (enemyNames || []).filter(Boolean);
   const missing = [];
+  const typeHp = getDungeonTypeHpScale(opts.dungeonType);
   const enemies = expectedEnemies.map((n, idx) => {
-    // 副本池：enemyLevel 控制 HP/ATK/DEF 等级缩放，enemyScale 控制额外倍率
-    // opts.enemyScales[idx] 支持 per-enemy scale（无音区小怪量级压缩用）
+    // 副本池：enemyLevel 控制等级缩放；enemyScale / enemyScales 控制遭遇倍率
+    // dungeonType → 类型 HP 倍率（战训/无音区 1.0，世界 BOSS/周本轻度压）
+    // 深塔：enemyStatScale={hp,atk,def}，不传 dungeonType
     const scale = opts.enemyScales?.[idx] ?? opts.enemyStatScale ?? opts.enemyScale ?? 1.0;
-    const spawnOpts = opts.enemyLevel ? { enemyLevel: opts.enemyLevel, hp: scale, atk: scale, def: 1.0 } : scale;
+    const isAbyssScale = scale && typeof scale === 'object' && typeof scale.hp === 'number' && !scale.bossLevel && !scale.enemyLevel;
+    const isWorldBossOpts = scale && typeof scale === 'object' && !!(scale.bossLevel || scale.worldTier);
+
+    let spawnOpts;
+    if (opts.enemyLevel) {
+      const s = typeof scale === 'number' ? scale : 1.0;
+      spawnOpts = { enemyLevel: opts.enemyLevel, hp: s * typeHp, atk: s, def: 1.0 };
+    } else if (isWorldBossOpts) {
+      spawnOpts = {
+        ...scale,
+        hp: (typeof scale.hp === 'number' ? scale.hp : 1) * typeHp,
+        atk: typeof scale.atk === 'number' ? scale.atk : 1,
+        def: typeof scale.def === 'number' ? scale.def : 1
+      };
+    } else if (isAbyssScale) {
+      spawnOpts = scale;
+    } else if (typeof scale === 'number' && typeHp !== 1) {
+      spawnOpts = { hp: scale * typeHp, atk: scale, def: 1.0 };
+    } else {
+      spawnOpts = scale;
+    }
+
     const e = spawnEnemy(n, spawnOpts);
     if (e) e.idx = idx + 100;
     else missing.push(n);

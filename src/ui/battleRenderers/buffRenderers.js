@@ -13,9 +13,32 @@ import { getEffectStacks, getEffectDef } from '../../battle/combat/effects.js';
 
 function pct(v) { return `${(v * 100).toFixed(0)}%`; }
 
+// 可能被展开到全队的 buff 类型（需配合 resolveBuffScope 使用，类型本身不等于全队）
+export const TEAM_BUFF_TYPES = new Set(['critUp', 'crateUp', 'cdmgUp', 'atkUp', 'heavyDmgUp', 'healOverTime', 'elemAllUp']);
+
 // 通用 tooltip HTML 转义（防 label/tip 里的引号破坏 data-tip 属性）
 function escAttr(s) {
   return String(s ?? '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+// 判断 buff 是否为全队范围（文案 + 去重过滤共用）
+// 优先看 scope；无 scope 的旧数据：带 installer 且类型在 TEAM 白名单 → 视为全队
+export function resolveBuffScope(buf) {
+  if (!buf) return 'self';
+  if (buf.scope === 'team' || buf.scope === 'allAllies') return 'team';
+  if (buf.scope === 'self') return 'self';
+  if (buf.installer != null && TEAM_BUFF_TYPES.has(buf.type)) return 'team';
+  return 'self';
+}
+
+function scopePrefix(buf) {
+  return resolveBuffScope(buf) === 'team' ? '全队' : '自身';
+}
+
+function scopeTip(title, teamDesc, selfDesc) {
+  return (buf) => resolveBuffScope(buf) === 'team'
+    ? `<b>全队${title}</b><br>${teamDesc}`
+    : `<b>自身${title}</b><br>${selfDesc}`;
 }
 
 // 把 badge 数组里的 tip 字段做转义，方便塞进 data-tip="..."
@@ -43,20 +66,26 @@ export const BUFF_RENDERERS = {
     label(buf, t) { return `${t.name} 治疗效果 +${pct(buf.value)}`; },
     tip: '<b>治疗效果提升</b><br>所有治疗量 ×(1 + 加成%)。'
   },
+  // 历史别名：实际战斗结算用 crateUp
   critUp: {
     cls: 'crit', icon: '✦',
-    label(buf, t) { return `全队 暴击 +${pct(buf.value)}`; },
-    tip: '<b>全队暴击加成</b><br>作用于所有存活队员。'
+    label(buf) { return `${scopePrefix(buf)} 暴击 +${pct(buf.value)}`; },
+    tip: scopeTip('暴击加成', '作用于所有存活队员。', '仅作用于持有者。')
+  },
+  crateUp: {
+    cls: 'crit', icon: '✦',
+    label(buf) { return `${scopePrefix(buf)} 暴击 +${pct(buf.value)}`; },
+    tip: scopeTip('暴击加成', '作用于所有存活队员。', '仅作用于持有者。')
   },
   cdmgUp: {
     cls: 'crit', icon: '✦',
-    label(buf, t) { return `全队 暴伤 +${pct(buf.value)}`; },
-    tip: '<b>全队暴击伤害加成</b><br>作用于所有存活队员。'
+    label(buf) { return `${scopePrefix(buf)} 暴伤 +${pct(buf.value)}`; },
+    tip: scopeTip('暴击伤害加成', '作用于所有存活队员。', '仅作用于持有者。')
   },
   atkUp: {
     cls: 'atk', icon: '⚔',
-    label(buf, t) { return `全队 攻击 +${pct(buf.value)}`; },
-    tip: '<b>全队攻击加成</b><br>作用于所有存活队员。'
+    label(buf) { return `${scopePrefix(buf)} 攻击 +${pct(buf.value)}`; },
+    tip: scopeTip('攻击加成', '作用于所有存活队员。', '仅作用于持有者。')
   },
   field: {
     cls: 'field', icon: '🌐',
@@ -65,23 +94,20 @@ export const BUFF_RENDERERS = {
   },
   healOverTime: {
     cls: 'heal', icon: '💚',
-    label(buf, t) { return `${buf.src || '领域'} 每回合回血 ${buf.value.toFixed(0)}`; },
+    label(buf) { return `${buf.src || '领域'} 每回合回血 ${buf.value.toFixed(0)}`; },
     tip: '<b>持续治疗</b><br>回合结束时回血。'
   },
   heavyDmgUp: {
     cls: 'atk', icon: '⚔',
-    label(buf, t) { return `全队 重击伤害 +${pct(buf.value)}`; },
-    tip: '<b>重击伤害加成</b><br>作用于所有存活队员的重击。'
+    label(buf) { return `${scopePrefix(buf)} 重击伤害 +${pct(buf.value)}`; },
+    tip: scopeTip('重击伤害加成', '作用于所有存活队员的重击。', '仅作用于持有者的重击。')
   },
   elemAllUp: {
     cls: 'field', icon: '🌐',
-    label(buf, t) { return `全队 全属性伤害 +${pct(buf.value)}`; },
-    tip: '<b>全属性伤害加成</b><br>作用于所有存活队员的所有元素伤害。'
+    label(buf) { return `${scopePrefix(buf)} 全属性伤害 +${pct(buf.value)}`; },
+    tip: scopeTip('全属性伤害加成', '作用于所有存活队员的所有元素伤害。', '仅作用于持有者。')
   }
 };
-
-// TEAM_BUFF_TYPES: 去重白名单 — 全队 buff 在顶部 stripe 只显示一次
-export const TEAM_BUFF_TYPES = new Set(['critUp', 'cdmgUp', 'atkUp', 'heavyDmgUp', 'healOverTime', 'elemAllUp']);
 
 // ============ 敌人机制提取器 ============
 // 每个 extractor 读 enemy 上的 _xxx 标志位返回 badge 数组（空数组表示无此状态）
@@ -262,7 +288,11 @@ export function collectEnemyBadges(e, b) {
 }
 
 // 角色状态：合并 buff/debuff/资源/控制
-// opts.includeTeamGlobal: 是否包含 TEAM_BUFF_TYPES（顶部 stripe 用 false 过滤；卡内联用 'installer' 表示只显示本人施放的全队 buff）
+// opts.includeTeamGlobal:
+//   true       — 显示全部（含全队 buff 副本）
+//   false      — 隐藏全队 buff（顶部 stripe 用，避免重复）
+//   'installer'— 全队 buff 仅显示 installer===unit.idx（卡内联挂在施放者下）
+// 自身 buff 始终显示。
 export function collectUnitBadges(unit, battle, opts = {}) {
   if (!unit || !unit.alive) return [];
   const out = [];
@@ -270,21 +300,21 @@ export function collectUnitBadges(unit, battle, opts = {}) {
 
   // buffs
   (unit.buffs || []).forEach(buf => {
-    const isTeamGlobal = TEAM_BUFF_TYPES.has(buf.type);
-    if (isTeamGlobal && !includeTeamGlobal) return;
-    // 全队 buff：默认本人施放时才在卡内联显示（installer === unit.idx）
-    // includeTeamGlobal === true 表示允许全部显示（顶部 stripe 等场景）
-    if (isTeamGlobal && includeTeamGlobal === 'installer') {
+    const isTeam = resolveBuffScope(buf) === 'team';
+    if (isTeam && !includeTeamGlobal) return;
+    // 全队 buff：卡内联只显示施放者那一份
+    if (isTeam && includeTeamGlobal === 'installer') {
       if (buf.installer !== unit.idx) return;
     }
     const r = BUFF_RENDERERS[buf.type];
     if (!r) return;
+    const tip = typeof r.tip === 'function' ? r.tip(buf, unit) : (r.tip || '');
     out.push({
-      key: `${buf.type}-${unit.name}`,
+      key: `${buf.type}-${buf.src || ''}-${unit.name}-${buf.installer ?? 'x'}`,
       cls: r.cls, icon: r.icon,
       label: r.label(buf, unit),
       dur: buf.duration,
-      tip: r.tip || ''
+      tip
     });
   });
 

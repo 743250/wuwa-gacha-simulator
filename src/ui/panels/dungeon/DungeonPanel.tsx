@@ -188,7 +188,7 @@ export function DungeonPanel() {
   const S = useS();
   const teamCount = getCombatTeamNames().length;
   const solvent = S.materials?.crystal_solvent || 0;
-  const condensed = S.materials?.condensed_waveplate || 0;
+  const crystal = S.materials?.waveplate_crystal || 0;
   const POT_CAP = 480;
   const curTab = getDungeonTab();
 
@@ -215,13 +215,13 @@ export function DungeonPanel() {
           <div class="dng-stamina-label">结晶波片</div>
           <div class="dng-stamina-value">{S.stamina} / {S.staminaMax}</div>
           <div class="dng-stamina-bar"><i style={{ width: `${staminaPct}%` }}></i></div>
-          <div class="dng-stamina-note">推进到下一日补满 · 药剂超充上限 {POT_CAP}</div>
+          <div class="dng-stamina-note">跨日自然恢复 · 溢出转单质 · 溶剂可超充至 {POT_CAP}</div>
         </div>
         <div class="dng-actions">
           <button class="mbtn"
-            disabled={condensed <= 0 || S.stamina >= POT_CAP}
-            onClick={() => usePotion('condensed_waveplate', 1)}>
-            凝缩 {condensed}/5
+            disabled={crystal <= 0 || S.stamina >= S.staminaMax}
+            onClick={() => usePotion('waveplate_crystal', Math.min(crystal, Math.max(0, S.staminaMax - S.stamina)))}>
+            单质 {crystal}/480
           </button>
           <button class="mbtn gold"
             disabled={solvent <= 0 || S.stamina >= POT_CAP}
@@ -238,7 +238,7 @@ export function DungeonPanel() {
 
       {/* ===== 体力不足提示 ===== */}
       {minCost > 0 && S.stamina < minCost && (
-        <div class="dng-alert">当前结晶波片不足，至少需要 {minCost} 点。可使用凝缩波片 / 结晶溶剂，或推进到下一日补满。</div>
+        <div class="dng-alert">当前结晶波片不足，至少需要 {minCost} 点。可兑换结晶单质 / 使用结晶溶剂，或推进到下一日恢复。</div>
       )}
       {teamCount === 0 && (
         <div class="dng-alert red">编队为空或队员已失效，先去【编队】面板组队</div>

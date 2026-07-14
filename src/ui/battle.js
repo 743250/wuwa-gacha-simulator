@@ -41,7 +41,7 @@ export function startDungeonBattle(dungeonId) {
   if (d.type === 'worldBoss') {
     const bossName = enemyNames[0];
     const spawnOpts = getWorldBossSpawnOpts(bossName);
-    battleOpts = { enemyStatScale: spawnOpts };
+    battleOpts = { enemyStatScale: spawnOpts, dungeonType: d.type };
   } else if (d.type === 'echo') {
     const bossName = enemyNames[0];
     const finalScale = (encounter.enemyScale || d.enemyScale || 1.0);
@@ -49,13 +49,13 @@ export function startDungeonBattle(dungeonId) {
     const minions = rollEchoMinions(bossName);
     const allNames = [bossName, ...minions.map(m => m.name)];
     const scales = [finalScale, ...minions.map(m => m.scale)];
-    battleOpts = { enemyScales: scales, enemyLevel };
+    battleOpts = { enemyScales: scales, enemyLevel, dungeonType: d.type };
     enemyNames.length = 0;
     allNames.forEach(n => enemyNames.push(n));
   } else {
     const finalScale = (encounter.enemyScale || d.enemyScale || 1.0);
     const enemyLevel = getDungeonEnemyLevel(d);
-    battleOpts = { enemyScale: finalScale, enemyLevel };
+    battleOpts = { enemyScale: finalScale, enemyLevel, dungeonType: d.type };
   }
   const battle = startEncounter({ team: names, enemies: enemyNames, options: battleOpts });
   if (!battle) {

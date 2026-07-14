@@ -231,34 +231,45 @@ export function openTopup(key) {
   });
 }
 
-// 顶部体力 + 号：弹"补充体力"面板（药剂 + 60 星声急救）
+// 顶部体力 + 号：弹"补充体力"面板（单质兑换 + 溶剂 + 60 星声急救）
 export function openStaminaModal() {
   const have = (id) => S.materials[id] || 0;
-  const hasCond = have('condensed_waveplate');
+  const hasCrystal = have('waveplate_crystal');
   const hasSolv = have('crystal_solvent');
   const POTION_CAP = 480;
-  const canDoAnything = S.stamina < POTION_CAP;
+  const roomToMax = Math.max(0, S.staminaMax - S.stamina);
+  const canRedeemCrystal = hasCrystal > 0 && roomToMax > 0;
+  const canUseSolvent = hasSolv > 0 && S.stamina < POTION_CAP;
+  const canBuy = S.astrite >= 60 && S.stamina < POTION_CAP;
 
   const body = h('div', null,
     h('div', { style: 'font-size:12px;color:var(--muted);margin-bottom:10px' },
-      '当前体力 ',
+      '当前结晶波片 ',
       h('b', { class: 'g' }, `${S.stamina}/${S.staminaMax}`),
-      `（药剂上探至 ${POTION_CAP}）`
+      `（溶剂可超充至 ${POTION_CAP}）`
     ),
     h('div', { style: 'display:grid;grid-template-columns:1fr;gap:6px' },
-      // 凝缩波片
+      // 结晶单质
       h('div', { style: 'border:1px solid var(--line);border-radius:8px;padding:9px 11px;background:rgba(141,230,166,.04)' },
         h('div', { style: 'display:flex;justify-content:space-between;align-items:baseline' },
-          h('span', { style: 'font-size:12px;font-weight:600' }, '凝缩波片'),
-          h('span', { style: 'font-size:14px;color:var(--green)' }, `${hasCond}/5`)
+          h('span', { style: 'font-size:12px;font-weight:600' }, '结晶单质'),
+          h('span', { style: 'font-size:14px;color:var(--green)' }, `${hasCrystal}/480`)
         ),
-        h('div', { style: 'font-size:10px;color:var(--dim);margin:3px 0 6px' }, '+60 体力 · 上限 5'),
-        h('button', {
-          class: 'mbtn',
-          style: 'width:100%;font-size:11px;padding:5px',
-          disabled: !(hasCond > 0 && canDoAnything) || undefined,
-          onClick: () => { usePotion('condensed_waveplate', 1); openStaminaModal(); }
-        }, '使用 1 个')
+        h('div', { style: 'font-size:10px;color:var(--dim);margin:3px 0 6px' }, '1 点单质 → 1 点波片 · 仅兑至日常上限'),
+        h('div', { style: 'display:flex;gap:4px' },
+          h('button', {
+            class: 'mbtn',
+            style: 'flex:1;font-size:11px;padding:5px',
+            disabled: !canRedeemCrystal || undefined,
+            onClick: () => { usePotion('waveplate_crystal', 1); openStaminaModal(); }
+          }, '兑 1 点'),
+          h('button', {
+            class: 'mbtn gold',
+            style: 'flex:1;font-size:11px;padding:5px',
+            disabled: !canRedeemCrystal || undefined,
+            onClick: () => { usePotion('waveplate_crystal', Math.min(hasCrystal, roomToMax)); openStaminaModal(); }
+          }, '兑满上限')
+        )
       ),
       // 结晶溶剂
       h('div', { style: 'border:1px solid var(--line);border-radius:8px;padding:9px 11px;background:rgba(141,230,166,.04)' },
@@ -266,18 +277,18 @@ export function openStaminaModal() {
           h('span', { style: 'font-size:12px;font-weight:600' }, '结晶溶剂'),
           h('span', { style: 'font-size:14px;color:var(--green)' }, `×${hasSolv}`)
         ),
-        h('div', { style: 'font-size:10px;color:var(--dim);margin:3px 0 6px' }, '+60 体力 · 无上限'),
+        h('div', { style: 'font-size:10px;color:var(--dim);margin:3px 0 6px' }, '+60 结晶波片 · 可临时超过日常上限'),
         h('div', { style: 'display:flex;gap:4px' },
           h('button', {
             class: 'mbtn',
             style: 'flex:1;font-size:11px;padding:5px',
-            disabled: !(hasSolv > 0 && canDoAnything) || undefined,
+            disabled: !canUseSolvent || undefined,
             onClick: () => { usePotion('crystal_solvent', 1); openStaminaModal(); }
           }, '用 1 个'),
           h('button', {
             class: 'mbtn gold',
             style: 'flex:1;font-size:11px;padding:5px',
-            disabled: !(hasSolv > 0 && canDoAnything) || undefined,
+            disabled: !canUseSolvent || undefined,
             onClick: () => { usePotion('crystal_solvent', hasSolv); openStaminaModal(); }
           }, '用全部')
         )
@@ -292,7 +303,7 @@ export function openStaminaModal() {
         h('button', {
           class: 'mbtn gold',
           style: 'width:100%;font-size:11px;padding:5px',
-          disabled: !(S.astrite >= 60 && canDoAnything) || undefined,
+          disabled: !canBuy || undefined,
           onClick: () => { buyStamina(); openStaminaModal(); }
         }, '购买 1 次')
       )

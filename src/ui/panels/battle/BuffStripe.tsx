@@ -1,14 +1,12 @@
 // 顶部 buff 横条
 import { h } from 'preact';
-import { collectUnitBadges, collectEnemyBadges, TEAM_BUFF_TYPES } from '../../../ui/battleRenderers/buffRenderers.js';
+import { collectUnitBadges, collectEnemyBadges } from '../../../ui/battleRenderers/buffRenderers.js';
 import { displayName } from './helpers';
 
 interface BuffStripeProps {
   battle: any;
 }
 
-// Track new buffs across renders using a module level Set keyed by battle turn
-// (mirrors the old _lastBuffSnapshot behavior)
 let lastBuffKeys: Set<string> = new Set();
 let lastTurnForBuff = -1;
 
@@ -57,18 +55,13 @@ export function BuffStripe({ battle }: BuffStripeProps) {
   const items = renderBuffStripeItems(battle);
 
   if (items.length === 0) {
-    return (
-      <div class="bf-buff-stripe empty" style={{ marginBottom: 0 }}>
-        — 无状态 / 增益 —
-      </div>
-    );
+    return <div class="bf-buff-stripe empty">无额外状态</div>;
   }
 
   return (
-    <div class="bf-buff-stripe" style={{ marginBottom: 0 }}
-      dangerouslySetInnerHTML={{
-        __html: items.map(i => i.html).join('')
-      }}
+    <div
+      class="bf-buff-stripe"
+      dangerouslySetInnerHTML={{ __html: items.map(i => i.html).join('') }}
     />
   );
 }

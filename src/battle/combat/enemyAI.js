@@ -12,7 +12,7 @@
 
 import { resistMultiplier } from '../elements.js';
 import { applyTempStat, removeTempStat, computeStat } from '../tempStats.js';
-import { dealDamage } from './damage.js';
+import { dealDamage, defenseMultiplier } from './damage.js';
 
 export function enemyAttack(battle, enemy, target, opts = {}) {
   if (!enemy?.alive || !target?.alive) return 0;
@@ -33,16 +33,20 @@ export function enemyAttack(battle, enemy, target, opts = {}) {
   const isCrit = Math.random() < (opts.critRate ?? 0.05);
   const critMult = isCrit ? (opts.critMult || 1.5) : 1.0;
   let dmg = (enemy.atk + 30) * mult * resMult * debuffMult * critMult;
-  // 降防 debuff 叠加(梦魇亚当)
+  // 降防 debuff（梦魇亚当等）：按层数降低目标有效防御
   const defDown = (target.debuffs || []).find(d => d.type === 'defDown');
-  const defDownMult = defDown ? (1 + (defDown.stacks || 0) * (defDown.value || 0.10)) : 1;
+  const defReduce = defDown
+    ? Math.min(0.9, (defDown.stacks || 0) * (defDown.value || 0.10))
+    : 0;
   // 穿甲(朔雷之鳞 雷霆墙)
   const wallPierce = (enemy.mechanic?.type === 'thunder_chain' && enemy.mechanic?.wallLock) ? 0.2 : 0;
-  const defEffective = target.def * 0.5 * (1 - wallPierce) * defDownMult;
-  dmg = Math.max(30, dmg - defEffective);
+  // 与玩家输出共用官方防御乘区：减伤率 = 有效防 / (800 + 8×攻方等级 + 有效防)
+  const defEffective = Math.max(0, (target.def || 0) * (1 - wallPierce) * (1 - defReduce));
+  const atkLv = enemy.level || enemy.bossLevel || 90;
+  dmg *= defenseMultiplier(defEffective, atkLv);
   // 自旋疲惫(聚械机偶旋转后下回合攻击 -30%)
-  if (enemy._spinTired) dmg = Math.round(dmg * 0.7);
-  const real = dealDamage(target, Math.round(dmg));
+  if (enemy._spinTired) dmg *= 0.7;
+  const real = dealDamage(target, Math.max(1, Math.round(dmg)));
   battle.log.push({ type: 'enemy_attack', src: enemy.name, tgt: target.name, dmg: real, crit: isCrit, action });
   return real;
 }

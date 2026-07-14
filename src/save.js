@@ -11,6 +11,7 @@
 // 句柄存在 localStorage 的 'wuwa-fs-handle' 键里（仅存权限元数据,非内容）。
 
 import { S, state0, fmt } from './state.js';
+import { ensureEchoStats } from './equip/echoActions.js';
 
 const KEY = 'wuwa-gacha-save-v1';
 const HANDLE_KEY = 'wuwa-fs-handle';
@@ -20,7 +21,7 @@ let saveTimer = null;
 // ============ 存档版本 + 迁移链 ============
 // 当前存档版本号。每次改动 S 的结构（加/删字段、改字段含义）必须 +1 并在 MIGRATIONS 里加一条。
 // 老存档缺少 _v 时按 0 处理，逐级跑到当前版本。
-const SAVE_VERSION = 2;
+const SAVE_VERSION = 4;
 
 // 迁移函数：from → to，每个函数把存档从版本 N 升级到 N+1。
 // 只动结构/字段名/数值含义，不要碰业务逻辑。
@@ -57,6 +58,23 @@ const MIGRATIONS = [
         }
       });
     }
+  },
+  // 2 → 3：凝缩波片（错误做成 +60 药 / 上限 5）→ 结晶单质（溢出波片 1:1 存储 / 上限 480）
+  // 旧「个数」按每份约 60 点折算，与旧 usePotion 效果对齐。
+  (s) => {
+    if (!s.materials) return;
+    const old = s.materials.condensed_waveplate || 0;
+    if (old > 0) {
+      const points = old * 60;
+      const cur = s.materials.waveplate_crystal || 0;
+      s.materials.waveplate_crystal = Math.min(480, cur + points);
+    }
+    delete s.materials.condensed_waveplate;
+  },
+  // 3 → 4：声骸对齐官方 — 第二主词条 + Growth 曲线 + 满级锚点刷新
+  // 逻辑在 load 时延迟到 ensureEchoStats（避免 save 层硬依赖 equip 模块环依赖时也可安全 no-op）
+  (s) => {
+    s._echoStatsNeedRefresh = true;
   },
 ];
 
@@ -223,11 +241,18 @@ function applyLoadedState(raw) {
     const merged = deepMerge(fresh, data);
     runMigrations(merged);
     Object.assign(S, merged);
+    refreshEchoStatsOnLoad();
     return true;
   } catch (e) {
     console.warn('存档损坏,使用默认状态:', e);
     return false;
   }
+}
+
+/** 读档后按官方池/曲线回填第二主词条与主词条当前值 */
+function refreshEchoStatsOnLoad() {
+  if (Array.isArray(S.echos)) S.echos.forEach(ensureEchoStats);
+  delete S._echoStatsNeedRefresh;
 }
 
 // 按版本号跑迁移链：从存档自带 _v（无则 0）跑到 SAVE_VERSION
@@ -295,6 +320,7 @@ export function importSave(file, onDone) {
       const merged = deepMerge(fresh, data);
       runMigrations(merged);
       Object.assign(S, merged);
+      refreshEchoStatsOnLoad();
       await saveStateNow();
       onDone(true);
     } catch (err) {

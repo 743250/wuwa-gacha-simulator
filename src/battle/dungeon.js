@@ -423,12 +423,13 @@ export const DUNGEONS = [
 
 // 战歌重奏（周本技能升级材料，60 波片，周限 3 次共享）
 // 模拟器抽象：技能升级材料 → 高级促剂 + 武器石 + 星声
+// 周本 scale：在日常阶级 HP 压缩后，≈1.0 即可（旧 2.5/2.8 叠官方满血会打成深塔）
 export const WEEKLY_BOSS = [
   {
     id: 'boss_loulou', type: 'weekly', name: '战歌重奏·罗蕾莱', cost: 60, weeklyLimit: true,
     enemies: ['罗蕾莱'],
     encounterPool: [
-      { enemies: ['罗蕾莱'], enemyScale: 2.5, weight: 1, tag: '导电护盾' }
+      { enemies: ['罗蕾莱'], enemyScale: 1.05, weight: 1, tag: '导电护盾' }
     ],
     drops: { exp_high: 8, weapon_book: 7 },
     minLevel: 40, desc: '高级×8 · 武器石×7 · 周限 3 次'
@@ -437,7 +438,7 @@ export const WEEKLY_BOSS = [
     id: 'boss_imperator', type: 'weekly', name: '战歌重奏·无冠者', cost: 60, weeklyLimit: true,
     enemies: ['无冠者'],
     encounterPool: [
-      { enemies: ['无冠者'], enemyScale: 2.5, weight: 1, tag: '湮灭狂暴' }
+      { enemies: ['无冠者'], enemyScale: 1.05, weight: 1, tag: '湮灭狂暴' }
     ],
     drops: { exp_high: 8, weapon_book: 7 },
     minLevel: 40, desc: '高级×8 · 武器石×7 · 周限 3 次'
@@ -446,7 +447,7 @@ export const WEEKLY_BOSS = [
     id: 'boss_hecate', type: 'weekly', name: '战歌重奏·赫卡忒', cost: 60, weeklyLimit: true,
     enemies: ['赫卡忒'],
     encounterPool: [
-      { enemies: ['赫卡忒'], enemyScale: 2.8, weight: 1, tag: '幻象召唤' }
+      { enemies: ['赫卡忒'], enemyScale: 1.15, weight: 1, tag: '幻象召唤' }
     ],
     drops: { exp_super: 4, exp_high: 6, weapon_book: 8 },
     minLevel: 60, desc: '特级×4 · 高级×6 · 武器石×8 · 周限 3 次'
@@ -455,7 +456,7 @@ export const WEEKLY_BOSS = [
     id: 'boss_liweihatan', type: 'weekly', name: '战歌重奏·鸣式·利维亚坦', cost: 60, weeklyLimit: true,
     enemies: ['鸣式·利维亚坦'],
     encounterPool: [
-      { enemies: ['鸣式·利维亚坦'], enemyScale: 2.8, weight: 1, tag: '湮灭波纹' }
+      { enemies: ['鸣式·利维亚坦'], enemyScale: 1.15, weight: 1, tag: '湮灭波纹' }
     ],
     drops: { exp_super: 4, exp_high: 6, weapon_book: 8 },
     minLevel: 60, desc: '特级×4 · 高级×6 · 武器石×8 · 周限 3 次'
@@ -464,7 +465,7 @@ export const WEEKLY_BOSS = [
     id: 'boss_fenlaike', type: 'weekly', name: '战歌重奏·共鸣回响·芬莱克', cost: 60, weeklyLimit: true,
     enemies: ['共鸣回响·芬莱克'],
     encounterPool: [
-      { enemies: ['共鸣回响·芬莱克'], enemyScale: 2.8, weight: 1, tag: '气动回响' }
+      { enemies: ['共鸣回响·芬莱克'], enemyScale: 1.15, weight: 1, tag: '气动回响' }
     ],
     drops: { exp_super: 4, exp_high: 6, weapon_book: 8 },
     minLevel: 60, desc: '特级×4 · 高级×6 · 武器石×8 · 周限 3 次'

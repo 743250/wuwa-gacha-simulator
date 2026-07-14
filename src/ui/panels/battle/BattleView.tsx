@@ -10,7 +10,6 @@ import { ActionBar } from './ActionBar';
 import { ToastStack } from './ToastStack';
 
 export function BattleView() {
-  // 订阅 version signal 确保 mutable battle 变化时重渲染
   void battleVersionSignal.value;
   const visible = battleVisibleSignal.value;
   const battle = currentBattleSignal.value;
@@ -19,41 +18,46 @@ export function BattleView() {
   if (!visible || !battle) return null;
 
   const enemies = battle.enemies || [];
+  const aliveEnemies = enemies.filter((e: any) => e.alive);
 
   return (
-    <div class="battle-root" style={{ position: 'relative' }}>
+    <div class="battle-root">
       <ToastStack />
-      <Header battle={battle} pendingDungeon={pendingDungeon} />
-      <BuffStripe battle={battle} />
+      <div class="bf-stage">
+        <Header battle={battle} pendingDungeon={pendingDungeon} />
+        <BuffStripe battle={battle} />
 
-      {/* Enemy rows */}
-      <div style={{ marginBottom: 14 }}>
-        {enemies.map((e: any, idx: number) => (
-          <EnemyRow
-            key={idx}
-            enemy={e}
-            realIdx={idx}
-            isTarget={battle.targetIdx === idx}
-            battle={battle}
-          />
-        ))}
-        {enemies.filter((e: any) => e.alive).length === 0 && (
-          <div style={{ color: 'var(--muted)', fontSize: 12, textAlign: 'center', padding: 8 }}>
-            没有活着的敌人
+        <section class="bf-section bf-section-enemy">
+          <div class="bf-section-label">敌方</div>
+          <div class="bf-enemy-list">
+            {enemies.map((e: any, idx: number) => (
+              <EnemyRow
+                key={idx}
+                enemy={e}
+                realIdx={idx}
+                isTarget={battle.targetIdx === idx}
+                battle={battle}
+              />
+            ))}
+            {aliveEnemies.length === 0 && (
+              <div class="bf-empty">没有活着的敌人</div>
+            )}
           </div>
-        )}
+        </section>
+
+        <section class="bf-section bf-section-team">
+          <div class="bf-section-label">我方</div>
+          <TeamRow battle={battle} />
+        </section>
+
+        <section class="bf-section bf-section-log">
+          <LogView logs={battle.log || []} />
+        </section>
+
+        <section class="bf-section bf-section-actions">
+          <ActionBar battle={battle} pendingDungeon={pendingDungeon} />
+        </section>
       </div>
-
-      {/* Team */}
-      <div style={{ marginBottom: 12 }}>
-        <TeamRow battle={battle} />
-      </div>
-
-      {/* Log */}
-      <LogView logs={battle.log || []} />
-
-      {/* Actions */}
-      <ActionBar battle={battle} pendingDungeon={pendingDungeon} />
     </div>
   );
 }

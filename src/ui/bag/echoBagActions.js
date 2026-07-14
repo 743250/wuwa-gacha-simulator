@@ -63,10 +63,14 @@ export function registerEchoBagActions({ renderBag }) {
       body: h('div', null,
         h('div', { style: 'font-size:11px;color:var(--muted);margin-bottom:8px' }, `COST ${e.cost} · ${e.element} · ${set?.name || '无套装'}`),
         h('div', { style: 'font-size:11px;color:var(--muted);margin-bottom:4px' }, '主词条'),
-        h('div', { style: 'display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid var(--line);margin-bottom:8px' },
+        h('div', { style: 'display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid var(--line)' },
           h('span', null, e.mainStat?.label || ''),
           h('span', { style: 'color:var(--gold)' }, e.mainStat ? formatEchoStatValue(e.mainStat.key, e.mainStat.value) : '')
         ),
+        e.secondaryStat ? h('div', { style: 'display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid var(--line);margin-bottom:8px' },
+          h('span', null, e.secondaryStat.label || ''),
+          h('span', { style: 'color:var(--gold)' }, formatEchoStatValue(e.secondaryStat.key, e.secondaryStat.value))
+        ) : h('div', { style: 'margin-bottom:8px' }),
         h('div', { style: 'font-size:11px;color:var(--muted);margin-bottom:4px' }, `副词条（${(e.subStats||[]).filter(s=>s.unlocked!==false).length}/${(e.subStats||[]).length}）`),
         subRows,
         set ? h('div', { style: 'margin-top:8px;padding-top:6px;border-top:1px dashed var(--line)' },

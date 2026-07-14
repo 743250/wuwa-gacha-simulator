@@ -14,7 +14,7 @@
 
 export { getCombatTeamNames, createBattle, startEncounter } from './combat/setup.js';
 export {
-  calcDamage, dealDamage,
+  calcDamage, dealDamage, defenseMultiplier,
   setCurrentBattle, getCurrentBattle,
   damageSummon, spawnSummon, removeSummon, tickSummons, tickSummonsDuration,
 } from './combat/damage.js';

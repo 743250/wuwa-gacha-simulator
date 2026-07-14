@@ -1,6 +1,8 @@
-// Unit tests for daily/stamina.js — stamina spend, refill, potions, buy
-// AI safety net: verify stamina system invariants after balance changes
-import { describe, it, expect, beforeEach } from 'vitest';
+// Unit tests for daily/stamina.js — stamina spend, refill, crystal/solvent, natural recovery
+// Official model:
+//   waveplate_crystal: 1:1 redeem to staminaMax, hold cap 480
+//   crystal_solvent: +60 each, can overcharge to POTION_CAP 480
+import { describe, it, expect, beforeEach, beforeAll } from 'vitest';
 import { state0, S } from '../../src/state.js';
 
 describe('daily/stamina', () => {
@@ -14,7 +16,6 @@ describe('daily/stamina', () => {
     Object.assign(S, state0());
   });
 
-  // ===== spendStamina() =====
   describe('spendStamina()', () => {
     it('returns true and deducts stamina when sufficient', () => {
       const before = S.stamina;
@@ -26,7 +27,7 @@ describe('daily/stamina', () => {
     it('returns false when insufficient stamina', () => {
       S.stamina = 10;
       expect(stamina.spendStamina(30)).toBe(false);
-      expect(S.stamina).toBe(10); // unchanged
+      expect(S.stamina).toBe(10);
     });
 
     it('returns false for cost > stamina', () => {
@@ -34,7 +35,6 @@ describe('daily/stamina', () => {
     });
   });
 
-  // ===== refillStamina() =====
   describe('refillStamina()', () => {
     it('fills stamina to max', () => {
       S.stamina = 50;
@@ -50,16 +50,37 @@ describe('daily/stamina', () => {
     });
   });
 
-  // ===== usePotion() =====
   describe('usePotion()', () => {
-    it('returns ok and adds stamina', () => {
-      S.materials.condensed_waveplate = 2;
-      S.stamina = 100;
-      const r = stamina.usePotion('condensed_waveplate', 1);
+    it('redeems waveplate_crystal 1:1 up to staminaMax', () => {
+      S.materials.waveplate_crystal = 100;
+      S.stamina = 200;
+      S.staminaMax = 240;
+      const r = stamina.usePotion('waveplate_crystal', 50);
       expect(r.ok).toBe(true);
-      expect(r.gained).toBe(60);
-      expect(S.stamina).toBe(160);
-      expect(S.materials.condensed_waveplate).toBe(1);
+      expect(r.kind).toBe('crystal');
+      expect(r.gained).toBe(40);
+      expect(S.stamina).toBe(240);
+      expect(S.materials.waveplate_crystal).toBe(60);
+    });
+
+    it('rejects crystal redeem when already at staminaMax', () => {
+      S.materials.waveplate_crystal = 50;
+      S.stamina = 240;
+      S.staminaMax = 240;
+      const r = stamina.usePotion('waveplate_crystal', 10);
+      expect(r.ok).toBe(false);
+    });
+
+    it('accepts legacy condensed_waveplate alias as crystal', () => {
+      S.materials.waveplate_crystal = 30;
+      S.stamina = 200;
+      S.staminaMax = 240;
+      const r = stamina.usePotion('condensed_waveplate', 20);
+      expect(r.ok).toBe(true);
+      expect(r.kind).toBe('crystal');
+      expect(r.gained).toBe(20);
+      expect(S.stamina).toBe(220);
+      expect(S.materials.waveplate_crystal).toBe(10);
     });
 
     it('returns err for unknown potion', () => {
@@ -68,60 +89,60 @@ describe('daily/stamina', () => {
       expect(r.err).toBeTruthy();
     });
 
-    it('returns err when insufficient potions', () => {
-      S.materials.condensed_waveplate = 0;
-      const r = stamina.usePotion('condensed_waveplate');
+    it('returns err when crystal insufficient', () => {
+      S.materials.waveplate_crystal = 0;
+      S.stamina = 100;
+      const r = stamina.usePotion('waveplate_crystal');
       expect(r.ok).toBe(false);
     });
 
-    it('caps stamina at POTION_CAP', () => {
+    it('crystal_solvent adds 60 and caps at POTION_CAP', () => {
       S.materials.crystal_solvent = 10;
-      S.stamina = 470; // 480 - 10, so using 1 potion would go to 530, capped at 480
+      S.stamina = 470;
       const r = stamina.usePotion('crystal_solvent', 1);
       expect(r.ok).toBe(true);
+      expect(r.kind).toBe('potion');
       expect(S.stamina).toBe(480);
     });
 
-    it('deducts correct count for multiple potions', () => {
-      S.materials.condensed_waveplate = 5;
+    it('deducts solvent count for multiple uses', () => {
+      S.materials.crystal_solvent = 5;
       S.stamina = 100;
-      stamina.usePotion('condensed_waveplate', 3);
-      expect(S.materials.condensed_waveplate).toBe(2);
+      stamina.usePotion('crystal_solvent', 3);
+      expect(S.materials.crystal_solvent).toBe(2);
       expect(S.stamina).toBe(280);
     });
   });
 
-  // ===== useAllPotions() =====
   describe('useAllPotions()', () => {
-    it('returns 0 when no potions', () => {
-      S.materials.condensed_waveplate = 0;
+    it('returns 0 when no items', () => {
+      S.materials.waveplate_crystal = 0;
       S.materials.crystal_solvent = 0;
       expect(stamina.useAllPotions()).toBe(0);
     });
 
-    it('consumes all potions and adds stamina', () => {
-      S.materials.condensed_waveplate = 2; // 120 stamina
-      S.materials.crystal_solvent = 1;      // 60 stamina
-      S.stamina = 50;
+    it('crystal fill uses only available points', () => {
+      S.materials.waveplate_crystal = 50;
+      S.materials.crystal_solvent = 1;
+      S.stamina = 100;
+      S.staminaMax = 240;
       const gained = stamina.useAllPotions();
-      expect(gained).toBe(180);
-      expect(S.materials.condensed_waveplate).toBe(0);
+      expect(gained).toBe(110);
+      expect(S.materials.waveplate_crystal).toBe(0);
       expect(S.materials.crystal_solvent).toBe(0);
+      expect(S.stamina).toBe(210);
     });
 
-    it('caps stamina at POTION_CAP (returned value is raw total)', () => {
-      // useAllPotions returns the raw total gained before capping
-      // but applies Math.min(POTION_CAP, S.stamina + totalGained) to S.stamina
-      S.materials.condensed_waveplate = 5; // 300
-      S.materials.crystal_solvent = 5;      // 300; total 600
+    it('caps solvent overcharge at POTION_CAP', () => {
+      S.materials.waveplate_crystal = 0;
+      S.materials.crystal_solvent = 10;
       S.stamina = 0;
       const gained = stamina.useAllPotions();
-      expect(gained).toBe(600);             // raw total gained
-      expect(S.stamina).toBe(480);          // capped at POTION_CAP
+      expect(gained).toBe(600);
+      expect(S.stamina).toBe(480);
     });
   });
 
-  // ===== buyStaminaWithAstrite() =====
   describe('buyStaminaWithAstrite()', () => {
     it('returns ok and deducts astrite', () => {
       S.astrite = 1000;
@@ -146,37 +167,72 @@ describe('daily/stamina', () => {
     });
   });
 
-  // ===== grantCondensedWaveplate() =====
-  describe('grantCondensedWaveplate()', () => {
-    it('adds waveplates up to cap', () => {
-      S.materials.condensed_waveplate = 0;
+  describe('grantWaveplateCrystal()', () => {
+    it('adds points up to WAVEPLATE_CRYSTAL_CAP', () => {
+      S.materials.waveplate_crystal = 0;
+      const gained = stamina.grantWaveplateCrystal(100);
+      expect(gained).toBe(100);
+      expect(S.materials.waveplate_crystal).toBe(100);
+    });
+
+    it('caps at 480', () => {
+      S.materials.waveplate_crystal = 470;
+      const gained = stamina.grantWaveplateCrystal(30);
+      expect(gained).toBe(10);
+      expect(S.materials.waveplate_crystal).toBe(480);
+    });
+
+    it('legacy grantCondensedWaveplate maps to points', () => {
+      S.materials.waveplate_crystal = 0;
       const gained = stamina.grantCondensedWaveplate(3);
       expect(gained).toBe(3);
-      expect(S.materials.condensed_waveplate).toBe(3);
-    });
-
-    it('caps at CONDENSED_CAP', () => {
-      S.materials.condensed_waveplate = 4;
-      const gained = stamina.grantCondensedWaveplate(3);
-      expect(gained).toBe(1); // only 1 fits within cap of 5
-      expect(S.materials.condensed_waveplate).toBe(5);
-    });
-
-    it('does nothing when already at cap', () => {
-      S.materials.condensed_waveplate = 5;
-      const gained = stamina.grantCondensedWaveplate(2);
-      expect(gained).toBe(0);
-      expect(S.materials.condensed_waveplate).toBe(5);
+      expect(S.materials.waveplate_crystal).toBe(3);
     });
   });
 
-  // ===== Constants =====
+  describe('applyNaturalRecovery()', () => {
+    it('fills under-max stamina then converts overflow to crystal', () => {
+      S.stamina = 100;
+      S.staminaMax = 240;
+      S.materials.waveplate_crystal = 0;
+      const r = stamina.applyNaturalRecovery(2);
+      expect(r.filled).toBe(140);
+      expect(r.crystal).toBe(340);
+      expect(S.stamina).toBe(240);
+      expect(S.materials.waveplate_crystal).toBe(340);
+    });
+
+    it('when already full, all recovery becomes crystal', () => {
+      S.stamina = 240;
+      S.staminaMax = 240;
+      S.materials.waveplate_crystal = 10;
+      const r = stamina.applyNaturalRecovery(1);
+      expect(r.filled).toBe(0);
+      expect(r.crystal).toBe(240);
+      expect(S.stamina).toBe(240);
+      expect(S.materials.waveplate_crystal).toBe(250);
+    });
+
+    it('keeps overcharge intact', () => {
+      S.stamina = 300;
+      S.staminaMax = 240;
+      S.materials.waveplate_crystal = 0;
+      const r = stamina.applyNaturalRecovery(1);
+      expect(S.stamina).toBe(300);
+      expect(r.filled).toBe(0);
+      expect(r.crystal).toBe(240);
+    });
+  });
+
   describe('constants', () => {
     it('POTION_CAP is 480', () => {
       expect(stamina.POTION_CAP).toBe(480);
     });
-    it('CONDENSED_CAP is 5', () => {
-      expect(stamina.CONDENSED_CAP).toBe(5);
+    it('WAVEPLATE_CRYSTAL_CAP is 480', () => {
+      expect(stamina.WAVEPLATE_CRYSTAL_CAP).toBe(480);
+    });
+    it('CONDENSED_CAP aliases WAVEPLATE_CRYSTAL_CAP', () => {
+      expect(stamina.CONDENSED_CAP).toBe(480);
     });
     it('STAMINA_BUY_COST is 60', () => {
       expect(stamina.STAMINA_BUY_COST).toBe(60);

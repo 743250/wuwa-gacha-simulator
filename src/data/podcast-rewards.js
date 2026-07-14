@@ -6,13 +6,12 @@
 //
 // 字段（reward 对象内）：
 //   astrite / radiant / forging / lustrous / dream / mirage
-//   exp_low / exp_mid / exp_high / exp_super / weapon_book / echo_tuner / crystal_solvent / condensed_waveplate
+//   exp_low / exp_mid / exp_high / exp_super / weapon_book / echo_tuner / crystal_solvent / waveplate_crystal
 //   lunite
 //   weaponBox: true  → 4★ 武器自选箱（5 选 1，弹窗）
-//   refineStone: N   → 烙金银杏 ×N（用于精炼 4★ 自选武器；模拟器折算为对该武器 +N 精炼）
-//   cosmetic: '...'  → 名片/头像（纯展示文案）
 //
 // 注：echo_tuner（声骸调谐器）官方无电台渠道实据，模拟器在 50/60/70 等里程碑加入作为产出补充。
+// 注：原 refineStone / cosmetic 对养成无实际价值，已全部换成 exp_super / weapon_book。
 //
 // 数据校准：
 //   官方 70 级满级（内幕频道）≈ 680 星声 + 浮金 ×5 + 唤声 ×2 + 结晶溶剂 ×7
@@ -90,7 +89,7 @@ const FREE_TRACK = [
   R({ exp_high: 2 }),        // 57
   R({ astrite: 30 }),        // 58
   R({ weapon_book: 6 }),     // 59
-  R({ exp_super: 1, condensed_waveplate: 1, echo_tuner: 2 }), // 60 ★ 凝缩波片 +2 调谐器
+  R({ exp_super: 1, waveplate_crystal: 60, echo_tuner: 2 }), // 60 ★ 结晶单质 60 +2 调谐器
   // Lv 61-70
   R({ exp_high: 2 }),        // 61
   R({ astrite: 30 }),        // 62
@@ -101,7 +100,7 @@ const FREE_TRACK = [
   R({ astrite: 30 }),        // 67
   R({ weapon_book: 6 }),     // 68
   R({ exp_super: 1 }),       // 69
-  R({ exp_super: 1, condensed_waveplate: 1, echo_tuner: 3 }) // 70 ★ 完结奖励 +3 调谐器
+  R({ exp_super: 1, waveplate_crystal: 60, echo_tuner: 3 }) // 70 ★ 完结奖励 +3 调谐器
 ];
 
 // 付费轨（内幕频道）各级别奖励
@@ -147,23 +146,23 @@ const PAID_TRACK = [
   R({ radiant: 1 }),                           // 35 ★
   R({ astrite: 40 }),                          // 36
   R({ exp_high: 1 }),                          // 37
-  R({ refineStone: 1 }),                       // 38 ★ 烙金银杏（精炼+1）
+  R({ weapon_book: 6 }),                       // 38 ★ 武器突破石
   R({ astrite: 40 }),                          // 39
   R({ exp_super: 1, crystal_solvent: 1 }),     // 40 ★
   // Lv 41-50
   R({ astrite: 40 }),                          // 41
-  R({ refineStone: 1 }),                       // 42 ★
+  R({ exp_super: 1 }),                         // 42 ★ 特级共鸣促剂
   R({ weapon_book: 5 }),                       // 43
   R({ astrite: 40 }),                          // 44
   R({ lustrous: 1 }),                          // 45 ★ 唤声
   R({ astrite: 40 }),                          // 46
-  R({ refineStone: 1 }),                       // 47 ★
+  R({ weapon_book: 6 }),                       // 47 ★ 武器突破石
   R({ weapon_book: 5 }),                       // 48
   R({ astrite: 40 }),                          // 49
   R({ exp_super: 1, crystal_solvent: 1, echo_tuner: 3 }),     // 50 ★ +3 调谐器
   // Lv 51-60
   R({ astrite: 40 }),                          // 51
-  R({ refineStone: 1 }),                       // 52
+  R({ exp_super: 1 }),                         // 52 ★ 特级共鸣促剂
   R({ weapon_book: 5 }),                       // 53
   R({ astrite: 40 }),                          // 54
   R({ exp_super: 1 }),                         // 55
@@ -182,7 +181,7 @@ const PAID_TRACK = [
   R({ weapon_book: 5 }),                       // 67
   R({ astrite: 40 }),                          // 68
   R({ exp_super: 1 }),                         // 69
-  R({ exp_super: 1, crystal_solvent: 1, echo_tuner: 5, cosmetic: '电台主播 · 头像挂件' }) // 70 ★★ 完结 +5 调谐器
+  R({ exp_super: 2, crystal_solvent: 1, echo_tuner: 5, weapon_book: 8 }) // 70 ★★ 完结：促剂+武器石+5 调谐器
 ];
 
 // 校验：70 项

@@ -213,7 +213,7 @@ export function chouyuanFinishSkill(self, battle, form) {
   // 链6：荷蓑出林时暴伤 +100%（1 回合）
   if (self.chain >= 6) {
     self.buffs = (self.buffs || []).filter(b => b.src !== '仇远链6');
-    self.buffs.push({ type: 'cdmgUp', value: 1.0, duration: 1, src: '仇远链6', installer: self.idx });
+    self.buffs.push({ type: 'cdmgUp', value: 1.0, duration: 1, src: '仇远链6', scope: 'self', installer: self.idx });
   }
   syncChouyuanForte(self);
   battle?.log.push({
@@ -327,7 +327,7 @@ export function chouyuanOnBurst(self, ctx) {
       // 为登场角色（仇远自身）加暴伤buff
       const target = ctx.target || self;
       target.buffs = (target.buffs || []).filter(b => b.src !== '仇远解放暴伤');
-      target.buffs.push({ type: 'cdmgUp', value: bonus, duration: 3, src: '仇远解放暴伤', installer: self.idx });
+      target.buffs.push({ type: 'cdmgUp', value: bonus, duration: 3, src: '仇远解放暴伤', scope: 'self', installer: self.idx });
       ctx.battle.log.push({
         type: 'mechanic', src: self.name,
         msg: `解放·万钧一断 · 击${(crate*100).toFixed(0)}%>50% · 登场角色暴伤+${(bonus*100).toFixed(0)}%（3回合）`

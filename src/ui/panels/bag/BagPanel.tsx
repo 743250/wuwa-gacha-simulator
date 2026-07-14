@@ -111,7 +111,12 @@ function ResourceGroup({ title, items }: any) {
   );
 }
 
-function PotionCard({ potion, have, canUse }: any) {
+function PotionCard({ potion, have, canUse, stamina, staminaMax }: any) {
+  const isCrystal = potion.kind === 'crystal';
+  const room = Math.max(0, staminaMax - stamina);
+  const useLabel1 = isCrystal ? '兑 1 点' : '用 1 个';
+  const useLabelAll = isCrystal ? '兑满上限' : '用全部';
+  const useCountAll = isCrystal ? Math.min(have, room) : have;
   const capTag = potion.hardCap
     ? <span style={{ fontSize: 9, color: 'var(--muted)', marginLeft: 4 }}>上限 {potion.hardCap}</span>
     : null;
@@ -129,9 +134,9 @@ function PotionCard({ potion, have, canUse }: any) {
       <div style={{ fontSize: 9, color: 'var(--dim)', margin: '3px 0 6px', letterSpacing: '.3px' }}>{potion.desc}</div>
       <div style={{ display: 'flex', gap: 4 }}>
         <button class="mbtn" style={{ flex: 1, fontSize: 10, padding: 5 }} disabled={!canUse}
-          onClick={() => usePotion(potion.id, 1)}>用 1 个</button>
-        <button class="mbtn gold" style={{ flex: 1, fontSize: 10, padding: 5 }} disabled={!canUse}
-          onClick={() => usePotion(potion.id, have)}>用全部</button>
+          onClick={() => usePotion(potion.id, 1)}>{useLabel1}</button>
+        <button class="mbtn gold" style={{ flex: 1, fontSize: 10, padding: 5 }} disabled={!canUse || useCountAll <= 0}
+          onClick={() => usePotion(potion.id, useCountAll)}>{useLabelAll}</button>
       </div>
     </div>
   );
@@ -258,7 +263,7 @@ export function BagPanel() {
     {
       title: '体 力',
       items: [
-        { name: '结晶波片', value: `${S.stamina} / ${S.staminaMax}`, desc: '副本消耗 · 跨日补满', color: 'var(--green)' },
+        { name: '结晶波片', value: `${S.stamina} / ${S.staminaMax}`, desc: '副本消耗 · 跨日自然恢复（溢出转单质）', color: 'var(--green)' },
       ],
     },
   ];
@@ -308,19 +313,21 @@ export function BagPanel() {
 
       {groups.map(g => <ResourceGroup key={g.title} {...g} />)}
 
-      <div style={{ fontSize: 10, color: 'var(--muted)', letterSpacing: '2px', margin: '14px 0 6px' }}>体 力 药 剂</div>
+      <div style={{ fontSize: 10, color: 'var(--muted)', letterSpacing: '2px', margin: '14px 0 6px' }}>体 力 补 充</div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
         {potionEntries.map((p: any) => {
           const have = S.materials[p.id] || 0;
-          const canUse = have > 0 && S.stamina < 480;
-          return <PotionCard key={p.id} potion={p} have={have} canUse={canUse} />;
+          const canUse = p.kind === 'crystal'
+            ? have > 0 && S.stamina < S.staminaMax
+            : have > 0 && S.stamina < 480;
+          return <PotionCard key={p.id} potion={p} have={have} canUse={canUse} stamina={S.stamina} staminaMax={S.staminaMax} />;
         })}
       </div>
 
       {showUseAll && (
         <button class="mbtn gold" style={{ width: '100%', marginTop: 8 }}
           onClick={() => useAllPotions()}>
-          🧪 一键嗑光所有药剂（{totalPotions} 个）
+          一键兑满单质并使用全部溶剂（持有 {totalPotions}）
         </button>
       )}
 

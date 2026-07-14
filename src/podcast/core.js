@@ -192,9 +192,9 @@ function applyReward(r) {
   if (r.weapon_book)         S.materials.weapon_book = (S.materials.weapon_book || 0) + r.weapon_book;
   if (r.echo_tuner)         S.materials.echo_tuner   = (S.materials.echo_tuner   || 0) + r.echo_tuner;
   if (r.crystal_solvent)     S.materials.crystal_solvent = (S.materials.crystal_solvent || 0) + r.crystal_solvent;
-  if (r.condensed_waveplate) {
-    const cur = S.materials.condensed_waveplate || 0;
-    S.materials.condensed_waveplate = Math.min(5, cur + r.condensed_waveplate);
+  if (r.waveplate_crystal) {
+    const cur = S.materials.waveplate_crystal || 0;
+    S.materials.waveplate_crystal = Math.min(480, cur + r.waveplate_crystal);
   }
   if (r.weaponBox)           openWeaponBox();
   if (r.refineStone)         openRefineStonePicker(r.refineStone);

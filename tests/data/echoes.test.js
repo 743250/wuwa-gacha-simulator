@@ -1,7 +1,8 @@
 // Unit tests for data/echoes.js — catalog, sets, query functions
 import { describe, it, expect } from 'vitest';
 import {
-  ECHO_CATALOG, ECHO_SETS, MAIN_STAT_POOL, SUB_STAT_POOL,
+  ECHO_CATALOG, ECHO_SETS, MAIN_STAT_POOL, SUB_STAT_POOL, ECHO_SECONDARY_MAIN,
+  mainStatAtLevel, secondaryStatAtLevel,
   getSetById, getEchoById, getEchoesBySet, getEchoesByElement, getEchoesByCost,
 } from '../../src/data/echoes.js';
 
@@ -66,6 +67,20 @@ describe('data/echoes', () => {
       expect(keys).toContain('heal_bonus');
     });
 
+    it('official 5★ full-level anchors', () => {
+      const c4 = Object.fromEntries(MAIN_STAT_POOL[4].map(s => [s.key, s.value]));
+      expect(c4.crate).toBeCloseTo(0.22, 4);
+      expect(c4.cdmg).toBeCloseTo(0.44, 4);
+      expect(c4.def_pct).toBeCloseTo(0.418, 3);
+      expect(c4.heal_bonus).toBeCloseTo(0.264, 3);
+      const c3 = Object.fromEntries(MAIN_STAT_POOL[3].map(s => [s.key, s.value]));
+      expect(c3.def_pct).toBeCloseTo(0.38, 3);
+      expect(c3.elem_dmg_fire).toBeCloseTo(0.30, 3);
+      const c1 = Object.fromEntries(MAIN_STAT_POOL[1].map(s => [s.key, s.value]));
+      expect(c1.hp_pct).toBeCloseTo(0.228, 3);
+      expect(c1.atk_pct).toBeCloseTo(0.18, 3);
+    });
+
     it('COST3 includes elemental dmg stats', () => {
       const keys = MAIN_STAT_POOL[3].map(s => s.key);
       expect(keys).toContain('elem_dmg_fire');
@@ -81,6 +96,25 @@ describe('data/echoes', () => {
           expect(s.value).toBeGreaterThan(0);
         }
       }
+    });
+  });
+
+  describe('ECHO_SECONDARY_MAIN + growth curve', () => {
+    it('secondary max by cost', () => {
+      expect(ECHO_SECONDARY_MAIN[4]).toMatchObject({ key: 'atk_flat', value: 150 });
+      expect(ECHO_SECONDARY_MAIN[3]).toMatchObject({ key: 'atk_flat', value: 100 });
+      expect(ECHO_SECONDARY_MAIN[1]).toMatchObject({ key: 'hp_flat', value: 2280 });
+    });
+    it('mainStatAtLevel uses official Growth ratio', () => {
+      expect(mainStatAtLevel({ value: 100 }, 0)).toBeCloseTo(20, 5);
+      expect(mainStatAtLevel({ value: 100 }, 25)).toBeCloseTo(100, 5);
+      expect(mainStatAtLevel({ key: 'atk_flat', value: 150 }, 25)).toBe(150);
+      expect(mainStatAtLevel({ key: 'atk_flat', value: 150 }, 0)).toBe(30);
+    });
+    it('secondaryStatAtLevel returns scaled flat', () => {
+      const s = secondaryStatAtLevel(4, 25);
+      expect(s.key).toBe('atk_flat');
+      expect(s.value).toBe(150);
     });
   });
 

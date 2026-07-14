@@ -23,11 +23,7 @@ function WeaponStacks(t: any) {
     );
   });
   if (items.length === 0) return null;
-  return (
-    <div style={{ marginTop: 3, display: 'flex', flexWrap: 'wrap', gap: 2 }}>
-      {items}
-    </div>
-  );
+  return <div class="bf-wstack-row">{items}</div>;
 }
 
 function effectLabel(effect: string, element?: string): string {
@@ -49,22 +45,16 @@ function effectLabel(effect: string, element?: string): string {
 function SummonBlock({ s }: any) {
   const sHpPct = Math.max(0, s.hp / s.hpMax);
   return (
-    <div style={{
-      marginTop: 6, padding: '6px 8px', border: '1.5px dashed var(--gold)',
-      borderRadius: 8, background: 'rgba(155,109,255,.06)', cursor: 'default'
-    }} title="召唤物 · 不可切换 · 不可控制">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 3 }}>
-        <span style={{ fontSize: 11, fontWeight: 600, color: '#9b6dff' }}>🢀 {s.name}</span>
-        <span style={{ fontSize: 9, color: 'var(--muted)' }}>召唤物 · {s.duration > 0 ? `持续 ${s.duration} 回合` : '永久'}</span>
+    <div class="bf-summon" title="召唤物 · 不可切换 · 不可控制">
+      <div class="bf-summon-top">
+        <span class="bf-summon-name">🢀 {s.name}</span>
+        <span class="bf-summon-meta">{s.duration > 0 ? `${s.duration} 回` : '永久'}</span>
       </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-        <div style={{ flex: 1, height: 4, background: 'rgba(255,255,255,.08)', borderRadius: 2, overflow: 'hidden' }}>
-          <div style={{
-            height: '100%', width: `${(sHpPct * 100).toFixed(1)}%`,
-            background: '#9b6dff', transition: 'width .35s ease'
-          }} />
+      <div class="bf-bar-row compact">
+        <div class="bf-bar bf-bar-summon">
+          <div class="bf-bar-fill" style={{ width: `${(sHpPct * 100).toFixed(1)}%` }} />
         </div>
-        <span style={{ fontSize: 9, color: '#c39bff', whiteSpace: 'nowrap' }}>HP {s.hp}/{s.hpMax}</span>
+        <span class="bf-bar-num">HP {s.hp}/{s.hpMax}</span>
       </div>
     </div>
   );
@@ -74,17 +64,13 @@ export function TeamRow({ battle }: TeamRowProps) {
   const team = battle.team;
 
   return (
-    <div class="team-row" style={{ display: 'grid', gridTemplateColumns: `repeat(${team.length},1fr)`, gap: 6 }}>
+    <div class="bf-team-row" style={{ gridTemplateColumns: `repeat(${team.length}, minmax(0, 1fr))` }}>
       {team.map((t: any, i: number) => {
         if (!t.alive) {
           return (
-            <div key={i} class="bf-unit dead" style={{
-              border: '1px dashed var(--line)', borderRadius: 10, padding: 8,
-              background: 'rgba(255,80,80,.03)', opacity: 0.45,
-              display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', minHeight: 80,
-            }}>
-              <div style={{ fontSize: 11, color: 'var(--dim)' }}>💀 {displayName(t)}</div>
-              <div style={{ fontSize: 9, color: 'var(--red)', marginTop: 6, letterSpacing: 2 }}>阵 亡</div>
+            <div key={i} class="bf-unit dead">
+              <div class="bf-unit-dead-name">💀 {displayName(t)}</div>
+              <div class="bf-unit-dead-tag">阵亡</div>
             </div>
           );
         }
@@ -93,97 +79,72 @@ export function TeamRow({ battle }: TeamRowProps) {
         const isActive = i === battle.active;
         const elemColor = ELEMENT_COLOR[t.element] || '#fff';
         const activeUnit = battle.team[battle.active];
-        // 俯首之刻等角色态锁定（与 doSwitch canSwitch hook 对齐）
         const switchLocked = !!(activeUnit as any)?.aogusitaBurstTurns;
         const canSwitch = !isActive && t.alive && t.frozenTurns === 0 && !battle.switchUsedThisTurn && !switchLocked;
         const swapHint = !isActive
           ? (switchLocked ? '俯首之刻期间不可切换'
             : (battle.switchUsedThisTurn ? '本回合不能再切' : (activeUnit?.concerto >= 100 ? '点击切换 · 强化变奏!' : '点击切换 · 触发变奏')))
-          : '';
+          : '当前出战';
         const f = t.forte;
         const fPct = f ? (f.current / f.max) : 0;
         const fReady = f && f.ready;
         const concertoPct = ((t.concerto || 0) / 100);
-        // 全队 buff 只显示本角色施放的（installer === t.idx），如星域挂在守岸人头像下
-    const badges = collectUnitBadges(t, battle, { includeTeamGlobal: 'installer' as any });
+        const badges = collectUnitBadges(t, battle, { includeTeamGlobal: 'installer' as any });
         const badgeHtml = badges.length ? `<div class="bf-status-row">${badges.map(renderBadge).join('')}</div>` : '';
         const summons = (battle.summons || []).filter((s: any) => s.alive && s.ownerIdx === i);
+        const burstReady = t.energy >= t.energyMax;
 
         return (
           <div
             key={i}
-            class={`bf-unit ${isActive ? 'active' : ''}`}
+            class={`bf-unit ${isActive ? 'active' : ''} ${canSwitch ? 'can-switch' : ''}`}
             onClick={canSwitch ? () => bSwitch(i) : undefined}
             title={swapHint}
-            style={{
-              border: `2px solid ${isActive ? 'var(--gold)' : 'var(--line)'}`,
-              borderRadius: 10, padding: 8,
-              background: isActive ? 'rgba(245,207,107,.06)' : 'rgba(255,255,255,.02)',
-              cursor: canSwitch ? 'pointer' : 'default',
-              opacity: (canSwitch || isActive) ? 1 : 0.6
-            }}
+            style={{ ['--elem' as any]: elemColor }}
           >
-            {/* Name row */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-              <span style={{ fontSize: 12, fontWeight: 600 }}>
-                {displayName(t)}
-                {t.frozenTurns > 0 ? <span style={{ color: 'var(--accent)', fontSize: 9 }}>❄</span> : ''}
-                {t.skillLockedTurns > 0 ? <span style={{ color: 'var(--red)', fontSize: 9 }}>🔒</span> : ''}
-                {t.energy >= t.energyMax ? '⚡' : ''}
-                {fReady ? <span style={{ color: 'var(--gold)', fontSize: 9, marginLeft: 3 }}>✦</span> : ''}
-              </span>
-              <span style={{ fontSize: 9, color: elemColor }}>{t.element}</span>
-            </div>
-
-            {/* HP bar */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 2 }}>
-              <div style={{ flex: 1, height: 5, background: 'rgba(255,255,255,.08)', borderRadius: 3, overflow: 'hidden' }}>
-                <div style={{
-                  height: '100%', width: `${(hpPct * 100).toFixed(1)}%`,
-                  background: 'var(--green)', transition: 'width .35s ease'
-                }} />
+            <div class="bf-unit-top">
+              <div class="bf-unit-name">
+                <span class="bf-name">{displayName(t)}</span>
+                {t.frozenTurns > 0 && <span class="bf-flag ice" title="冻结">❄</span>}
+                {t.skillLockedTurns > 0 && <span class="bf-flag lock" title="技能封锁">🔒</span>}
+                {burstReady && <span class="bf-flag burst" title="解放就绪">⚡</span>}
+                {fReady && <span class="bf-flag ready" title="奏回路就绪">✦</span>}
               </div>
-              <span style={{ fontSize: 9, color: 'var(--muted)', whiteSpace: 'nowrap' }}>HP {t.hp}/{t.hpMax}</span>
+              <span class="bf-elem-tag sm" style={{ borderColor: elemColor, color: elemColor }}>{t.element}</span>
             </div>
 
-            {/* Energy bar */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
-              <div style={{ flex: 1, height: 3, background: 'rgba(255,255,255,.08)', borderRadius: 2, overflow: 'hidden' }}>
-                <div style={{
-                  height: '100%', width: `${(enPct * 100).toFixed(1)}%`,
-                  background: 'var(--accent)', transition: 'width .3s ease'
-                }} />
+            <div class="bf-bar-row">
+              <div class="bf-bar bf-bar-hp">
+                <div class="bf-bar-fill" style={{ width: `${(hpPct * 100).toFixed(1)}%` }} />
               </div>
-              <span style={{ fontSize: 9, color: 'var(--accent)', whiteSpace: 'nowrap' }}>能量 {t.energy}/{t.energyMax}</span>
+              <span class="bf-bar-num">HP {t.hp}/{t.hpMax}</span>
             </div>
 
-            {/* Forte bar */}
+            <div class="bf-bar-row">
+              <div class={`bf-bar bf-bar-en ${burstReady ? 'full' : ''}`}>
+                <div class="bf-bar-fill" style={{ width: `${(enPct * 100).toFixed(1)}%` }} />
+              </div>
+              <span class="bf-bar-num en">能量 {t.energy}/{t.energyMax}</span>
+            </div>
+
             {f && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
-                <div style={{ flex: 1, height: 3, background: 'rgba(255,255,255,.08)', borderRadius: 2, overflow: 'hidden' }}>
-                  <div style={{
-                    height: '100%', width: `${(fPct * 100).toFixed(1)}%`,
-                    background: fReady ? 'var(--gold)' : '#c39bff', transition: 'width .3s ease'
-                  }} />
+              <div class="bf-bar-row">
+                <div class={`bf-bar bf-bar-forte ${fReady ? 'ready' : ''}`}>
+                  <div class="bf-bar-fill" style={{ width: `${(fPct * 100).toFixed(1)}%` }} />
                 </div>
-                <span style={{ fontSize: 9, color: fReady ? 'var(--gold)' : '#c39bff', whiteSpace: 'nowrap' }}>
-                  {f.resourceName} {f.current}/{f.max}{fReady ? ' · 强化就绪!' : ''}
+                <span class={`bf-bar-num forte ${fReady ? 'ready' : ''}`}>
+                  {f.resourceName} {f.current}/{f.max}{fReady ? ' · 就绪' : ''}
                 </span>
               </div>
             )}
 
-            {/* Character battle status (HTML from character modules) */}
             <div dangerouslySetInnerHTML={{ __html: renderCharacterBattleStatus(t) }} />
 
-            {/* Concerto bar */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 3 }}>
-              <div style={{ flex: 1, height: 2, background: 'rgba(255,255,255,.06)', borderRadius: 2, overflow: 'hidden' }}>
-                <div style={{
-                  height: '100%', width: `${(concertoPct * 100).toFixed(1)}%`,
-                  background: 'linear-gradient(90deg,#69b8ff,#c39bff)', transition: 'width .3s ease'
-                }} />
+            <div class="bf-bar-row compact">
+              <div class="bf-bar bf-bar-concerto">
+                <div class="bf-bar-fill" style={{ width: `${(concertoPct * 100).toFixed(1)}%` }} />
               </div>
-              <span style={{ fontSize: 8, color: 'var(--muted)', whiteSpace: 'nowrap' }}>
+              <span class="bf-bar-num dim">
                 协奏 {t.concerto || 0}/100
                 {t.dodge ? ` · 闪避 ${(t.dodge * 100).toFixed(0)}%` : ''}
               </span>
@@ -191,19 +152,16 @@ export function TeamRow({ battle }: TeamRowProps) {
 
             <WeaponStacks {...t} />
 
-            {/* CD status */}
-            <div style={{ fontSize: 9, color: t.cd.skill > 0 ? 'var(--muted)' : 'var(--green)', marginTop: 2 }}>
+            <div class={`bf-cd-line ${t.cd.skill > 0 || t.skillLockedTurns > 0 ? 'cooling' : 'ready'}`}>
               {t.skillLockedTurns > 0
                 ? `技能封锁 ${t.skillLockedTurns}回`
                 : (t.cd.skill > 0 ? `技能 CD ${t.cd.skill}回` : '技能就绪')}
               {(t.hasHeavy && t.cd.heavy > 0) ? ` · 重击 CD ${t.cd.heavy}回` : ''}
-              {t._wallLocked > 0 ? ` · <span style="color:var(--accent)">⚡雷霆墙锁定</span>` : ''}
+              {t._wallLocked > 0 ? ' · 雷霆墙锁定' : ''}
             </div>
 
-            {/* Badge row */}
             <div dangerouslySetInnerHTML={{ __html: badgeHtml }} />
 
-            {/* Summons */}
             {summons.map((s: any) => <SummonBlock key={s.name} s={s} />)}
           </div>
         );

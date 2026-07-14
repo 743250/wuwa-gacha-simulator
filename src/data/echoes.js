@@ -398,11 +398,9 @@ export const ECHO_SETS = [
 // ==================== 主词条池 ====================
 
 /**
- * 主词条池 — 数值代表 Lv25 满级值（模拟器占位锚点）
- *
- * 注：encore.moe API 未公开声骸 LevelUpGroup 逐级数值表，无权威 per-level 源。
- * 这里把现有数字标定为 Lv25 满级值，1→25 级用线性插值（见 mainStatAtLevel）。
- * 该公式是模拟器占位，非官方曲线。如拿到官方逐级表，替换 mainStatAtLevel 即可。
+ * 主词条池 — 数值为 5★ Lv25 满级值。
+ * 源：Dimbreath/WutheringData ConfigDB PhantomMainPropItem + PhantomGrowth。
+ * 升级曲线见 mainStatAtLevel（官方 Growth：满级值 × (0.2 + 0.8×Lv/25)）。
  */
 export const MAIN_STAT_POOL = {
   4: [
@@ -410,8 +408,8 @@ export const MAIN_STAT_POOL = {
     { key: 'cdmg',        label: '暴击伤害',  value: 0.44 },
     { key: 'atk_pct',     label: '攻击%',     value: 0.33 },
     { key: 'hp_pct',      label: '生命%',     value: 0.33 },
-    { key: 'def_pct',     label: '防御%',     value: 0.33 },
-    { key: 'heal_bonus',  label: '治疗加成',  value: 0.22 },
+    { key: 'def_pct',     label: '防御%',     value: 0.418 },
+    { key: 'heal_bonus',  label: '治疗加成',  value: 0.264 },
   ],
   3: [
     { key: 'elem_dmg_fire',     label: '热熔伤害%',    value: 0.30 },
@@ -422,56 +420,81 @@ export const MAIN_STAT_POOL = {
     { key: 'elem_dmg_havoc',    label: '湮灭伤害%',    value: 0.30 },
     { key: 'atk_pct',           label: '攻击%',        value: 0.30 },
     { key: 'hp_pct',            label: '生命%',        value: 0.30 },
-    { key: 'def_pct',           label: '防御%',        value: 0.30 },
+    { key: 'def_pct',           label: '防御%',        value: 0.38 },
     { key: 'resonance_efficiency',      label: '共鸣效率%',    value: 0.32 },
   ],
   1: [
     { key: 'atk_pct',   label: '攻击%',   value: 0.18 },
-    { key: 'hp_pct',    label: '生命%',   value: 0.18 },
+    { key: 'hp_pct',    label: '生命%',   value: 0.228 },
     { key: 'def_pct',   label: '防御%',   value: 0.18 },
   ],
 };
 
+/**
+ * 第二主词条（固有，非随机池）— 5★ Lv25 满级值。
+ * COST4/3：固定攻击；COST1：固定生命。与主词条共用成长曲线。
+ */
+export const ECHO_SECONDARY_MAIN = {
+  4: { key: 'atk_flat', label: '攻击', value: 150 },
+  3: { key: 'atk_flat', label: '攻击', value: 100 },
+  1: { key: 'hp_flat',  label: '生命', value: 2280 },
+};
+
 // ==================== 副词条池 ====================
+// 区间采用社区可核验表（wutheringwaves.gg）；官方 Config 仅有 SubStandard 基准，无 min/max 档位表。
 
 export const SUB_STAT_POOL = [
   { key: 'crate',            label: '暴击率',      min: 0.063, max: 0.105 },
   { key: 'cdmg',             label: '暴击伤害',    min: 0.126, max: 0.210 },
-  { key: 'atk_pct',          label: '攻击%',       min: 0.063, max: 0.105 },
-  { key: 'hp_pct',           label: '生命%',       min: 0.063, max: 0.105 },
-  { key: 'def_pct',          label: '防御%',       min: 0.079, max: 0.132 },
-  { key: 'atk_flat',         label: '攻击(固定)',  min: 30,    max: 50 },
-  { key: 'hp_flat',          label: '生命(固定)',  min: 450,   max: 750 },
-  { key: 'def_flat',         label: '防御(固定)',  min: 30,    max: 50 },
-  { key: 'resonance_efficiency',     label: '共鸣效率%',   min: 0.056, max: 0.093 },
-  { key: 'normal_atk_dmg',   label: '普攻伤害%',   min: 0.063, max: 0.105 },
-  { key: 'skill_dmg',        label: '技能伤害%',   min: 0.063, max: 0.105 },
-  { key: 'burst_dmg',        label: '解放伤害%',   min: 0.063, max: 0.105 },
-  { key: 'heavy_dmg',        label: '重击伤害%',   min: 0.063, max: 0.105 },
+  { key: 'atk_pct',          label: '攻击%',       min: 0.064, max: 0.116 },
+  { key: 'hp_pct',           label: '生命%',       min: 0.064, max: 0.116 },
+  { key: 'def_pct',          label: '防御%',       min: 0.081, max: 0.147 },
+  { key: 'atk_flat',         label: '攻击(固定)',  min: 30,    max: 70 },
+  { key: 'hp_flat',          label: '生命(固定)',  min: 320,   max: 580 },
+  { key: 'def_flat',         label: '防御(固定)',  min: 30,    max: 70 },
+  { key: 'resonance_efficiency',     label: '共鸣效率%',   min: 0.056, max: 0.149 },
+  { key: 'normal_atk_dmg',   label: '普攻伤害%',   min: 0.064, max: 0.124 },
+  { key: 'skill_dmg',        label: '技能伤害%',   min: 0.064, max: 0.116 },
+  { key: 'burst_dmg',        label: '解放伤害%',   min: 0.064, max: 0.116 },
+  { key: 'heavy_dmg',        label: '重击伤害%',   min: 0.064, max: 0.116 },
 ];
 
 // ==================== 升级经验 ====================
 
+// 阶段总经验（再按 (to-from) 均摊到每级）。相对旧表整体约 ×0.6，满级更省养成料。
 export const LEVEL_EXP = [
-  { from: 1, to: 5,  exp: 10000,  cost: 5000 },
-  { from: 5, to: 10, exp: 30000,  cost: 15000 },
-  { from: 10, to: 15, exp: 60000,  cost: 30000 },
-  { from: 15, to: 20, exp: 120000, cost: 60000 },
-  { from: 20, to: 25, exp: 320000, cost: 160000 },
+  { from: 1, to: 5,  exp: 6000,   cost: 3000 },
+  { from: 5, to: 10, exp: 18000,  cost: 9000 },
+  { from: 10, to: 15, exp: 36000,  cost: 18000 },
+  { from: 15, to: 20, exp: 72000,  cost: 36000 },
+  { from: 20, to: 25, exp: 192000, cost: 96000 },
 ];
 
-export const MAX_LEVEL_EXP = 540000;
-export const MAX_LEVEL_COST = 270000;
+export const MAX_LEVEL_EXP = 324000;
+export const MAX_LEVEL_COST = 162000;
 
-// 声骸主词条在指定等级的数值（线性插值占位公式：满级值 × level / 25）
-// 鸣潮声骸满级 25；encore.moe 未公开逐级表，此处为模拟器近似公式，非官方曲线。
-// 1 级 = 满值的 4%，25 级 = 满值。固定值型（无浮点）取整。
-const FLAT_MAIN_KEYS = new Set();
+// 官方 PhantomGrowth：value = Standard × (10000 + 1600×Lv) / 10000
+// 等价 满级值 × (0.2 + 0.8×Lv/25)；Lv0=满级 20%，Lv25=满级 100%。
+const FLAT_MAIN_KEYS = new Set(['atk_flat', 'hp_flat', 'def_flat']);
 export const ECHO_MAX_LEVEL = 25;
 export function mainStatAtLevel(statDef, level, maxLevel = ECHO_MAX_LEVEL) {
-  const ratio = Math.max(1, level) / maxLevel;
-  const v = statDef.value * ratio;
-  return FLAT_MAIN_KEYS.has(statDef.key) ? Math.round(v) : Math.round(v * 1000) / 1000;
+  const lv = Math.max(0, Math.min(maxLevel, Math.floor(Number(level) || 0)));
+  const ratio = 0.2 + 0.8 * (lv / maxLevel);
+  const v = (Number(statDef?.value) || 0) * ratio;
+  if (FLAT_MAIN_KEYS.has(statDef?.key)) return Math.round(v);
+  return Math.round(v * 1000) / 1000;
+}
+
+/** 按 COST 生成第二主词条（固有）在指定等级的数值对象 */
+export function secondaryStatAtLevel(cost, level) {
+  const def = ECHO_SECONDARY_MAIN[cost];
+  if (!def) return null;
+  return {
+    key: def.key,
+    label: def.label,
+    value: mainStatAtLevel(def, level),
+    maxValue: def.value,
+  };
 }
 
 // ==================== 套装ID查找辅助 ====================

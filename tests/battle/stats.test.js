@@ -96,7 +96,9 @@ describe('battle/stats', () => {
       echoActions.equipEcho(role, 0, e.id);
       const s = stats.computeBattleStats(role);
       expect(s.echoStats).toBeTruthy();
-      expect(s.echoStats.mainStats.length).toBe(1);
+      // 主词条 + 第二主词条（固有）
+      expect(s.echoStats.mainStats.length).toBeGreaterThanOrEqual(1);
+      expect(s.echoStats.mainStats.some(m => m.key === 'crate')).toBe(true);
       expect(s.crate).toBeGreaterThan(0);
     });
 

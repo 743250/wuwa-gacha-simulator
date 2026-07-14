@@ -48,7 +48,7 @@ function rewardChips(r: any): any[] {
   if (r.exp_super)           out.push(<span class="rc rc-super">特促{r.exp_super}</span>);
   if (r.weapon_book)         out.push(<span class="rc">武石{r.weapon_book}</span>);
   if (r.crystal_solvent)     out.push(<span class="rc">溶剂{r.crystal_solvent}</span>);
-  if (r.condensed_waveplate) out.push(<span class="rc">波片{r.condensed_waveplate}</span>);
+  if (r.waveplate_crystal)   out.push(<span class="rc">单质{r.waveplate_crystal}</span>);
   if (r.weaponBox)           out.push(<span class="rc rc-box">★箱</span>);
   if (r.refineStone)         out.push(<span class="rc">银{r.refineStone}</span>);
   if (r.cosmetic)            out.push(<span class="rc rc-cos">头像</span>);
@@ -69,7 +69,7 @@ function rewardTipText(r: any): string {
   if (r.exp_super)           out.push(`特级共鸣促剂 ×${r.exp_super}`);
   if (r.weapon_book)         out.push(`武器突破石 ×${r.weapon_book}`);
   if (r.crystal_solvent)     out.push(`结晶溶剂 ×${r.crystal_solvent}`);
-  if (r.condensed_waveplate) out.push(`凝缩波片 ×${r.condensed_waveplate}`);
+  if (r.waveplate_crystal)   out.push(`结晶单质 ×${r.waveplate_crystal}`);
   if (r.weaponBox)           out.push(`4★ 武器自选箱`);
   if (r.refineStone)         out.push(`烙金银杏 ×${r.refineStone}`);
   if (r.cosmetic)            out.push(r.cosmetic);

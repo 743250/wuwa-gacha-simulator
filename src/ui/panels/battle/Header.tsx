@@ -15,24 +15,37 @@ export function Header({ battle, pendingDungeon }: HeaderProps) {
     ? `今日敌情：${pendingDungeon.encounter.tag} · ${pendingDungeon.encounter.enemies.join(' / ')}`
     : '';
   const cur = battle.team[battle.active];
-  const switchTag = battle.switchUsedThisTurn
-    ? <span style={{ color: 'var(--red)' }}>切人已用</span>
-    : <span style={{ color: 'var(--green)' }}>可切人 1 次</span>;
-  const heavyHint = cur?.hasHeavy ? ' · 重击 2AP/CD1' : '';
+  const apPct = battle.apMax > 0 ? Math.max(0, Math.min(1, battle.ap / battle.apMax)) : 0;
+  const switchUsed = !!battle.switchUsedThisTurn;
 
   return (
-    <div style={{ textAlign: 'center', marginBottom: 12 }}>
-      <div style={{ fontSize: 18, fontWeight: 700, letterSpacing: 3, color: 'var(--gold)' }}>{titleTxt}</div>
-      {subTitle && <div style={{ fontSize: 11, color: 'var(--accent)', letterSpacing: 1, marginTop: 4 }}>{subTitle}</div>}
-      <div style={{ fontSize: 11, color: 'var(--muted)', letterSpacing: 2, marginTop: 4 }}>
-        回合 <b style={{ color: 'var(--text)' }}>{battle.turn}</b>
-        {' · '}AP <b style={{ color: 'var(--gold)' }}>{battle.ap}/{battle.apMax}</b>
-        {' · '}{switchTag}
-        {' · '}当前 <b style={{ color: 'var(--accent)' }}>{displayName(cur)}</b>
+    <header class="bf-header">
+      <div class="bf-header-main">
+        <div class="bf-title">{titleTxt}</div>
+        {subTitle && <div class="bf-subtitle">{subTitle}</div>}
       </div>
-      <div style={{ fontSize: 9, color: 'var(--dim)', letterSpacing: 0.5, marginTop: 4, lineHeight: 1.5 }}>
-        每回合 4 AP · 普攻 1AP · 技能 1AP/CD3{heavyHint} · 解放 3AP · 切人 0AP（限 1 次）
+
+      <div class="bf-hud">
+        <div class="bf-hud-chip">
+          <span class="bf-hud-k">回合</span>
+          <span class="bf-hud-v">{battle.turn}</span>
+        </div>
+        <div class="bf-hud-chip bf-hud-ap">
+          <span class="bf-hud-k">AP</span>
+          <span class="bf-hud-v gold">{battle.ap}<span class="bf-hud-den">/{battle.apMax}</span></span>
+          <span class="bf-ap-track" aria-hidden="true">
+            <span class="bf-ap-fill" style={{ width: `${(apPct * 100).toFixed(0)}%` }} />
+          </span>
+        </div>
+        <div class={`bf-hud-chip ${switchUsed ? 'is-used' : 'is-ready'}`}>
+          <span class="bf-hud-k">切人</span>
+          <span class="bf-hud-v">{switchUsed ? '已用' : '可用'}</span>
+        </div>
+        <div class="bf-hud-chip bf-hud-cur">
+          <span class="bf-hud-k">当前</span>
+          <span class="bf-hud-v accent">{displayName(cur)}</span>
+        </div>
       </div>
-    </div>
+    </header>
   );
 }

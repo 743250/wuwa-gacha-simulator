@@ -9,6 +9,7 @@ import { resetWeeklyBossIfNeeded } from '../battle/dungeon.js';
 import { resetAbyssIfNeeded } from '../daily/abyss.js';
 import { resetWastesIfNeeded } from '../daily/wastes.js';
 import { resetPodcastForVersion, resetPodcastDailyIfNeeded, resetPodcastWeeklyIfNeeded, progressTask } from '../podcast/core.js';
+import { applyNaturalRecovery } from '../daily/stamina.js';
 import { commit } from '../state/commit.ts';
 
 function versionAt(t) {
@@ -102,9 +103,9 @@ export function advanceTo(target) {
       refreshVersion(false);
       if (newVersion) resetPodcastForVersion(newVersion);
     }
-    // 每过一天补满体力：仅当低于上限时往上补到上限；超过上限（嗑药剂状态）保留不动
-    if (S.stamina < S.staminaMax) {
-      S.stamina = Math.min(S.staminaMax, S.stamina + daysPassed * 240);
+    // 自然恢复：未满先补到上限，溢出与已满时的恢复量转为结晶单质；超充状态保留不动
+    if (daysPassed > 0) {
+      applyNaturalRecovery(daysPassed);
     }
     // 重置每日委托
     resetDailyIfNeeded();

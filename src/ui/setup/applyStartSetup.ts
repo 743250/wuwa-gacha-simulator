@@ -13,8 +13,7 @@ import { saveState, clearSave } from '../../save.js';
 import { commit } from '../../state/commit';
 import { jumpToVersion } from '../../time/timeline.js';
 import { addRole, addWeapon } from '../../gacha/core.js';
-import { generateEcho } from '../../equip/echoActions.js';
-import { equipEcho } from '../../equip/echoActions.js';
+import { generateEcho, equipEcho, ensureEchoStats } from '../../equip/echoActions.js';
 import { ECHO_CATALOG, ECHO_MAX_LEVEL } from '../../data/echoes.js';
 import { rerenderAll } from '../../rerender.js';
 import {
@@ -139,6 +138,8 @@ function simulateBuyAccountPlaythrough(version: string, totalDays: number, chain
           // 解锁对应数量副词条
           const unlockedCount = Math.floor(targetLv / 5);
           echo.subStats.forEach((s: any, i: number) => { s.unlocked = i < unlockedCount; });
+          // 按官方曲线重算主词条 + 第二主词条
+          ensureEchoStats(echo);
           // 装备
           equipEcho(targetChar, emptySlot, echo.id);
         }

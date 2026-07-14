@@ -1,7 +1,6 @@
 // 动作按钮 + 技能面板
 import { h } from 'preact';
 import { canAttack, canSkill, canHeavy, canBurst, evaluateStars } from '../../../battle/combat.js';
-import { renderCharacterBattleStatus } from '../../../battle/characters/index.js';
 import { bAtk, bSkill, bHeavy, bBurst, bDebris, bEndTurn, bClose, bSettle } from '../../../ui/battle/battleActions.js';
 import { displayName } from './helpers';
 
@@ -14,33 +13,32 @@ function SkillPanel({ cur }: { cur: any }) {
   if (!cur) return null;
   const f = cur.forte;
   const wName = cur.weapon?.name;
-  const fStatus = (() => {
-    if (!f) return '';
-    if (!f.ready) return `${f.resourceName} ${f.current}/${f.max}`;
-    if (f.effectType === 'shorekeeperField') {
-      return <span style={{ color: 'var(--gold)' }}>✦ {f.resourceName}已就绪 · 解放可展开星域</span>;
+  let fStatus: any = '';
+  if (f) {
+    if (!f.ready) {
+      fStatus = `${f.resourceName} ${f.current}/${f.max}`;
+    } else if (f.effectType === 'shorekeeperField') {
+      fStatus = <span class="bf-skill-ready">✦ {f.resourceName}已就绪 · 解放可展开星域</span>;
+    } else {
+      const actionName = f.effectType === 'enhancedSkill' ? '技能'
+        : f.effectType === 'enhancedBurst' ? '解放' : '普攻';
+      const multText = Number.isFinite(f.effectMult) ? ` ×${f.effectMult.toFixed(1)}` : '';
+      fStatus = <span class="bf-skill-ready">✦ {f.resourceName}已就绪 · 下次{actionName}强化{multText}</span>;
     }
-    const actionName = f.effectType === 'enhancedSkill' ? '技能'
-      : f.effectType === 'enhancedBurst' ? '解放' : '普攻';
-    const multText = Number.isFinite(f.effectMult) ? ` ×${f.effectMult.toFixed(1)}` : '';
-    return <span style={{ color: 'var(--gold)' }}>✦ {f.resourceName}已就绪 · 下次{actionName}强化{multText}</span>;
-  })();
+  }
 
   return (
-    <div style={{
-      border: '1px solid var(--line)', borderRadius: 10, padding: '9px 12px',
-      marginBottom: 8, background: 'rgba(245,207,107,.04)', fontSize: 11, lineHeight: 1.55
-    }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 4 }}>
-        <span style={{ fontWeight: 700, color: 'var(--gold)', letterSpacing: 1 }}>{displayName(cur)}</span>
-        <span style={{ fontSize: 10, color: 'var(--muted)' }}>
-          {cur.element} · {cur.type}{wName ? ' · 装备 ' + wName : ''}
+    <div class="bf-skill-panel">
+      <div class="bf-skill-head">
+        <span class="bf-skill-name">{displayName(cur)}</span>
+        <span class="bf-skill-meta">
+          {cur.element} · {cur.type}{wName ? ` · ${wName}` : ''}
         </span>
       </div>
       {f && (
         <>
-          <div style={{ fontSize: 10, color: 'var(--muted)', marginBottom: 3 }}>{fStatus}</div>
-          <div style={{ fontSize: 9, color: 'var(--dim)', marginBottom: 3, letterSpacing: 0.3 }}>{f.desc}</div>
+          <div class="bf-skill-status">{fStatus}</div>
+          {f.desc && <div class="bf-skill-desc">{f.desc}</div>}
         </>
       )}
     </div>
@@ -58,52 +56,22 @@ export function ActionBar({ battle, pendingDungeon }: ActionBarProps) {
         starLabel = stars === 3 ? '完美通关' : stars === 2 ? '高效通关' : '通关';
       }
       return (
-        <div style={{
-          marginTop: 12, textAlign: 'center', padding: 16,
-          border: '1px solid var(--green)', borderRadius: 10,
-          background: 'rgba(141,230,166,.06)'
-        }}>
-          <div style={{ fontSize: 22, color: 'var(--green)', fontWeight: 700, letterSpacing: 4 }}>
-            胜 利！
-          </div>
-          {starStr && (
-            <div style={{ fontSize: 28, color: 'var(--gold)', margin: '8px 0 4px', letterSpacing: 4, textShadow: '0 0 12px rgba(245,207,107,.5)' }}>
-              {starStr}
-            </div>
-          )}
-          <div style={{ fontSize: 11, color: 'var(--muted)', margin: '6px 0' }}>
+        <div class="bf-result win">
+          <div class="bf-result-title">胜 利</div>
+          {starStr && <div class="bf-result-stars">{starStr}</div>}
+          <div class="bf-result-sub">
             用 {battle.turn} 回合通关{starLabel ? ` · ${starLabel}` : ''}
           </div>
-          <button
-            style={{
-              padding: '11px 28px', marginTop: 8, background: 'var(--gold)',
-              color: '#1a1208', border: 'none', borderRadius: 8,
-              fontWeight: 700, letterSpacing: 3, cursor: 'pointer'
-            }}
-            onClick={() => bSettle()}
-          >
+          <button class="bf-result-btn primary" onClick={() => bSettle()}>
             领 取 奖 励
           </button>
         </div>
       );
     }
     return (
-      <div style={{
-        marginTop: 12, textAlign: 'center', padding: 16,
-        border: '1px solid var(--red)', borderRadius: 10,
-        background: 'rgba(255,133,133,.04)'
-      }}>
-        <div style={{ fontSize: 22, color: 'var(--red)', fontWeight: 700, letterSpacing: 4 }}>
-          战 斗 失 败
-        </div>
-        <button
-          style={{
-            padding: '11px 28px', marginTop: 8, background: 'rgba(255,255,255,.06)',
-            color: 'var(--text)', border: '1px solid var(--line)',
-            borderRadius: 8, letterSpacing: 3, cursor: 'pointer'
-          }}
-          onClick={() => bClose()}
-        >
+      <div class="bf-result lose">
+        <div class="bf-result-title">战 斗 失 败</div>
+        <button class="bf-result-btn" onClick={() => bClose()}>
           关 闭
         </button>
       </div>
@@ -113,7 +81,6 @@ export function ActionBar({ battle, pendingDungeon }: ActionBarProps) {
   const cur = battle.team[battle.active];
   if (!cur) return null;
 
-  // Resolve target
   if (battle.targetIdx == null || !battle.enemies[battle.targetIdx]?.alive) {
     battle.targetIdx = battle.enemies.findIndex((e: any) => e.alive);
   }
@@ -139,10 +106,6 @@ export function ActionBar({ battle, pendingDungeon }: ActionBarProps) {
     return '';
   })();
 
-  const litStyle = (can: boolean, color: string): any => can
-    ? { borderColor: color, color, background: color === 'var(--gold)' ? 'rgba(245,207,107,.08)' : undefined }
-    : { borderColor: 'var(--line)', color: 'var(--dim)', background: 'rgba(255,255,255,.02)', opacity: 0.4, cursor: 'not-allowed' };
-
   const burstSub = isFurolo
     ? (furoloBurstReady ? '定音 · 可解放' : '需定音')
     : `3 AP · ${cur.energy}/${cur.energyMax}`;
@@ -152,93 +115,66 @@ export function ActionBar({ battle, pendingDungeon }: ActionBarProps) {
     : '主目标 400% · 副目标 200% · AOE · 需能量满 · 削破韧 30';
 
   return (
-    <>
+    <div class="bf-action-bar">
       <SkillPanel cur={cur} />
 
       {blocker && (
-        <div style={{
-          marginBottom: 8, padding: '8px 12px', borderRadius: 8,
-          background: 'rgba(255,133,133,.08)', borderLeft: '3px solid var(--red)',
-          color: '#ffaaaa', fontSize: 11, letterSpacing: 0.5
-        }}>
-          ⚠ {blocker}
-        </div>
+        <div class="bf-blocker">⚠ {blocker}</div>
       )}
 
-      {/* Action buttons grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: `repeat(${cols},1fr)`, gap: 6, marginBottom: 8 }}>
-        <button class="bbtn"
-          style={litStyle(canAtk, 'var(--text)')}
+      <div class="bf-action-grid" style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}>
+        <button
+          class={`bbtn bf-act ${canAtk ? 'lit atk' : ''}`}
           onClick={() => bAtk(enemyIdx)}
           disabled={!canAtk}
           title="100% 攻击 · +12 能量 · 削破韧 8"
         >
-          ⚔ 普攻<br /><span style={{ fontSize: 9, opacity: 0.7 }}>1 AP</span>
+          <span class="bf-act-main">⚔ 普攻</span>
+          <span class="bf-act-sub">1 AP</span>
         </button>
 
-        <button class="bbtn"
-          style={litStyle(canSkillOk, 'var(--accent)')}
+        <button
+          class={`bbtn bf-act ${canSkillOk ? 'lit skill' : ''}`}
           onClick={() => bSkill(enemyIdx)}
           disabled={!canSkillOk}
           title="180% 攻击 · CD 3 回合 · +22 能量 · 削破韧 20"
         >
-          ✦ 技能<br /><span style={{ fontSize: 9, opacity: 0.7 }}>1 AP{cur.cd.skill > 0 ? ' · CD' + cur.cd.skill : ''}</span>
+          <span class="bf-act-main">✦ 技能</span>
+          <span class="bf-act-sub">1 AP{cur.cd.skill > 0 ? ` · CD${cur.cd.skill}` : ''}</span>
         </button>
 
         {showHeavy && (
-          <button class="bbtn"
-            style={litStyle(canHeavyOk, '#ff8c5e')}
+          <button
+            class={`bbtn bf-act ${canHeavyOk ? 'lit heavy' : ''}`}
             onClick={() => bHeavy(enemyIdx)}
             disabled={!canHeavyOk}
             title="220% 攻击 · 重击伤害类型 · CD 1 回合 · +15 能量 · 削破韧 25"
           >
-            💢 重击<br /><span style={{ fontSize: 9, opacity: 0.7 }}>2 AP{cur.cd.heavy > 0 ? ' · CD' + cur.cd.heavy : ''}</span>
+            <span class="bf-act-main">💢 重击</span>
+            <span class="bf-act-sub">2 AP{cur.cd.heavy > 0 ? ` · CD${cur.cd.heavy}` : ''}</span>
           </button>
         )}
 
-        <button class="bbtn"
-          style={litStyle(canBurstOk, 'var(--gold)')}
+        <button
+          class={`bbtn bf-act ${canBurstOk ? 'lit burst' : ''}`}
           onClick={() => bBurst()}
           disabled={!canBurstOk}
           title={burstHint}
         >
-          ⚡ 解放<br /><span style={{ fontSize: 9, opacity: 0.7 }}>{burstSub}</span>
+          <span class="bf-act-main">⚡ 解放</span>
+          <span class="bf-act-sub">{burstSub}</span>
         </button>
       </div>
 
-      {!canBurstOk && cur.energy < cur.energyMax && !isFurolo && (
-        <div style={{ fontSize: 10, color: 'var(--muted)', textAlign: 'center', marginTop: 2, letterSpacing: 0.5 }}>
-          能量不足 {cur.energy}/{cur.energyMax} · 普攻 +12 / 技能 +22 / 重击 +15
-        </div>
-      )}
-
-      {/* Debris throw button */}
       {hasDebris && (
-        <button
-          style={{
-            width: '100%', padding: 11, marginBottom: 6,
-            background: 'rgba(245,207,107,.12)', border: '1px solid var(--gold)',
-            borderRadius: 8, color: 'var(--gold)', fontSize: 12,
-            letterSpacing: 2, cursor: 'pointer'
-          }}
-          onClick={() => bDebris()}
-        >
+        <button class="bf-debris-btn" onClick={() => bDebris()}>
           ⚙ 投掷残骸（0 AP · 眩晕 BOSS 1 回合）
         </button>
       )}
 
-      {/* End turn */}
-      <button
-        style={{
-          width: '100%', padding: 11,
-          background: 'linear-gradient(180deg,#1a2436,#0e1626)',
-          border: '1px solid var(--line2)', borderRadius: 8,
-          color: 'var(--text)', fontSize: 12, letterSpacing: 3
-        }}
-        onClick={() => bEndTurn()}
-      >
+      <button class="bf-end-btn" onClick={() => bEndTurn()}>
         结 束 回 合
       </button>
-    </>
+    </div>
   );
 }

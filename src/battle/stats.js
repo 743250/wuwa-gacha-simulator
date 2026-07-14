@@ -36,11 +36,14 @@ export function computeBattleStats(roleName) {
     elemAllBonus: 0,
     weapon: null,
     weaponTriggers: [],
-    // 攻击% / 固定攻击 累加器：所有来源先加总，最后统一应用一次
-    // 官方公式：攻击 = (角色基础+武器基础) × (1+攻击%总和) + 固定攻击
-    // （修复旧版逐条 atk*=(1+v) 连乘导致的数值虚高）
+    // 攻/生/防 % 与 flat：先加总，最后统一应用
+    // 官方口径：面板 = 基础 × (1+%总和) + 固定
     _atkPctSum: 0,
-    _atkFlatSum: 0
+    _atkFlatSum: 0,
+    _hpPctSum: 0,
+    _hpFlatSum: 0,
+    _defPctSum: 0,
+    _defFlatSum: 0,
   };
 
   // 真实数值角色的突破加成（守岸人：治疗 +21.6%）
@@ -66,21 +69,23 @@ export function computeBattleStats(roleName) {
   }
 
   // 应用声骸（5 格）
+  // 固有固定攻/副攻等 flat 走 bonuses → _atkFlatSum，在 % 乘区外加算；
+  // ec.atkFlat 仅作汇总字段，不再叠进 base（避免被攻击%二次放大）
   const ec = echoContrib(roleName);
   if (ec) {
-    stats.atk += ec.atkFlat;
     ec.bonuses.forEach(b => applyBonus(stats, b));
     stats.echoStats = { setBonuses: ec.setBonuses, mainStats: ec.mainStats, subStats: ec.subStats };
   }
 
-  // 统一应用攻击% / 固定攻击（此时 stats.atk = 角色基础 + 武器基础攻击）
-  // 攻击% 全部相加后乘一次（不再逐条连乘），再加固定攻击
+  // 统一应用 % / flat（此时 atk/hp/def 为基础面板）
   stats.atk = Math.round(stats.atk * (1 + stats._atkPctSum) + stats._atkFlatSum);
+  stats.hp = Math.round(stats.hp * (1 + stats._hpPctSum) + stats._hpFlatSum);
+  stats.def = Math.round(stats.def * (1 + stats._defPctSum) + stats._defFlatSum);
 
   return stats;
 }
 
-// 声骸贡献：聚合 5 格声骸的主词条 + 副词条 + 套装效果
+// 声骸贡献：聚合 5 格声骸的主词条 + 第二主词条 + 副词条 + 套装效果
 // 返回 { atkFlat, bonuses, setBonuses, mainStats, subStats }
 // 套装只激活 2 件/5 件 → bonuses 中；条件类（_cond / _stack / _next）先按静态值折半计入面板
 export function echoContrib(roleName) {
@@ -94,14 +99,28 @@ export function echoContrib(roleName) {
   const bonuses = [];
   const mainStats = [];
   const subStats = [];
+  let atkFlat = 0;
 
-  // 主词条：按 key 转为 bonus
+  // 主词条 + 第二主词条（固有固定攻/固生）
   for (const e of equipped) {
-    if (!e.mainStat) continue;
-    const m = e.mainStat;
-    mainStats.push({ name: e.name, ...m });
-    const b = mainStatToBonus(m);
-    if (b) bonuses.push(b);
+    if (e.mainStat) {
+      const m = e.mainStat;
+      mainStats.push({ name: e.name, ...m });
+      const b = mainStatToBonus(m);
+      if (b) bonuses.push(b);
+    }
+    const sec = e.secondaryStat;
+    if (sec) {
+      mainStats.push({ name: e.name, secondary: true, ...sec });
+      if (sec.key === 'atk_flat') {
+        atkFlat += sec.value || 0;
+        bonuses.push({ type: 'atk_flat', value: sec.value, source: '声骸固有' });
+      } else if (sec.key === 'hp_flat') {
+        bonuses.push({ type: 'hp_flat', value: sec.value, source: '声骸固有' });
+      } else if (sec.key === 'def_flat') {
+        bonuses.push({ type: 'def_flat', value: sec.value, source: '声骸固有' });
+      }
+    }
   }
 
   // 副词条：仅统计已解锁（unlocked !== false）的槽位；旧档无此字段默认解锁
@@ -139,7 +158,7 @@ export function echoContrib(roleName) {
     else bonuses.push(b);
   }
 
-  return { atkFlat: 0, bonuses, setBonuses, mainStats, subStats };
+  return { atkFlat, bonuses, setBonuses, mainStats, subStats };
 }
 
 // 主词条（COST4 暴击/暴伤/攻击%/生命%/防御%/治疗；COST3 元素伤/攻击%等；COST1 攻击%/生命%/防御%）
@@ -248,10 +267,10 @@ function setBonusToBonus(sb) {
 function applyBonus(stats, b) {
   switch (b.type) {
     case 'atk':
-    case 'atk_pct':       stats._atkPctSum += b.value; break;   // 累加,最后统一乘
-    case 'hp':            stats.hp = Math.round(stats.hp * (1 + b.value)); break;
+    case 'atk_pct':       stats._atkPctSum += b.value; break;
+    case 'hp':            stats._hpPctSum += b.value; break;
     case 'def':
-    case 'def_pct':       stats.def = Math.round(stats.def * (1 + b.value)); break;
+    case 'def_pct':       stats._defPctSum += b.value; break;
     case 'crate':         stats.crate += b.value; break;
     case 'cdmg':          stats.cdmg += b.value; break;
     case 'elem':
@@ -270,9 +289,9 @@ function applyBonus(stats, b) {
     case 'team_atk':      stats.teamAtkBonus += b.value; break;
     case 'resonance':     stats.resonanceBonus += b.value; break;
     case 'def_pierce':    stats.defPierce += b.value; break;
-    case 'atk_flat':     stats._atkFlatSum += b.value; break;   // 累加,最后统一加
-    case 'hp_flat':       stats.hp += b.value; break;
-    case 'def_flat':      stats.def += b.value; break;
+    case 'atk_flat':      stats._atkFlatSum += b.value; break;
+    case 'hp_flat':       stats._hpFlatSum += b.value; break;
+    case 'def_flat':      stats._defFlatSum += b.value; break;
     case 'resonance_efficiency':  stats.resonanceEfficiency = (stats.resonanceEfficiency || 0) + b.value; break;
   }
 }

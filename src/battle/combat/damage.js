@@ -26,6 +26,20 @@ export function setDamageHooksResolver(fn) { _resolveCharacterHook = fn || (() =
 export function getDamageHooksResolver() { return _resolveCharacterHook; }
 function queryHook(self, hookName, ...args) { return _resolveCharacterHook(self, hookName, ...args); }
 
+/**
+ * 官方口径防御乘区（攻守双向共用）：
+ *   减伤率 = 有效防 / (800 + 8×攻击方等级 + 有效防)
+ *   防御乘区 = 1 - 减伤率
+ * 穿防/降防应先折进 defEffective，再传入。
+ */
+export function defenseMultiplier(defEffective, attackerLevel = 1) {
+  const def = Math.max(0, Number(defEffective) || 0);
+  const atkLv = Math.max(1, Math.floor(Number(attackerLevel) || 1));
+  if (def <= 0) return 1;
+  const mitigation = def / (800 + 8 * atkLv + def);
+  return 1 - mitigation;
+}
+
 // ===== 伤害计算 =====
 // dmgType: 'normal' | 'skill' | 'burst' | 'heavy' | 'variation'
 // HP 核 + variation：hpMultOverride 为设计变奏 HP 倍率；multiplier 仍走 ACTION_MULTIPLIER
@@ -112,8 +126,7 @@ export function calcDamage(attacker, defender, multiplier, dmgType, opts = {}) {
   const voidDefMult = voidErosionDefMult(defender);
   const defEffective = defender.def * (1 - Math.min(1, totalPierce)) * voidDefMult;
   const atkLv = attacker.level || 1;
-  const mitigation = defEffective / (800 + 8 * atkLv + defEffective);
-  const defMult = 1 - mitigation;
+  const defMult = defenseMultiplier(defEffective, atkLv);
   // 抗性（荣光等 elemResistIgnore：在抗性乘区上加回无视比例）
   const resistIgnore = (attacker.buffs || []).reduce((a, b) => {
     if (b.type !== 'elemResistIgnore') return a;

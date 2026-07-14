@@ -88,21 +88,22 @@ export const shopCatalog = {
       limit: 1, period: 'month' },
 
     // ---- 常驻养成礼包（每月刷新一次）----
+    // 模拟器节奏：免费本掉落偏紧，月度补给按「约半个月凝缩本体力」量级给，减轻刷本压力
     { id: 'rg_exp_pack', name: '共鸣促剂 · 月度补给', price: 30, type: 'green', regular: true,
-      astrite: 0, exp_super: 8, exp_high: 20, weapon_book: 0,
-      desc: '特级促剂 ×8 + 高级促剂 ×20<br>常驻 · 每月可购买 1 次',
+      astrite: 0, exp_super: 24, exp_high: 40, weapon_book: 0,
+      desc: '特级促剂 ×24 + 高级促剂 ×40<br>常驻 · 每月可购买 1 次',
       limit: 1 },
     { id: 'rg_weapon_pack', name: '武器突破石 · 月度补给', price: 30, type: 'green', regular: true,
-      astrite: 0, weapon_book: 60,
-      desc: '武器突破石 ×60<br>常驻 · 每月可购买 1 次',
+      astrite: 0, weapon_book: 160,
+      desc: '武器突破石 ×160<br>常驻 · 每月可购买 1 次',
       limit: 1 },
     { id: 'rg_mix_pack', name: '养成大礼包 · 月度', price: 68, type: 'green', regular: true,
-      astrite: 380, exp_super: 12, weapon_book: 50, crystal_solvent: 4,
-      desc: '380 星声 + 特级促剂 ×12 + 武器石 ×50 + 结晶溶剂 ×4<br>常驻 · 每月可购买 1 次',
+      astrite: 680, exp_super: 36, exp_high: 24, weapon_book: 120, echo_tuner: 24, crystal_solvent: 10,
+      desc: '680 星声 + 特级促剂 ×36 + 高级促剂 ×24 + 武器石 ×120 + 调谐器 ×24 + 结晶溶剂 ×10<br>常驻 · 每月可购买 1 次',
       limit: 1 },
     { id: 'rg_echo_pack', name: '声骸调谐 · 月度补给', price: 30, type: 'green', regular: true,
-      astrite: 0, echo_tuner: 20, exp_super: 4,
-      desc: '声骸调谐器 ×20 + 特级促剂 ×4<br>常驻 · 每月可购买 1 次',
+      astrite: 0, echo_tuner: 60, exp_super: 12, exp_high: 16,
+      desc: '声骸调谐器 ×60 + 特级促剂 ×12 + 高级促剂 ×16<br>常驻 · 每月可购买 1 次',
       limit: 1 },
 
     // ---- 新手成长礼包（真·永久限购一次）----

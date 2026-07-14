@@ -39,6 +39,26 @@ export const STAR_CRITERIA = {
   threeStar: { turn: 15, hp: 0.70 }
 };
 
+// 日常副本 HP 按「副本类型」缩放（不按怪物阶级一刀切）。
+// 设计：
+//   - 战训/锻造：不压（速刷养成料）
+//   - 无音区等星声本：不压（星声高压）
+//   - 世界 BOSS：轻度压缩（仍明显厚于养成本，但不至于磨几十回合）
+//   - 周本：中度压缩（材料本，非星声闸）
+// 深塔/海墟不传 dungeonType，保持各自 enemyStatScale。
+export const DUNGEON_TYPE_HP_SCALE = {
+  exp: 1.0,
+  weapon: 1.0,
+  echo: 1.0,
+  worldBoss: 0.62,
+  weekly: 0.50
+};
+
+export function getDungeonTypeHpScale(dungeonType) {
+  if (!dungeonType) return 1.0;
+  return DUNGEON_TYPE_HP_SCALE[dungeonType] ?? 1.0;
+}
+
 export function parseVersion(v) {
   const [majorRaw, minorRaw] = String(v).split('.');
   return { major: Number(majorRaw) || 1, minor: Number(minorRaw) || 0 };

@@ -51,10 +51,10 @@ export const state0 = () => ({
     weapon_book: 30,
     // 声骸调谐器（重 roll 副词条数值）
     echo_tuner: 5,
-    // 结晶溶剂（高级药剂，无上限）
+    // 结晶溶剂（体力药，每个 +60，可超充）
     crystal_solvent: 3,
-    // 凝缩波片（普通药剂，官方上限 5）
-    condensed_waveplate: 2,
+    // 结晶单质（溢出波片 1:1 存储，上限 480）
+    waveplate_crystal: 60,
     // 索拉世界等级 1-3（越高敌人越强、掉落越多）
     sol3Level: 1
   },

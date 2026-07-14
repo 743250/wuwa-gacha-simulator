@@ -236,23 +236,29 @@ describe('equip/echoActions', () => {
   });
 
   describe('mainStatAtLevel / leveled value scaling', () => {
-    it('Lv1 = 1/25 of max, Lv25 = full', () => {
+    // 官方 Growth：满级 × (0.2 + 0.8×Lv/25)
+    it('Lv1 ≈ 23.2% of max, Lv25 = full', () => {
       const def = { key: 'crate', value: 0.22 };
       expect(mainStatFn(def, 25)).toBeCloseTo(0.22, 4);
-      expect(mainStatFn(def, 1)).toBeGreaterThan(def.value * 0.03);
-      expect(mainStatFn(def, 1)).toBeLessThan(def.value * 0.05);
+      expect(mainStatFn(def, 1)).toBeCloseTo(0.22 * (0.2 + 0.8 / 25), 3);
+      expect(mainStatFn(def, 0)).toBeCloseTo(0.22 * 0.2, 3);
     });
-    it('generateEcho initializes mainStat at Lv1 ratio and stores maxValue', () => {
+    it('generateEcho initializes mainStat at Lv1 ratio, secondaryStat, maxValue', () => {
       const e = generateEcho(ECHO_CATALOG[0].id);
       expect(e.mainStat.maxValue).toBeGreaterThan(0);
       expect(e.mainStat.value).toBeLessThan(e.mainStat.maxValue);
+      expect(e.secondaryStat).toBeTruthy();
+      expect(e.secondaryStat.maxValue).toBeGreaterThan(0);
+      expect(e.secondaryStat.value).toBeLessThanOrEqual(e.secondaryStat.maxValue);
     });
-    it('levelUpEcho scales mainStat value with level', () => {
+    it('levelUpEcho scales mainStat + secondaryStat with level', () => {
       const e = generateEcho(ECHO_CATALOG[0].id);
       const v1 = e.mainStat.value;
+      const s1 = e.secondaryStat.value;
       for (let i = 0; i < 4; i++) levelUpEcho(e.id);
       expect(e.level).toBe(5);
       expect(e.mainStat.value).toBeGreaterThan(v1);
+      expect(e.secondaryStat.value).toBeGreaterThan(s1);
     });
   });
 
