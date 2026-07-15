@@ -52,6 +52,10 @@ export const ROLE_META = {
   '安可':      { type: '主C',  element: '热熔', weaponType: '音感仪' },
   '凌阳':      { type: '主C',  element: '冷凝', weaponType: '臂铠' },
   '鉴心':      { type: '辅助', element: '气动', weaponType: '臂铠' },
+  // 免费主角 · 属性调谐三形态（不进卡池）
+  '漂泊者·衍射': { type: '主C', element: '衍射', weaponType: '迅刀' },
+  '漂泊者·湮灭': { type: '主C', element: '湮灭', weaponType: '迅刀' },
+  '漂泊者·气动': { type: '主C', element: '气动', weaponType: '迅刀' },
 
   // 4 星
   '丹瑾':      { type: '副C',  element: '湮灭', weaponType: '迅刀' },
@@ -231,6 +235,16 @@ export const OVERRIDE_STATS = {
   },
   '鉴心': {
     stats: { hp: 14112, atk: 337, def: 1124, crate: 0.05, cdmg: 1.2, energy: 130, dodge: 0.1 }
+  },
+  // ─── 漂泊者三形态（encore 面板）───
+  '漂泊者·衍射': {
+    stats: { hp: 11400, atk: 375, def: 1369, crate: 0.05, cdmg: 1.5, energy: 125, dodge: 0.18 }
+  },
+  '漂泊者·湮灭': {
+    stats: { hp: 10825, atk: 412, def: 1259, crate: 0.05, cdmg: 1.5, energy: 125, dodge: 0.18 }
+  },
+  '漂泊者·气动': {
+    stats: { hp: 10775, atk: 438, def: 1137, crate: 0.05, cdmg: 1.5, energy: 125, dodge: 0.18 }
   },
 
   // ─── 4★ ───

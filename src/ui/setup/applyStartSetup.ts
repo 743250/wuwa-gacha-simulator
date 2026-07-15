@@ -16,6 +16,7 @@ import { addRole, addWeapon } from '../../gacha/core.js';
 import { generateEcho, equipEcho, ensureEchoStats } from '../../equip/echoActions.js';
 import { ECHO_CATALOG, ECHO_MAX_LEVEL } from '../../data/echoes.js';
 import { rerenderAll } from '../../rerender.js';
+import { ensureRover } from '../../rover/ensure.js';
 import {
   resolveProfile,
   collectUPTChars,
@@ -211,7 +212,10 @@ export function applyStartSetup(type: StartType, version: string) {
     // self: astrite 按 profile 设好,0 角色 0 抽卡
   });
 
-  // 4. 标记已开局 + 落盘 + 重渲染
+  // 4. 免费主角三形态（不进卡池）
+  commit(() => { ensureRover(); });
+
+  // 5. 标记已开局 + 落盘 + 重渲染
   localStorage.setItem(SETUP_DONE_KEY, '1');
   saveState();
   rerenderAll();

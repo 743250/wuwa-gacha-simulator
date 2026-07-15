@@ -1,0 +1,163 @@
+{
+  "name": "菲比",
+  "source": "https://wiki.biligame.com/wutheringwaves/%E5%85%B1%E9%B8%A3%E8%80%85/%E8%8F%B2%E6%AF%94",
+  "fetchedAt": "2026-07-15",
+  "rows": [
+    {
+      "label": "第一段伤害",
+      "levels": 10,
+      "lvMaxExpr": "29.53%",
+      "lvMaxSum": 29.53
+    },
+    {
+      "label": "第二段伤害",
+      "levels": 10,
+      "lvMaxExpr": "22.37%+27.34%",
+      "lvMaxSum": 49.71
+    },
+    {
+      "label": "第三段伤害",
+      "levels": 10,
+      "lvMaxExpr": "14.24%*8",
+      "lvMaxSum": 113.92
+    },
+    {
+      "label": "重击伤害",
+      "levels": 10,
+      "lvMaxExpr": "41.35%*4",
+      "lvMaxSum": 165.4
+    },
+    {
+      "label": "下落攻击伤害",
+      "levels": 10,
+      "lvMaxExpr": "46.23%*2",
+      "lvMaxSum": 92.46
+    },
+    {
+      "label": "闪避反击伤害",
+      "levels": 10,
+      "lvMaxExpr": "21.58%*8",
+      "lvMaxSum": 172.64
+    },
+    {
+      "label": "夏弥尔之星·闪避反击伤害",
+      "levels": 10,
+      "lvMaxExpr": "43.84%*6",
+      "lvMaxSum": 263.04
+    },
+    {
+      "label": "技能伤害",
+      "levels": 10,
+      "lvMaxExpr": "62.63%*2",
+      "lvMaxSum": 125.26
+    },
+    {
+      "label": "【镜之环】反射圣辉伤害",
+      "levels": 10,
+      "lvMaxExpr": "14.92%*2",
+      "lvMaxSum": 29.84
+    },
+    {
+      "label": "夏弥尔之星第一段伤害",
+      "levels": 10,
+      "lvMaxExpr": "59.35%",
+      "lvMaxSum": 59.35
+    },
+    {
+      "label": "夏弥尔之星第二段伤害",
+      "levels": 10,
+      "lvMaxExpr": "39.77%*2",
+      "lvMaxSum": 79.54
+    },
+    {
+      "label": "夏弥尔之星第三段伤害",
+      "levels": 10,
+      "lvMaxExpr": "28.93%*6",
+      "lvMaxSum": 173.58
+    },
+    {
+      "label": "圣祷赦罪伤害",
+      "levels": 10,
+      "lvMaxExpr": "638.19%",
+      "lvMaxSum": 638.19
+    },
+    {
+      "label": "显明告解伤害",
+      "levels": 10,
+      "lvMaxExpr": "187.88%",
+      "lvMaxSum": 187.88
+    },
+    {
+      "label": "重击·星辉伤害",
+      "levels": 10,
+      "lvMaxExpr": "82.69%*3",
+      "lvMaxSum": 248.07
+    }
+  ],
+  "inlineFixed": [],
+  "anchors": {
+    "normalish": [
+      {
+        "label": "第一段伤害",
+        "levels": 10,
+        "lvMaxExpr": "29.53%",
+        "lvMaxSum": 29.53
+      },
+      {
+        "label": "第二段伤害",
+        "levels": 10,
+        "lvMaxExpr": "22.37%+27.34%",
+        "lvMaxSum": 49.71
+      },
+      {
+        "label": "第三段伤害",
+        "levels": 10,
+        "lvMaxExpr": "14.24%*8",
+        "lvMaxSum": 113.92
+      },
+      {
+        "label": "夏弥尔之星第一段伤害",
+        "levels": 10,
+        "lvMaxExpr": "59.35%",
+        "lvMaxSum": 59.35
+      },
+      {
+        "label": "夏弥尔之星第二段伤害",
+        "levels": 10,
+        "lvMaxExpr": "39.77%*2",
+        "lvMaxSum": 79.54
+      },
+      {
+        "label": "夏弥尔之星第三段伤害",
+        "levels": 10,
+        "lvMaxExpr": "28.93%*6",
+        "lvMaxSum": 173.58
+      }
+    ],
+    "skillish": [
+      {
+        "label": "技能伤害",
+        "levels": 10,
+        "lvMaxExpr": "62.63%*2",
+        "lvMaxSum": 125.26
+      }
+    ],
+    "heavyish": [
+      {
+        "label": "重击伤害",
+        "levels": 10,
+        "lvMaxExpr": "41.35%*4",
+        "lvMaxSum": 165.4
+      },
+      {
+        "label": "重击·星辉伤害",
+        "levels": 10,
+        "lvMaxExpr": "82.69%*3",
+        "lvMaxSum": 248.07
+      }
+    ],
+    "burstish": [],
+    "variationish": [],
+    "outroish": []
+  }
+}

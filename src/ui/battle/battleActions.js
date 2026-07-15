@@ -136,10 +136,13 @@ export function bSettle() {
       return { kind: 'dungeon' };
     } else if (pd.kind === 'abyss') {
       const r = settleAbyss(cb);
-      if (r) {
-        progressTask('w_abyss', 1);
-        progressTask('p_abyss', 1);
-        if (r.repeated) msg(`${r.name} · 本次未更新评星，无重复奖励`, false);
+      if (r && typeof r === 'object') {
+        if (r.reward > 0 || r.stars > 0) {
+          progressTask('w_abyss', 1);
+          progressTask('p_abyss', 1);
+        }
+        if (r.noStar) msg(`${r.name} · 未达成评星，可重试（未锁关）`, false);
+        else if (r.repeated) msg(`${r.name} · 本次未更新评星，无重复奖励`, false);
         else msg(`${r.name} ★${r.stars} · +${r.reward} 星声`, false);
       }
       return { kind: 'abyss', r };

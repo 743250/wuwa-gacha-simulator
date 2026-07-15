@@ -1,0 +1,194 @@
+{
+  "name": "凌阳",
+  "source": "https://wiki.biligame.com/wutheringwaves/%E5%85%B1%E9%B8%A3%E8%80%85/%E5%87%8C%E9%98%B3",
+  "fetchedAt": "2026-07-15",
+  "rows": [
+    {
+      "label": "第一段伤害",
+      "levels": 10,
+      "lvMaxExpr": "59.65%",
+      "lvMaxSum": 59.65
+    },
+    {
+      "label": "第二段伤害",
+      "levels": 10,
+      "lvMaxExpr": "79.53%",
+      "lvMaxSum": 79.53
+    },
+    {
+      "label": "第三段伤害",
+      "levels": 10,
+      "lvMaxExpr": "72.87%*2",
+      "lvMaxSum": 145.74
+    },
+    {
+      "label": "第四段伤害",
+      "levels": 10,
+      "lvMaxExpr": "20.41%*5+43.72%",
+      "lvMaxSum": 145.77
+    },
+    {
+      "label": "第五段伤害",
+      "levels": 10,
+      "lvMaxExpr": "152.49%",
+      "lvMaxSum": 152.49
+    },
+    {
+      "label": "崩拳·当头咆哮伤害",
+      "levels": 10,
+      "lvMaxExpr": "79.53%*2",
+      "lvMaxSum": 159.06
+    },
+    {
+      "label": "重击伤害",
+      "levels": 10,
+      "lvMaxExpr": "145.73%",
+      "lvMaxSum": 145.73
+    },
+    {
+      "label": "空中攻击伤害",
+      "levels": 10,
+      "lvMaxExpr": "123.27%",
+      "lvMaxSum": 123.27
+    },
+    {
+      "label": "闪避反击伤害",
+      "levels": 10,
+      "lvMaxExpr": "126.05%*2",
+      "lvMaxSum": 252.1
+    },
+    {
+      "label": "冲掌·势式相承伤害",
+      "levels": 10,
+      "lvMaxExpr": "132.61%",
+      "lvMaxSum": 132.61
+    },
+    {
+      "label": "惊跃·郁怒追逃伤害",
+      "levels": 10,
+      "lvMaxExpr": "76.25%*2",
+      "lvMaxSum": 152.5
+    },
+    {
+      "label": "起势·纵地金光伤害",
+      "levels": 10,
+      "lvMaxExpr": "172.37%",
+      "lvMaxSum": 172.37
+    },
+    {
+      "label": "狂态·摇光金狮舞第一段伤害",
+      "levels": 10,
+      "lvMaxExpr": "87.08%*2+116.11%",
+      "lvMaxSum": 290.27
+    },
+    {
+      "label": "狂态·摇光金狮舞第二段伤害",
+      "levels": 10,
+      "lvMaxExpr": "31.77%*6",
+      "lvMaxSum": 190.62
+    },
+    {
+      "label": "飞身式·翻山越涧伤害",
+      "levels": 10,
+      "lvMaxExpr": "82.88%*2",
+      "lvMaxSum": 165.76
+    },
+    {
+      "label": "凌云式·腿打连环伤害",
+      "levels": 10,
+      "lvMaxExpr": "36.03%*8+192.15%",
+      "lvMaxSum": 480.39
+    },
+    {
+      "label": "登楼·尾坠千斤伤害",
+      "levels": 10,
+      "lvMaxExpr": "174.96%*2",
+      "lvMaxSum": 349.92
+    },
+    {
+      "label": "技能伤害",
+      "levels": 10,
+      "lvMaxExpr": "397.62%",
+      "lvMaxSum": 397.62
+    }
+  ],
+  "inlineFixed": [
+    {
+      "context": "以技能目标为中心，释放冲击波，对范围内的目标造成凌阳587.94%攻击的",
+      "pct": 587.94
+    },
+    {
+      "context": "以技能目标为中心，释放冲击波，对范围内的目标造成凌阳587.94%攻击的",
+      "pct": 587.94
+    },
+    {
+      "context": "时，将额外造成凌阳200%攻击的",
+      "pct": 200
+    }
+  ],
+  "anchors": {
+    "normalish": [
+      {
+        "label": "第一段伤害",
+        "levels": 10,
+        "lvMaxExpr": "59.65%",
+        "lvMaxSum": 59.65
+      },
+      {
+        "label": "第二段伤害",
+        "levels": 10,
+        "lvMaxExpr": "79.53%",
+        "lvMaxSum": 79.53
+      },
+      {
+        "label": "第三段伤害",
+        "levels": 10,
+        "lvMaxExpr": "72.87%*2",
+        "lvMaxSum": 145.74
+      },
+      {
+        "label": "第四段伤害",
+        "levels": 10,
+        "lvMaxExpr": "20.41%*5+43.72%",
+        "lvMaxSum": 145.77
+      },
+      {
+        "label": "第五段伤害",
+        "levels": 10,
+        "lvMaxExpr": "152.49%",
+        "lvMaxSum": 152.49
+      },
+      {
+        "label": "狂态·摇光金狮舞第一段伤害",
+        "levels": 10,
+        "lvMaxExpr": "87.08%*2+116.11%",
+        "lvMaxSum": 290.27
+      },
+      {
+        "label": "狂态·摇光金狮舞第二段伤害",
+        "levels": 10,
+        "lvMaxExpr": "31.77%*6",
+        "lvMaxSum": 190.62
+      }
+    ],
+    "skillish": [
+      {
+        "label": "技能伤害",
+        "levels": 10,
+        "lvMaxExpr": "397.62%",
+        "lvMaxSum": 397.62
+      }
+    ],
+    "heavyish": [
+      {
+        "label": "重击伤害",
+        "levels": 10,
+        "lvMaxExpr": "145.73%",
+        "lvMaxSum": 145.73
+      }
+    ],
+    "burstish": [],
+    "variationish": [],
+    "outroish": []
+  }
+}

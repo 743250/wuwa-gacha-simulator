@@ -193,7 +193,7 @@ if (FREE_TRACK.length !== 70 || PAID_TRACK.length !== 70) {
 export const PODCAST_REWARDS = FREE_TRACK.map((free, i) => F(free, PAID_TRACK[i]));
 
 export const PODCAST_MAX_LEVEL = 70;
-export const PODCAST_EXP_PER_LEVEL = 700;    // v0.2 校准：1000 → 700（-30%），整体经验需求下调
+export const PODCAST_EXP_PER_LEVEL = 1000;   // 每级 1000 经验（对齐官方档）
 export const PODCAST_BUY_LEVEL_COST = 100;   // 100 星声买 1 级（按官方）
 
 // 4★ 武器自选箱选项（鸣潮真实定档：纹秋 / 飞景 / 奔雷 / 金掌 / 清音）

@@ -44,6 +44,9 @@
 | 安可 | 热熔 | 音感仪 | 主C | A | 羊咩双形态 + 重击爆发 | ✅ 已实装 |
 | 凌阳 | 冷凝 | 臂铠 | 主C | A | 行狮形态强化普攻 | ✅ 已实装 |
 | 鉴心 | 气动 | 臂铠 | 辅助 | B | 静气循行架势 + 行气反击 | ✅ 已实装 |
+| 漂泊者·衍射 | 衍射 | 迅刀 | 主C | B | 免费主角·浮声千斩/回响奏鸣 | ✅ 已实装 |
+| 漂泊者·湮灭 | 湮灭 | 迅刀 | 主C | B | 免费主角·暗涌/灭音/临渊死寂 | ✅ 已实装 |
+| 漂泊者·气动 | 气动 | 迅刀 | 主C | B | 免费主角·缥缈无相/万象归墟 | ✅ 已实装 |
 
 ## 4★(12 个)
 
@@ -93,11 +96,19 @@
 
 ## 进度日志
 
+### 2026-07-15 · WIKI 真对齐回写设计 §1
+- biligame 技能表 → `docs/sources/characters/wiki-skill-mults/` + `skill-multipliers-lv10.md`
+- 设计文档 §1 满级表回写：布兰特/菲比/吟霖/洛可可/鉴心/凌阳/折枝/维里奈/坎特蕾拉/露帕/弗洛洛/卡提希娅（HP%）等；忌炎技能 198.81% 补全
+- §4 **仅改「官方锚」列**（如布兰特火焰归亡曲 1888.71%、吟霖解放 815.92%）；**模拟器倍率与战斗代码未改**，待用户批改码
+- 未抓/空表：夏空、相里要/珂莱塔/赞妮/4★ 等（HTTP 567 或无倍率列）
+
+
 
 ### 2026-07-15 · 倍率校准续
 - 3.x 十人设计§4 倍率落地（index LIGHTWEIGHT + skillHints + phase3-mult-batch4-3x 测试）
 - 4★×12 设计文档 §4 回写与 hook 对齐
 
+| 2026-07-15 | 漂泊者三形态 | ① 设计文档 docs/plans/characters/漂泊者.md ② ROLE_META/OVERRIDE_STATS + LIGHTWEIGHT + registry 三形态 ChainDef ③ skillHints 工厂行 ④ ensureRover 开局/读档发放 ⑤ topbar「漂泊者」按钮 + 形态弹层 ⑥ 不进唤取卡池 |
 | 2026-07-15 | 技能倍率系统性校准收口 | ① Phase1–3：全局 N100/S180/H400/B700·350/V150；有 encore 锚的 5★ ATK 角 + 12 个 4★ LIGHTWEIGHT hook + skillHints cfg ② 守岸人星域：展开立即 1 跳 HOT + 系数 5%/40% ③ 尤诺解放/变奏对齐设计 §4（400·200 / 80%）④ HP 核五人 §4 对账 MATCH ⑤ 3.x 无锚仍吃全局 ⑥ `tests/battle` 全绿；Phase4：危险区仍只加 HP，稳定区过快只动敌人 |
 | 2026-07-13 | 优化计划尾债收口 | ① 卡提/弗洛洛「部分」→ 全 DoD：`cartethyia.test.js` + frolo DoD 门禁 ② §8：hook 约定文档、damage buff 审计、skill charge 立项、forte/enemy 旧 erosion→wind_erosion ③ 3.x 十人最小 DoD：`factory-3x-smoke.test.js` ④ `project-management-optimization.md` 收口；大 refactor 仍冻结 |
 | 2026-07-13 | 工厂剩余最小 DoD | 相里要 burstWindow 接线；珂莱塔 C1/C4 状态机+crateBonus 进 damage；洛可/菲比/布兰/坎特 开打+满 gauge 解放有数；`tests/battle/factory-s-remaining.test.js` |
@@ -139,3 +150,6 @@
 | 2026-06-24 | 吟霖 | 数值下调到 B-Tier:3 链 +10%/层,5 链 ×1.5,6 链疾霆 ×70%,4 链全队 atk +15%(chains.js / render.js / chains-extracted.json / terms.js 四处同步)|
 | 2026-06-24 | 吟霖 | ✅ **已实装**(chains.js / combat.js / chains-extracted.json / render.js / terms.js 五处全改)|
 | 2026-06-24 | 今汐 / 长离 / 折枝 / 相里要 / 椿 | 设计草稿,待用户确认 |
+
+- 2026-07-15 · WIKI 倍率真对齐代码：布兰特 resolveBurst 18.89/9.44（未满 6.80/3.40）、吟霖 8.16/4.08、洛可可 resolveBurst 8.35/4.175（ready 13.36/6.68）；skillHints/§4/tests 同步。
+- 2026-07-15 · WIKI 二轮抓取：DEFAULT_BATCH 全量（空表仅赞妮/夏空/仇远=模板未填）；§1 回写 16 角色；代码对齐 相里要 14.66、珂莱塔 H835/B644、坎特蕾拉 3.76/6.77。

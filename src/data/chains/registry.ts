@@ -724,33 +724,33 @@ export const REGISTRY: Record<string, CharacterChains> = {
     chains: [
     {
       index: 1,
-      effect: {"effect":"crate","value":0.15,"label":"普攻第 5 段后暴击 +15%"},
-      text: { name: "孤身孑然", desc: "散华施放第 <b class=\"term-num\">5</b> 段普攻时，自身暴击加成提升 <b class=\"term-num\">15%</b>，持续 <b class=\"term-num\">2</b> 回合。" },
+      effect: {"effect":"sanhuaC1","label":"每第 5 次普攻后暴击 +15%·2 回合"},
+      text: { name: "孤身孑然", desc: "散华每施放第 <b class=\"term-num\">5</b> 次普攻时，自身暴击提升 <b class=\"term-num\">15%</b>，持续 <b class=\"term-num\">2</b> 回合。" },
     },
     {
       index: 2,
       effect: {"effect":"heavyDmg","value":0.2,"label":"重击伤害 +20%"},
-      text: { name: "净雪明心", desc: "散华重击伤害加成提升 <b class=\"term-num\">20%</b>。" },
+      text: { name: "净雪明心", desc: "散华重击伤害提升 <b class=\"term-num\">20%</b>。" },
     },
     {
       index: 3,
-      effect: {"effect":"allDmg","value":0.2,"label":"伤害 +20%"},
-      text: { name: "目视异常", desc: "散华造成的伤害加成提升 <b class=\"term-num\">20%</b>。" },
+      effect: {"effect":"sanhuaC3","value":0.35,"label":"对生命低于 70% 目标伤害 +35%"},
+      text: { name: "目视异常", desc: "散华攻击生命低于 <b class=\"term-num\">70%</b> 的目标时，造成的伤害提升 <b class=\"term-num\">35%</b>。" },
     },
     {
       index: 4,
-      effect: {"effect":"heavyDmg","value":0.5,"label":"解放后重击·爆裂 +50%"},
-      text: { name: "剑修五蕴", desc: "散华施放<b class=\"term-burst\">共鸣解放·焦瞑冻土</b>后，下次<b class=\"term-heavy\">重击·爆裂</b>伤害加成提升 <b class=\"term-num\">50%</b>，持续 <b class=\"term-num\">2</b> 回合。" },
+      effect: {"effect":"sanhuaC4","energy":10,"heavyBonus":1.2,"dur":2,"label":"解放回 10 能量 + 下次爆裂 +120%"},
+      text: { name: "剑修五蕴", desc: "散华施放<b class=\"term-burst\">共鸣解放·焦瞑冻土</b>时，回复 <b class=\"term-num\">10</b> 点共鸣能量；并在 <b class=\"term-num\">2</b> 回合内，使下一次<b class=\"term-heavy\">重击·爆裂</b>造成的伤害提升 <b class=\"term-num\">120%</b>。" },
     },
     {
       index: 5,
-      effect: {"effect":"cdmg","value":1,"label":"暴击伤害 +100%"},
-      text: { name: "颠覆无常", desc: "散华暴击伤害加成提升 <b class=\"term-num\">100%</b>。" },
+      effect: {"effect":"sanhuaC5","value":1,"label":"重击·爆裂暴伤 +100%"},
+      text: { name: "颠覆无常", desc: "散华<b class=\"term-heavy\">重击·爆裂</b>的暴击伤害提升 <b class=\"term-num\">100%</b>。" },
     },
     {
       index: 6,
-      effect: {"effect":"teamAtk","value":0.2,"label":"曙色天光：引爆冰棱/冰川后全队攻击 +10%×2 层 = +20%"},
-      text: { name: "曙色天光", desc: "散华施放<b class=\"term-heavy\">重击·爆裂</b>后，队伍中的角色攻击加成提升 <b class=\"term-num\">20%</b>，持续 <b class=\"term-num\">3</b> 回合。" },
+      effect: {"effect":"sanhuaC6","value":0.1,"cap":2,"dur":3,"label":"爆裂后全队攻 +10% 叠 2 层"},
+      text: { name: "曙色天光", desc: "散华施放<b class=\"term-heavy\">重击·爆裂</b>后，队伍中的角色攻击提升 <b class=\"term-num\">10%</b>，持续 <b class=\"term-num\">3</b> 回合，可叠加 <b class=\"term-num\">2</b> 层。" },
     }
     ],
   },

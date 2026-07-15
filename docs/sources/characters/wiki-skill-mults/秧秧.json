@@ -1,0 +1,121 @@
+{
+  "name": "秧秧",
+  "source": "https://wiki.biligame.com/wutheringwaves/%E5%85%B1%E9%B8%A3%E8%80%85/%E7%A7%A7%E7%A7%A7",
+  "fetchedAt": "2026-07-15",
+  "rows": [
+    {
+      "label": "第一段伤害",
+      "levels": 10,
+      "lvMaxExpr": "44.73%",
+      "lvMaxSum": 44.73
+    },
+    {
+      "label": "第二段伤害",
+      "levels": 10,
+      "lvMaxExpr": "59.64%",
+      "lvMaxSum": 59.64
+    },
+    {
+      "label": "第三段伤害",
+      "levels": 10,
+      "lvMaxExpr": "46.81%*2",
+      "lvMaxSum": 93.62
+    },
+    {
+      "label": "第四段伤害",
+      "levels": 10,
+      "lvMaxExpr": "59.36%*2+79.15%",
+      "lvMaxSum": 197.87
+    },
+    {
+      "label": "重击伤害",
+      "levels": 10,
+      "lvMaxExpr": "19.88%*3",
+      "lvMaxSum": 59.64
+    },
+    {
+      "label": "空中攻击伤害",
+      "levels": 10,
+      "lvMaxExpr": "92.44%",
+      "lvMaxSum": 92.44
+    },
+    {
+      "label": "风吟伤害",
+      "levels": 10,
+      "lvMaxExpr": "106.61%",
+      "lvMaxSum": 106.61
+    },
+    {
+      "label": "闪避反击伤害",
+      "levels": 10,
+      "lvMaxExpr": "87.07%*2",
+      "lvMaxSum": 174.14
+    },
+    {
+      "label": "技能伤害",
+      "levels": 10,
+      "lvMaxExpr": "34.53%*4+207.19%",
+      "lvMaxSum": 345.31
+    },
+    {
+      "label": "风袭伤害",
+      "levels": 10,
+      "lvMaxExpr": "38.02%*2",
+      "lvMaxSum": 76.04
+    },
+    {
+      "label": "释羽伤害",
+      "levels": 10,
+      "lvMaxExpr": "21.73%*5+126.81%*2",
+      "lvMaxSum": 362.27
+    }
+  ],
+  "inlineFixed": [],
+  "anchors": {
+    "normalish": [
+      {
+        "label": "第一段伤害",
+        "levels": 10,
+        "lvMaxExpr": "44.73%",
+        "lvMaxSum": 44.73
+      },
+      {
+        "label": "第二段伤害",
+        "levels": 10,
+        "lvMaxExpr": "59.64%",
+        "lvMaxSum": 59.64
+      },
+      {
+        "label": "第三段伤害",
+        "levels": 10,
+        "lvMaxExpr": "46.81%*2",
+        "lvMaxSum": 93.62
+      },
+      {
+        "label": "第四段伤害",
+        "levels": 10,
+        "lvMaxExpr": "59.36%*2+79.15%",
+        "lvMaxSum": 197.87
+      }
+    ],
+    "skillish": [
+      {
+        "label": "技能伤害",
+        "levels": 10,
+        "lvMaxExpr": "34.53%*4+207.19%",
+        "lvMaxSum": 345.31
+      }
+    ],
+    "heavyish": [
+      {
+        "label": "重击伤害",
+        "levels": 10,
+        "lvMaxExpr": "19.88%*3",
+        "lvMaxSum": 59.64
+      }
+    ],
+    "burstish": [],
+    "variationish": [],
+    "outroish": []
+  }
+}

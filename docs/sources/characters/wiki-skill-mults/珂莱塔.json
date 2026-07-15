@@ -1,0 +1,164 @@
+{
+  "name": "珂莱塔",
+  "source": "https://wiki.biligame.com/wutheringwaves/%E5%85%B1%E9%B8%A3%E8%80%85/%E7%8F%82%E8%8E%B1%E5%A1%94",
+  "fetchedAt": "2026-07-15",
+  "rows": [
+    {
+      "label": "普攻第一段伤害",
+      "levels": 10,
+      "lvMaxExpr": "54.08%",
+      "lvMaxSum": 54.08
+    },
+    {
+      "label": "普攻第二段伤害",
+      "levels": 10,
+      "lvMaxExpr": "39.55%+39.55%+52.73%",
+      "lvMaxSum": 131.83
+    },
+    {
+      "label": "必要性手段第一段伤害",
+      "levels": 10,
+      "lvMaxExpr": "65.91%",
+      "lvMaxSum": 65.91
+    },
+    {
+      "label": "必要性手段第二段伤害",
+      "levels": 10,
+      "lvMaxExpr": "60.08%+73.43%",
+      "lvMaxSum": 133.51
+    },
+    {
+      "label": "必要性手段第三段伤害",
+      "levels": 10,
+      "lvMaxExpr": "139.93%+23.33%*4",
+      "lvMaxSum": 233.25
+    },
+    {
+      "label": "重击伤害",
+      "levels": 10,
+      "lvMaxExpr": "22.82%*2+22.82%*2+60.84%",
+      "lvMaxSum": 152.12
+    },
+    {
+      "label": "限制性策略伤害",
+      "levels": 10,
+      "lvMaxExpr": "34.23%*2+34.23%*2+91.26%",
+      "lvMaxSum": 228.18
+    },
+    {
+      "label": "空中攻击伤害",
+      "levels": 10,
+      "lvMaxExpr": "104.78%",
+      "lvMaxSum": 104.78
+    },
+    {
+      "label": "礼节性问候伤害",
+      "levels": 10,
+      "lvMaxExpr": "107.99%+131.99%",
+      "lvMaxSum": 239.98
+    },
+    {
+      "label": "闪避反击伤害",
+      "levels": 10,
+      "lvMaxExpr": "103.77%+137.55%",
+      "lvMaxSum": 241.32
+    },
+    {
+      "label": "技能伤害",
+      "levels": 10,
+      "lvMaxExpr": "144.11%+144.11%",
+      "lvMaxSum": 288.22
+    },
+    {
+      "label": "示我璀璨伤害",
+      "levels": 10,
+      "lvMaxExpr": "112.73%+112.73%+338.18%",
+      "lvMaxSum": 563.64
+    },
+    {
+      "label": "末路见行伤害",
+      "levels": 10,
+      "lvMaxExpr": "66.83%*5+501.21%",
+      "lvMaxSum": 835.36
+    },
+    {
+      "label": "死兆伤害",
+      "levels": 10,
+      "lvMaxExpr": "183.64%+14.50%*4",
+      "lvMaxSum": 241.64
+    },
+    {
+      "label": "致死以终伤害",
+      "levels": 10,
+      "lvMaxExpr": "644.33%",
+      "lvMaxSum": 644.33
+    }
+  ],
+  "inlineFixed": [
+    {
+      "context": "攻击目标，造成珂莱塔794.2%攻击的",
+      "pct": 794.2
+    },
+    {
+      "context": "攻击目标，造成珂莱塔794.2%攻击的",
+      "pct": 794.2
+    },
+    {
+      "context": "后，额外进行一次攻击，造成珂莱塔1032.18%攻击的冷凝伤害。",
+      "pct": 1032.18
+    }
+  ],
+  "anchors": {
+    "normalish": [
+      {
+        "label": "普攻第一段伤害",
+        "levels": 10,
+        "lvMaxExpr": "54.08%",
+        "lvMaxSum": 54.08
+      },
+      {
+        "label": "普攻第二段伤害",
+        "levels": 10,
+        "lvMaxExpr": "39.55%+39.55%+52.73%",
+        "lvMaxSum": 131.83
+      },
+      {
+        "label": "必要性手段第一段伤害",
+        "levels": 10,
+        "lvMaxExpr": "65.91%",
+        "lvMaxSum": 65.91
+      },
+      {
+        "label": "必要性手段第二段伤害",
+        "levels": 10,
+        "lvMaxExpr": "60.08%+73.43%",
+        "lvMaxSum": 133.51
+      },
+      {
+        "label": "必要性手段第三段伤害",
+        "levels": 10,
+        "lvMaxExpr": "139.93%+23.33%*4",
+        "lvMaxSum": 233.25
+      }
+    ],
+    "skillish": [
+      {
+        "label": "技能伤害",
+        "levels": 10,
+        "lvMaxExpr": "144.11%+144.11%",
+        "lvMaxSum": 288.22
+      }
+    ],
+    "heavyish": [
+      {
+        "label": "重击伤害",
+        "levels": 10,
+        "lvMaxExpr": "22.82%*2+22.82%*2+60.84%",
+        "lvMaxSum": 152.12
+      }
+    ],
+    "burstish": [],
+    "variationish": [],
+    "outroish": []
+  }
+}

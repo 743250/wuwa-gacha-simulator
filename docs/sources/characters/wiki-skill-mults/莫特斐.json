@@ -1,0 +1,138 @@
+{
+  "name": "莫特斐",
+  "source": "https://wiki.biligame.com/wutheringwaves/%E5%85%B1%E9%B8%A3%E8%80%85/%E8%8E%AB%E7%89%B9%E6%96%90",
+  "fetchedAt": "2026-07-15",
+  "rows": [
+    {
+      "label": "第一段伤害",
+      "levels": 10,
+      "lvMaxExpr": "48.30%",
+      "lvMaxSum": 48.3
+    },
+    {
+      "label": "第二段伤害",
+      "levels": 10,
+      "lvMaxExpr": "40.78%*2",
+      "lvMaxSum": 81.56
+    },
+    {
+      "label": "第三段伤害",
+      "levels": 10,
+      "lvMaxExpr": "107.30%",
+      "lvMaxSum": 107.3
+    },
+    {
+      "label": "第四段伤害",
+      "levels": 10,
+      "lvMaxExpr": "21.02%*4+126.93%",
+      "lvMaxSum": 211.01
+    },
+    {
+      "label": "瞄准伤害",
+      "levels": 10,
+      "lvMaxExpr": "97.70%",
+      "lvMaxSum": 97.7
+    },
+    {
+      "label": "瞄准完全蓄力伤害",
+      "levels": 10,
+      "lvMaxExpr": "167.01%",
+      "lvMaxSum": 167.01
+    },
+    {
+      "label": "空中攻击第一段伤害",
+      "levels": 10,
+      "lvMaxExpr": "23.25%",
+      "lvMaxSum": 23.25
+    },
+    {
+      "label": "空中攻击第二段伤害",
+      "levels": 10,
+      "lvMaxExpr": "23.25%",
+      "lvMaxSum": 23.25
+    },
+    {
+      "label": "闪避反击伤害",
+      "levels": 10,
+      "lvMaxExpr": "194.98%",
+      "lvMaxSum": 194.98
+    },
+    {
+      "label": "技能伤害",
+      "levels": 10,
+      "lvMaxExpr": "208.76%",
+      "lvMaxSum": 208.76
+    },
+    {
+      "label": "怒火赋格伤害",
+      "levels": 10,
+      "lvMaxExpr": "326.05%",
+      "lvMaxSum": 326.05
+    },
+    {
+      "label": "暴烈终曲伤害",
+      "levels": 10,
+      "lvMaxExpr": "159.05%",
+      "lvMaxSum": 159.05
+    },
+    {
+      "label": "加强音伤害",
+      "levels": 10,
+      "lvMaxExpr": "31.81%",
+      "lvMaxSum": 31.81
+    }
+  ],
+  "inlineFixed": [],
+  "anchors": {
+    "normalish": [
+      {
+        "label": "第一段伤害",
+        "levels": 10,
+        "lvMaxExpr": "48.30%",
+        "lvMaxSum": 48.3
+      },
+      {
+        "label": "第二段伤害",
+        "levels": 10,
+        "lvMaxExpr": "40.78%*2",
+        "lvMaxSum": 81.56
+      },
+      {
+        "label": "第三段伤害",
+        "levels": 10,
+        "lvMaxExpr": "107.30%",
+        "lvMaxSum": 107.3
+      },
+      {
+        "label": "第四段伤害",
+        "levels": 10,
+        "lvMaxExpr": "21.02%*4+126.93%",
+        "lvMaxSum": 211.01
+      },
+      {
+        "label": "空中攻击第一段伤害",
+        "levels": 10,
+        "lvMaxExpr": "23.25%",
+        "lvMaxSum": 23.25
+      },
+      {
+        "label": "空中攻击第二段伤害",
+        "levels": 10,
+        "lvMaxExpr": "23.25%",
+        "lvMaxSum": 23.25
+      }
+    ],
+    "skillish": [
+      {
+        "label": "技能伤害",
+        "levels": 10,
+        "lvMaxExpr": "208.76%",
+        "lvMaxSum": 208.76
+      }
+    ],
+    "heavyish": [],
+    "burstish": [],
+    "variationish": [],
+    "outroish": []
+  }
+}

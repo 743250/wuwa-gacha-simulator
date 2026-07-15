@@ -1,0 +1,157 @@
+{
+  "name": "桃祈",
+  "source": "https://wiki.biligame.com/wutheringwaves/%E5%85%B1%E9%B8%A3%E8%80%85/%E6%A1%83%E7%A5%88",
+  "fetchedAt": "2026-07-15",
+  "rows": [
+    {
+      "label": "第一段伤害",
+      "levels": 10,
+      "lvMaxExpr": "90.15%",
+      "lvMaxSum": 90.15
+    },
+    {
+      "label": "第二段伤害",
+      "levels": 10,
+      "lvMaxExpr": "84.84%",
+      "lvMaxSum": 84.84
+    },
+    {
+      "label": "第三段伤害",
+      "levels": 10,
+      "lvMaxExpr": "111.34%",
+      "lvMaxSum": 111.34
+    },
+    {
+      "label": "第四段伤害",
+      "levels": 10,
+      "lvMaxExpr": "270.39%",
+      "lvMaxSum": 270.39
+    },
+    {
+      "label": "重击攻击伤害",
+      "levels": 10,
+      "lvMaxExpr": "220.37%",
+      "lvMaxSum": 220.37
+    },
+    {
+      "label": "重击时伤害减免",
+      "levels": 10,
+      "lvMaxExpr": "35%",
+      "lvMaxSum": 35
+    },
+    {
+      "label": "后发制人伤害",
+      "levels": 10,
+      "lvMaxExpr": "78.70%",
+      "lvMaxSum": 78.7
+    },
+    {
+      "label": "空中攻击伤害",
+      "levels": 10,
+      "lvMaxExpr": "123.27%",
+      "lvMaxSum": 123.27
+    },
+    {
+      "label": "闪避反击伤害",
+      "levels": 10,
+      "lvMaxExpr": "248.52%",
+      "lvMaxSum": 248.52
+    },
+    {
+      "label": "技能伤害",
+      "levels": 10,
+      "lvMaxExpr": "134.92%",
+      "lvMaxSum": 134.92
+    },
+    {
+      "label": "御反之隙第一段伤害",
+      "levels": 10,
+      "lvMaxExpr": "86.20%",
+      "lvMaxSum": 86.2
+    },
+    {
+      "label": "御反之隙第二段伤害",
+      "levels": 10,
+      "lvMaxExpr": "110.93%",
+      "lvMaxSum": 110.93
+    },
+    {
+      "label": "御反之隙第三段伤害",
+      "levels": 10,
+      "lvMaxExpr": "145.41%",
+      "lvMaxSum": 145.41
+    }
+  ],
+  "inlineFixed": [],
+  "anchors": {
+    "normalish": [
+      {
+        "label": "第一段伤害",
+        "levels": 10,
+        "lvMaxExpr": "90.15%",
+        "lvMaxSum": 90.15
+      },
+      {
+        "label": "第二段伤害",
+        "levels": 10,
+        "lvMaxExpr": "84.84%",
+        "lvMaxSum": 84.84
+      },
+      {
+        "label": "第三段伤害",
+        "levels": 10,
+        "lvMaxExpr": "111.34%",
+        "lvMaxSum": 111.34
+      },
+      {
+        "label": "第四段伤害",
+        "levels": 10,
+        "lvMaxExpr": "270.39%",
+        "lvMaxSum": 270.39
+      },
+      {
+        "label": "御反之隙第一段伤害",
+        "levels": 10,
+        "lvMaxExpr": "86.20%",
+        "lvMaxSum": 86.2
+      },
+      {
+        "label": "御反之隙第二段伤害",
+        "levels": 10,
+        "lvMaxExpr": "110.93%",
+        "lvMaxSum": 110.93
+      },
+      {
+        "label": "御反之隙第三段伤害",
+        "levels": 10,
+        "lvMaxExpr": "145.41%",
+        "lvMaxSum": 145.41
+      }
+    ],
+    "skillish": [
+      {
+        "label": "技能伤害",
+        "levels": 10,
+        "lvMaxExpr": "134.92%",
+        "lvMaxSum": 134.92
+      }
+    ],
+    "heavyish": [
+      {
+        "label": "重击攻击伤害",
+        "levels": 10,
+        "lvMaxExpr": "220.37%",
+        "lvMaxSum": 220.37
+      },
+      {
+        "label": "重击时伤害减免",
+        "levels": 10,
+        "lvMaxExpr": "35%",
+        "lvMaxSum": 35
+      }
+    ],
+    "burstish": [],
+    "variationish": [],
+    "outroish": []
+  }
+}

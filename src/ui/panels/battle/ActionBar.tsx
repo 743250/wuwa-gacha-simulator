@@ -1,6 +1,7 @@
 // 动作按钮 + 技能面板
 import { h } from 'preact';
 import { canAttack, canSkill, canHeavy, canBurst, evaluateStars } from '../../../battle/combat.js';
+import { STAR_CRITERIA } from '../../../battle/balance.js';
 import { bAtk, bSkill, bHeavy, bBurst, bDebris, bEndTurn, bClose, bSettle } from '../../../ui/battle/battleActions.js';
 import { displayName } from './helpers';
 
@@ -51,7 +52,22 @@ export function ActionBar({ battle, pendingDungeon }: ActionBarProps) {
       const isDungeon = pendingDungeon?.kind === 'dungeon';
       let starStr: string | null = null, starLabel: string | null = null;
       if (!isDungeon) {
-        const stars = evaluateStars(battle);
+        // 深塔/海墟：用 STAR_CRITERIA（与 settleAbyss 一致）；勿用 evaluateStars 默认 turnLimit=3
+        const isAbyss = pendingDungeon?.kind === 'abyss';
+        let stars = 1;
+        if (isAbyss) {
+          const alive = battle.team.filter((t: any) => t.alive);
+          const pool = alive.length ? alive : battle.team;
+          const hpPct = pool.length
+            ? pool.reduce((a: number, t: any) => a + (t.hpMax > 0 ? t.hp / t.hpMax : 0), 0) / pool.length
+            : 0;
+          const turn = battle.turn || 0;
+          if (turn <= STAR_CRITERIA.threeStar.turn && hpPct >= STAR_CRITERIA.threeStar.hp) stars = 3;
+          else if (turn <= STAR_CRITERIA.twoStar.turn && hpPct >= STAR_CRITERIA.twoStar.hp) stars = 2;
+          else stars = 1;
+        } else {
+          stars = evaluateStars(battle, STAR_CRITERIA.oneStar.turn, STAR_CRITERIA.twoStar.hp);
+        }
         starStr = '★'.repeat(stars) + '☆'.repeat(3 - stars);
         starLabel = stars === 3 ? '完美通关' : stars === 2 ? '高效通关' : '通关';
       }

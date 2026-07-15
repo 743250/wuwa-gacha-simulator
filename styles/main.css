@@ -29,6 +29,128 @@ input,select{font:inherit;color:inherit}
 .brand{font-weight:600;letter-spacing:8px;font-size:16px;
   background:linear-gradient(135deg,#fff,#a8c8e0);-webkit-background-clip:text;background-clip:text;color:transparent}
 .gres{display:flex;gap:7px;flex-wrap:wrap;flex:1;justify-content:flex-end}
+
+/* ===== 运营邮箱（左上角入口 · 弹层 portal 到 body） ===== */
+.mail-entry-slot{flex-shrink:0}
+.mail-entry{position:relative}
+.mail-btn{
+  position:relative;display:inline-flex;align-items:center;gap:6px;
+  padding:6px 12px 6px 10px;border:1px solid rgba(245,207,107,.35);
+  border-radius:999px;background:rgba(245,207,107,.08);
+  font-size:12px;letter-spacing:1px;color:var(--gold);transition:.15s
+}
+.mail-btn:hover{background:rgba(245,207,107,.16);border-color:rgba(245,207,107,.55)}
+.mail-btn-icon{font-size:14px;line-height:1}
+.mail-btn-label{font-weight:600}
+.mail-badge{
+  position:absolute;top:-6px;right:-6px;min-width:16px;height:16px;padding:0 4px;
+  border-radius:999px;background:var(--red,#e85d5d);color:#fff;
+  font-size:10px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;
+  box-shadow:0 0 0 2px rgba(6,9,18,.9)
+}
+.mail-overlay{
+  position:fixed;inset:0;z-index:9990;background:rgba(0,0,0,.62);
+  display:flex;align-items:center;justify-content:center;padding:12px;
+  box-sizing:border-box
+}
+.mail-modal{
+  width:min(920px,100%);
+  height:min(82vh,720px);
+  max-height:calc(100dvh - 24px);
+  border:1px solid var(--line);border-radius:14px;
+  background:linear-gradient(165deg,rgba(14,18,30,.98),rgba(8,11,20,.98));
+  box-shadow:0 20px 60px rgba(0,0,0,.45);
+  display:flex;flex-direction:column;overflow:hidden;min-height:0
+}
+.mail-modal-head{
+  display:flex;align-items:flex-start;justify-content:space-between;gap:12px;
+  padding:14px 16px;border-bottom:1px solid var(--line);flex-shrink:0
+}
+.mail-modal-title{font-size:16px;font-weight:700;letter-spacing:4px;color:var(--gold)}
+.mail-modal-sub{font-size:11px;color:var(--muted);margin-top:4px;letter-spacing:.5px}
+.mail-modal-actions{display:flex;gap:8px;flex-shrink:0;flex-wrap:wrap}
+.mail-body{
+  display:grid;grid-template-columns:minmax(200px,.9fr) minmax(240px,1.2fr);
+  min-height:0;flex:1;overflow:hidden
+}
+.mail-list{overflow:auto;border-right:1px solid var(--line);min-height:0;height:100%;padding:8px;-webkit-overflow-scrolling:touch}
+.mail-item{
+  display:block;width:100%;text-align:left;padding:10px 12px;margin-bottom:6px;
+  border:1px solid transparent;border-radius:10px;background:rgba(255,255,255,.02);
+  color:inherit;transition:.12s
+}
+.mail-item:hover{background:rgba(255,255,255,.05)}
+.mail-item.on{border-color:rgba(245,207,107,.4);background:rgba(245,207,107,.07)}
+.mail-item.claimed{opacity:.72}
+.mail-item-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.mail-item-title{font-size:13px;font-weight:600;letter-spacing:.5px}
+.mail-item-meta{font-size:10px;color:var(--muted);margin-top:4px}
+.mail-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0;box-shadow:0 0 6px var(--accent)}
+.mail-detail{padding:16px 18px;overflow:auto;min-height:0;height:100%;-webkit-overflow-scrolling:touch}
+.mail-detail-title{font-size:17px;font-weight:700;letter-spacing:1px}
+.mail-detail-meta{font-size:11px;color:var(--muted);margin-top:6px}
+.mail-detail-body{margin-top:14px;font-size:13px;line-height:1.75;color:var(--text);white-space:pre-wrap;word-break:break-word}
+.mail-detail-reward{
+  margin-top:16px;padding:12px;border:1px dashed rgba(245,207,107,.35);border-radius:10px;
+  background:rgba(245,207,107,.05)
+}
+.mail-reward-label{font-size:11px;color:var(--gold);letter-spacing:1px}
+.mail-reward-val{margin-top:6px;font-size:13px;font-weight:600;color:var(--text)}
+.mail-pick{margin-top:14px;padding:12px;border:1px solid rgba(245,207,107,.25);border-radius:10px;background:rgba(245,207,107,.04)}
+.mail-pick-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.mail-detail-foot{margin-top:16px;padding-bottom:8px}
+.mail-claimed-tag{font-size:12px;color:var(--green);letter-spacing:1px}
+.mail-empty{padding:28px 16px;text-align:center;color:var(--muted);font-size:12px;line-height:1.6}
+@media (max-width:720px){
+  .mail-modal{height:min(90dvh,720px);max-height:calc(100dvh - 16px)}
+  .mail-body{grid-template-columns:1fr;grid-template-rows:minmax(140px,.42fr) minmax(0,1fr)}
+  .mail-list{height:auto;max-height:none;border-right:none;border-bottom:1px solid var(--line)}
+  .mail-detail{height:auto}
+}
+
+/* ===== 漂泊者（左上角入口 · 形态弹层） ===== */
+.rover-entry-slot{flex-shrink:0;margin-left:8px}
+.rover-entry{position:relative}
+.rover-btn{
+  position:relative;display:inline-flex;align-items:center;gap:6px;
+  padding:6px 12px 6px 10px;border:1px solid rgba(120,190,255,.4);
+  border-radius:999px;background:rgba(120,190,255,.08);
+  font-size:12px;letter-spacing:1px;color:#9fd0ff;transition:.15s
+}
+.rover-btn:hover{background:rgba(120,190,255,.16);border-color:rgba(120,190,255,.6)}
+.rover-btn-icon{font-size:14px;line-height:1}
+.rover-btn-label{font-weight:600}
+.rover-overlay{
+  position:fixed;inset:0;z-index:9990;background:rgba(0,0,0,.62);
+  display:flex;align-items:center;justify-content:center;padding:12px;
+  box-sizing:border-box
+}
+.rover-modal{
+  width:min(480px,100%);
+  max-height:min(82vh,640px);
+  border:1px solid var(--line);border-radius:14px;
+  background:linear-gradient(165deg,rgba(14,18,30,.98),rgba(8,11,20,.98));
+  box-shadow:0 20px 60px rgba(0,0,0,.45);
+  display:flex;flex-direction:column;overflow:hidden
+}
+.rover-modal-head{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:14px 16px;border-bottom:1px solid var(--line);flex-shrink:0
+}
+.rover-modal-title{font-size:16px;font-weight:700;letter-spacing:4px;color:#9fd0ff}
+.rover-modal-body{padding:14px 16px 18px;overflow:auto}
+.rover-lead{font-size:12px;line-height:1.7;color:var(--muted);margin:0 0 12px}
+.rover-form-list{display:flex;flex-direction:column;gap:8px}
+.rover-form-card{
+  display:block;width:100%;text-align:left;padding:12px 14px;
+  border:1px solid rgba(120,190,255,.22);border-radius:10px;
+  background:rgba(120,190,255,.05);color:inherit;transition:.12s
+}
+.rover-form-card:hover{background:rgba(120,190,255,.12);border-color:rgba(120,190,255,.45)}
+.rover-form-name{font-size:14px;font-weight:700;letter-spacing:1px;color:#cfe8ff}
+.rover-form-meta{font-size:11px;color:var(--muted);margin-top:4px}
+.rover-form-hint{font-size:11px;color:#9fd0ff;margin-top:8px;letter-spacing:1px}
+
 .gtag{display:inline-flex;align-items:center;gap:6px;padding:6px 6px 6px 11px;
   border:1px solid var(--line);border-radius:999px;font-size:12px;
   background:rgba(255,255,255,.03)}

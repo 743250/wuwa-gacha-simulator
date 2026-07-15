@@ -9,12 +9,22 @@ import { initApp } from './init.ts';
 import { mountPreactRoot } from './ui/root.tsx';
 import { loadState, saveState } from './save.js';
 import { reconcilePeriodPullTasksFromLog } from './podcast/core.js';
+import { deliverDueMails } from './mail/mailbox.js';
+import { maybePromptLoginClaims } from './daily/loginClaim.js';
+import { ensureRover } from './rover/ensure.js';
+import { commit } from './state/commit.ts';
 
 (async () => {
   await loadState();
+  // 读档后补发漂泊者三形态（免费主角，不进卡池）
+  commit(() => { ensureRover(); });
   if (reconcilePeriodPullTasksFromLog()) saveState();
+  // 读档后按当前日期补投邮箱（不 toast，避免启动刷屏）
+  deliverDueMails();
   initApp();
   resetDailyIfNeeded();
   render();
   mountPreactRoot();
+  // 上线补给：月卡每日星声 + 特别感恩回馈等（与月卡同节奏弹窗）
+  setTimeout(() => { try { maybePromptLoginClaims(); } catch (_) { /* ignore */ } }, 0);
 })();

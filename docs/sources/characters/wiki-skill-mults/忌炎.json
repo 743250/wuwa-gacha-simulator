@@ -1,0 +1,197 @@
+{
+  "name": "忌炎",
+  "source": "https://wiki.biligame.com/wutheringwaves/%E5%85%B1%E9%B8%A3%E8%80%85/%E5%BF%8C%E7%82%8E",
+  "fetchedAt": "2026-07-15",
+  "rows": [
+    {
+      "label": "第一段伤害",
+      "levels": 10,
+      "lvMaxExpr": "73.16%",
+      "lvMaxSum": 73.16
+    },
+    {
+      "label": "第二段伤害",
+      "levels": 10,
+      "lvMaxExpr": "43.73%",
+      "lvMaxSum": 43.73
+    },
+    {
+      "label": "第三段伤害",
+      "levels": 10,
+      "lvMaxExpr": "36.38%*5",
+      "lvMaxSum": 181.9
+    },
+    {
+      "label": "第四段伤害",
+      "levels": 10,
+      "lvMaxExpr": "66.20%*2",
+      "lvMaxSum": 132.4
+    },
+    {
+      "label": "第五段伤害",
+      "levels": 10,
+      "lvMaxExpr": "23.60%*7+153.45%*2",
+      "lvMaxSum": 472.1
+    },
+    {
+      "label": "重击伤害",
+      "levels": 10,
+      "lvMaxExpr": "22.20%*6",
+      "lvMaxSum": 133.2
+    },
+    {
+      "label": "凌空击伤害",
+      "levels": 10,
+      "lvMaxExpr": "105.96%",
+      "lvMaxSum": 105.96
+    },
+    {
+      "label": "潜渊斩伤害",
+      "levels": 10,
+      "lvMaxExpr": "81.71%",
+      "lvMaxSum": 81.71
+    },
+    {
+      "label": "空中攻击伤害",
+      "levels": 10,
+      "lvMaxExpr": "123.26%",
+      "lvMaxSum": 123.26
+    },
+    {
+      "label": "长空不坠伤害",
+      "levels": 10,
+      "lvMaxExpr": "79.52%",
+      "lvMaxSum": 79.52
+    },
+    {
+      "label": "空中攻击追击伤害",
+      "levels": 10,
+      "lvMaxExpr": "155.66%",
+      "lvMaxSum": 155.66
+    },
+    {
+      "label": "闪避反击伤害",
+      "levels": 10,
+      "lvMaxExpr": "125.84%*2",
+      "lvMaxSum": 251.68
+    },
+    {
+      "label": "苍躣八荒·后动伤害",
+      "levels": 10,
+      "lvMaxExpr": "142.91%*2+428.73%",
+      "lvMaxSum": 714.55
+    },
+    {
+      "label": "破阵之枪第一段伤害",
+      "levels": 10,
+      "lvMaxExpr": "65.52%*8",
+      "lvMaxSum": 524.16
+    },
+    {
+      "label": "破阵之枪第二段伤害",
+      "levels": 10,
+      "lvMaxExpr": "61.55%*8",
+      "lvMaxSum": 492.4
+    },
+    {
+      "label": "破阵之枪第三段伤害",
+      "levels": 10,
+      "lvMaxExpr": "66.76%*8",
+      "lvMaxSum": 534.08
+    },
+    {
+      "label": "技能伤害",
+      "levels": 10,
+      "lvMaxExpr": "198.81%",
+      "lvMaxSum": 198.81
+    }
+  ],
+  "inlineFixed": [
+    {
+      "context": "下一位登场角色重击命中目标时，忌炎将召唤长枪协同攻击，造成忌炎313.40%攻击的",
+      "pct": 313.4
+    },
+    {
+      "context": "下一位登场角色重击命中目标时，忌炎将召唤长枪协同攻击，造成忌炎313.40%攻击的",
+      "pct": 313.4
+    }
+  ],
+  "anchors": {
+    "normalish": [
+      {
+        "label": "第一段伤害",
+        "levels": 10,
+        "lvMaxExpr": "73.16%",
+        "lvMaxSum": 73.16
+      },
+      {
+        "label": "第二段伤害",
+        "levels": 10,
+        "lvMaxExpr": "43.73%",
+        "lvMaxSum": 43.73
+      },
+      {
+        "label": "第三段伤害",
+        "levels": 10,
+        "lvMaxExpr": "36.38%*5",
+        "lvMaxSum": 181.9
+      },
+      {
+        "label": "第四段伤害",
+        "levels": 10,
+        "lvMaxExpr": "66.20%*2",
+        "lvMaxSum": 132.4
+      },
+      {
+        "label": "第五段伤害",
+        "levels": 10,
+        "lvMaxExpr": "23.60%*7+153.45%*2",
+        "lvMaxSum": 472.1
+      },
+      {
+        "label": "破阵之枪第一段伤害",
+        "levels": 10,
+        "lvMaxExpr": "65.52%*8",
+        "lvMaxSum": 524.16
+      },
+      {
+        "label": "破阵之枪第二段伤害",
+        "levels": 10,
+        "lvMaxExpr": "61.55%*8",
+        "lvMaxSum": 492.4
+      },
+      {
+        "label": "破阵之枪第三段伤害",
+        "levels": 10,
+        "lvMaxExpr": "66.76%*8",
+        "lvMaxSum": 534.08
+      }
+    ],
+    "skillish": [
+      {
+        "label": "技能伤害",
+        "levels": 10,
+        "lvMaxExpr": "198.81%",
+        "lvMaxSum": 198.81
+      }
+    ],
+    "heavyish": [
+      {
+        "label": "重击伤害",
+        "levels": 10,
+        "lvMaxExpr": "22.20%*6",
+        "lvMaxSum": 133.2
+      }
+    ],
+    "burstish": [
+      {
+        "label": "苍躣八荒·后动伤害",
+        "levels": 10,
+        "lvMaxExpr": "142.91%*2+428.73%",
+        "lvMaxSum": 714.55
+      }
+    ],
+    "variationish": [],
+    "outroish": []
+  }
+}

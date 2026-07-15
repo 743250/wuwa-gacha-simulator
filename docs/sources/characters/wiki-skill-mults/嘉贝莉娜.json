@@ -1,0 +1,342 @@
+{
+  "name": "嘉贝莉娜",
+  "source": "https://wiki.biligame.com/wutheringwaves/%E5%85%B1%E9%B8%A3%E8%80%85/%E5%98%89%E8%B4%9D%E8%8E%89%E5%A8%9C",
+  "fetchedAt": "2026-07-15",
+  "rows": [
+    {
+      "label": "普攻第一段伤害",
+      "levels": 10,
+      "lvMaxExpr": "59.18%",
+      "lvMaxSum": 59.18
+    },
+    {
+      "label": "普攻第二段伤害",
+      "levels": 10,
+      "lvMaxExpr": "26.31%+26.31%+78.91%",
+      "lvMaxSum": 131.53
+    },
+    {
+      "label": "普攻第三段伤害",
+      "levels": 10,
+      "lvMaxExpr": "28.60%+28.60%+42.89%+42.89%",
+      "lvMaxSum": 142.98
+    },
+    {
+      "label": "普攻第四段伤害",
+      "levels": 10,
+      "lvMaxExpr": "177.86%",
+      "lvMaxSum": 177.86
+    },
+    {
+      "label": "闪避反击·血债将偿伤害",
+      "levels": 10,
+      "lvMaxExpr": "41.05%+41.05%+61.57%+61.57%",
+      "lvMaxSum": 205.24
+    },
+    {
+      "label": "空中攻击·枪弹暴雨下落攻击伤害",
+      "levels": 10,
+      "lvMaxExpr": "143.15%",
+      "lvMaxSum": 143.15
+    },
+    {
+      "label": "空中攻击·枪弹暴雨持续扫射伤害",
+      "levels": 10,
+      "lvMaxExpr": "26.84%",
+      "lvMaxSum": 26.84
+    },
+    {
+      "label": "重击·燧发杀戮第一段伤害",
+      "levels": 10,
+      "lvMaxExpr": "53.30%+53.30%",
+      "lvMaxSum": 106.6
+    },
+    {
+      "label": "重击·燧发杀戮第二段伤害",
+      "levels": 10,
+      "lvMaxExpr": "34.59%*2",
+      "lvMaxSum": 69.18
+    },
+    {
+      "label": "重击·燧发杀戮第三段伤害",
+      "levels": 10,
+      "lvMaxExpr": "16.77%*3+117.39%",
+      "lvMaxSum": 167.7
+    },
+    {
+      "label": "共鸣技能·迫近伤害",
+      "levels": 10,
+      "lvMaxExpr": "10.74%+25.04%",
+      "lvMaxSum": 35.78
+    },
+    {
+      "label": "共鸣技能·恶翼扬升伤害",
+      "levels": 10,
+      "lvMaxExpr": "51.57%+51.57%",
+      "lvMaxSum": 103.14
+    },
+    {
+      "label": "普攻·炽天猎杀第一段伤害",
+      "levels": 10,
+      "lvMaxExpr": "58.99%",
+      "lvMaxSum": 58.99
+    },
+    {
+      "label": "普攻·炽天猎杀第二段伤害",
+      "levels": 10,
+      "lvMaxExpr": "27.84%+27.84%+83.51%",
+      "lvMaxSum": 139.19
+    },
+    {
+      "label": "普攻·炽天猎杀第三段伤害",
+      "levels": 10,
+      "lvMaxExpr": "24.32%*3+170.21%",
+      "lvMaxSum": 243.17
+    },
+    {
+      "label": "普攻·炽天猎杀第四段伤害",
+      "levels": 10,
+      "lvMaxExpr": "18.15%*3+127.02%",
+      "lvMaxSum": 181.47
+    },
+    {
+      "label": "普攻·炽天猎杀第五段伤害",
+      "levels": 10,
+      "lvMaxExpr": "67.28%+156.99%",
+      "lvMaxSum": 224.27
+    },
+    {
+      "label": "重击·炼羽裁决第一段伤害",
+      "levels": 10,
+      "lvMaxExpr": "59.22%+59.22%",
+      "lvMaxSum": 118.44
+    },
+    {
+      "label": "重击·炼羽裁决第二段伤害",
+      "levels": 10,
+      "lvMaxExpr": "38.35%*2",
+      "lvMaxSum": 76.7
+    },
+    {
+      "label": "重击·炼羽裁决第三段伤害",
+      "levels": 10,
+      "lvMaxExpr": "17.69%*3+123.77%",
+      "lvMaxSum": 176.84
+    },
+    {
+      "label": "闪避反击·罪业当涤伤害",
+      "levels": 10,
+      "lvMaxExpr": "32.10%*3+224.70%",
+      "lvMaxSum": 321
+    },
+    {
+      "label": "空中攻击·火狱暴雨下落攻击伤害",
+      "levels": 10,
+      "lvMaxExpr": "159.05%",
+      "lvMaxSum": 159.05
+    },
+    {
+      "label": "空中攻击·火狱暴雨持续扫射伤害",
+      "levels": 10,
+      "lvMaxExpr": "29.83%",
+      "lvMaxSum": 29.83
+    },
+    {
+      "label": "共鸣技能·掠袭伤害",
+      "levels": 10,
+      "lvMaxExpr": "10.74%+25.04%",
+      "lvMaxSum": 35.78
+    },
+    {
+      "label": "共鸣解放·炼净伤害",
+      "levels": 10,
+      "lvMaxExpr": "110.90%+90.74%*11",
+      "lvMaxSum": 1109.04
+    },
+    {
+      "label": "变奏技能·永火上膛伤害",
+      "levels": 10,
+      "lvMaxExpr": "94.12%",
+      "lvMaxSum": 94.12
+    }
+  ],
+  "inlineFixed": [
+    {
+      "context": "攻击目标，造成嘉贝莉娜79.5%*3+556.5%攻击的",
+      "pct": 556.5
+    },
+    {
+      "context": "攻击目标，造成嘉贝莉娜79.5%*3+556.5%攻击的",
+      "pct": 556.5
+    }
+  ],
+  "anchors": {
+    "normalish": [
+      {
+        "label": "普攻第一段伤害",
+        "levels": 10,
+        "lvMaxExpr": "59.18%",
+        "lvMaxSum": 59.18
+      },
+      {
+        "label": "普攻第二段伤害",
+        "levels": 10,
+        "lvMaxExpr": "26.31%+26.31%+78.91%",
+        "lvMaxSum": 131.53
+      },
+      {
+        "label": "普攻第三段伤害",
+        "levels": 10,
+        "lvMaxExpr": "28.60%+28.60%+42.89%+42.89%",
+        "lvMaxSum": 142.98
+      },
+      {
+        "label": "普攻第四段伤害",
+        "levels": 10,
+        "lvMaxExpr": "177.86%",
+        "lvMaxSum": 177.86
+      },
+      {
+        "label": "重击·燧发杀戮第一段伤害",
+        "levels": 10,
+        "lvMaxExpr": "53.30%+53.30%",
+        "lvMaxSum": 106.6
+      },
+      {
+        "label": "重击·燧发杀戮第二段伤害",
+        "levels": 10,
+        "lvMaxExpr": "34.59%*2",
+        "lvMaxSum": 69.18
+      },
+      {
+        "label": "重击·燧发杀戮第三段伤害",
+        "levels": 10,
+        "lvMaxExpr": "16.77%*3+117.39%",
+        "lvMaxSum": 167.7
+      },
+      {
+        "label": "普攻·炽天猎杀第一段伤害",
+        "levels": 10,
+        "lvMaxExpr": "58.99%",
+        "lvMaxSum": 58.99
+      },
+      {
+        "label": "普攻·炽天猎杀第二段伤害",
+        "levels": 10,
+        "lvMaxExpr": "27.84%+27.84%+83.51%",
+        "lvMaxSum": 139.19
+      },
+      {
+        "label": "普攻·炽天猎杀第三段伤害",
+        "levels": 10,
+        "lvMaxExpr": "24.32%*3+170.21%",
+        "lvMaxSum": 243.17
+      },
+      {
+        "label": "普攻·炽天猎杀第四段伤害",
+        "levels": 10,
+        "lvMaxExpr": "18.15%*3+127.02%",
+        "lvMaxSum": 181.47
+      },
+      {
+        "label": "普攻·炽天猎杀第五段伤害",
+        "levels": 10,
+        "lvMaxExpr": "67.28%+156.99%",
+        "lvMaxSum": 224.27
+      },
+      {
+        "label": "重击·炼羽裁决第一段伤害",
+        "levels": 10,
+        "lvMaxExpr": "59.22%+59.22%",
+        "lvMaxSum": 118.44
+      },
+      {
+        "label": "重击·炼羽裁决第二段伤害",
+        "levels": 10,
+        "lvMaxExpr": "38.35%*2",
+        "lvMaxSum": 76.7
+      },
+      {
+        "label": "重击·炼羽裁决第三段伤害",
+        "levels": 10,
+        "lvMaxExpr": "17.69%*3+123.77%",
+        "lvMaxSum": 176.84
+      }
+    ],
+    "skillish": [
+      {
+        "label": "共鸣技能·迫近伤害",
+        "levels": 10,
+        "lvMaxExpr": "10.74%+25.04%",
+        "lvMaxSum": 35.78
+      },
+      {
+        "label": "共鸣技能·恶翼扬升伤害",
+        "levels": 10,
+        "lvMaxExpr": "51.57%+51.57%",
+        "lvMaxSum": 103.14
+      },
+      {
+        "label": "共鸣技能·掠袭伤害",
+        "levels": 10,
+        "lvMaxExpr": "10.74%+25.04%",
+        "lvMaxSum": 35.78
+      }
+    ],
+    "heavyish": [
+      {
+        "label": "重击·燧发杀戮第一段伤害",
+        "levels": 10,
+        "lvMaxExpr": "53.30%+53.30%",
+        "lvMaxSum": 106.6
+      },
+      {
+        "label": "重击·燧发杀戮第二段伤害",
+        "levels": 10,
+        "lvMaxExpr": "34.59%*2",
+        "lvMaxSum": 69.18
+      },
+      {
+        "label": "重击·燧发杀戮第三段伤害",
+        "levels": 10,
+        "lvMaxExpr": "16.77%*3+117.39%",
+        "lvMaxSum": 167.7
+      },
+      {
+        "label": "重击·炼羽裁决第一段伤害",
+        "levels": 10,
+        "lvMaxExpr": "59.22%+59.22%",
+        "lvMaxSum": 118.44
+      },
+      {
+        "label": "重击·炼羽裁决第二段伤害",
+        "levels": 10,
+        "lvMaxExpr": "38.35%*2",
+        "lvMaxSum": 76.7
+      },
+      {
+        "label": "重击·炼羽裁决第三段伤害",
+        "levels": 10,
+        "lvMaxExpr": "17.69%*3+123.77%",
+        "lvMaxSum": 176.84
+      }
+    ],
+    "burstish": [
+      {
+        "label": "共鸣解放·炼净伤害",
+        "levels": 10,
+        "lvMaxExpr": "110.90%+90.74%*11",
+        "lvMaxSum": 1109.04
+      }
+    ],
+    "variationish": [
+      {
+        "label": "变奏技能·永火上膛伤害",
+        "levels": 10,
+        "lvMaxExpr": "94.12%",
+        "lvMaxSum": 94.12
+      }
+    ],
+    "outroish": []
+  }
+}

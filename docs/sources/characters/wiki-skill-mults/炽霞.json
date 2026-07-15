@@ -1,0 +1,136 @@
+{
+  "name": "炽霞",
+  "source": "https://wiki.biligame.com/wutheringwaves/%E5%85%B1%E9%B8%A3%E8%80%85/%E7%82%BD%E9%9C%9E",
+  "fetchedAt": "2026-07-15",
+  "rows": [
+    {
+      "label": "第一段伤害",
+      "levels": 10,
+      "lvMaxExpr": "66.21%",
+      "lvMaxSum": 66.21
+    },
+    {
+      "label": "第二段伤害",
+      "levels": 10,
+      "lvMaxExpr": "48.32%*2",
+      "lvMaxSum": 96.64
+    },
+    {
+      "label": "第三段伤害",
+      "levels": 10,
+      "lvMaxExpr": "33.55%*4",
+      "lvMaxSum": 134.2
+    },
+    {
+      "label": "第四段伤害",
+      "levels": 10,
+      "lvMaxExpr": "232.61%",
+      "lvMaxSum": 232.61
+    },
+    {
+      "label": "重击伤害",
+      "levels": 10,
+      "lvMaxExpr": "35.79%",
+      "lvMaxSum": 35.79
+    },
+    {
+      "label": "满蓄力重击伤害",
+      "levels": 10,
+      "lvMaxExpr": "80.52%",
+      "lvMaxSum": 80.52
+    },
+    {
+      "label": "空中攻击伤害",
+      "levels": 10,
+      "lvMaxExpr": "32.21%",
+      "lvMaxSum": 32.21
+    },
+    {
+      "label": "极限闪避反击伤害",
+      "levels": 10,
+      "lvMaxExpr": "339.97%",
+      "lvMaxSum": 339.97
+    },
+    {
+      "label": "技能伤害",
+      "levels": 10,
+      "lvMaxExpr": "31.81%*8",
+      "lvMaxSum": 254.48
+    },
+    {
+      "label": "热压弹伤害",
+      "levels": 10,
+      "lvMaxExpr": "19.89%",
+      "lvMaxSum": 19.89
+    },
+    {
+      "label": "轰轰伤害",
+      "levels": 10,
+      "lvMaxExpr": "437.39%",
+      "lvMaxSum": 437.39
+    }
+  ],
+  "inlineFixed": [
+    {
+      "context": "以技能目标为中心，释放冲击波，对范围内的目标造成炽霞530.00%攻击的",
+      "pct": 530
+    },
+    {
+      "context": "以技能目标为中心，释放冲击波，对范围内的目标造成炽霞530.00%攻击的",
+      "pct": 530
+    }
+  ],
+  "anchors": {
+    "normalish": [
+      {
+        "label": "第一段伤害",
+        "levels": 10,
+        "lvMaxExpr": "66.21%",
+        "lvMaxSum": 66.21
+      },
+      {
+        "label": "第二段伤害",
+        "levels": 10,
+        "lvMaxExpr": "48.32%*2",
+        "lvMaxSum": 96.64
+      },
+      {
+        "label": "第三段伤害",
+        "levels": 10,
+        "lvMaxExpr": "33.55%*4",
+        "lvMaxSum": 134.2
+      },
+      {
+        "label": "第四段伤害",
+        "levels": 10,
+        "lvMaxExpr": "232.61%",
+        "lvMaxSum": 232.61
+      }
+    ],
+    "skillish": [
+      {
+        "label": "技能伤害",
+        "levels": 10,
+        "lvMaxExpr": "31.81%*8",
+        "lvMaxSum": 254.48
+      }
+    ],
+    "heavyish": [
+      {
+        "label": "重击伤害",
+        "levels": 10,
+        "lvMaxExpr": "35.79%",
+        "lvMaxSum": 35.79
+      },
+      {
+        "label": "满蓄力重击伤害",
+        "levels": 10,
+        "lvMaxExpr": "80.52%",
+        "lvMaxSum": 80.52
+      }
+    ],
+    "burstish": [],
+    "variationish": [],
+    "outroish": []
+  }
+}

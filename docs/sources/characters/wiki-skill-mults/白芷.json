@@ -1,0 +1,109 @@
+{
+  "name": "白芷",
+  "source": "https://wiki.biligame.com/wutheringwaves/%E5%85%B1%E9%B8%A3%E8%80%85/%E7%99%BD%E8%8A%B7",
+  "fetchedAt": "2026-07-15",
+  "rows": [
+    {
+      "label": "第一段伤害",
+      "levels": 10,
+      "lvMaxExpr": "65.48%",
+      "lvMaxSum": 65.48
+    },
+    {
+      "label": "第二段伤害",
+      "levels": 10,
+      "lvMaxExpr": "78.57%",
+      "lvMaxSum": 78.57
+    },
+    {
+      "label": "第三段伤害",
+      "levels": 10,
+      "lvMaxExpr": "13.10%*7",
+      "lvMaxSum": 91.7
+    },
+    {
+      "label": "第四段伤害",
+      "levels": 10,
+      "lvMaxExpr": "78.57%",
+      "lvMaxSum": 78.57
+    },
+    {
+      "label": "重击伤害",
+      "levels": 8,
+      "lvMaxExpr": "48.86%",
+      "lvMaxSum": 48.86
+    },
+    {
+      "label": "空中攻击伤害",
+      "levels": 10,
+      "lvMaxExpr": "78.89%",
+      "lvMaxSum": 78.89
+    },
+    {
+      "label": "闪避反击伤害",
+      "levels": 10,
+      "lvMaxExpr": "178.65%",
+      "lvMaxSum": 178.65
+    },
+    {
+      "label": "技能伤害",
+      "levels": 10,
+      "lvMaxExpr": "15.94%",
+      "lvMaxSum": 15.94
+    },
+    {
+      "label": "频隙回响伤害",
+      "levels": 10,
+      "lvMaxExpr": "4.07%",
+      "lvMaxSum": 4.07
+    }
+  ],
+  "inlineFixed": [],
+  "anchors": {
+    "normalish": [
+      {
+        "label": "第一段伤害",
+        "levels": 10,
+        "lvMaxExpr": "65.48%",
+        "lvMaxSum": 65.48
+      },
+      {
+        "label": "第二段伤害",
+        "levels": 10,
+        "lvMaxExpr": "78.57%",
+        "lvMaxSum": 78.57
+      },
+      {
+        "label": "第三段伤害",
+        "levels": 10,
+        "lvMaxExpr": "13.10%*7",
+        "lvMaxSum": 91.7
+      },
+      {
+        "label": "第四段伤害",
+        "levels": 10,
+        "lvMaxExpr": "78.57%",
+        "lvMaxSum": 78.57
+      }
+    ],
+    "skillish": [
+      {
+        "label": "技能伤害",
+        "levels": 10,
+        "lvMaxExpr": "15.94%",
+        "lvMaxSum": 15.94
+      }
+    ],
+    "heavyish": [
+      {
+        "label": "重击伤害",
+        "levels": 8,
+        "lvMaxExpr": "48.86%",
+        "lvMaxSum": 48.86
+      }
+    ],
+    "burstish": [],
+    "variationish": [],
+    "outroish": []
+  }
+}

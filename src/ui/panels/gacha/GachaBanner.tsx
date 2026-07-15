@@ -45,8 +45,8 @@ export function GachaBanner() {
   const pool = b.pool;
 
   const upText = (() => {
-    if (pool === 'collabChar' || pool === 'noviceChoice') return '100% 本期角色';
-    if (pool === 'eventChar') return '50% 本期角色';
+    if (pool === 'collabChar') return '100% 本期角色';
+    if (pool === 'eventChar' || pool === 'noviceChoice') return '50% 本期角色';
     if (pool === 'eventWeapon' || pool === 'collabWeapon') return '100% 本期武器';
     if (pool === 'noviceWeapon') return '100% 自选武器（新旅）';
     if (pool === 'standardWeapon') return '100% 自选武器';
@@ -62,7 +62,8 @@ export function GachaBanner() {
     }
     if (pool === 'noviceChoice' || pool === 'noviceWeapon') {
       const d = noviceRemainDays();
-      return <div class="pool-badge novice">新人限时 · 剩余 {d} 天 · 首五星 100% 命中</div>;
+      const rule = pool === 'noviceChoice' ? '50% 自选角色' : '100% 自选武器';
+      return <div class="pool-badge novice">新人限时 · 剩余 {d} 天 · {rule}</div>;
     }
     if (pool === 'standardChar') return <div class="pool-badge perm">永久常驻 · 5 选 1 等概率</div>;
     if (pool === 'standardWeapon') return <div class="pool-badge perm">永久常驻 · 100% 出自选武器</div>;

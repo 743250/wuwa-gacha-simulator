@@ -1,0 +1,28 @@
+{
+  "name": "仇远",
+  "source": "https://wiki.biligame.com/wutheringwaves/%E5%85%B1%E9%B8%A3%E8%80%85/%E4%BB%87%E8%BF%9C",
+  "fetchedAt": "2026-07-15",
+  "rows": [],
+  "inlineFixed": [
+    {
+      "context": "效果，消耗60点协奏能量并回复【挑灯问剑】400点，对目标造成仇远自身500%攻击的",
+      "pct": 500
+    },
+    {
+      "context": "，造成仇远自身500%攻击的",
+      "pct": 500
+    },
+    {
+      "context": "退出【淋漓醉墨】状态且为队伍中登场角色时，对范围内敌人造成自身600%攻击的",
+      "pct": 600
+    }
+  ],
+  "anchors": {
+    "normalish": [],
+    "skillish": [],
+    "heavyish": [],
+    "burstish": [],
+    "variationish": [],
+    "outroish": []
+  }
+}

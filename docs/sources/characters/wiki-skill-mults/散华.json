@@ -1,0 +1,139 @@
+{
+  "name": "散华",
+  "source": "https://wiki.biligame.com/wutheringwaves/%E5%85%B1%E9%B8%A3%E8%80%85/%E6%95%A3%E5%8D%8E",
+  "fetchedAt": "2026-07-15",
+  "rows": [
+    {
+      "label": "第一段伤害",
+      "levels": 10,
+      "lvMaxExpr": "48.71%",
+      "lvMaxSum": 48.71
+    },
+    {
+      "label": "第二段伤害",
+      "levels": 10,
+      "lvMaxExpr": "73.76%",
+      "lvMaxSum": 73.76
+    },
+    {
+      "label": "第三段伤害",
+      "levels": 10,
+      "lvMaxExpr": "21.58%*4",
+      "lvMaxSum": 86.32
+    },
+    {
+      "label": "第四段伤害",
+      "levels": 10,
+      "lvMaxExpr": "39.67%*2",
+      "lvMaxSum": 79.34
+    },
+    {
+      "label": "第五段伤害",
+      "levels": 10,
+      "lvMaxExpr": "233.81%",
+      "lvMaxSum": 233.81
+    },
+    {
+      "label": "重击伤害",
+      "levels": 10,
+      "lvMaxExpr": "22.27%*5",
+      "lvMaxSum": 111.35
+    },
+    {
+      "label": "空中攻击伤害",
+      "levels": 10,
+      "lvMaxExpr": "86.29%",
+      "lvMaxSum": 86.29
+    },
+    {
+      "label": "极限闪避反击伤害",
+      "levels": 10,
+      "lvMaxExpr": "167.01%",
+      "lvMaxSum": 167.01
+    },
+    {
+      "label": "技能伤害",
+      "levels": 10,
+      "lvMaxExpr": "359.85%",
+      "lvMaxSum": 359.85
+    },
+    {
+      "label": "爆裂伤害",
+      "levels": 10,
+      "lvMaxExpr": "186.29%*2",
+      "lvMaxSum": 372.58
+    },
+    {
+      "label": "冰川爆炸伤害",
+      "levels": 10,
+      "lvMaxExpr": "139.17%",
+      "lvMaxSum": 139.17
+    },
+    {
+      "label": "冰棱爆炸伤害",
+      "levels": 10,
+      "lvMaxExpr": "79.53%",
+      "lvMaxSum": 79.53
+    },
+    {
+      "label": "冰棘爆炸伤害",
+      "levels": 10,
+      "lvMaxExpr": "59.65%",
+      "lvMaxSum": 59.65
+    }
+  ],
+  "inlineFixed": [],
+  "anchors": {
+    "normalish": [
+      {
+        "label": "第一段伤害",
+        "levels": 10,
+        "lvMaxExpr": "48.71%",
+        "lvMaxSum": 48.71
+      },
+      {
+        "label": "第二段伤害",
+        "levels": 10,
+        "lvMaxExpr": "73.76%",
+        "lvMaxSum": 73.76
+      },
+      {
+        "label": "第三段伤害",
+        "levels": 10,
+        "lvMaxExpr": "21.58%*4",
+        "lvMaxSum": 86.32
+      },
+      {
+        "label": "第四段伤害",
+        "levels": 10,
+        "lvMaxExpr": "39.67%*2",
+        "lvMaxSum": 79.34
+      },
+      {
+        "label": "第五段伤害",
+        "levels": 10,
+        "lvMaxExpr": "233.81%",
+        "lvMaxSum": 233.81
+      }
+    ],
+    "skillish": [
+      {
+        "label": "技能伤害",
+        "levels": 10,
+        "lvMaxExpr": "359.85%",
+        "lvMaxSum": 359.85
+      }
+    ],
+    "heavyish": [
+      {
+        "label": "重击伤害",
+        "levels": 10,
+        "lvMaxExpr": "22.27%*5",
+        "lvMaxSum": 111.35
+      }
+    ],
+    "burstish": [],
+    "variationish": [],
+    "outroish": []
+  }
+}

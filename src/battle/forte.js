@@ -263,10 +263,10 @@ export const FORTE = {
   },
   '散华': {
     kind: 'gauge', resourceName: '冰棘', max: 100,
-    gainPerNormal: 10, gainPerSkill: 20, gainPerBurst: 30,
+    gainPerNormal: 10, gainPerSkill: 20, gainPerBurst: 30, gainPerHeavy: 0,
     effectType: 'enhancedHeavy',
-    effectMult: 1.8,
-    desc: '冰棘满时重击·爆裂伤害 ×1.8（引爆冰棱/冰川范围伤害）'
+    effectMult: 1,
+    desc: '冰棘上限 100。普攻 +10 / 技能 +20 / 解放 +30 / 变奏 +15。满值可施放重击·爆裂（atk×370%），爆裂后清空'
   },
   '秧秧': {
     kind: 'gauge', resourceName: '流息', max: 100,

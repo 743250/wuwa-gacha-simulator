@@ -487,6 +487,8 @@ export function doSwitch(battle, toIdx) {
 
   // 离场角色延奏 → 给入场角色一个"上场增益"
   if (prev && prev.alive) {
+    // 延奏类 endOnSwitch buff（如散华凛絜）随持有者离场清除
+    prev.buffs = (prev.buffs || []).filter(b => !b.endOnSwitch);
     onUnitSwitchOut(prev, battle);
     fireTrigger(prev, 'outro', { battle });
     // 掣傀之手等：后台 offstage 叠层

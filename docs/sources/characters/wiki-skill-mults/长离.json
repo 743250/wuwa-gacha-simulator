@@ -1,0 +1,150 @@
+{
+  "name": "长离",
+  "source": "https://wiki.biligame.com/wutheringwaves/%E5%85%B1%E9%B8%A3%E8%80%85/%E9%95%BF%E7%A6%BB",
+  "fetchedAt": "2026-07-15",
+  "rows": [
+    {
+      "label": "普攻第一段伤害",
+      "levels": 10,
+      "lvMaxExpr": "29.49%*2",
+      "lvMaxSum": 58.98
+    },
+    {
+      "label": "普攻第二段伤害",
+      "levels": 10,
+      "lvMaxExpr": "35.49%*2",
+      "lvMaxSum": 70.98
+    },
+    {
+      "label": "普攻第三段伤害",
+      "levels": 10,
+      "lvMaxExpr": "36.45%*3",
+      "lvMaxSum": 109.35
+    },
+    {
+      "label": "普攻第四段伤害",
+      "levels": 10,
+      "lvMaxExpr": "50.70%+29.58%*4",
+      "lvMaxSum": 169.02
+    },
+    {
+      "label": "空中攻击第一段伤害",
+      "levels": 10,
+      "lvMaxExpr": "61.35%",
+      "lvMaxSum": 61.35
+    },
+    {
+      "label": "空中攻击第二段伤害",
+      "levels": 10,
+      "lvMaxExpr": "50.87%*2",
+      "lvMaxSum": 101.74
+    },
+    {
+      "label": "空中攻击第三段伤害",
+      "levels": 10,
+      "lvMaxExpr": "44.00%*3",
+      "lvMaxSum": 132
+    },
+    {
+      "label": "空中攻击第四段伤害",
+      "levels": 10,
+      "lvMaxExpr": "38.03%+22.18%*4",
+      "lvMaxSum": 126.75
+    },
+    {
+      "label": "心眼·劫伤害",
+      "levels": 10,
+      "lvMaxExpr": "81.88%*3+163.76%",
+      "lvMaxSum": 409.4
+    },
+    {
+      "label": "心眼·征伤害",
+      "levels": 10,
+      "lvMaxExpr": "58.95%*2+82.52%+94.31%",
+      "lvMaxSum": 294.73
+    },
+    {
+      "label": "心眼·冲伤害",
+      "levels": 10,
+      "lvMaxExpr": "72.68%+109.02%",
+      "lvMaxSum": 181.7
+    },
+    {
+      "label": "焚身以火伤害",
+      "levels": 10,
+      "lvMaxExpr": "39.25%*5+457.85%",
+      "lvMaxSum": 654.1
+    },
+    {
+      "label": "技能伤害",
+      "levels": 10,
+      "lvMaxExpr": "1212.75%",
+      "lvMaxSum": 1212.75
+    }
+  ],
+  "inlineFixed": [],
+  "anchors": {
+    "normalish": [
+      {
+        "label": "普攻第一段伤害",
+        "levels": 10,
+        "lvMaxExpr": "29.49%*2",
+        "lvMaxSum": 58.98
+      },
+      {
+        "label": "普攻第二段伤害",
+        "levels": 10,
+        "lvMaxExpr": "35.49%*2",
+        "lvMaxSum": 70.98
+      },
+      {
+        "label": "普攻第三段伤害",
+        "levels": 10,
+        "lvMaxExpr": "36.45%*3",
+        "lvMaxSum": 109.35
+      },
+      {
+        "label": "普攻第四段伤害",
+        "levels": 10,
+        "lvMaxExpr": "50.70%+29.58%*4",
+        "lvMaxSum": 169.02
+      },
+      {
+        "label": "空中攻击第一段伤害",
+        "levels": 10,
+        "lvMaxExpr": "61.35%",
+        "lvMaxSum": 61.35
+      },
+      {
+        "label": "空中攻击第二段伤害",
+        "levels": 10,
+        "lvMaxExpr": "50.87%*2",
+        "lvMaxSum": 101.74
+      },
+      {
+        "label": "空中攻击第三段伤害",
+        "levels": 10,
+        "lvMaxExpr": "44.00%*3",
+        "lvMaxSum": 132
+      },
+      {
+        "label": "空中攻击第四段伤害",
+        "levels": 10,
+        "lvMaxExpr": "38.03%+22.18%*4",
+        "lvMaxSum": 126.75
+      }
+    ],
+    "skillish": [
+      {
+        "label": "技能伤害",
+        "levels": 10,
+        "lvMaxExpr": "1212.75%",
+        "lvMaxSum": 1212.75
+      }
+    ],
+    "heavyish": [],
+    "burstish": [],
+    "variationish": [],
+    "outroish": []
+  }
+}

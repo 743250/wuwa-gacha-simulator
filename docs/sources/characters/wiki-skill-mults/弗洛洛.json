@@ -1,0 +1,175 @@
+{
+  "name": "弗洛洛",
+  "source": "https://wiki.biligame.com/wutheringwaves/%E5%85%B1%E9%B8%A3%E8%80%85/%E5%BC%97%E6%B4%9B%E6%B4%9B",
+  "fetchedAt": "2026-07-15",
+  "rows": [
+    {
+      "label": "第一段伤害",
+      "levels": 10,
+      "lvMaxExpr": "53.45%*2",
+      "lvMaxSum": 106.9
+    },
+    {
+      "label": "第二段伤害",
+      "levels": 10,
+      "lvMaxExpr": "95.43%",
+      "lvMaxSum": 95.43
+    },
+    {
+      "label": "第三段伤害",
+      "levels": 10,
+      "lvMaxExpr": "32.69%*6",
+      "lvMaxSum": 196.14
+    },
+    {
+      "label": "重击伤害",
+      "levels": 10,
+      "lvMaxExpr": "79.85%*2",
+      "lvMaxSum": 159.7
+    },
+    {
+      "label": "谱曲终末伤害",
+      "levels": 10,
+      "lvMaxExpr": "33.01%*2+12.38%*8+495.10%",
+      "lvMaxSum": 660.16
+    },
+    {
+      "label": "每层余响增加倍率",
+      "levels": 10,
+      "lvMaxExpr": "82.55%",
+      "lvMaxSum": 82.55
+    },
+    {
+      "label": "空中攻击伤害",
+      "levels": 10,
+      "lvMaxExpr": "127.24%",
+      "lvMaxSum": 127.24
+    },
+    {
+      "label": "闪避反击伤害",
+      "levels": 10,
+      "lvMaxExpr": "121.99%",
+      "lvMaxSum": 121.99
+    },
+    {
+      "label": "技能伤害",
+      "levels": 10,
+      "lvMaxExpr": "105.97%*2",
+      "lvMaxSum": 211.94
+    },
+    {
+      "label": "亡与死的乐章伤害",
+      "levels": 10,
+      "lvMaxExpr": "37.88%*4+117.83%*3",
+      "lvMaxSum": 505.01
+    },
+    {
+      "label": "永不消逝的梦呓伤害",
+      "levels": 10,
+      "lvMaxExpr": "23.21%*4+46.41%+324.82%",
+      "lvMaxSum": 464.07
+    },
+    {
+      "label": "普攻·赫卡忒第一段伤害",
+      "levels": 10,
+      "lvMaxExpr": "27.84%",
+      "lvMaxSum": 27.84
+    },
+    {
+      "label": "普攻·赫卡忒第二段伤害",
+      "levels": 10,
+      "lvMaxExpr": "13.92%*2",
+      "lvMaxSum": 27.84
+    },
+    {
+      "label": "强化攻击·弦乐·赫卡忒伤害",
+      "levels": 10,
+      "lvMaxExpr": "104.38%+243.55%",
+      "lvMaxSum": 347.93
+    },
+    {
+      "label": "强化攻击·管乐·赫卡忒伤害",
+      "levels": 10,
+      "lvMaxExpr": "99.16%+231.37%",
+      "lvMaxSum": 330.53
+    },
+    {
+      "label": "强化攻击·彩乐·赫卡忒伤害",
+      "levels": 10,
+      "lvMaxExpr": "104.38%+243.55%",
+      "lvMaxSum": 347.93
+    },
+    {
+      "label": "谢幕伤害",
+      "levels": 10,
+      "lvMaxExpr": "465.22%",
+      "lvMaxSum": 465.22
+    },
+    {
+      "label": "致命组歌伤害",
+      "levels": 10,
+      "lvMaxExpr": "80.61%+120.91%",
+      "lvMaxSum": 201.52
+    },
+    {
+      "label": "永生组歌伤害",
+      "levels": 10,
+      "lvMaxExpr": "596.43%",
+      "lvMaxSum": 596.43
+    }
+  ],
+  "inlineFixed": [],
+  "anchors": {
+    "normalish": [
+      {
+        "label": "第一段伤害",
+        "levels": 10,
+        "lvMaxExpr": "53.45%*2",
+        "lvMaxSum": 106.9
+      },
+      {
+        "label": "第二段伤害",
+        "levels": 10,
+        "lvMaxExpr": "95.43%",
+        "lvMaxSum": 95.43
+      },
+      {
+        "label": "第三段伤害",
+        "levels": 10,
+        "lvMaxExpr": "32.69%*6",
+        "lvMaxSum": 196.14
+      },
+      {
+        "label": "普攻·赫卡忒第一段伤害",
+        "levels": 10,
+        "lvMaxExpr": "27.84%",
+        "lvMaxSum": 27.84
+      },
+      {
+        "label": "普攻·赫卡忒第二段伤害",
+        "levels": 10,
+        "lvMaxExpr": "13.92%*2",
+        "lvMaxSum": 27.84
+      }
+    ],
+    "skillish": [
+      {
+        "label": "技能伤害",
+        "levels": 10,
+        "lvMaxExpr": "105.97%*2",
+        "lvMaxSum": 211.94
+      }
+    ],
+    "heavyish": [
+      {
+        "label": "重击伤害",
+        "levels": 10,
+        "lvMaxExpr": "79.85%*2",
+        "lvMaxSum": 159.7
+      }
+    ],
+    "burstish": [],
+    "variationish": [],
+    "outroish": []
+  }
+}

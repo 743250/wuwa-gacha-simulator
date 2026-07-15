@@ -49,7 +49,9 @@ const CHAIN_TERM_PATTERNS = [
   // 露帕（2.4）专属术语
   { re: /(狼舞[··]决意[··]极|狼焰|追猎|荣光|赛点沸腾)/g, cls: 'term-resource' },
   // 夏空（2.3）专属术语
-  { re: /(四拍重奏|音律独奏|演绎状态|合奏音影|音律)/g, cls: 'term-resource' }
+  { re: /(四拍重奏|音律独奏|演绎状态|合奏音影|音律)/g, cls: 'term-resource' },
+  // 漂泊者专属术语
+  { re: /(浮声千斩|回响奏鸣|临渊死寂|缥缈无相|万象归墟|重击[··]灭音|灭音|暗涌)/g, cls: 'term-resource' }
 ];
 
 function dynamicTermCls(t) {

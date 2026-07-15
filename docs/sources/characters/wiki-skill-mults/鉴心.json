@@ -1,0 +1,181 @@
+{
+  "name": "鉴心",
+  "source": "https://wiki.biligame.com/wutheringwaves/%E5%85%B1%E9%B8%A3%E8%80%85/%E9%89%B4%E5%BF%83",
+  "fetchedAt": "2026-07-15",
+  "rows": [
+    {
+      "label": "第一段伤害",
+      "levels": 10,
+      "lvMaxExpr": "69.46%",
+      "lvMaxSum": 69.46
+    },
+    {
+      "label": "第二段伤害",
+      "levels": 10,
+      "lvMaxExpr": "26.64%*2+79.90%",
+      "lvMaxSum": 133.18
+    },
+    {
+      "label": "第三段伤害",
+      "levels": 10,
+      "lvMaxExpr": "41.75%*4",
+      "lvMaxSum": 167
+    },
+    {
+      "label": "第四段伤害",
+      "levels": 10,
+      "lvMaxExpr": "113.40%",
+      "lvMaxSum": 113.4
+    },
+    {
+      "label": "重击伤害",
+      "levels": 10,
+      "lvMaxExpr": "126.07%",
+      "lvMaxSum": 126.07
+    },
+    {
+      "label": "空中攻击伤害",
+      "levels": 10,
+      "lvMaxExpr": "123.27%",
+      "lvMaxSum": 123.27
+    },
+    {
+      "label": "极限闪避反击伤害",
+      "levels": 10,
+      "lvMaxExpr": "40.83%*2+163.29%",
+      "lvMaxSum": 244.95
+    },
+    {
+      "label": "行气反击伤害",
+      "levels": 10,
+      "lvMaxExpr": "334.60%",
+      "lvMaxSum": 334.6
+    },
+    {
+      "label": "降气反击伤害",
+      "levels": 10,
+      "lvMaxExpr": "258.73%",
+      "lvMaxSum": 258.73
+    },
+    {
+      "label": "冲拳伤害",
+      "levels": 10,
+      "lvMaxExpr": "248.52%",
+      "lvMaxSum": 248.52
+    },
+    {
+      "label": "运气持续伤害",
+      "levels": 10,
+      "lvMaxExpr": "24.86%",
+      "lvMaxSum": 24.86
+    },
+    {
+      "label": "小周天震气伤害",
+      "levels": 10,
+      "lvMaxExpr": "139.17%",
+      "lvMaxSum": 139.17
+    },
+    {
+      "label": "大周天·内震气伤害",
+      "levels": 10,
+      "lvMaxExpr": "377.74%",
+      "lvMaxSum": 377.74
+    },
+    {
+      "label": "大周天·外震气伤害",
+      "levels": 10,
+      "lvMaxExpr": "516.91%",
+      "lvMaxSum": 516.91
+    },
+    {
+      "label": "推手伤害",
+      "levels": 10,
+      "lvMaxExpr": "218.70%",
+      "lvMaxSum": 218.7
+    },
+    {
+      "label": "共鸣解放持续伤害",
+      "levels": 10,
+      "lvMaxExpr": "29.83%",
+      "lvMaxSum": 29.83
+    },
+    {
+      "label": "共鸣解放炸裂伤害",
+      "levels": 10,
+      "lvMaxExpr": "636.20%",
+      "lvMaxSum": 636.2
+    },
+    {
+      "label": "技能伤害",
+      "levels": 10,
+      "lvMaxExpr": "33.80%*3+67.60%",
+      "lvMaxSum": 169
+    }
+  ],
+  "inlineFixed": [
+    {
+      "context": "：造成鉴心556.67%攻击的",
+      "pct": 556.67
+    }
+  ],
+  "anchors": {
+    "normalish": [
+      {
+        "label": "第一段伤害",
+        "levels": 10,
+        "lvMaxExpr": "69.46%",
+        "lvMaxSum": 69.46
+      },
+      {
+        "label": "第二段伤害",
+        "levels": 10,
+        "lvMaxExpr": "26.64%*2+79.90%",
+        "lvMaxSum": 133.18
+      },
+      {
+        "label": "第三段伤害",
+        "levels": 10,
+        "lvMaxExpr": "41.75%*4",
+        "lvMaxSum": 167
+      },
+      {
+        "label": "第四段伤害",
+        "levels": 10,
+        "lvMaxExpr": "113.40%",
+        "lvMaxSum": 113.4
+      }
+    ],
+    "skillish": [
+      {
+        "label": "技能伤害",
+        "levels": 10,
+        "lvMaxExpr": "33.80%*3+67.60%",
+        "lvMaxSum": 169
+      }
+    ],
+    "heavyish": [
+      {
+        "label": "重击伤害",
+        "levels": 10,
+        "lvMaxExpr": "126.07%",
+        "lvMaxSum": 126.07
+      }
+    ],
+    "burstish": [
+      {
+        "label": "共鸣解放持续伤害",
+        "levels": 10,
+        "lvMaxExpr": "29.83%",
+        "lvMaxSum": 29.83
+      },
+      {
+        "label": "共鸣解放炸裂伤害",
+        "levels": 10,
+        "lvMaxExpr": "636.20%",
+        "lvMaxSum": 636.2
+      }
+    ],
+    "variationish": [],
+    "outroish": []
+  }
+}

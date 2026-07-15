@@ -80,13 +80,15 @@ describe('time/timeline', () => {
       expect(S.dailyCommissions.length).toBe(5);
     });
 
-    it('settles monthly card for skipped days', () => {
+    it('burns monthly days on skip without auto-granting astrite', () => {
       S.days = 30;
       S.astrite = 0;
+      S.lastMonthlyClaim = '';
       const target = S.today + DAY * 5;
       time.advanceTo(target);
-      // 5 days × 90 = 450 (including today if not yet claimed)
-      expect(S.astrite).toBeGreaterThanOrEqual(450);
+      // 漏登不补：只扣剩余天数，星声留给上线补给弹窗
+      expect(S.astrite).toBe(0);
+      expect(S.days).toBe(25);
     });
   });
 

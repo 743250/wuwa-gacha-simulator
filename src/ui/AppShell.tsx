@@ -232,44 +232,98 @@ function bindModalOutsideClick() {
 
 let __tipEl: HTMLElement | null = null;
 let __tipSrc: HTMLElement | null = null;
+function placeTipPop(src: HTMLElement) {
+  if (!__tipEl) return;
+  const r = src.getBoundingClientRect();
+  const margin = 8;
+  const gap = 6;
+  // 先放到视口内可测尺寸，再按可用空间决定上下
+  __tipEl.style.display = 'block';
+  __tipEl.style.visibility = 'hidden';
+  __tipEl.style.top = '0px';
+  __tipEl.style.left = '0px';
+  const popH = __tipEl.offsetHeight || 0;
+  const popW = __tipEl.offsetWidth || 0;
+  const spaceBelow = window.innerHeight - r.bottom - margin;
+  const spaceAbove = r.top - margin;
+  let top: number;
+  if (spaceBelow >= popH + gap || spaceBelow >= spaceAbove) {
+    top = r.bottom + gap;
+  } else {
+    top = r.top - popH - gap;
+  }
+  // 列表最后一项翻到上方时，旧逻辑可能 top < 0，看起来像「点不出」
+  top = Math.max(margin, Math.min(top, window.innerHeight - popH - margin));
+  let left = r.left;
+  left = Math.max(margin, Math.min(left, window.innerWidth - popW - margin));
+  __tipEl.style.top = top + 'px';
+  __tipEl.style.left = left + 'px';
+  __tipEl.style.visibility = 'visible';
+}
+
+function ensureTipEl() {
+  if (!__tipEl) {
+    __tipEl = document.createElement('div');
+    __tipEl.className = 'tip-pop';
+    document.body.appendChild(__tipEl);
+  }
+  return __tipEl;
+}
+
+function showTipFrom(src: HTMLElement) {
+  ensureTipEl();
+  __tipSrc = src;
+  __tipEl!.innerHTML = src.dataset.tip || '';
+  placeTipPop(src);
+}
+
+function hideTip() {
+  if (__tipEl) __tipEl.style.display = 'none';
+  __tipSrc = null;
+}
+
 function bindTooltip() {
   document.body.addEventListener('mouseover', (e: Event) => {
     const me = e.target as HTMLElement;
     const t = me.closest && me.closest('.tip[data-tip], .tip-term[data-tip]');
     if (!t) return;
-    if (!__tipEl) {
-      __tipEl = document.createElement('div');
-      __tipEl.className = 'tip-pop';
-      document.body.appendChild(__tipEl);
-    }
-    __tipSrc = t as HTMLElement;
-    __tipEl.innerHTML = __tipSrc.dataset.tip || '';
-    __tipEl.style.display = 'block';
-    const r = __tipSrc.getBoundingClientRect();
-    let top = r.bottom + 6;
-    let left = r.left;
-    const popH = __tipEl.offsetHeight;
-    const popW = __tipEl.offsetWidth;
-    if (top + popH > window.innerHeight - 8) top = r.top - popH - 6;
-    if (left + popW > window.innerWidth - 8) left = window.innerWidth - popW - 8;
-    if (left < 8) left = 8;
-    __tipEl.style.top = top + 'px';
-    __tipEl.style.left = left + 'px';
+    showTipFrom(t as HTMLElement);
   });
+  // 手机/触摸：无稳定 hover，点一次打开、再点同节点或空白关闭
+  document.body.addEventListener('click', (e: Event) => {
+    const me = e.target as HTMLElement;
+    const t = me.closest && me.closest('.tip[data-tip], .tip-term[data-tip]');
+    if (t) {
+      if (__tipSrc === t && __tipEl && __tipEl.style.display !== 'none') {
+        hideTip();
+      } else {
+        showTipFrom(t as HTMLElement);
+      }
+      return;
+    }
+    if (__tipSrc) hideTip();
+  }, true);
+  // 滚动时列表底部节点位移，同步重定位，避免气泡留在旧坐标/跑出视口
+  document.addEventListener('scroll', () => {
+    if (__tipSrc && __tipEl && __tipSrc.isConnected) placeTipPop(__tipSrc);
+    else if (__tipEl) hideTip();
+  }, true);
   document.body.addEventListener('mouseout', (e: Event) => {
     const me = e.target as HTMLElement;
     if (!me.closest) return;
     const t = me.closest('.tip[data-tip], .tip-term[data-tip]');
     if (!t) return;
-    if (__tipEl) __tipEl.style.display = 'none';
-    __tipSrc = null;
+    // 移入子节点不算离开
+    const rel = (e as MouseEvent).relatedTarget as Node | null;
+    if (rel && t.contains(rel)) return;
+    // 触摸设备上 mouseout 会立刻清掉 click 打开的 tip，只在指针设备上跟随离开关闭
+    if (window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+      hideTip();
+    }
   });
   // 源节点被卸载(buff 消失/战斗结束/Preact 重渲染)时 mouseout 不触发,用 MutationObserver 兜底
   const obs = new MutationObserver(() => {
-    if (__tipSrc && !__tipSrc.isConnected) {
-      if (__tipEl) __tipEl.style.display = 'none';
-      __tipSrc = null;
-    }
+    if (__tipSrc && !__tipSrc.isConnected) hideTip();
   });
   obs.observe(document.body, { childList: true, subtree: true });
 }

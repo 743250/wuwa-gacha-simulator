@@ -214,10 +214,14 @@ function five(state, pool, b, rng) {
     addWeaponFor(state, name, 5);
     coral = 15;
   } else if (pool === 'noviceChoice') {
-    up = true; name = b.char; type = '新旅目标五星角色';
+    // 新旅角色池：与活动角色池同款 50/50 + 大保底（state.g.noviceChoice）
+    up = state.g[pool] || rng() < .5;
+    name = up ? (b.char || state.noviceTarget) : pickRng(standard5, rng);
+    type = up ? '新旅目标五星角色' : '常驻五星角色';
+    state.g[pool] = !up;
     const r = addRoleFor(state, name, 5);
     coral = charCoral(5, r.pulled);
-    // ★ 拆分后不再附送武器
+    if (!up) coral += 30;
   } else if (pool === 'beginner') {
     name = pickRng(standard5, rng); type = '新手五星角色'; up = false;
     // 50 抽用完才永久关闭（不再因首五星就关池）

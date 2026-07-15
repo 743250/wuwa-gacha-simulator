@@ -1,0 +1,103 @@
+{
+  "name": "洛可可",
+  "source": "https://wiki.biligame.com/wutheringwaves/%E5%85%B1%E9%B8%A3%E8%80%85/%E6%B4%9B%E5%8F%AF%E5%8F%AF",
+  "fetchedAt": "2026-07-15",
+  "rows": [
+    {
+      "label": "第一段伤害",
+      "levels": 10,
+      "lvMaxExpr": "73.18%",
+      "lvMaxSum": 73.18
+    },
+    {
+      "label": "第二段伤害",
+      "levels": 10,
+      "lvMaxExpr": "38.14%*3",
+      "lvMaxSum": 114.42
+    },
+    {
+      "label": "第三段伤害",
+      "levels": 10,
+      "lvMaxExpr": "33.80%*2+101.40%",
+      "lvMaxSum": 169
+    },
+    {
+      "label": "第四段伤害",
+      "levels": 10,
+      "lvMaxExpr": "104.19%*2",
+      "lvMaxSum": 208.38
+    },
+    {
+      "label": "重击伤害",
+      "levels": 10,
+      "lvMaxExpr": "168.99%",
+      "lvMaxSum": 168.99
+    },
+    {
+      "label": "空中攻击伤害",
+      "levels": 10,
+      "lvMaxExpr": "104.78%",
+      "lvMaxSum": 104.78
+    },
+    {
+      "label": "闪避反击伤害",
+      "levels": 10,
+      "lvMaxExpr": "68.90%*3",
+      "lvMaxSum": 206.7
+    },
+    {
+      "label": "技能伤害",
+      "levels": 10,
+      "lvMaxExpr": "61.47%*8",
+      "lvMaxSum": 491.76
+    }
+  ],
+  "inlineFixed": [],
+  "anchors": {
+    "normalish": [
+      {
+        "label": "第一段伤害",
+        "levels": 10,
+        "lvMaxExpr": "73.18%",
+        "lvMaxSum": 73.18
+      },
+      {
+        "label": "第二段伤害",
+        "levels": 10,
+        "lvMaxExpr": "38.14%*3",
+        "lvMaxSum": 114.42
+      },
+      {
+        "label": "第三段伤害",
+        "levels": 10,
+        "lvMaxExpr": "33.80%*2+101.40%",
+        "lvMaxSum": 169
+      },
+      {
+        "label": "第四段伤害",
+        "levels": 10,
+        "lvMaxExpr": "104.19%*2",
+        "lvMaxSum": 208.38
+      }
+    ],
+    "skillish": [
+      {
+        "label": "技能伤害",
+        "levels": 10,
+        "lvMaxExpr": "61.47%*8",
+        "lvMaxSum": 491.76
+      }
+    ],
+    "heavyish": [
+      {
+        "label": "重击伤害",
+        "levels": 10,
+        "lvMaxExpr": "168.99%",
+        "lvMaxSum": 168.99
+      }
+    ],
+    "burstish": [],
+    "variationish": [],
+    "outroish": []
+  }
+}

@@ -1,0 +1,151 @@
+{
+  "name": "折枝",
+  "source": "https://wiki.biligame.com/wutheringwaves/%E5%85%B1%E9%B8%A3%E8%80%85/%E6%8A%98%E6%9E%9D",
+  "fetchedAt": "2026-07-15",
+  "rows": [
+    {
+      "label": "第一段伤害",
+      "levels": 10,
+      "lvMaxExpr": "41.76%*2",
+      "lvMaxSum": 83.52
+    },
+    {
+      "label": "第二段伤害",
+      "levels": 10,
+      "lvMaxExpr": "20.55%*5",
+      "lvMaxSum": 102.75
+    },
+    {
+      "label": "第三段伤害",
+      "levels": 10,
+      "lvMaxExpr": "133.61%",
+      "lvMaxSum": 133.61
+    },
+    {
+      "label": "重击伤害",
+      "levels": 10,
+      "lvMaxExpr": "112.72%",
+      "lvMaxSum": 112.72
+    },
+    {
+      "label": "空中攻击伤害",
+      "levels": 10,
+      "lvMaxExpr": "24.95%*5+104.78%",
+      "lvMaxSum": 229.53
+    },
+    {
+      "label": "闪避反击伤害",
+      "levels": 10,
+      "lvMaxExpr": "29.07%*5",
+      "lvMaxSum": 145.35
+    },
+    {
+      "label": "短按技能伤害",
+      "levels": 10,
+      "lvMaxExpr": "98.42%*3",
+      "lvMaxSum": 295.26
+    },
+    {
+      "label": "长按技能伤害",
+      "levels": 10,
+      "lvMaxExpr": "98.42%*3",
+      "lvMaxSum": 295.26
+    },
+    {
+      "label": "空中短按伤害",
+      "levels": 10,
+      "lvMaxExpr": "98.42%*3",
+      "lvMaxSum": 295.26
+    },
+    {
+      "label": "重击·构形伤害",
+      "levels": 10,
+      "lvMaxExpr": "83.01%*3",
+      "lvMaxSum": 249.03
+    },
+    {
+      "label": "神来之笔伤害",
+      "levels": 10,
+      "lvMaxExpr": "298.22%",
+      "lvMaxSum": 298.22
+    },
+    {
+      "label": "极意·神来之笔伤害",
+      "levels": 10,
+      "lvMaxExpr": "119.29%*3",
+      "lvMaxSum": 357.87
+    },
+    {
+      "label": "墨鹤伤害",
+      "levels": 10,
+      "lvMaxExpr": "65.21%",
+      "lvMaxSum": 65.21
+    },
+    {
+      "label": "技能伤害",
+      "levels": 10,
+      "lvMaxExpr": "86.16%*3",
+      "lvMaxSum": 258.48
+    }
+  ],
+  "inlineFixed": [],
+  "anchors": {
+    "normalish": [
+      {
+        "label": "第一段伤害",
+        "levels": 10,
+        "lvMaxExpr": "41.76%*2",
+        "lvMaxSum": 83.52
+      },
+      {
+        "label": "第二段伤害",
+        "levels": 10,
+        "lvMaxExpr": "20.55%*5",
+        "lvMaxSum": 102.75
+      },
+      {
+        "label": "第三段伤害",
+        "levels": 10,
+        "lvMaxExpr": "133.61%",
+        "lvMaxSum": 133.61
+      }
+    ],
+    "skillish": [
+      {
+        "label": "短按技能伤害",
+        "levels": 10,
+        "lvMaxExpr": "98.42%*3",
+        "lvMaxSum": 295.26
+      },
+      {
+        "label": "长按技能伤害",
+        "levels": 10,
+        "lvMaxExpr": "98.42%*3",
+        "lvMaxSum": 295.26
+      },
+      {
+        "label": "技能伤害",
+        "levels": 10,
+        "lvMaxExpr": "86.16%*3",
+        "lvMaxSum": 258.48
+      }
+    ],
+    "heavyish": [
+      {
+        "label": "重击伤害",
+        "levels": 10,
+        "lvMaxExpr": "112.72%",
+        "lvMaxSum": 112.72
+      },
+      {
+        "label": "重击·构形伤害",
+        "levels": 10,
+        "lvMaxExpr": "83.01%*3",
+        "lvMaxSum": 249.03
+      }
+    ],
+    "burstish": [],
+    "variationish": [],
+    "outroish": []
+  }
+}

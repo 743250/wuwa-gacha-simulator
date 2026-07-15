@@ -29,11 +29,13 @@ export const state0 = () => ({
   noviceStarted: 0,
   standardWeaponTarget: '千古洑流',
   astrite: 16000, lunite: 0, radiant: 0, forging: 0, lustrous: 0, dream: 0, mirage: 0,
+  shellCredit: 0, // 贝币
   afterglow: 0, oscillated: 0, spent: 0, days: 0,
   oscBuy: { radiant: 0, forging: 0, lustrous: 0 }, waveBuy: {},
   shopFirstTime: { t60: true, t300: true, t980: true, t1980: true, t3280: true, t6480: true },
   shopBuyCount: {},               // 商店礼包购买次数 {id: count}
   lastMonthlyClaim: '',           // 月卡上次领取日期（防止同一天重复领）
+  gratitudeClaimed: {},         // 特别感恩回馈等限时签到已领阶段 { radiant: true, ... }
   roles: {}, weapons: {}, log: [],
   // ===== 声骸系统 =====
   echos: [],                 // [{ id, name, cost, set, element, level, mainStat:{key,label,value}, subStats:[{key,label,value}], lock, equippedBy, equipSlot }]
@@ -81,7 +83,13 @@ export const state0 = () => ({
     tasks: { daily: {}, weekly: {}, period: {} },
     lastDailyReset: '',
     lastWeeklyReset: ''
-  }
+  },
+
+  // ===== 运营邮箱（按日历投递 · 一次性领取）=====
+  mailbox: {
+    delivered: {},   // { [mailId]: { at, deliveredOn, read } }
+    claimed: {},     // { [mailId]: true }
+  },
 });
 
 export let S = state0();

@@ -1,0 +1,126 @@
+{
+  "name": "守岸人",
+  "source": "https://wiki.biligame.com/wutheringwaves/%E5%85%B1%E9%B8%A3%E8%80%85/%E5%AE%88%E5%B2%B8%E4%BA%BA",
+  "fetchedAt": "2026-07-15",
+  "rows": [
+    {
+      "label": "普攻第一段伤害",
+      "levels": 10,
+      "lvMaxExpr": "31.78%",
+      "lvMaxSum": 31.78
+    },
+    {
+      "label": "普攻第二段伤害",
+      "levels": 10,
+      "lvMaxExpr": "23.86%*2",
+      "lvMaxSum": 47.72
+    },
+    {
+      "label": "普攻第三段伤害",
+      "levels": 10,
+      "lvMaxExpr": "23.32%*3",
+      "lvMaxSum": 69.96
+    },
+    {
+      "label": "普攻第四段伤害",
+      "levels": 10,
+      "lvMaxExpr": "72.72%",
+      "lvMaxSum": 72.72
+    },
+    {
+      "label": "重击伤害",
+      "levels": 10,
+      "lvMaxExpr": "45.81%",
+      "lvMaxSum": 45.81
+    },
+    {
+      "label": "下落攻击伤害",
+      "levels": 10,
+      "lvMaxExpr": "73.96%",
+      "lvMaxSum": 73.96
+    },
+    {
+      "label": "闪避反击伤害",
+      "levels": 10,
+      "lvMaxExpr": "87.48%*2",
+      "lvMaxSum": 174.96
+    },
+    {
+      "label": "黯星·蝶伤害",
+      "levels": 10,
+      "lvMaxExpr": "31.31%",
+      "lvMaxSum": 31.31
+    },
+    {
+      "label": "耀星·蝶伤害",
+      "levels": 10,
+      "lvMaxExpr": "37.29%",
+      "lvMaxSum": 37.29
+    },
+    {
+      "label": "演绎伤害",
+      "levels": 10,
+      "lvMaxExpr": "18.97%*5",
+      "lvMaxSum": 94.85
+    },
+    {
+      "label": "衍变伤害",
+      "levels": 10,
+      "lvMaxExpr": "73.96%",
+      "lvMaxSum": 73.96
+    },
+    {
+      "label": "启迪伤害",
+      "levels": 10,
+      "lvMaxExpr": "45.30%*5",
+      "lvMaxSum": 226.5
+    },
+    {
+      "label": "洞悉伤害",
+      "levels": 10,
+      "lvMaxExpr": "19.64%*3",
+      "lvMaxSum": 58.92
+    }
+  ],
+  "inlineFixed": [],
+  "anchors": {
+    "normalish": [
+      {
+        "label": "普攻第一段伤害",
+        "levels": 10,
+        "lvMaxExpr": "31.78%",
+        "lvMaxSum": 31.78
+      },
+      {
+        "label": "普攻第二段伤害",
+        "levels": 10,
+        "lvMaxExpr": "23.86%*2",
+        "lvMaxSum": 47.72
+      },
+      {
+        "label": "普攻第三段伤害",
+        "levels": 10,
+        "lvMaxExpr": "23.32%*3",
+        "lvMaxSum": 69.96
+      },
+      {
+        "label": "普攻第四段伤害",
+        "levels": 10,
+        "lvMaxExpr": "72.72%",
+        "lvMaxSum": 72.72
+      }
+    ],
+    "skillish": [],
+    "heavyish": [
+      {
+        "label": "重击伤害",
+        "levels": 10,
+        "lvMaxExpr": "45.81%",
+        "lvMaxSum": 45.81
+      }
+    ],
+    "burstish": [],
+    "variationish": [],
+    "outroish": []
+  }
+}

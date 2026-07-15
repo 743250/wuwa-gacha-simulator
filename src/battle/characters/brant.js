@@ -45,7 +45,7 @@ export function brantOnBurst(self, ctx) {
   brantFlameDirge(self, ctx.battle);
 }
 
-// Phase 3 · 起锚 320 / 重击 400 / 未满解放 400·200；满航路火焰归亡曲 1650·825 / 变奏 250
+// Phase 3 · 起锚 320 / 重击 400 / 未满解放 680·340；满航路火焰归亡曲 1889·944 / 变奏 250（WIKI 2026-07-15）
 export function brantNormalMult(self) {
   return self.name === '布兰特' ? 1.0 : null;
 }
@@ -60,8 +60,8 @@ export function brantVariationMult(self) {
 }
 export function brantResolveBurstMult(self) {
   if (self.name !== '布兰特') return null;
-  if (self.forte?.ready) return { baseMain: 16.5, baseSide: 8.25 };
-  return { baseMain: 4.0, baseSide: 2.0 };
+  if (self.forte?.ready) return { baseMain: 18.89, baseSide: 9.44 };
+  return { baseMain: 6.80, baseSide: 3.40 };
 }
 
 export default {

@@ -248,44 +248,44 @@ export const ECHO_SETS = [
 
   { id: 'fire',     name: '熔山裂谷', element: '热熔',
     bonus2: { type: 'elem_dmg', value: 0.10, elem: '热熔' },
-    bonus5: { type: 'elem_dmg_cond', value: 0.30, elem: '热熔', cond: '技能命中后,持续15秒' } },
+    bonus5: { type: 'elem_dmg_cond', value: 0.30, elem: '热熔', cond: '技能命中后,持续3回合' } },
 
   { id: 'thunder',  name: '彻空冥雷', element: '导电',
     bonus2: { type: 'elem_dmg', value: 0.10, elem: '导电' },
-    bonus5: { type: 'elem_dmg_cond', value: 0.15, elem: '导电', cond: '重击/技能命中,可叠2层,各持续15秒' } },
+    bonus5: { type: 'elem_dmg_cond', value: 0.15, elem: '导电', cond: '重击/技能命中,可叠2层,各持续3回合' } },
 
   { id: 'wind',     name: '啸谷长风', element: '气动',
     bonus2: { type: 'elem_dmg', value: 0.10, elem: '气动' },
-    bonus5: { type: 'elem_dmg_cond', value: 0.30, elem: '气动', cond: '变奏入场后,持续15秒' } },
+    bonus5: { type: 'elem_dmg_cond', value: 0.30, elem: '气动', cond: '变奏入场后,持续3回合' } },
 
   { id: 'spectro',  name: '浮星祛暗', element: '衍射',
     bonus2: { type: 'elem_dmg', value: 0.10, elem: '衍射' },
-    bonus5: { type: 'elem_dmg_cond', value: 0.30, elem: '衍射', cond: '变奏入场后,持续15秒' } },
+    bonus5: { type: 'elem_dmg_cond', value: 0.30, elem: '衍射', cond: '变奏入场后,持续3回合' } },
 
   { id: 'havoc',    name: '沉日劫明', element: '湮灭',
     bonus2: { type: 'elem_dmg', value: 0.10, elem: '湮灭' },
-    bonus5: { type: 'elem_dmg_cond', value: 0.075, elem: '湮灭', cond: '普攻或重击命中,可叠4层,持续15秒' } },
+    bonus5: { type: 'elem_dmg_cond', value: 0.075, elem: '湮灭', cond: '普攻或重击命中,可叠4层,持续3回合' } },
 
   { id: 'heal',     name: '隐世回光', element: null,
     bonus2: { type: 'heal_bonus', value: 0.10 },
-    bonus5: { type: 'atk_team_flat', value: 0.15, cond: '为队友治疗后,全队攻击+15%,持续30秒' } },
+    bonus5: { type: 'atk_team_flat', value: 0.15, cond: '为队友治疗后,全队攻击+15%,持续4回合' } },
 
   { id: 'energy',   name: '轻云出月', element: null,
     bonus2: { type: 'resonance_efficiency', value: 0.10 },
-    bonus5: { type: 'atk_next_flat', value: 0.225, cond: '延奏后下一登场角色攻击+22.5%,持续15秒' } },
+    bonus5: { type: 'atk_next_flat', value: 0.225, cond: '延奏后下一登场角色攻击+22.5%,持续3回合' } },
 
   { id: 'atk',      name: '不绝余音', element: null,
     bonus2: { type: 'atk_pct', value: 0.10 },
-    bonus5: { type: 'atk_pct_stack', value: 0.05, cond: '在场时每1.5秒+5%,可叠4层' } },
+    bonus5: { type: 'atk_pct_stack', value: 0.05, cond: '在场时每回合+5%,可叠4层' } },
 
   // ======== 2.0 套装 ========
   { id: 'havoc_new', name: '幽夜隐匿之帷', element: '湮灭',
     bonus2: { type: 'elem_dmg', value: 0.10, elem: '湮灭' },
-    bonus5: { type: 'havoc_veil_cond', value: 4.80, valueAlt: 0.15, elem: '湮灭', cond: '延奏离场时额外480%湮灭伤害(延奏技能伤害),下一位登场角色湮灭+15%,持续15秒' } },
+    bonus5: { type: 'havoc_veil_cond', value: 4.80, valueAlt: 0.15, elem: '湮灭', cond: '延奏离场时额外480%湮灭伤害(延奏技能伤害),下一位登场角色湮灭+15%,持续3回合' } },
 
   { id: 'coord', name: '高天共奏之曲', element: null,
     bonus2: { type: 'resonance_efficiency', value: 0.10 },
-    bonus5: { type: 'coord_dmg', value: 0.80, cond: '协同攻击伤害+80%;协同攻击命中暴击时,登场角色攻击+20%,持续4秒' } },
+    bonus5: { type: 'coord_dmg', value: 0.80, cond: '协同攻击伤害+80%;协同攻击命中暴击时,登场角色攻击+20%,持续1回合' } },
 
   { id: 'energy_new', name: '无惧浪涛之勇', element: null,
     bonus2: { type: 'resonance_efficiency', value: 0.10 },
@@ -295,53 +295,53 @@ export const ECHO_SETS = [
   // ID 10 · 珂莱塔专属「凌冽决断之心」
   { id: 'carlotta_skill', name: '凌冽决断之心', element: '冷凝',
     bonus2: { type: 'skill_dmg', value: 0.12 },
-    bonus5: { type: 'carlotta_skill_cond', value: 0.225, valueAlt: 0.18, elem: '冷凝', cond: '施放共鸣技能时自身冷凝+22.5%(15秒) / 施放共鸣解放时共鸣技能+18%(5秒,可叠2层)' } },
+    bonus5: { type: 'carlotta_skill_cond', value: 0.225, valueAlt: 0.18, elem: '冷凝', cond: '施放共鸣技能时自身冷凝+22.5%(3回合) / 施放共鸣解放时共鸣技能+18%(1回合,可叠2层)' } },
 
   // ID 11 · 菲比专属「此间永驻之光」
   { id: 'phoebe_lightnoise', name: '此间永驻之光', element: '衍射',
     bonus2: { type: 'elem_dmg', value: 0.10, elem: '衍射' },
-    bonus5: { type: 'phoebe_lightnoise_cond', value: 0.20, valueAlt: 0.15, crate: 0.20, elem: '衍射', cond: '添加光噪效应时自身暴击+20%(15秒) / 攻击10层光噪目标时自身衍射+15%(15秒)' } },
+    bonus5: { type: 'phoebe_lightnoise_cond', value: 0.20, valueAlt: 0.15, crate: 0.20, elem: '衍射', cond: '添加光噪效应时自身暴击+20%(3回合) / 攻击10层光噪目标时自身衍射+15%(3回合)' } },
 
   // ID 16 · 卡提希娅专属「流云逝尽之空」
   { id: 'cartethyia_wind', name: '流云逝尽之空', element: '气动',
     bonus2: { type: 'elem_dmg', value: 0.10, elem: '气动' },
-    bonus5: { type: 'cartethyia_wind_team', value: 0.15, extraSelf: 0.15, elem: '气动', cond: '添加风蚀效应时全队气动+15% / 自身额外+15%,持续20秒' } },
+    bonus5: { type: 'cartethyia_wind_team', value: 0.15, extraSelf: 0.15, elem: '气动', cond: '添加风蚀效应时全队气动+15% / 自身额外+15%,持续4回合' } },
 
   // ID 17 · 卡提希娅专属「愿戴荣光之旅」
   { id: 'cartethyia_glory', name: '愿戴荣光之旅', element: '气动',
     bonus2: { type: 'elem_dmg', value: 0.10, elem: '气动' },
-    bonus5: { type: 'cartethyia_glory_self', value: 0.30, crate: 0.10, elem: '气动', cond: '命中风蚀目标时自身暴击+10% / 气动+30%,持续10秒' } },
+    bonus5: { type: 'cartethyia_glory_self', value: 0.30, crate: 0.10, elem: '气动', cond: '命中风蚀目标时自身暴击+10% / 气动+30%,持续2回合' } },
 
   // ID 18 · 布兰特专属「奔狼燎原之焰」
   { id: 'brant_burst', name: '奔狼燎原之焰', element: '热熔',
     bonus2: { type: 'elem_dmg', value: 0.10, elem: '热熔' },
-    bonus5: { type: 'brant_burst_cond', value: 0.15, valueSelf: 0.20, elem: '热熔', cond: '施放共鸣解放时全队热熔+15% / 自身解放+20%,持续35秒' } },
+    bonus5: { type: 'brant_burst_cond', value: 0.15, valueSelf: 0.20, elem: '热熔', cond: '施放共鸣解放时全队热熔+15% / 自身解放+20%,持续5回合' } },
 
   // ID 23 · 坎特蕾拉专属「命理崩毁之弦」(3件套)
   { id: 'cantarella_void', name: '命理崩毁之弦', element: '湮灭',
     bonus2: null,
-    bonus5: { type: 'cantarella_void_cond', value: 0.20, valueAlt: 0.30, elem: '湮灭', cond: '添加虚湮效应时自身攻击+20% / 共鸣解放+30%,持续5秒' },
+    bonus5: { type: 'cantarella_void_cond', value: 0.20, valueAlt: 0.30, elem: '湮灭', cond: '添加虚湮效应时自身攻击+20% / 共鸣解放+30%,持续1回合' },
     tier: 3 },
 
   // ID 27 · 布兰特专属「长路启航之星」
   { id: 'brant_path', name: '长路启航之星', element: '热熔',
     bonus2: { type: 'elem_dmg', value: 0.10, elem: '热熔' },
-    bonus5: { type: 'brant_path_cond', value: 0.20, elem: '热熔', crate: 0.20, cond: '添加聚爆效应或震谐偏移时自身暴击+20% / 热熔+20%,持续8秒' } },
+    bonus5: { type: 'brant_path_cond', value: 0.20, elem: '热熔', crate: 0.20, cond: '添加聚爆效应或震谐偏移时自身暴击+20% / 热熔+20%,持续2回合' } },
 
   // ID 28 · 布兰特专属「斑驳粉饰之沫」
   { id: 'brant_mottle', name: '斑驳粉饰之沫', element: '热熔',
     bonus2: { type: 'elem_dmg', value: 0.10, elem: '热熔' },
-    bonus5: { type: 'brant_mottle_cond', value: 0.10, valueNext: 0.25, elem: '热熔', cond: '添加聚爆效应时热熔+10%(15秒) / 持续期间延奏后下一位变奏登场角色热熔+25%(15秒)' } },
+    bonus5: { type: 'brant_mottle_cond', value: 0.10, valueNext: 0.25, elem: '热熔', cond: '添加聚爆效应时热熔+10%(3回合) / 持续期间延奏后下一位变奏登场角色热熔+25%(3回合)' } },
 
   // ID 30 · 绯雪专属「雪落无声之愿」
   { id: 'feixue_snow', name: '雪落无声之愿', element: '冷凝',
     bonus2: { type: 'elem_dmg', value: 0.10, elem: '冷凝' },
-    bonus5: { type: 'feixue_snow_cond', value: 0.10, valueAlt: 0.25, elem: '冷凝', cond: '添加霜渐效应时冷凝+10%(15秒)+获【落雪】11秒(25秒CD) / 落雪+解放时暴击+25%(6秒可续) 或 落雪+延奏时下位冷凝+25%(15秒)' } },
+    bonus5: { type: 'feixue_snow_cond', value: 0.10, valueAlt: 0.25, elem: '冷凝', cond: '添加霜渐效应时冷凝+10%(3回合)+获【落雪】2回合(冷却4回合) / 落雪+解放时暴击+25%(1回合可续) 或 落雪+延奏时下位冷凝+25%(3回合)' } },
 
   // ID 31 · 洛瑟菈专属「剪心辑梦之影」(谐度破坏系)
   { id: 'lumera_chord', name: '剪心辑梦之影', element: null,
     bonus2: { type: 'atk_pct', value: 0.10 },
-    bonus5: { type: 'lumera_chord_cond', value: 20, elem: null, flat: true, cond: '添加震谐偏移或集谐偏移时全队谐度破坏增幅+20点,持续30秒(同名不叠加)' } },
+    bonus5: { type: 'lumera_chord_cond', value: 20, elem: null, flat: true, cond: '添加震谐偏移或集谐偏移时全队谐度破坏增幅+20点,持续4回合(同名不叠加)' } },
 
   // ======== 2.6 新增套装 (9套) ========
   // ID 19 · 失序彼岸之梦 (3件套)
@@ -353,45 +353,45 @@ export const ECHO_SETS = [
   // ID 20 · 荣斗铸锋之冠 (3件套)
   { id: 'glory_forge', name: '荣斗铸锋之冠', element: null,
     bonus2: null,
-    bonus5: { type: 'glory_forge_cond', value: 0.06, cdmg: 0.04, stacks: 5, cond: '获得护盾时攻击+6%/暴击伤害+4%,可叠5层,持续4秒,每0.5秒可触发一次' },
+    bonus5: { type: 'glory_forge_cond', value: 0.06, cdmg: 0.04, stacks: 5, cond: '获得护盾时攻击+6%/暴击伤害+4%,可叠5层,持续1回合,每回合可叠层' },
     tier: 3 },
 
   // ID 21 · 息界同调之律 (3件套)
   { id: 'sync_law', name: '息界同调之律', element: null,
     bonus2: null,
-    bonus5: { type: 'sync_law_cond', value: 0.30, valueAlt: 0.04, stacks: 4, cond: '施放声骸技能时重击+30%(4秒) / 全队声骸技能+4%(可叠4层,30秒)' },
+    bonus5: { type: 'sync_law_cond', value: 0.30, valueAlt: 0.04, stacks: 4, cond: '施放声骸技能时重击+30%(1回合) / 全队声骸技能+4%(可叠4层,4回合)' },
     tier: 3 },
 
   // ID 22 · 焚羽猎魔之影 (3件套)
   { id: 'hunt_shadow', name: '焚羽猎魔之影', element: '热熔',
     bonus2: null,
-    bonus5: { type: 'hunt_shadow_cond', value: 0.20, valueAlt: 0.16, elem: '热熔', cond: '声骸技能伤害时重击暴击+20%(6秒) / 重击时声骸技能暴击+20%(6秒) / 双效果时热熔+16%' },
+    bonus5: { type: 'hunt_shadow_cond', value: 0.20, valueAlt: 0.16, elem: '热熔', cond: '声骸技能伤害时重击暴击+20%(2回合) / 重击时声骸技能暴击+20%(2回合) / 双效果时热熔+16%' },
     tier: 3 },
 
   // ID 24 · 逆光跃彩之约 (2+5)
   { id: 'backlight_vow', name: '逆光跃彩之约', element: '衍射',
     bonus2: { type: 'elem_dmg', value: 0.10, elem: '衍射' },
-    bonus5: { type: 'backlight_vow_cond', value: 0.15, perPoint: 0.003, cap: 0.15, cond: '延奏后下一变奏登场角色攻击+15%,每点谐度破坏增幅额外+0.3%,上限15%,持续15秒' } },
+    bonus5: { type: 'backlight_vow_cond', value: 0.15, perPoint: 0.003, cap: 0.15, cond: '延奏后下一变奏登场角色攻击+15%,每点谐度破坏增幅额外+0.3%,上限15%,持续3回合' } },
 
   // ID 25 · 星构寻辉之环 (2+5)
   { id: 'star_ring', name: '星构寻辉之环', element: null,
     bonus2: { type: 'heal_bonus', value: 0.10 },
-    bonus5: { type: 'star_ring_cond', value: 0.002, cap: 0.25, cond: '为队友治疗时每1%偏谐值累积效率使全队攻击+0.2%,上限25%,持续4秒(同名不叠加)' } },
+    bonus5: { type: 'star_ring_cond', value: 0.002, cap: 0.25, cond: '为队友治疗时每1%偏谐值累积效率使全队攻击+0.2%,上限25%,持续1回合(同名不叠加)' } },
 
   // ID 26 · 流金溯真之式 (2+5)
   { id: 'gold_truth', name: '流金溯真之式', element: '衍射',
     bonus2: { type: 'elem_dmg', value: 0.10, elem: '衍射' },
-    bonus5: { type: 'gold_truth_cond', value: 0.10, valueAlt: 0.40, stacks: 3, elem: '衍射', cond: '普攻时衍射+10%(可叠3层,5秒) / 叠至3层时解放后普攻+40%' } },
+    bonus5: { type: 'gold_truth_cond', value: 0.10, valueAlt: 0.40, stacks: 3, elem: '衍射', cond: '普攻时衍射+10%(可叠3层,1回合) / 叠至3层时解放后普攻+40%' } },
 
   // ID 29 · 听唤语义之愿 (2+5)
   { id: 'echo_wish', name: '听唤语义之愿', element: '气动',
     bonus2: { type: 'elem_dmg', value: 0.10, elem: '气动' },
-    bonus5: { type: 'echo_wish_cond', value: 0.20, valueAlt: 0.15, elem: '气动', cond: '声骸技能伤害时声骸技能暴击+20% / 自身气动+15%,持续5秒' } },
+    bonus5: { type: 'echo_wish_cond', value: 0.20, valueAlt: 0.15, elem: '气动', cond: '声骸技能伤害时声骸技能暴击+20% / 自身气动+15%,持续1回合' } },
 
   // ID 32 · 碎梦亡鬼之魇 (1件套)
   { id: 'ghost_nightmare', name: '碎梦亡鬼之魇', element: null,
     bonus2: null,
-    bonus5: { type: 'ghost_nightmare_cond', value: 0.35, cond: '添加骇破·偏移时自身普攻伤害和重击伤害+35%,持续15秒' },
+    bonus5: { type: 'ghost_nightmare_cond', value: 0.35, cond: '添加骇破·偏移时自身普攻伤害和重击伤害+35%,持续3回合' },
     tier: 1 },
 ];
 

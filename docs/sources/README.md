@@ -13,6 +13,10 @@
 ### 角色(51)
 - [characters/](characters/) — 库街区 API 抓取的 51 个角色官方技能组 + 6 链原文
 - [characters/README.md](characters/README.md) — 角色索引
+- [characters/individual/](characters/individual/) — 单角色 JSON（面板 / 技能 desc / 链）
+- [characters/encore-full-data.json](characters/encore-full-data.json) — encore 汇总
+- [characters/skill-multipliers-lv10.md](characters/skill-multipliers-lv10.md) — **技能满级 Lv10 合计 ATK%**（官方锚；以 WIKI 抓取为准）
+- [characters/wiki-skill-mults/](characters/wiki-skill-mults/) — biligame 共鸣者页技能表解析 JSON（`scripts/fetch-wiki-skill-mults.mjs`）
 - [characters/shorekeeper.md](characters/shorekeeper.md) — 守岸人完整官方条目(`entryId=1286814658335739904`)
 
 ### 敌人

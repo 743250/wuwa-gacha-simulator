@@ -385,6 +385,23 @@ describe('gacha/core', () => {
       expect(out2.n).toBe('忌炎');
       expect(s.g.eventChar).toBe(false);
     });
+
+    it('新旅角色池同款 50/50：小保底可歪，大保底必中目标', () => {
+      const s = { ...state0(), g: { ...state0().g, noviceChoice: false }, noviceTarget: '守岸人' };
+      s.astrite = 1_000_000;
+      const banner = { id: 'novice-choice', pool: 'noviceChoice', char: '守岸人', fours: ['秧秧','丹瑾','桃祈'] };
+      let seq = [0.001, 0.999];
+      const out1 = core.pullOne(s, banner, 'noviceChoice', () => seq.shift(), true);
+      expect(out1.r).toBe(5);
+      expect(out1.up).toBe(false);
+      expect(s.g.noviceChoice).toBe(true);
+      seq = [0.001];
+      const out2 = core.pullOne(s, banner, 'noviceChoice', () => seq.shift(), true);
+      expect(out2.r).toBe(5);
+      expect(out2.up).toBe(true);
+      expect(out2.n).toBe('守岸人');
+      expect(s.g.noviceChoice).toBe(false);
+    });
   });
 
   describe('7.5 武器池规则(必出 up 武器)', () => {

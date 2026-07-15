@@ -140,7 +140,8 @@ export function calcDamage(attacker, defender, multiplier, dmgType, opts = {}) {
   const cdmgBuff = (attacker.buffs || []).reduce((a, b) => b.type === 'cdmgUp' ? a + b.value : a, 0);
   const hookCrate = queryHook(attacker, 'crateBonus', defender) || 0;
   const totalCrate = attacker.crate + (wb.crateBonus || 0) + crateBuff + hookCrate;
-  const effectiveCdmg = attacker.cdmg + cdmgBuff;
+  const hookCdmg = queryHook(attacker, 'cdmgBonus', defender, dmgType) || 0;
+  const effectiveCdmg = attacker.cdmg + cdmgBuff + hookCdmg;
   const isCrit = Math.random() < totalCrate;
   const critMult = isCrit ? effectiveCdmg : 1.0;
   let dmg = (atkRaw + 50) * typeBonus * elemBonus * defMult * resistMult * vibrMult * critMult * windowBonus * debuffBonus;

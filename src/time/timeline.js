@@ -10,15 +10,16 @@ import { resetAbyssIfNeeded } from '../daily/abyss.js';
 import { resetWastesIfNeeded } from '../daily/wastes.js';
 import { resetPodcastForVersion, resetPodcastDailyIfNeeded, resetPodcastWeeklyIfNeeded, progressTask } from '../podcast/core.js';
 import { applyNaturalRecovery } from '../daily/stamina.js';
+import { deliverDueMails } from '../mail/mailbox.js';
 import { commit } from '../state/commit.ts';
+import { maybePromptLoginClaims } from '../daily/loginClaim.js';
 
 function versionAt(t) {
   const p = phases.find(x => t >= x.start && t < x.end);
   return p ? p.v : null;
 }
 
-// 把当天的月卡领取一份（如果有月卡 且 今天没领过）
-// 返回是否真的领了
+// 当日月卡：仅供兼容/测试；正式入口走 loginClaim 上线补给弹窗
 export function claimMonthly() {
   return commit(() => {
     const today = fmt(S.today);
@@ -31,24 +32,14 @@ export function claimMonthly() {
   });
 }
 
-// 推进日期时：
-// 1) 今天如果还没领，先把今天补领一份
-// 2) 然后中间经过的每一天（直到目标日，含目标日）都按月卡剩余天数自动领
-function settleDays(target) {
-  if (target <= S.today) return 0;
-  const span = Math.floor((target - S.today) / DAY);    // 经过的天数（不含起点）
-  const todayStr = fmt(S.today);
-  // 今天还没领 + 有月卡 → 今天先领一份
-  let want = 0;
-  if (S.lastMonthlyClaim !== todayStr && S.days > 0) want++;
-  // 经过的天数每天都想领
-  want += span;
-  // 实际能领 = min(想领, 剩余天数)
-  const paid = Math.min(want, S.days);
-  S.days -= paid;
-  S.astrite += paid * 90;
-  if (paid > 0) S.lastMonthlyClaim = fmt(target);
-  return paid;
+// 推进日期时：月卡剩余天数按日历扣减（漏登不补星声），当日领取改由上线补给弹窗
+function expireMonthlyOnAdvance(target) {
+  if (target <= S.today || (S.days || 0) <= 0) return 0;
+  const span = Math.floor((target - S.today) / DAY);
+  if (span <= 0) return 0;
+  const burn = Math.min(span, S.days);
+  S.days -= burn;
+  return burn;
 }
 
 // 重置月度限购礼包（跨月时调用）
@@ -95,8 +86,7 @@ export function advanceTo(target) {
     const oldMonth = new Date(S.today).getUTCMonth();
     const oldYear = new Date(S.today).getUTCFullYear();
     const daysPassed = Math.max(0, Math.floor((target - S.today) / DAY));
-    const claimed = settleDays(target);
-    if (claimed > 0) msg(`月卡自动领取 ${claimed} 天 · +${claimed * 90} 星声`, false);
+    expireMonthlyOnAdvance(target);
     S.today = target;
     const newVersion = versionAt(S.today);
     if (newVersion !== oldVersion) {
@@ -118,6 +108,11 @@ export function advanceTo(target) {
     resetWeeklyBossIfNeeded(S.today);
     // 双周深塔危险区重置（每 14 天）
     resetAbyssIfNeeded(S.today);
+    // 运营邮箱：按日历投递到期邮件
+    const newMails = deliverDueMails(S.today);
+    if (newMails.length > 0) {
+      msg(`收到 ${newMails.length} 封新邮件`, false);
+    }
     // Phase 3 步骤 A:日期/版本切换后,显式回填 S.selected(联动池过期/新手池关闭/新旅池到期)
     ensureSelectedBanner();
     // 跨月重置月度礼包
@@ -127,11 +122,21 @@ export function advanceTo(target) {
       resetMonthlyShop();
     }
   });
+  // 上线补给弹窗：月卡当日 + 特别感恩回馈等同窗领取
+  // 延迟到下一任务，避免与调用方 rerender / 其它 modal 抢焦点
+  if (typeof queueMicrotask === 'function') {
+    queueMicrotask(() => { try { maybePromptLoginClaims(); } catch (_) { /* ignore */ } });
+  } else {
+    setTimeout(() => { try { maybePromptLoginClaims(); } catch (_) { /* ignore */ } }, 0);
+  }
   // 注意：不在内部调 __render，由 main.js 的各 caller 统一调 rerenderAll()
 }
 
 export function advanceDay() { advanceTo(S.today + DAY); }
-export function dailyTick() { return claimMonthly(); }
+/** 不再自动领月卡；改弹上线补给 */
+export function dailyTick() {
+  return maybePromptLoginClaims({ force: true });
+}
 
 export function nextPhase() {
   const n = phases.map(p => p.start).filter(t => t > S.today).sort((a, b) => a - b)[0];

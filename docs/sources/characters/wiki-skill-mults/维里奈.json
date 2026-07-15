@@ -1,0 +1,218 @@
+{
+  "name": "维里奈",
+  "source": "https://wiki.biligame.com/wutheringwaves/%E5%85%B1%E9%B8%A3%E8%80%85/%E7%BB%B4%E9%87%8C%E5%A5%88",
+  "fetchedAt": "2026-07-15",
+  "rows": [
+    {
+      "label": "第一段伤害",
+      "levels": 10,
+      "lvMaxExpr": "37.86%",
+      "lvMaxSum": 37.86
+    },
+    {
+      "label": "第二段伤害",
+      "levels": 10,
+      "lvMaxExpr": "51.16%",
+      "lvMaxSum": 51.16
+    },
+    {
+      "label": "第三段伤害",
+      "levels": 10,
+      "lvMaxExpr": "25.58%*2",
+      "lvMaxSum": 51.16
+    },
+    {
+      "label": "第四段伤害",
+      "levels": 10,
+      "lvMaxExpr": "67.32%",
+      "lvMaxSum": 67.32
+    },
+    {
+      "label": "第五段伤害",
+      "levels": 10,
+      "lvMaxExpr": "71.62%",
+      "lvMaxSum": 71.62
+    },
+    {
+      "label": "重击伤害",
+      "levels": 10,
+      "lvMaxExpr": "99.41%",
+      "lvMaxSum": 99.41
+    },
+    {
+      "label": "空中攻击第一段伤害",
+      "levels": 10,
+      "lvMaxExpr": "56.37%",
+      "lvMaxSum": 56.37
+    },
+    {
+      "label": "空中攻击第二段伤害",
+      "levels": 10,
+      "lvMaxExpr": "53.19%",
+      "lvMaxSum": 53.19
+    },
+    {
+      "label": "空中攻击第三段伤害",
+      "levels": 10,
+      "lvMaxExpr": "25.42%*3",
+      "lvMaxSum": 76.26
+    },
+    {
+      "label": "空中重击伤害",
+      "levels": 10,
+      "lvMaxExpr": "61.64%",
+      "lvMaxSum": 61.64
+    },
+    {
+      "label": "闪避反击伤害",
+      "levels": 10,
+      "lvMaxExpr": "129.23%",
+      "lvMaxSum": 129.23
+    },
+    {
+      "label": "技能伤害",
+      "levels": 10,
+      "lvMaxExpr": "35.79%*3+71.58%",
+      "lvMaxSum": 178.95
+    },
+    {
+      "label": "重击·星星花绽放伤害",
+      "levels": 10,
+      "lvMaxExpr": "64.95%+97.42%",
+      "lvMaxSum": 162.37
+    },
+    {
+      "label": "空中攻击·星星花绽放第一段伤害",
+      "levels": 10,
+      "lvMaxExpr": "67.64%",
+      "lvMaxSum": 67.64
+    },
+    {
+      "label": "空中攻击·星星花绽放第二段伤害",
+      "levels": 10,
+      "lvMaxExpr": "63.82%",
+      "lvMaxSum": 63.82
+    },
+    {
+      "label": "空中攻击·星星花绽放第三段伤害",
+      "levels": 10,
+      "lvMaxExpr": "30.50%*3",
+      "lvMaxSum": 91.5
+    },
+    {
+      "label": "协同攻击伤害",
+      "levels": 10,
+      "lvMaxExpr": "9.95%",
+      "lvMaxSum": 9.95
+    }
+  ],
+  "inlineFixed": [],
+  "anchors": {
+    "normalish": [
+      {
+        "label": "第一段伤害",
+        "levels": 10,
+        "lvMaxExpr": "37.86%",
+        "lvMaxSum": 37.86
+      },
+      {
+        "label": "第二段伤害",
+        "levels": 10,
+        "lvMaxExpr": "51.16%",
+        "lvMaxSum": 51.16
+      },
+      {
+        "label": "第三段伤害",
+        "levels": 10,
+        "lvMaxExpr": "25.58%*2",
+        "lvMaxSum": 51.16
+      },
+      {
+        "label": "第四段伤害",
+        "levels": 10,
+        "lvMaxExpr": "67.32%",
+        "lvMaxSum": 67.32
+      },
+      {
+        "label": "第五段伤害",
+        "levels": 10,
+        "lvMaxExpr": "71.62%",
+        "lvMaxSum": 71.62
+      },
+      {
+        "label": "空中攻击第一段伤害",
+        "levels": 10,
+        "lvMaxExpr": "56.37%",
+        "lvMaxSum": 56.37
+      },
+      {
+        "label": "空中攻击第二段伤害",
+        "levels": 10,
+        "lvMaxExpr": "53.19%",
+        "lvMaxSum": 53.19
+      },
+      {
+        "label": "空中攻击第三段伤害",
+        "levels": 10,
+        "lvMaxExpr": "25.42%*3",
+        "lvMaxSum": 76.26
+      },
+      {
+        "label": "空中攻击·星星花绽放第一段伤害",
+        "levels": 10,
+        "lvMaxExpr": "67.64%",
+        "lvMaxSum": 67.64
+      },
+      {
+        "label": "空中攻击·星星花绽放第二段伤害",
+        "levels": 10,
+        "lvMaxExpr": "63.82%",
+        "lvMaxSum": 63.82
+      },
+      {
+        "label": "空中攻击·星星花绽放第三段伤害",
+        "levels": 10,
+        "lvMaxExpr": "30.50%*3",
+        "lvMaxSum": 91.5
+      }
+    ],
+    "skillish": [
+      {
+        "label": "技能伤害",
+        "levels": 10,
+        "lvMaxExpr": "35.79%*3+71.58%",
+        "lvMaxSum": 178.95
+      }
+    ],
+    "heavyish": [
+      {
+        "label": "重击伤害",
+        "levels": 10,
+        "lvMaxExpr": "99.41%",
+        "lvMaxSum": 99.41
+      },
+      {
+        "label": "空中重击伤害",
+        "levels": 10,
+        "lvMaxExpr": "61.64%",
+        "lvMaxSum": 61.64
+      },
+      {
+        "label": "重击·星星花绽放伤害",
+        "levels": 10,
+        "lvMaxExpr": "64.95%+97.42%",
+        "lvMaxSum": 162.37
+      }
+    ],
+    "burstish": [],
+    "variationish": [],
+    "outroish": [
+      {
+        "label": "协同攻击伤害",
+        "levels": 10,
+        "lvMaxExpr": "9.95%",
+        "lvMaxSum": 9.95
+      }
+    ]
+  }
+}

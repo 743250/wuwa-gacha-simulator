@@ -1,0 +1,230 @@
+{
+  "name": "渊武",
+  "source": "https://wiki.biligame.com/wutheringwaves/%E5%85%B1%E9%B8%A3%E8%80%85/%E6%B8%8A%E6%AD%A6",
+  "fetchedAt": "2026-07-15",
+  "rows": [
+    {
+      "label": "第一段伤害",
+      "levels": 10,
+      "lvMaxExpr": "49.11%",
+      "lvMaxSum": 49.11
+    },
+    {
+      "label": "第二段伤害",
+      "levels": 10,
+      "lvMaxExpr": "51.81%*2",
+      "lvMaxSum": 103.62
+    },
+    {
+      "label": "第三段伤害",
+      "levels": 10,
+      "lvMaxExpr": "21.84%*2+32.76%*2",
+      "lvMaxSum": 109.2
+    },
+    {
+      "label": "第四段伤害",
+      "levels": 10,
+      "lvMaxExpr": "51.81%*2",
+      "lvMaxSum": 103.62
+    },
+    {
+      "label": "第五段伤害",
+      "levels": 10,
+      "lvMaxExpr": "49.11%*2+65.48%",
+      "lvMaxSum": 163.7
+    },
+    {
+      "label": "重击伤害",
+      "levels": 10,
+      "lvMaxExpr": "159.05%",
+      "lvMaxSum": 159.05
+    },
+    {
+      "label": "空中攻击伤害",
+      "levels": 10,
+      "lvMaxExpr": "98.61%",
+      "lvMaxSum": 98.61
+    },
+    {
+      "label": "闪避反击伤害",
+      "levels": 10,
+      "lvMaxExpr": "114.52%*2",
+      "lvMaxSum": 229.04
+    },
+    {
+      "label": "技能伤害",
+      "levels": 10,
+      "lvMaxExpr": "23.86%",
+      "lvMaxSum": 23.86
+    },
+    {
+      "label": "雷之楔协同攻击伤害",
+      "levels": 10,
+      "lvMaxExpr": "7.96%",
+      "lvMaxSum": 7.96
+    },
+    {
+      "label": "雷之楔引爆伤害",
+      "levels": 10,
+      "lvMaxExpr": "59.65%",
+      "lvMaxSum": 59.65
+    },
+    {
+      "label": "万壑雷伤害",
+      "levels": 10,
+      "lvMaxExpr": "108.54%",
+      "lvMaxSum": 108.54
+    },
+    {
+      "label": "掀雷伤害",
+      "levels": 10,
+      "lvMaxExpr": "39.77%",
+      "lvMaxSum": 39.77
+    },
+    {
+      "label": "雷厉风行普攻第一段伤害",
+      "levels": 10,
+      "lvMaxExpr": "24.56%",
+      "lvMaxSum": 24.56
+    },
+    {
+      "label": "雷厉风行普攻第二段伤害",
+      "levels": 10,
+      "lvMaxExpr": "25.91%*2",
+      "lvMaxSum": 51.82
+    },
+    {
+      "label": "雷厉风行普攻第三段伤害",
+      "levels": 10,
+      "lvMaxExpr": "10.92%*2+16.38%*2",
+      "lvMaxSum": 54.6
+    },
+    {
+      "label": "雷厉风行普攻第四段伤害",
+      "levels": 10,
+      "lvMaxExpr": "11.46%*5",
+      "lvMaxSum": 57.3
+    },
+    {
+      "label": "雷厉风行普攻第五段伤害",
+      "levels": 10,
+      "lvMaxExpr": "16.37%*3+32.74%",
+      "lvMaxSum": 81.85
+    },
+    {
+      "label": "雷厉风行重击伤害",
+      "levels": 10,
+      "lvMaxExpr": "31.02%",
+      "lvMaxSum": 31.02
+    },
+    {
+      "label": "蹑风追雷伤害",
+      "levels": 10,
+      "lvMaxExpr": "31.02%+20.68%*2",
+      "lvMaxSum": 72.38
+    },
+    {
+      "label": "雷厉风行闪避反击伤害",
+      "levels": 10,
+      "lvMaxExpr": "43.27%+32.45%*2",
+      "lvMaxSum": 108.17
+    }
+  ],
+  "inlineFixed": [],
+  "anchors": {
+    "normalish": [
+      {
+        "label": "第一段伤害",
+        "levels": 10,
+        "lvMaxExpr": "49.11%",
+        "lvMaxSum": 49.11
+      },
+      {
+        "label": "第二段伤害",
+        "levels": 10,
+        "lvMaxExpr": "51.81%*2",
+        "lvMaxSum": 103.62
+      },
+      {
+        "label": "第三段伤害",
+        "levels": 10,
+        "lvMaxExpr": "21.84%*2+32.76%*2",
+        "lvMaxSum": 109.2
+      },
+      {
+        "label": "第四段伤害",
+        "levels": 10,
+        "lvMaxExpr": "51.81%*2",
+        "lvMaxSum": 103.62
+      },
+      {
+        "label": "第五段伤害",
+        "levels": 10,
+        "lvMaxExpr": "49.11%*2+65.48%",
+        "lvMaxSum": 163.7
+      },
+      {
+        "label": "雷厉风行普攻第一段伤害",
+        "levels": 10,
+        "lvMaxExpr": "24.56%",
+        "lvMaxSum": 24.56
+      },
+      {
+        "label": "雷厉风行普攻第二段伤害",
+        "levels": 10,
+        "lvMaxExpr": "25.91%*2",
+        "lvMaxSum": 51.82
+      },
+      {
+        "label": "雷厉风行普攻第三段伤害",
+        "levels": 10,
+        "lvMaxExpr": "10.92%*2+16.38%*2",
+        "lvMaxSum": 54.6
+      },
+      {
+        "label": "雷厉风行普攻第四段伤害",
+        "levels": 10,
+        "lvMaxExpr": "11.46%*5",
+        "lvMaxSum": 57.3
+      },
+      {
+        "label": "雷厉风行普攻第五段伤害",
+        "levels": 10,
+        "lvMaxExpr": "16.37%*3+32.74%",
+        "lvMaxSum": 81.85
+      }
+    ],
+    "skillish": [
+      {
+        "label": "技能伤害",
+        "levels": 10,
+        "lvMaxExpr": "23.86%",
+        "lvMaxSum": 23.86
+      }
+    ],
+    "heavyish": [
+      {
+        "label": "重击伤害",
+        "levels": 10,
+        "lvMaxExpr": "159.05%",
+        "lvMaxSum": 159.05
+      },
+      {
+        "label": "雷厉风行重击伤害",
+        "levels": 10,
+        "lvMaxExpr": "31.02%",
+        "lvMaxSum": 31.02
+      }
+    ],
+    "burstish": [],
+    "variationish": [],
+    "outroish": [
+      {
+        "label": "雷之楔协同攻击伤害",
+        "levels": 10,
+        "lvMaxExpr": "7.96%",
+        "lvMaxSum": 7.96
+      }
+    ]
+  }
+}

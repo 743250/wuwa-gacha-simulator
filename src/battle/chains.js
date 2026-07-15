@@ -245,6 +245,31 @@ export function applyChainBonuses(unit) {
         unit.variationBonus = (unit.variationBonus || 0) + (e.variationBonus || 0.42);
         unit.shorekeeperC6Cdmg = { value: e.cdmg || 5, dur: e.dur || 2 };
         break;
+      
+      // ===== 散华「冰棘·重击爆裂」=====
+      case 'sanhuaC1':
+        unit.sanhuaC1 = true;
+        break;
+      case 'sanhuaC3':
+        unit.sanhuaC3 = e.value != null ? e.value : 0.35;
+        break;
+      case 'sanhuaC4':
+        unit.sanhuaC4 = {
+          energy: e.energy != null ? e.energy : 10,
+          heavyBonus: e.heavyBonus != null ? e.heavyBonus : 1.2,
+          dur: e.dur != null ? e.dur : 2,
+        };
+        break;
+      case 'sanhuaC5':
+        unit.sanhuaC5 = e.value != null ? e.value : 1.0;
+        break;
+      case 'sanhuaC6':
+        unit.sanhuaC6 = {
+          value: e.value != null ? e.value : 0.1,
+          cap: e.cap != null ? e.cap : 2,
+          dur: e.dur != null ? e.dur : 3,
+        };
+        break;
       case 'younuoC4Shield':
         unit.younuoC4Shield = { value: e.value || 1.6, duration: e.duration || 3 };
         break;

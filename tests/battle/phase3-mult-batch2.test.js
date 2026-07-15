@@ -36,7 +36,7 @@ describe('Phase3 mult batch2 — 夏空/坎特蕾拉/相里要/洛可可', () =>
     expect(burst.desc).toContain('5500');
   });
 
-  it('坎特蕾拉 S380/H400/解放400·200 满迷离720·360', () => {
+  it('坎特蕾拉 S380/H400/解放376·188 满迷离677·338', () => {
     resetState({
       team: ['坎特蕾拉', '安可', '忌炎'],
       roles: {
@@ -53,19 +53,19 @@ describe('Phase3 mult batch2 — 夏空/坎特蕾拉/相里要/洛可可', () =>
     a.forte.ready = false;
     a.forte.current = 0;
     let bm = idx.queryCharacterHook(a, 'resolveBurstMult');
-    expect(bm.baseMain).toBeCloseTo(4.0, 5);
-    expect(bm.baseSide).toBeCloseTo(2.0, 5);
+    expect(bm.baseMain).toBeCloseTo(3.76, 5);
+    expect(bm.baseSide).toBeCloseTo(1.88, 5);
     a.forte.current = 100;
     a.forte.ready = true;
     bm = idx.queryCharacterHook(a, 'resolveBurstMult');
-    expect(bm.baseMain).toBeCloseTo(7.2, 5);
-    expect(bm.baseSide).toBeCloseTo(3.6, 5);
+    expect(bm.baseMain).toBeCloseTo(6.77, 5);
+    expect(bm.baseSide).toBeCloseTo(3.38, 5);
     const lines = skillHints.SKILL_HINTS['坎特蕾拉'].customLines({ atk: 1000 }, { chain: 0 });
     expect(lines.some(l => l.desc.includes('3800'))).toBe(true);
-    expect(lines.some(l => l.desc.includes('4000'))).toBe(true);
+    expect(lines.some(l => l.desc.includes('3760'))).toBe(true);
   });
 
-  it('相里要 N130/S200/H400/解放1500·750', () => {
+  it('相里要 N130/S200/H400/解放1466·733', () => {
     resetState({
       team: ['相里要', '安可', '忌炎'],
       roles: {
@@ -80,10 +80,10 @@ describe('Phase3 mult batch2 — 夏空/坎特蕾拉/相里要/洛可可', () =>
     expect(idx.queryCharacterHook(a, 'skillMult')).toBeCloseTo(2.0, 5);
     expect(idx.queryCharacterHook(a, 'heavyMult')).toBeCloseTo(4.0, 5);
     const bm = idx.queryCharacterHook(a, 'resolveBurstMult');
-    expect(bm.baseMain).toBeCloseTo(15.0, 5);
-    expect(bm.baseSide).toBeCloseTo(7.5, 5);
+    expect(bm.baseMain).toBeCloseTo(14.66, 5);
+    expect(bm.baseSide).toBeCloseTo(7.33, 5);
     const lines = skillHints.SKILL_HINTS['相里要'].customLines({ atk: 1000 }, { chain: 0 });
-    expect(lines.some(l => l.desc.includes('15000'))).toBe(true);
+    expect(lines.some(l => l.desc.includes('14660'))).toBe(true);
     expect(lines.some(l => l.desc.includes('2000'))).toBe(true);
   });
 
@@ -149,7 +149,7 @@ describe('Phase3 mult batch2 — 夏空/坎特蕾拉/相里要/洛可可', () =>
     expect(lines.some(l => l.desc.includes('2000'))).toBe(true);
   });
 
-  it('洛可可 N100/S180/H400/变奏170 · 解放走全局', () => {
+  it('洛可可 N100/S180/H400/变奏170 · 解放 835/417.5（满想象力 1336/668）', () => {
     resetState({
       team: ['洛可可', '安可', '忌炎'],
       roles: {
@@ -164,9 +164,15 @@ describe('Phase3 mult batch2 — 夏空/坎特蕾拉/相里要/洛可可', () =>
     expect(idx.queryCharacterHook(a, 'skillMult')).toBeCloseTo(1.8, 5);
     expect(idx.queryCharacterHook(a, 'heavyMult')).toBeCloseTo(4.0, 5);
     expect(idx.queryCharacterHook(a, 'variationMult')).toBeCloseTo(1.7, 5);
-    expect(idx.queryCharacterHook(a, 'resolveBurstMult')).toBeUndefined();
+    let bm = idx.queryCharacterHook(a, 'resolveBurstMult');
+    expect(bm.baseMain).toBeCloseTo(8.35, 5);
+    expect(bm.baseSide).toBeCloseTo(4.175, 5);
+    a.forte = { ...(a.forte || {}), ready: true, value: 100 };
+    bm = idx.queryCharacterHook(a, 'resolveBurstMult');
+    expect(bm.baseMain).toBeCloseTo(13.36, 5);
+    expect(bm.baseSide).toBeCloseTo(6.68, 5);
     const lines = skillHints.SKILL_HINTS['洛可可'].customLines({ atk: 1000 }, { chain: 0 });
-    expect(lines.some(l => l.desc.includes('7000'))).toBe(true);
+    expect(lines.some(l => l.desc.includes('8350'))).toBe(true);
     expect(lines.some(l => l.desc.includes('1700'))).toBe(true);
   });
 });

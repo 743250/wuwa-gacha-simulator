@@ -1,0 +1,180 @@
+{
+  "name": "坎特蕾拉",
+  "source": "https://wiki.biligame.com/wutheringwaves/%E5%85%B1%E9%B8%A3%E8%80%85/%E5%9D%8E%E7%89%B9%E8%95%BE%E6%8B%89",
+  "fetchedAt": "2026-07-15",
+  "rows": [
+    {
+      "label": "第一段伤害",
+      "levels": 10,
+      "lvMaxExpr": "79.53%",
+      "lvMaxSum": 79.53
+    },
+    {
+      "label": "第二段伤害",
+      "levels": 10,
+      "lvMaxExpr": "36.44%*4",
+      "lvMaxSum": 145.76
+    },
+    {
+      "label": "第三段伤害",
+      "levels": 10,
+      "lvMaxExpr": "72.57%*2",
+      "lvMaxSum": 145.14
+    },
+    {
+      "label": "重击伤害",
+      "levels": 10,
+      "lvMaxExpr": "57.18%*2",
+      "lvMaxSum": 114.36
+    },
+    {
+      "label": "浮潜幻海伤害",
+      "levels": 10,
+      "lvMaxExpr": "53.05%*2",
+      "lvMaxSum": 106.1
+    },
+    {
+      "label": "空中攻击伤害",
+      "levels": 10,
+      "lvMaxExpr": "41.99%+62.99%",
+      "lvMaxSum": 104.98
+    },
+    {
+      "label": "闪避反击伤害",
+      "levels": 10,
+      "lvMaxExpr": "53.01%*4",
+      "lvMaxSum": 212.04
+    },
+    {
+      "label": "翩跹伤害",
+      "levels": 10,
+      "lvMaxExpr": "73.60%*2",
+      "lvMaxSum": 147.2
+    },
+    {
+      "label": "斑驳幻梦伤害",
+      "levels": 10,
+      "lvMaxExpr": "196.23%",
+      "lvMaxSum": 196.23
+    },
+    {
+      "label": "惊醒伤害",
+      "levels": 10,
+      "lvMaxExpr": "198.81%",
+      "lvMaxSum": 198.81
+    },
+    {
+      "label": "蛰幻第一段伤害",
+      "levels": 10,
+      "lvMaxExpr": "35.33%*3",
+      "lvMaxSum": 105.99
+    },
+    {
+      "label": "蛰幻第二段伤害",
+      "levels": 10,
+      "lvMaxExpr": "62.93%*2",
+      "lvMaxSum": 125.86
+    },
+    {
+      "label": "蛰幻第三段伤害",
+      "levels": 10,
+      "lvMaxExpr": "64.62%*4",
+      "lvMaxSum": 258.48
+    },
+    {
+      "label": "暗涌漩涡伤害",
+      "levels": 10,
+      "lvMaxExpr": "41.99%+62.99%",
+      "lvMaxSum": 104.98
+    },
+    {
+      "label": "感知汲取伤害",
+      "levels": 10,
+      "lvMaxExpr": "667.99%*2",
+      "lvMaxSum": 1335.98
+    },
+    {
+      "label": "掠影伤害",
+      "levels": 10,
+      "lvMaxExpr": "75.09%*3",
+      "lvMaxSum": 225.27
+    },
+    {
+      "label": "陷溺伤害",
+      "levels": 10,
+      "lvMaxExpr": "376.00%",
+      "lvMaxSum": 376
+    },
+    {
+      "label": "弥漫伤害",
+      "levels": 10,
+      "lvMaxExpr": "14.54%*21",
+      "lvMaxSum": 305.34
+    },
+    {
+      "label": "点水伤害",
+      "levels": 10,
+      "lvMaxExpr": "42.25%*4",
+      "lvMaxSum": 169
+    },
+    {
+      "label": "逐浪伤害",
+      "levels": 10,
+      "lvMaxExpr": "16.90%*3+118.30%",
+      "lvMaxSum": 169
+    }
+  ],
+  "inlineFixed": [],
+  "anchors": {
+    "normalish": [
+      {
+        "label": "第一段伤害",
+        "levels": 10,
+        "lvMaxExpr": "79.53%",
+        "lvMaxSum": 79.53
+      },
+      {
+        "label": "第二段伤害",
+        "levels": 10,
+        "lvMaxExpr": "36.44%*4",
+        "lvMaxSum": 145.76
+      },
+      {
+        "label": "第三段伤害",
+        "levels": 10,
+        "lvMaxExpr": "72.57%*2",
+        "lvMaxSum": 145.14
+      },
+      {
+        "label": "蛰幻第一段伤害",
+        "levels": 10,
+        "lvMaxExpr": "35.33%*3",
+        "lvMaxSum": 105.99
+      },
+      {
+        "label": "蛰幻第二段伤害",
+        "levels": 10,
+        "lvMaxExpr": "62.93%*2",
+        "lvMaxSum": 125.86
+      },
+      {
+        "label": "蛰幻第三段伤害",
+        "levels": 10,
+        "lvMaxExpr": "64.62%*4",
+        "lvMaxSum": 258.48
+      }
+    ],
+    "skillish": [],
+    "heavyish": [
+      {
+        "label": "重击伤害",
+        "levels": 10,
+        "lvMaxExpr": "57.18%*2",
+        "lvMaxSum": 114.36
+      }
+    ],
+    "burstish": [],
+    "variationish": [],
+    "outroish": []
+  }
+}

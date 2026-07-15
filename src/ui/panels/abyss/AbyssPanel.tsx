@@ -4,10 +4,12 @@
 // 只搬 UI，不碰业务逻辑。按钮 onClick 继续走 window.__。
 
 import { h, ComponentChild } from 'preact';
-import { useState } from 'preact/hooks';
+import { useState, useEffect } from 'preact/hooks';
 import { useS } from '../../signals';
 import { fmt, DAY } from '../../../state';
-import { ABYSS_ZONES, STAR_CRITERIA, getAbyssStars, nextHazardResetDate, getAbyssVersionInfo, getAbyssFloorScale, getCurrentAbyssEnvironment, HAZARD_TOWERS, VIGOR_MAX, getTeamVigor, canChallengeFloor } from '../../../daily/abyss';
+import { msg } from '../../services/toast.ts';
+import { commit } from '../../../state/commit.ts';
+import { ABYSS_ZONES, STAR_CRITERIA, getAbyssStars, nextHazardResetDate, getAbyssVersionInfo, getAbyssFloorScale, getCurrentAbyssEnvironment, HAZARD_TOWERS, VIGOR_MAX, getTeamVigor, canChallengeFloor, grantStableZoneMissedRewardOnce } from '../../../daily/abyss';
 import { parseEnemyStr } from '../../../battle/dungeon';
 import { getCombatTeamNames } from '../../../battle/combat';
 import { ENEMIES } from '../../../battle/enemies';
@@ -176,6 +178,12 @@ function HazardTowersBlock({ today }: { today: number }) {
 export function AbyssPanel() {
   const S = useS();
   const [abyssZone, setAbyssZone] = useState('hazard');
+
+  // 一次性补偿：稳定区超时通关曾 0 星 0 星声
+  useEffect(() => {
+    const r = commit(() => grantStableZoneMissedRewardOnce());
+    if (r?.ok) msg(`稳定区结算修正 · 补偿 +${r.reward} 星声`, false);
+  }, []);
 
   // Read S fields to establish signal subscription
   const teamCount = getCombatTeamNames().length;

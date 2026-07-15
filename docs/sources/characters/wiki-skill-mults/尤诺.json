@@ -1,0 +1,198 @@
+{
+  "name": "尤诺",
+  "source": "https://wiki.biligame.com/wutheringwaves/%E5%85%B1%E9%B8%A3%E8%80%85/%E5%B0%A4%E8%AF%BA",
+  "fetchedAt": "2026-07-15",
+  "rows": [
+    {
+      "label": "月环·普攻第一段伤害",
+      "levels": 10,
+      "lvMaxExpr": "87.68%",
+      "lvMaxSum": 87.68
+    },
+    {
+      "label": "月环·普攻第二段伤害",
+      "levels": 10,
+      "lvMaxExpr": "46.06%*2+47.46%",
+      "lvMaxSum": 139.58
+    },
+    {
+      "label": "月环·普攻第三段伤害",
+      "levels": 10,
+      "lvMaxExpr": "87.98%*2+90.65%",
+      "lvMaxSum": 266.61
+    },
+    {
+      "label": "月弓·普攻第一段伤害",
+      "levels": 10,
+      "lvMaxExpr": "126.45%",
+      "lvMaxSum": 126.45
+    },
+    {
+      "label": "月弓·普攻第二段伤害",
+      "levels": 10,
+      "lvMaxExpr": "55.67%*3",
+      "lvMaxSum": 167.01
+    },
+    {
+      "label": "月弓·普攻第三段伤害",
+      "levels": 10,
+      "lvMaxExpr": "167.01%*2",
+      "lvMaxSum": 334.02
+    },
+    {
+      "label": "月弓·闪避反击伤害",
+      "levels": 10,
+      "lvMaxExpr": "103.39%*3",
+      "lvMaxSum": 310.17
+    },
+    {
+      "label": "原初的律动伤害",
+      "levels": 10,
+      "lvMaxExpr": "18.65%*7+130.52%",
+      "lvMaxSum": 261.07
+    },
+    {
+      "label": "告终的喧响伤害",
+      "levels": 10,
+      "lvMaxExpr": "140.73%*2+145.00%",
+      "lvMaxSum": 426.46
+    },
+    {
+      "label": "未终的喧响伤害",
+      "levels": 10,
+      "lvMaxExpr": "140.73%*2+145.00%",
+      "lvMaxSum": 426.46
+    },
+    {
+      "label": "越限的弦引伤害",
+      "levels": 10,
+      "lvMaxExpr": "219.79%*2",
+      "lvMaxSum": 439.58
+    },
+    {
+      "label": "流变·月弓伤害",
+      "levels": 10,
+      "lvMaxExpr": "250.51%",
+      "lvMaxSum": 250.51
+    },
+    {
+      "label": "流变·月环伤害",
+      "levels": 10,
+      "lvMaxExpr": "79.18%*4",
+      "lvMaxSum": 316.72
+    },
+    {
+      "label": "月弓·普攻第一段强化伤害",
+      "levels": 10,
+      "lvMaxExpr": "205.97%",
+      "lvMaxSum": 205.97
+    },
+    {
+      "label": "月弓·普攻第二段强化伤害",
+      "levels": 10,
+      "lvMaxExpr": "95.43%*3",
+      "lvMaxSum": 286.29
+    },
+    {
+      "label": "月弓·普攻第三段强化伤害",
+      "levels": 10,
+      "lvMaxExpr": "266.41%*2",
+      "lvMaxSum": 532.82
+    },
+    {
+      "label": "月弓·闪避反击强化伤害",
+      "levels": 10,
+      "lvMaxExpr": "156.40%*3",
+      "lvMaxSum": 469.2
+    },
+    {
+      "label": "越限的弦引强化伤害",
+      "levels": 10,
+      "lvMaxExpr": "319.19%*2",
+      "lvMaxSum": 638.38
+    },
+    {
+      "label": "至臻的完满伤害",
+      "levels": 10,
+      "lvMaxExpr": "159.05%",
+      "lvMaxSum": 159.05
+    },
+    {
+      "label": "技能伤害",
+      "levels": 10,
+      "lvMaxExpr": "1093.46%",
+      "lvMaxSum": 1093.46
+    }
+  ],
+  "inlineFixed": [],
+  "anchors": {
+    "normalish": [
+      {
+        "label": "月环·普攻第一段伤害",
+        "levels": 10,
+        "lvMaxExpr": "87.68%",
+        "lvMaxSum": 87.68
+      },
+      {
+        "label": "月环·普攻第二段伤害",
+        "levels": 10,
+        "lvMaxExpr": "46.06%*2+47.46%",
+        "lvMaxSum": 139.58
+      },
+      {
+        "label": "月环·普攻第三段伤害",
+        "levels": 10,
+        "lvMaxExpr": "87.98%*2+90.65%",
+        "lvMaxSum": 266.61
+      },
+      {
+        "label": "月弓·普攻第一段伤害",
+        "levels": 10,
+        "lvMaxExpr": "126.45%",
+        "lvMaxSum": 126.45
+      },
+      {
+        "label": "月弓·普攻第二段伤害",
+        "levels": 10,
+        "lvMaxExpr": "55.67%*3",
+        "lvMaxSum": 167.01
+      },
+      {
+        "label": "月弓·普攻第三段伤害",
+        "levels": 10,
+        "lvMaxExpr": "167.01%*2",
+        "lvMaxSum": 334.02
+      },
+      {
+        "label": "月弓·普攻第一段强化伤害",
+        "levels": 10,
+        "lvMaxExpr": "205.97%",
+        "lvMaxSum": 205.97
+      },
+      {
+        "label": "月弓·普攻第二段强化伤害",
+        "levels": 10,
+        "lvMaxExpr": "95.43%*3",
+        "lvMaxSum": 286.29
+      },
+      {
+        "label": "月弓·普攻第三段强化伤害",
+        "levels": 10,
+        "lvMaxExpr": "266.41%*2",
+        "lvMaxSum": 532.82
+      }
+    ],
+    "skillish": [
+      {
+        "label": "技能伤害",
+        "levels": 10,
+        "lvMaxExpr": "1093.46%",
+        "lvMaxSum": 1093.46
+      }
+    ],
+    "heavyish": [],
+    "burstish": [],
+    "variationish": [],
+    "outroish": []
+  }
+}

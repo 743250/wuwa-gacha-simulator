@@ -1,0 +1,120 @@
+{
+  "name": "秋水",
+  "source": "https://wiki.biligame.com/wutheringwaves/%E5%85%B1%E9%B8%A3%E8%80%85/%E7%A7%8B%E6%B0%B4",
+  "fetchedAt": "2026-07-15",
+  "rows": [
+    {
+      "label": "第一段伤害",
+      "levels": 10,
+      "lvMaxExpr": "31.81%",
+      "lvMaxSum": 31.81
+    },
+    {
+      "label": "第二段伤害",
+      "levels": 10,
+      "lvMaxExpr": "53.02%",
+      "lvMaxSum": 53.02
+    },
+    {
+      "label": "第三段伤害",
+      "levels": 10,
+      "lvMaxExpr": "47.72%*2",
+      "lvMaxSum": 95.44
+    },
+    {
+      "label": "第四段伤害",
+      "levels": 10,
+      "lvMaxExpr": "50.37%*2",
+      "lvMaxSum": 100.74
+    },
+    {
+      "label": "第五段伤害",
+      "levels": 10,
+      "lvMaxExpr": "179.73%",
+      "lvMaxSum": 179.73
+    },
+    {
+      "label": "瞄准伤害",
+      "levels": 10,
+      "lvMaxExpr": "35.79%",
+      "lvMaxSum": 35.79
+    },
+    {
+      "label": "瞄准完全蓄力伤害",
+      "levels": 10,
+      "lvMaxExpr": "80.52%",
+      "lvMaxSum": 80.52
+    },
+    {
+      "label": "闪避反击伤害",
+      "levels": 10,
+      "lvMaxExpr": "214.12%",
+      "lvMaxSum": 214.12
+    },
+    {
+      "label": "雾化弹伤害",
+      "levels": 10,
+      "lvMaxExpr": "59.65%",
+      "lvMaxSum": 59.65
+    },
+    {
+      "label": "雾化子弹伤害",
+      "levels": 10,
+      "lvMaxExpr": "59.65%",
+      "lvMaxSum": 59.65
+    },
+    {
+      "label": "技能伤害",
+      "levels": 10,
+      "lvMaxExpr": "397.62%",
+      "lvMaxSum": 397.62
+    }
+  ],
+  "inlineFixed": [],
+  "anchors": {
+    "normalish": [
+      {
+        "label": "第一段伤害",
+        "levels": 10,
+        "lvMaxExpr": "31.81%",
+        "lvMaxSum": 31.81
+      },
+      {
+        "label": "第二段伤害",
+        "levels": 10,
+        "lvMaxExpr": "53.02%",
+        "lvMaxSum": 53.02
+      },
+      {
+        "label": "第三段伤害",
+        "levels": 10,
+        "lvMaxExpr": "47.72%*2",
+        "lvMaxSum": 95.44
+      },
+      {
+        "label": "第四段伤害",
+        "levels": 10,
+        "lvMaxExpr": "50.37%*2",
+        "lvMaxSum": 100.74
+      },
+      {
+        "label": "第五段伤害",
+        "levels": 10,
+        "lvMaxExpr": "179.73%",
+        "lvMaxSum": 179.73
+      }
+    ],
+    "skillish": [
+      {
+        "label": "技能伤害",
+        "levels": 10,
+        "lvMaxExpr": "397.62%",
+        "lvMaxSum": 397.62
+      }
+    ],
+    "heavyish": [],
+    "burstish": [],
+    "variationish": [],
+    "outroish": []
+  }
+}

@@ -134,6 +134,7 @@ export function makeSkillLines(cfg) {
 
     const skillFollow = renderFollowUp(cfg.skillFollowUp);
     const heavyFollow = renderFollowUp(cfg.heavyFollowUp);
+    const normalFollow = renderFollowUp(cfg.normalFollowUp);
     const rawBurstMech = (() => {
       if (!cfg.encoreBurstToggle) return cfg.burstMech || '';
       const mode = encoreMode || 'white';
@@ -142,24 +143,26 @@ export function makeSkillLines(cfg) {
     })();
     const burstFollow = renderFollowUp(cfg.burstFollowUp);
     const varFollow   = renderFollowUp(cfg.varFollowUp);
+    const mech = (s) => (s ? `<br>${s}` : '');
+    const follow = (s) => (s ? `<br>${s}` : '');
 
     const lines = [
       {
         icon: '⚔', name: `普攻 · ${normalName || '常态攻击'}`, cost: '1 AP',
         color: 'var(--text)',
-        desc: `对目标造成 <span class="tip" data-tip='${normalTip}'><b style="color:var(--text)">${normalShown}</b> 点</span><b class="term-normal">${elem}伤害</b>，命中后回复 12 共鸣能量、积累 8 协奏值${normalForteGain ? `，回复 ${normalForteGain} <b class="term-resource">${cfg.forteName || '资源'}</b>` : ''}。`
+        desc: `对目标造成 <span class="tip" data-tip='${normalTip}'><b style="color:var(--text)">${normalShown}</b> 点</span><b class="term-normal">${elem}伤害</b>，命中后回复 12 共鸣能量、积累 8 协奏值${normalForteGain ? `，回复 ${normalForteGain} <b class="term-resource">${cfg.forteName || '资源'}</b>` : ''}。${mech(cfg.normalMech)}${follow(normalFollow)}`
       },
       {
         icon: '✦', name: `共鸣技能 · ${skillName || '共鸣斩击'}`, cost: '1 AP · 冷却 3 回合',
         color: 'var(--accent)',
-        desc: `对目标造成 <span class="tip" data-tip='${skillTip}'><b style="color:var(--accent)">${skillShown}</b> 点</span><b class="term-skill">${elem}伤害</b>，命中后回复 22 能量${skillForteGain ? `、回复 ${skillForteGain} <b class="term-resource">${cfg.forteName || '资源'}</b>` : ''}。${skillFollow ? '<br>' + skillFollow : ''}`
+        desc: `对目标造成 <span class="tip" data-tip='${skillTip}'><b style="color:var(--accent)">${skillShown}</b> 点</span><b class="term-skill">${elem}伤害</b>，命中后回复 22 能量${skillForteGain ? `、回复 ${skillForteGain} <b class="term-resource">${cfg.forteName || '资源'}</b>` : ''}。${mech(cfg.skillMech)}${follow(skillFollow)}`
       }
     ];
     if (cfg.hasHeavy) {
       lines.push({
         icon: '💢', name: `重击 · ${heavyName || '蓄力斩'}`, cost: '2 AP · 冷却 1 回合',
         color: '#ff8c5e',
-        desc: `对目标造成 <span class="tip" data-tip='${heavyTip}'><b style="color:#ff8c5e">${heavyShown}</b> 点</span><b class="term-heavy">${elem}伤害</b>，回复 15 能量${heavyForteGain ? `、回复 ${heavyForteGain} <b class="term-resource">${cfg.forteName || '资源'}</b>` : ''}。${heavyFollow ? '<br>' + heavyFollow : ''}`
+        desc: `对目标造成 <span class="tip" data-tip='${heavyTip}'><b style="color:#ff8c5e">${heavyShown}</b> 点</span><b class="term-heavy">${elem}伤害</b>，回复 15 能量${heavyForteGain ? `、回复 ${heavyForteGain} <b class="term-resource">${cfg.forteName || '资源'}</b>` : ''}。${mech(cfg.heavyMech)}${follow(heavyFollow)}`
       });
     }
     lines.push({

@@ -125,18 +125,18 @@ const W = {
     desc: '攻击+12%；变奏/解放后技能+48%'
   },
 
-  // ✅ 卡提希娅专武：Defier's Thorn
-  '驳问之刺': {
+  // 卡提希娅专武（迅刀 · encore 不屈命定之冠）
+  '不屈命定之冠': {
     r: 5, type: '迅刀', atk90: 412,
-    sub: { stat: 'hp', value90: 0.722 },
+    sub: { stat: 'hp', value90: 0.7223 },
     passive: [
       { type: 'hp', value: 0.12 },
-      { type: 'def_pierce', value: 0.08 }       // 8% 防御穿透
+      { type: 'def_pierce', value: 0.08 }
     ],
     triggers: [
       { on: 'always', effect: 'condition_bonus', value: 0.20, condition: 'enemy_has_erosion_aero' }
     ],
-    desc: '生命+12%；伤害无视 8% 防御；气动侵蚀目标受伤+20%'
+    desc: '生命+12%；伤害无视 8% 防御；对带风蚀的目标伤害加深 20%'
   },
 
   // ✅ 露帕专武：Wildfire Mark
@@ -297,39 +297,48 @@ const W = {
     desc: '暴击+36%；攻击+12%；附加风蚀后气动+24%；命中风蚀目标降低气动抗性10%'
   },
 
-  // 弗洛洛专武（音感仪）
-  '忘川': {
-    r: 5, type: '音感仪', atk90: 500,
-    sub: { stat: 'crate', value90: 0.360 },
-    passive: [],
-    triggers: [
-      { on: 'skill_hit', effect: 'elem_dmg', value: 0.10, element: '湮灭', maxStacks: 2, duration: 5 }
-    ],
-    desc: '技能命中时湮灭伤害 +10%（最多 2 层，持续 5 回合）'
-  },
-
-  // 奥古斯塔专武（长刃）
-  '雷霆疆域': {
-    r: 5, type: '长刃', atk90: 587,
-    sub: { stat: 'cdmg', value90: 0.486 },
-    passive: [],
-    triggers: [
-      { on: 'normal_hit', effect: 'elem_dmg', value: 0.10, element: '导电', maxStacks: 3, duration: 5 }
-    ],
-    desc: '普攻命中时导电伤害 +10%（最多 3 层，持续 5 回合）'
-  },
-
-  // 尤诺专武（臂铠）
-  '望月': {
-    r: 5, type: '臂铠', atk90: 587,
-    sub: { stat: 'atk_pct', value90: 0.364 },
+  // 弗洛洛专武（音感仪 · encore 幽冥的忘忧章）
+  '幽冥的忘忧章': {
+    r: 5, type: '音感仪', atk90: 587,
+    sub: { stat: 'crate', value90: 0.243 },
     passive: [
-      { type: 'elem_dmg', element: '气动', value: 0.20 }
+      { type: 'atk_pct', value: 0.12 }
     ],
     triggers: [
-      { on: 'skill_hit', effect: 'elem_dmg', value: 0.10, element: '气动', maxStacks: 2, duration: 5 }
+      { on: 'skill_hit', effect: 'skill_pct', value: 0.32, maxStacks: 1, duration: 6 },
+      { on: 'skill_hit', effect: 'def_pierce', value: 0.08, maxStacks: 1, duration: 6 }
     ],
-    desc: '气动+20%；技能后气动+10%×2 层'
+    desc: '攻击+12%；技能后共鸣技能+32%、无视 8% 防御（约 6 回合）'
+  },
+
+  // 奥古斯塔专武（长刃 · encore 驭冕铸雷之权）
+  '驭冕铸雷之权': {
+    r: 5, type: '长刃', atk90: 675,
+    sub: { stat: 'crate', value90: 0.1215 },
+    passive: [
+      { type: 'atk_pct', value: 0.12 }
+    ],
+    triggers: [
+      { on: 'variation', effect: 'heavy_pct', value: 0.20, maxStacks: 1, duration: 7 },
+      { on: 'skill_hit', effect: 'heavy_pct', value: 0.20, maxStacks: 1, duration: 7 },
+      { on: 'skill_hit', effect: 'def_pierce', value: 0.072, maxStacks: 5, duration: 3 }
+    ],
+    desc: '攻击+12%；变奏/技能后重击+20%；叠层重击无视防御（高攻低暴击专武）'
+  },
+
+  // 尤诺专武（臂铠 · encore 万物持存的注释）
+  '万物持存的注释': {
+    r: 5, type: '臂铠', atk90: 500,
+    sub: { stat: 'crate', value90: 0.360 },
+    passive: [
+      { type: 'atk_pct', value: 0.12 }
+    ],
+    triggers: [
+      { on: 'variation', effect: 'burst_pct', value: 0.20, maxStacks: 1, duration: 7 },
+      { on: 'burst_cast', effect: 'burst_pct', value: 0.20, maxStacks: 1, duration: 7 },
+      { on: 'skill_hit', effect: 'def_pierce', value: 0.072, maxStacks: 5, duration: 3 }
+    ],
+    desc: '攻击+12%；变奏/解放后共鸣解放+20%；叠层解放无视防御'
   },
 
   // 嘉贝莉娜专武（佩枪）— encore 名为"光影双生"
@@ -345,95 +354,184 @@ const W = {
     desc: '攻击+12%；暴伤+48.6%；重击+15%×3 层'
   },
 
-  // 仇远专武（迅刀）
-  '秋水长天': {
-    r: 5, type: '迅刀', atk90: 587,
-    sub: { stat: 'atk_pct', value90: 0.364 },
-    passive: [
-      { type: 'elem_dmg', element: '气动', value: 0.20 }
-    ],
-    triggers: [
-      { on: 'skill_hit', effect: 'elem_dmg', value: 0.10, element: '气动', maxStacks: 2, duration: 5 }
-    ],
-    desc: '气动+20%；技能后气动+10%×2 层'
-  },
-
-  // 千咲专武（长刃）
-  '云雾切': {
-    r: 5, type: '长刃', atk90: 587,
-    sub: { stat: 'cdmg', value90: 0.486 },
-    passive: [
-      { type: 'elem_dmg', element: '湮灭', value: 0.20 }
-    ],
-    triggers: [
-      { on: 'normal_hit', effect: 'elem_dmg', value: 0.10, element: '湮灭', maxStacks: 3, duration: 5 }
-    ],
-    desc: '湮灭+20%；普攻后湮灭+10%×3 层'
-  },
-
-  // 琳奈专武（佩枪）
-  '光谱': {
-    r: 5, type: '佩枪', atk90: 587,
-    sub: { stat: 'atk_pct', value90: 0.364 },
-    passive: [
-      { type: 'elem_dmg', element: '衍射', value: 0.20 }
-    ],
-    triggers: [
-      { on: 'skill_hit', effect: 'elem_dmg', value: 0.10, element: '衍射', maxStacks: 2, duration: 5 }
-    ],
-    desc: '攻击+36.4%；衍射+20%；技能后衍射+10%×2 层'
-  },
-
-  // 莫宁专武（迅刀）
-  '星野': {
+  // 仇远专武（迅刀 · encore 裁竹）
+  '裁竹': {
     r: 5, type: '迅刀', atk90: 587,
     sub: { stat: 'crate', value90: 0.243 },
     passive: [
-      { type: 'elem_dmg', element: '冷凝', value: 0.20 }
+      { type: 'atk_pct', value: 0.12 }
     ],
     triggers: [
-      { on: 'skill_hit', effect: 'elem_dmg', value: 0.10, element: '冷凝', maxStacks: 2, duration: 5 }
+      { on: 'variation', effect: 'heavy_pct', value: 0.30, maxStacks: 2, duration: 6 },
+      { on: 'normal_hit', effect: 'heavy_pct', value: 0.30, maxStacks: 2, duration: 6 }
     ],
-    desc: '冷凝+20%；技能后冷凝+10%×2 层'
+    desc: '攻击+12%；变奏/普攻后重击+30%×2 层（解竹）'
   },
 
-  // 露西专武（佩枪，3.4 联动）
+  // 千咲专武（长刃 · encore 昙切）
+  '昙切': {
+    r: 5, type: '长刃', atk90: 500,
+    sub: { stat: 'crate', value90: 0.360 },
+    passive: [
+      { type: 'atk_pct', value: 0.12 }
+    ],
+    triggers: [
+      { on: 'variation', effect: 'burst_pct', value: 0.08, maxStacks: 3, duration: 7 },
+      { on: 'skill_hit', effect: 'burst_pct', value: 0.08, maxStacks: 3, duration: 7 }
+    ],
+    desc: '攻击+12%；变奏/技能后共鸣解放+8%×3 层'
+  },
+
+  // 琳奈专武（佩枪 · encore 溢彩荧辉）
+  '溢彩荧辉': {
+    r: 5, type: '佩枪', atk90: 587,
+    sub: { stat: 'crate', value90: 0.243 },
+    passive: [
+      { type: 'atk_pct', value: 0.12 }
+    ],
+    triggers: [
+      { on: 'variation', effect: 'normal_pct', value: 0.36, maxStacks: 1, duration: 2 },
+      { on: 'normal_hit', effect: 'normal_pct', value: 0.36, maxStacks: 1, duration: 2 }
+    ],
+    desc: '攻击+12%；变奏/普攻后普攻+36%（约 2 回合）'
+  },
+
+  // 莫宁专武（长刃 · encore 源能机锋）— ROLE_META 热熔·长刃
+  '源能机锋': {
+    r: 5, type: '长刃', atk90: 587,
+    sub: { stat: 'cdmg', value90: 0.486 },
+    passive: [
+      { type: 'atk_pct', value: 0.12 }
+    ],
+    triggers: [
+      { on: 'skill_hit', effect: 'burst_pct', value: 0.24, maxStacks: 1, duration: 2 }
+    ],
+    desc: '攻击+12%；对集谐·干涉目标造成伤害后共鸣解放+24%（2 回合）'
+  },
+  // 兼容旧存档/旧映射名
+  '星野': {
+    r: 5, type: '长刃', atk90: 587,
+    sub: { stat: 'cdmg', value90: 0.486 },
+    passive: [
+      { type: 'atk_pct', value: 0.12 }
+    ],
+    triggers: [
+      { on: 'skill_hit', effect: 'burst_pct', value: 0.24, maxStacks: 1, duration: 2 }
+    ],
+    desc: '攻击+12%；技能后共鸣解放+24%（旧名「星野」兼容）'
+  },
+
+  // 爱弥斯专武（迅刀 · encore 永远的启明星）
+  '永远的启明星': {
+    r: 5, type: '迅刀', atk90: 587,
+    sub: { stat: 'crate', value90: 0.243 },
+    passive: [
+      { type: 'elem_all', value: 0.12 }
+    ],
+    triggers: [
+      { on: 'skill_hit', effect: 'def_pierce', value: 0.32, maxStacks: 1, duration: 4 },
+      { on: 'skill_hit', effect: 'burst_pct', value: 0.10, maxStacks: 1, duration: 4 }
+    ],
+    desc: '全属性+12%；附加震谐/聚爆后共鸣解放无视 32% 防御、解放+10%（约 4 回合）'
+  },
+
+  // 陆·赫斯专武（臂铠 · encore 白昼之脊）
+  '白昼之脊': {
+    r: 5, type: '臂铠', atk90: 587,
+    sub: { stat: 'crate', value90: 0.243 },
+    passive: [
+      { type: 'atk_pct', value: 0.12 }
+    ],
+    triggers: [
+      { on: 'normal_hit', effect: 'elem_dmg', value: 0.20, element: '衍射', maxStacks: 1, duration: 2 },
+      { on: 'normal_hit', effect: 'normal_pct', value: 0.20, maxStacks: 1, duration: 3 }
+    ],
+    desc: '攻击+12%；普攻后衍射+20%；附加集谐后普攻+20%'
+  },
+
+  // 西格莉卡专武（臂铠 · encore 昭日译注）
+  '昭日译注': {
+    r: 5, type: '臂铠', atk90: 587,
+    sub: { stat: 'cdmg', value90: 0.486 },
+    passive: [
+      { type: 'atk_pct', value: 0.12 }
+    ],
+    triggers: [
+      { on: 'variation', effect: 'skill_pct', value: 0.32, maxStacks: 1, duration: 7 },
+      { on: 'skill_hit', effect: 'def_pierce', value: 0.10, maxStacks: 1, duration: 3 }
+    ],
+    desc: '攻击+12%；变奏后技能+32%（约 7 回合）；技能后无视 10% 防御'
+  },
+
+  // 绯雪专武（迅刀 · encore 灼霜）
+  '灼霜': {
+    r: 5, type: '迅刀', atk90: 587,
+    sub: { stat: 'crate', value90: 0.243 },
+    passive: [
+      { type: 'atk_pct', value: 0.12 }
+    ],
+    triggers: [
+      { on: 'skill_hit', effect: 'elem_dmg', value: 0.28, element: '冷凝', maxStacks: 1, duration: 3 },
+      { on: 'skill_hit', effect: 'def_pierce', value: 0.10, maxStacks: 1, duration: 3 }
+    ],
+    desc: '攻击+12%；附加霜渐后冷凝+28%、共鸣解放无视 10% 防御'
+  },
+
+  // 达妮娅专武（音感仪 · encore 赝作的矮星）
+  '赝作的矮星': {
+    r: 5, type: '音感仪', atk90: 500,
+    sub: { stat: 'crate', value90: 0.360 },
+    passive: [
+      { type: 'atk_pct', value: 0.12 }
+    ],
+    triggers: [
+      { on: 'skill_hit', effect: 'burst_pct', value: 0.36, maxStacks: 1, duration: 3 },
+      { on: 'skill_hit', effect: 'team_atk', value: 0.24, maxStacks: 1, duration: 7 }
+    ],
+    desc: '攻击+12%；附加聚爆/集谐后共鸣解放+36%，全队攻击+24%（约 7 回合）'
+  },
+
+  // 露西专武（佩枪 · encore 蜃影）
   '蜃影': {
     r: 5, type: '佩枪', atk90: 587,
     sub: { stat: 'cdmg', value90: 0.486 },
     passive: [
-      { type: 'elem_dmg', element: '衍射', value: 0.20 }
+      { type: 'atk_pct', value: 0.12 }
     ],
     triggers: [
-      { on: 'normal_hit', effect: 'normal_pct', value: 0.10, maxStacks: 3, duration: 5 }
+      { on: 'skill_hit', effect: 'elem_dmg', value: 0.20, element: '衍射', maxStacks: 2, duration: 7 },
+      { on: 'skill_hit', effect: 'heavy_pct', value: 0.30, maxStacks: 1, duration: 7 }
     ],
-    desc: '暴伤+48.6%；衍射+20%；普攻后普攻+10%×3 层'
+    desc: '攻击+12%；技能后衍射+20%×2 层；附加骇破后重击+30%'
   },
 
-  // 丽贝卡专武（佩枪，3.4 联动）
+  // 丽贝卡专武（佩枪 · encore 碎骨）
   '碎骨': {
     r: 5, type: '佩枪', atk90: 500,
     sub: { stat: 'cdmg', value90: 0.720 },
     passive: [
-      { type: 'elem_dmg', element: '导电', value: 0.18 }
+      { type: 'atk_pct', value: 0.12 }
     ],
     triggers: [
-      { on: 'concerto_consume', effect: 'normal_pct', value: 0.30, maxStacks: 1, duration: 5 }
+      { on: 'variation', effect: 'normal_pct', value: 0.24, maxStacks: 1, duration: 7 },
+      { on: 'skill_hit', effect: 'normal_pct', value: 0.12, maxStacks: 1, duration: 7 },
+      { on: 'skill_hit', effect: 'team_atk', value: 0.24, maxStacks: 1, duration: 15 }
     ],
-    desc: '暴伤+72%；导电+18%；消耗协奏后普攻+30%'
+    desc: '攻击+12%；变奏后普攻+24%；附加骇破后普攻+12%、全队攻击+24%'
   },
 
-  // 洛瑟菈专武（音感仪）
+  // 洛瑟菈专武（音感仪 · encore 存帧）
   '存帧': {
     r: 5, type: '音感仪', atk90: 587,
     sub: { stat: 'crate', value90: 0.243 },
     passive: [
-      { type: 'elem_dmg', element: '湮灭', value: 0.20 }
+      { type: 'atk_pct', value: 0.12 }
     ],
     triggers: [
-      { on: 'skill_hit', effect: 'elem_dmg', value: 0.10, element: '湮灭', maxStacks: 2, duration: 5 }
+      { on: 'skill_hit', effect: 'elem_dmg', value: 0.30, element: '冷凝', maxStacks: 1, duration: 6 },
+      { on: 'skill_hit', effect: 'team_atk', value: 0.24, maxStacks: 1, duration: 15 }
     ],
-    desc: '暴击+24.3%；湮灭+20%；技能后湮灭+10%×2 层'
+    desc: '攻击+12%；附加霜渐后冷凝+30%、全队攻击+24%'
   },
 
   '焚野': {
@@ -777,6 +875,21 @@ const W = {
   '暗夜臂铠':   { r: 3, type: '臂铠',   atk90: 280, sub: { stat: 'atk_pct', value90: 0.08 }, passive: [], triggers: [], desc: '攻击+8%' },
   '暗夜音感仪': { r: 3, type: '音感仪', atk90: 280, sub: { stat: 'atk_pct', value90: 0.08 }, passive: [], triggers: [], desc: '攻击+8%' }
 };
+
+// 旧假名 → 官方名（存档兼容）
+const WEAPON_ALIASES = {
+  "驳问之刺": "不屈命定之冠",
+  "忘川": "幽冥的忘忧章",
+  "雷霆疆域": "驭冕铸雷之权",
+  "望月": "万物持存的注释",
+  "秋水长天": "裁竹",
+  "云雾切": "昙切",
+  "光谱": "溢彩荧辉",
+  "星野": "源能机锋"
+};
+for (const [oldName, realName] of Object.entries(WEAPON_ALIASES)) {
+  if (!W[oldName] && W[realName]) W[oldName] = W[realName];
+}
 
 // 清理掉 null 占位
 Object.keys(W).forEach(k => { if (W[k] === null) delete W[k]; });

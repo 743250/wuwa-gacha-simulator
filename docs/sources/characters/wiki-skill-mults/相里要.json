@@ -1,0 +1,196 @@
+{
+  "name": "相里要",
+  "source": "https://wiki.biligame.com/wutheringwaves/%E5%85%B1%E9%B8%A3%E8%80%85/%E7%9B%B8%E9%87%8C%E8%A6%81",
+  "fetchedAt": "2026-07-15",
+  "rows": [
+    {
+      "label": "第一段伤害",
+      "levels": 10,
+      "lvMaxExpr": "33.11%*2",
+      "lvMaxSum": 66.22
+    },
+    {
+      "label": "第二段伤害",
+      "levels": 10,
+      "lvMaxExpr": "99.61%",
+      "lvMaxSum": 99.61
+    },
+    {
+      "label": "第三段伤害",
+      "levels": 10,
+      "lvMaxExpr": "39.76%*3",
+      "lvMaxSum": 119.28
+    },
+    {
+      "label": "第四段伤害",
+      "levels": 10,
+      "lvMaxExpr": "53.05%*2+26.53%",
+      "lvMaxSum": 132.63
+    },
+    {
+      "label": "第五段伤害",
+      "levels": 10,
+      "lvMaxExpr": "198.81%",
+      "lvMaxSum": 198.81
+    },
+    {
+      "label": "重击伤害",
+      "levels": 10,
+      "lvMaxExpr": "82.81%*2",
+      "lvMaxSum": 165.62
+    },
+    {
+      "label": "空中攻击伤害",
+      "levels": 10,
+      "lvMaxExpr": "123.27%",
+      "lvMaxSum": 123.27
+    },
+    {
+      "label": "闪避反击伤害",
+      "levels": 10,
+      "lvMaxExpr": "238.58%",
+      "lvMaxSum": 238.58
+    },
+    {
+      "label": "技能伤害",
+      "levels": 10,
+      "lvMaxExpr": "198.81%",
+      "lvMaxSum": 198.81
+    },
+    {
+      "label": "应刃伤害",
+      "levels": 10,
+      "lvMaxExpr": "397.82%",
+      "lvMaxSum": 397.82
+    },
+    {
+      "label": "万方法则伤害",
+      "levels": 10,
+      "lvMaxExpr": "95.73%*4+255.28%",
+      "lvMaxSum": 638.2
+    },
+    {
+      "label": "解裂重构伤害",
+      "levels": 10,
+      "lvMaxExpr": "21.87%*4+65.61%*2",
+      "lvMaxSum": 218.7
+    },
+    {
+      "label": "思维矩阵伤害",
+      "levels": 10,
+      "lvMaxExpr": "1466.06%",
+      "lvMaxSum": 1466.06
+    },
+    {
+      "label": "枢机·勘破第一段伤害",
+      "levels": 10,
+      "lvMaxExpr": "119.67%",
+      "lvMaxSum": 119.67
+    },
+    {
+      "label": "枢机·勘破第二段伤害",
+      "levels": 10,
+      "lvMaxExpr": "60.92%*4",
+      "lvMaxSum": 243.68
+    },
+    {
+      "label": "枢机·勘破第三段伤害",
+      "levels": 10,
+      "lvMaxExpr": "133.25%*2",
+      "lvMaxSum": 266.5
+    },
+    {
+      "label": "一相万殊伤害",
+      "levels": 10,
+      "lvMaxExpr": "49.59%*3+173.55%*2",
+      "lvMaxSum": 495.87
+    },
+    {
+      "label": "知无定形伤害",
+      "levels": 10,
+      "lvMaxExpr": "38.83%*2+310.58%",
+      "lvMaxSum": 388.24
+    }
+  ],
+  "inlineFixed": [
+    {
+      "context": "命中目标时，相里要将攻击目标，造成相里要237.63%攻击的",
+      "pct": 237.63
+    },
+    {
+      "context": "命中目标时，相里要将攻击目标，造成相里要237.63%攻击的",
+      "pct": 237.63
+    }
+  ],
+  "anchors": {
+    "normalish": [
+      {
+        "label": "第一段伤害",
+        "levels": 10,
+        "lvMaxExpr": "33.11%*2",
+        "lvMaxSum": 66.22
+      },
+      {
+        "label": "第二段伤害",
+        "levels": 10,
+        "lvMaxExpr": "99.61%",
+        "lvMaxSum": 99.61
+      },
+      {
+        "label": "第三段伤害",
+        "levels": 10,
+        "lvMaxExpr": "39.76%*3",
+        "lvMaxSum": 119.28
+      },
+      {
+        "label": "第四段伤害",
+        "levels": 10,
+        "lvMaxExpr": "53.05%*2+26.53%",
+        "lvMaxSum": 132.63
+      },
+      {
+        "label": "第五段伤害",
+        "levels": 10,
+        "lvMaxExpr": "198.81%",
+        "lvMaxSum": 198.81
+      },
+      {
+        "label": "枢机·勘破第一段伤害",
+        "levels": 10,
+        "lvMaxExpr": "119.67%",
+        "lvMaxSum": 119.67
+      },
+      {
+        "label": "枢机·勘破第二段伤害",
+        "levels": 10,
+        "lvMaxExpr": "60.92%*4",
+        "lvMaxSum": 243.68
+      },
+      {
+        "label": "枢机·勘破第三段伤害",
+        "levels": 10,
+        "lvMaxExpr": "133.25%*2",
+        "lvMaxSum": 266.5
+      }
+    ],
+    "skillish": [
+      {
+        "label": "技能伤害",
+        "levels": 10,
+        "lvMaxExpr": "198.81%",
+        "lvMaxSum": 198.81
+      }
+    ],
+    "heavyish": [
+      {
+        "label": "重击伤害",
+        "levels": 10,
+        "lvMaxExpr": "82.81%*2",
+        "lvMaxSum": 165.62
+      }
+    ],
+    "burstish": [],
+    "variationish": [],
+    "outroish": []
+  }
+}

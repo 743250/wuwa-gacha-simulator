@@ -21,7 +21,7 @@ let saveTimer = null;
 // ============ 存档版本 + 迁移链 ============
 // 当前存档版本号。每次改动 S 的结构（加/删字段、改字段含义）必须 +1 并在 MIGRATIONS 里加一条。
 // 老存档缺少 _v 时按 0 处理，逐级跑到当前版本。
-const SAVE_VERSION = 4;
+const SAVE_VERSION = 5;
 
 // 迁移函数：from → to，每个函数把存档从版本 N 升级到 N+1。
 // 只动结构/字段名/数值含义，不要碰业务逻辑。
@@ -75,6 +75,15 @@ const MIGRATIONS = [
   // 逻辑在 load 时延迟到 ensureEchoStats（避免 save 层硬依赖 equip 模块环依赖时也可安全 no-op）
   (s) => {
     s._echoStatsNeedRefresh = true;
+  },
+  // 4 → 5：运营邮箱字段
+  (s) => {
+    if (!s.mailbox || typeof s.mailbox !== 'object') {
+      s.mailbox = { delivered: {}, claimed: {} };
+    } else {
+      if (!s.mailbox.delivered) s.mailbox.delivered = {};
+      if (!s.mailbox.claimed) s.mailbox.claimed = {};
+    }
   },
 ];
 

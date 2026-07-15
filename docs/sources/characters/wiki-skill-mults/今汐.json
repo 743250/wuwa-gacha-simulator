@@ -1,0 +1,205 @@
+{
+  "name": "今汐",
+  "source": "https://wiki.biligame.com/wutheringwaves/%E5%85%B1%E9%B8%A3%E8%80%85/%E4%BB%8A%E6%B1%90",
+  "fetchedAt": "2026-07-15",
+  "rows": [
+    {
+      "label": "第一段伤害",
+      "levels": 10,
+      "lvMaxExpr": "66.47%",
+      "lvMaxSum": 66.47
+    },
+    {
+      "label": "第二段伤害",
+      "levels": 10,
+      "lvMaxExpr": "38.99%+19.50%*3",
+      "lvMaxSum": 97.49
+    },
+    {
+      "label": "第三段伤害",
+      "levels": 10,
+      "lvMaxExpr": "10.65%*7+31.94%",
+      "lvMaxSum": 106.49
+    },
+    {
+      "label": "第四段伤害",
+      "levels": 10,
+      "lvMaxExpr": "63.09%+94.63%",
+      "lvMaxSum": 157.72
+    },
+    {
+      "label": "重击伤害",
+      "levels": 10,
+      "lvMaxExpr": "23.86%*5+35.79%+83.51%",
+      "lvMaxSum": 238.6
+    },
+    {
+      "label": "空中攻击伤害",
+      "levels": 10,
+      "lvMaxExpr": "12.33%+24.66%+86.29%",
+      "lvMaxSum": 123.28
+    },
+    {
+      "label": "闪避反击伤害",
+      "levels": 10,
+      "lvMaxExpr": "14.68%*7+44.02%",
+      "lvMaxSum": 146.78
+    },
+    {
+      "label": "技能伤害",
+      "levels": 10,
+      "lvMaxExpr": "19.46%*4+77.84%",
+      "lvMaxSum": 155.68
+    },
+    {
+      "label": "神霓飞芒伤害",
+      "levels": 10,
+      "lvMaxExpr": "9.87%*4+29.59%*4+39.45%",
+      "lvMaxSum": 197.29
+    },
+    {
+      "label": "凌霄·普攻第一段伤害",
+      "levels": 10,
+      "lvMaxExpr": "88.62%",
+      "lvMaxSum": 88.62
+    },
+    {
+      "label": "凌霄·普攻第二段伤害",
+      "levels": 10,
+      "lvMaxExpr": "77.97%+25.99%+25.99%",
+      "lvMaxSum": 129.95
+    },
+    {
+      "label": "凌霄·普攻第三段伤害",
+      "levels": 10,
+      "lvMaxExpr": "99.44%+66.30%",
+      "lvMaxSum": 165.74
+    },
+    {
+      "label": "凌霄·普攻第四段伤害",
+      "levels": 10,
+      "lvMaxExpr": "18.67%*6+74.67%",
+      "lvMaxSum": 186.69
+    },
+    {
+      "label": "凌霄·重击伤害",
+      "levels": 10,
+      "lvMaxExpr": "47.72%+111.34%",
+      "lvMaxSum": 159.06
+    },
+    {
+      "label": "凌霄·闪避反击伤害",
+      "levels": 10,
+      "lvMaxExpr": "43.89%+32.92%*2+109.71%",
+      "lvMaxSum": 219.44
+    },
+    {
+      "label": "逐天取月技能伤害",
+      "levels": 10,
+      "lvMaxExpr": "100.76%+75.57%*2+251.90%",
+      "lvMaxSum": 503.8
+    },
+    {
+      "label": "惊龙破空·熠日伤害",
+      "levels": 10,
+      "lvMaxExpr": "19.89%*6",
+      "lvMaxSum": 119.34
+    },
+    {
+      "label": "惊龙破空·炳星伤害",
+      "levels": 10,
+      "lvMaxExpr": "347.92%",
+      "lvMaxSum": 347.92
+    },
+    {
+      "label": "每点【韶光】增加倍率",
+      "levels": 10,
+      "lvMaxExpr": "44.54%",
+      "lvMaxSum": 44.54
+    }
+  ],
+  "inlineFixed": [],
+  "anchors": {
+    "normalish": [
+      {
+        "label": "第一段伤害",
+        "levels": 10,
+        "lvMaxExpr": "66.47%",
+        "lvMaxSum": 66.47
+      },
+      {
+        "label": "第二段伤害",
+        "levels": 10,
+        "lvMaxExpr": "38.99%+19.50%*3",
+        "lvMaxSum": 97.49
+      },
+      {
+        "label": "第三段伤害",
+        "levels": 10,
+        "lvMaxExpr": "10.65%*7+31.94%",
+        "lvMaxSum": 106.49
+      },
+      {
+        "label": "第四段伤害",
+        "levels": 10,
+        "lvMaxExpr": "63.09%+94.63%",
+        "lvMaxSum": 157.72
+      },
+      {
+        "label": "凌霄·普攻第一段伤害",
+        "levels": 10,
+        "lvMaxExpr": "88.62%",
+        "lvMaxSum": 88.62
+      },
+      {
+        "label": "凌霄·普攻第二段伤害",
+        "levels": 10,
+        "lvMaxExpr": "77.97%+25.99%+25.99%",
+        "lvMaxSum": 129.95
+      },
+      {
+        "label": "凌霄·普攻第三段伤害",
+        "levels": 10,
+        "lvMaxExpr": "99.44%+66.30%",
+        "lvMaxSum": 165.74
+      },
+      {
+        "label": "凌霄·普攻第四段伤害",
+        "levels": 10,
+        "lvMaxExpr": "18.67%*6+74.67%",
+        "lvMaxSum": 186.69
+      }
+    ],
+    "skillish": [
+      {
+        "label": "技能伤害",
+        "levels": 10,
+        "lvMaxExpr": "19.46%*4+77.84%",
+        "lvMaxSum": 155.68
+      },
+      {
+        "label": "逐天取月技能伤害",
+        "levels": 10,
+        "lvMaxExpr": "100.76%+75.57%*2+251.90%",
+        "lvMaxSum": 503.8
+      }
+    ],
+    "heavyish": [
+      {
+        "label": "重击伤害",
+        "levels": 10,
+        "lvMaxExpr": "23.86%*5+35.79%+83.51%",
+        "lvMaxSum": 238.6
+      },
+      {
+        "label": "凌霄·重击伤害",
+        "levels": 10,
+        "lvMaxExpr": "47.72%+111.34%",
+        "lvMaxSum": 159.06
+      }
+    ],
+    "burstish": [],
+    "variationish": [],
+    "outroish": []
+  }
+}

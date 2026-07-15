@@ -1,0 +1,230 @@
+{
+  "name": "奥古斯塔",
+  "source": "https://wiki.biligame.com/wutheringwaves/%E5%85%B1%E9%B8%A3%E8%80%85/%E5%A5%A5%E5%8F%A4%E6%96%AF%E5%A1%94",
+  "fetchedAt": "2026-07-15",
+  "rows": [
+    {
+      "label": "第一段伤害",
+      "levels": 10,
+      "lvMaxExpr": "57.46%",
+      "lvMaxSum": 57.46
+    },
+    {
+      "label": "第二段伤害",
+      "levels": 10,
+      "lvMaxExpr": "67.00%*2",
+      "lvMaxSum": 134
+    },
+    {
+      "label": "第三段伤害",
+      "levels": 10,
+      "lvMaxExpr": "65.61%*3",
+      "lvMaxSum": 196.83
+    },
+    {
+      "label": "第四段伤害",
+      "levels": 10,
+      "lvMaxExpr": "64.63%*3",
+      "lvMaxSum": 193.89
+    },
+    {
+      "label": "重击·鸣铁伤害",
+      "levels": 10,
+      "lvMaxExpr": "46.39%*3",
+      "lvMaxSum": 139.17
+    },
+    {
+      "label": "空中攻击伤害",
+      "levels": 10,
+      "lvMaxExpr": "59.65%*2",
+      "lvMaxSum": 119.3
+    },
+    {
+      "label": "闪避反击伤害",
+      "levels": 10,
+      "lvMaxExpr": "67.00%*2",
+      "lvMaxSum": 134
+    },
+    {
+      "label": "空中闪避反击伤害",
+      "levels": 10,
+      "lvMaxExpr": "59.65%*2",
+      "lvMaxSum": 119.3
+    },
+    {
+      "label": "重击·烁雷·后撤伤害",
+      "levels": 10,
+      "lvMaxExpr": "53.68%",
+      "lvMaxSum": 53.68
+    },
+    {
+      "label": "重击·烁雷·旋切伤害",
+      "levels": 10,
+      "lvMaxExpr": "141.72%*3",
+      "lvMaxSum": 425.16
+    },
+    {
+      "label": "重击·烁雷·升拳伤害",
+      "levels": 10,
+      "lvMaxExpr": "178.93%*2",
+      "lvMaxSum": 357.86
+    },
+    {
+      "label": "闪避反击·重击·鸣铁伤害",
+      "levels": 10,
+      "lvMaxExpr": "46.39%*3",
+      "lvMaxSum": 139.17
+    },
+    {
+      "label": "闪避反击·烁雷·后撤伤害",
+      "levels": 10,
+      "lvMaxExpr": "53.68%",
+      "lvMaxSum": 53.68
+    },
+    {
+      "label": "技能伤害",
+      "levels": 10,
+      "lvMaxExpr": "170.62%*3",
+      "lvMaxSum": 511.86
+    },
+    {
+      "label": "共鸣技能·不败恒阳·迅击伤害",
+      "levels": 10,
+      "lvMaxExpr": "139.17%*2",
+      "lvMaxSum": 278.34
+    },
+    {
+      "label": "共鸣技能·不败恒阳·跃空伤害",
+      "levels": 10,
+      "lvMaxExpr": "222.67%+27.84%*2",
+      "lvMaxSum": 278.35
+    },
+    {
+      "label": "共鸣技能·不败恒阳·落袭伤害",
+      "levels": 10,
+      "lvMaxExpr": "43.30%*2+779.24%",
+      "lvMaxSum": 865.84
+    },
+    {
+      "label": "空中闪避反击·不败恒阳·迅击伤害",
+      "levels": 10,
+      "lvMaxExpr": "139.17%*2",
+      "lvMaxSum": 278.34
+    },
+    {
+      "label": "共鸣解放·誓锋不殒伤害",
+      "levels": 10,
+      "lvMaxExpr": "32.99%*2+131.94%*3+32.99%*2+571.7%",
+      "lvMaxSum": 1099.48
+    },
+    {
+      "label": "赫日威临·烈阳伤害",
+      "levels": 10,
+      "lvMaxExpr": "119.29%",
+      "lvMaxSum": 119.29
+    },
+    {
+      "label": "赫日威临·不朽者之肃伤害",
+      "levels": 10,
+      "lvMaxExpr": "49.71%*3+37.28%*3+954.29%+37.28%",
+      "lvMaxSum": 1252.54
+    }
+  ],
+  "inlineFixed": [],
+  "anchors": {
+    "normalish": [
+      {
+        "label": "第一段伤害",
+        "levels": 10,
+        "lvMaxExpr": "57.46%",
+        "lvMaxSum": 57.46
+      },
+      {
+        "label": "第二段伤害",
+        "levels": 10,
+        "lvMaxExpr": "67.00%*2",
+        "lvMaxSum": 134
+      },
+      {
+        "label": "第三段伤害",
+        "levels": 10,
+        "lvMaxExpr": "65.61%*3",
+        "lvMaxSum": 196.83
+      },
+      {
+        "label": "第四段伤害",
+        "levels": 10,
+        "lvMaxExpr": "64.63%*3",
+        "lvMaxSum": 193.89
+      }
+    ],
+    "skillish": [
+      {
+        "label": "技能伤害",
+        "levels": 10,
+        "lvMaxExpr": "170.62%*3",
+        "lvMaxSum": 511.86
+      },
+      {
+        "label": "共鸣技能·不败恒阳·迅击伤害",
+        "levels": 10,
+        "lvMaxExpr": "139.17%*2",
+        "lvMaxSum": 278.34
+      },
+      {
+        "label": "共鸣技能·不败恒阳·跃空伤害",
+        "levels": 10,
+        "lvMaxExpr": "222.67%+27.84%*2",
+        "lvMaxSum": 278.35
+      },
+      {
+        "label": "共鸣技能·不败恒阳·落袭伤害",
+        "levels": 10,
+        "lvMaxExpr": "43.30%*2+779.24%",
+        "lvMaxSum": 865.84
+      }
+    ],
+    "heavyish": [
+      {
+        "label": "重击·鸣铁伤害",
+        "levels": 10,
+        "lvMaxExpr": "46.39%*3",
+        "lvMaxSum": 139.17
+      },
+      {
+        "label": "重击·烁雷·后撤伤害",
+        "levels": 10,
+        "lvMaxExpr": "53.68%",
+        "lvMaxSum": 53.68
+      },
+      {
+        "label": "重击·烁雷·旋切伤害",
+        "levels": 10,
+        "lvMaxExpr": "141.72%*3",
+        "lvMaxSum": 425.16
+      },
+      {
+        "label": "重击·烁雷·升拳伤害",
+        "levels": 10,
+        "lvMaxExpr": "178.93%*2",
+        "lvMaxSum": 357.86
+      },
+      {
+        "label": "闪避反击·重击·鸣铁伤害",
+        "levels": 10,
+        "lvMaxExpr": "46.39%*3",
+        "lvMaxSum": 139.17
+      }
+    ],
+    "burstish": [
+      {
+        "label": "共鸣解放·誓锋不殒伤害",
+        "levels": 10,
+        "lvMaxExpr": "32.99%*2+131.94%*3+32.99%*2+571.7%",
+        "lvMaxSum": 1099.48
+      }
+    ],
+    "variationish": [],
+    "outroish": []
+  }
+}

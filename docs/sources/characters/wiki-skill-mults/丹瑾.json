@@ -1,0 +1,181 @@
+{
+  "name": "丹瑾",
+  "source": "https://wiki.biligame.com/wutheringwaves/%E5%85%B1%E9%B8%A3%E8%80%85/%E4%B8%B9%E7%91%BE",
+  "fetchedAt": "2026-07-15",
+  "rows": [
+    {
+      "label": "第一段伤害",
+      "levels": 10,
+      "lvMaxExpr": "57.26%",
+      "lvMaxSum": 57.26
+    },
+    {
+      "label": "第二段伤害",
+      "levels": 10,
+      "lvMaxExpr": "58.85%",
+      "lvMaxSum": 58.85
+    },
+    {
+      "label": "第三段伤害",
+      "levels": 10,
+      "lvMaxExpr": "79.53%",
+      "lvMaxSum": 79.53
+    },
+    {
+      "label": "重击伤害",
+      "levels": 10,
+      "lvMaxExpr": "37.12%*3",
+      "lvMaxSum": 111.36
+    },
+    {
+      "label": "空中攻击伤害",
+      "levels": 10,
+      "lvMaxExpr": "98.61%",
+      "lvMaxSum": 98.61
+    },
+    {
+      "label": "极限闪避反击伤害",
+      "levels": 10,
+      "lvMaxExpr": "63.62%*3",
+      "lvMaxSum": 190.86
+    },
+    {
+      "label": "赤华伤害",
+      "levels": 10,
+      "lvMaxExpr": "38.18%*2",
+      "lvMaxSum": 76.36
+    },
+    {
+      "label": "朱蚀一段伤害",
+      "levels": 10,
+      "lvMaxExpr": "64.42%*2",
+      "lvMaxSum": 128.84
+    },
+    {
+      "label": "朱蚀二段伤害",
+      "levels": 10,
+      "lvMaxExpr": "59.65%*2",
+      "lvMaxSum": 119.3
+    },
+    {
+      "label": "烬灭第一段伤害",
+      "levels": 10,
+      "lvMaxExpr": "56.07%*2",
+      "lvMaxSum": 112.14
+    },
+    {
+      "label": "烬灭第二段伤害",
+      "levels": 10,
+      "lvMaxExpr": "42.95%*3",
+      "lvMaxSum": 128.85
+    },
+    {
+      "label": "烬灭第三段伤害",
+      "levels": 10,
+      "lvMaxExpr": "64.42%*3",
+      "lvMaxSum": 193.26
+    },
+    {
+      "label": "缭乱伤害",
+      "levels": 10,
+      "lvMaxExpr": "59.65%*7",
+      "lvMaxSum": 417.55
+    },
+    {
+      "label": "纷落伤害",
+      "levels": 10,
+      "lvMaxExpr": "178.93%",
+      "lvMaxSum": 178.93
+    },
+    {
+      "label": "满能缭乱伤害",
+      "levels": 10,
+      "lvMaxExpr": "143.15%*7",
+      "lvMaxSum": 1002.05
+    },
+    {
+      "label": "满能纷落伤害",
+      "levels": 10,
+      "lvMaxExpr": "429.43%",
+      "lvMaxSum": 429.43
+    },
+    {
+      "label": "连续攻击伤害",
+      "levels": 10,
+      "lvMaxExpr": "49.09%*8",
+      "lvMaxSum": 392.72
+    },
+    {
+      "label": "绯刹爆发伤害",
+      "levels": 10,
+      "lvMaxExpr": "392.65%",
+      "lvMaxSum": 392.65
+    },
+    {
+      "label": "技能伤害",
+      "levels": 10,
+      "lvMaxExpr": "49.71%*4",
+      "lvMaxSum": 198.84
+    }
+  ],
+  "inlineFixed": [],
+  "anchors": {
+    "normalish": [
+      {
+        "label": "第一段伤害",
+        "levels": 10,
+        "lvMaxExpr": "57.26%",
+        "lvMaxSum": 57.26
+      },
+      {
+        "label": "第二段伤害",
+        "levels": 10,
+        "lvMaxExpr": "58.85%",
+        "lvMaxSum": 58.85
+      },
+      {
+        "label": "第三段伤害",
+        "levels": 10,
+        "lvMaxExpr": "79.53%",
+        "lvMaxSum": 79.53
+      },
+      {
+        "label": "烬灭第一段伤害",
+        "levels": 10,
+        "lvMaxExpr": "56.07%*2",
+        "lvMaxSum": 112.14
+      },
+      {
+        "label": "烬灭第二段伤害",
+        "levels": 10,
+        "lvMaxExpr": "42.95%*3",
+        "lvMaxSum": 128.85
+      },
+      {
+        "label": "烬灭第三段伤害",
+        "levels": 10,
+        "lvMaxExpr": "64.42%*3",
+        "lvMaxSum": 193.26
+      }
+    ],
+    "skillish": [
+      {
+        "label": "技能伤害",
+        "levels": 10,
+        "lvMaxExpr": "49.71%*4",
+        "lvMaxSum": 198.84
+      }
+    ],
+    "heavyish": [
+      {
+        "label": "重击伤害",
+        "levels": 10,
+        "lvMaxExpr": "37.12%*3",
+        "lvMaxSum": 111.36
+      }
+    ],
+    "burstish": [],
+    "variationish": [],
+    "outroish": []
+  }
+}

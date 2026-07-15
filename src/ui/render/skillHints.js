@@ -803,17 +803,18 @@ export const SKILL_HINTS = {
     forteDesc: '莫特斐是<b style="color:#ff8c5e">热熔副C</b>：<b class="term-burst">共鸣解放·浮翼狂想</b>开启协同窗口，主C 用技能时莫特斐补刀。<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>解放铺协同攻击窗口，切到主C 用技能触发莫特斐协同。'
   },
   '散华': {
-    intro: '冷凝 · 迅刀 · 副C · 「霜色」',
+    intro: '冷凝 · 迅刀 · 副C · 「冰棘 · 重击爆裂」',
     customLines: makeSkillLines({
       normalMult: 1.2, skillMult: 3.6, heavyMult: 3.7, burstMain: 8.1, burstSide: 4.05, variationMult: 1.4,
       element: '冷凝',
       normalName: '寒光', skillName: '朔雪永冻', heavyName: '爆裂', burstName: '焦瞑冻土', varName: '凛刺',
       hasHeavy: true,
-      skillFollowUp: '1 链：第 5 段普攻后暴击 +15%。',
-      heavyFollowUp: '4 链：解放后下次重击·爆裂 +120%。 6 链：重击·爆裂倍率 +50%。',
-      burstFollowUp: '消耗<b class="term-resource">冰绽</b>。 4 链：解放回 10 能量。 5 链：<b class="term-resource">冰绽</b>暴击伤害 +100%，冰棘/冰棱/冰川消失时直接爆炸。 6 链：引爆冰棱/冰川后全队攻击 +10%×2 层。'
+      skillFollowUp: '1 链：每第 5 次普攻后暴击 +15%，持续 2 回合。',
+      heavyFollowUp: '需<b class="term-resource">冰棘</b>满。2 链：重击伤害 +20%。4 链：解放后下次爆裂 +120%。5 链：爆裂暴伤 +100%。6 链：爆裂后全队攻击 +10%，可叠 2 层。',
+      burstFollowUp: '4 链：回复 10 点共鸣能量，并强化下次<b class="term-heavy">重击·爆裂</b>。',
+      varFollowUp: '获得 15 点<b class="term-resource">冰棘</b>。延奏·凛絜：下一位登场角色普攻伤害加深 38%，持续 2 回合。'
     }),
-    forteDesc: '散华是<b style="color:#7bd6ff">冷凝副C</b>：核心是<b class="term-heavy">重击·爆裂</b>，配合 4 链解放后的高倍率爆发。<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>普攻 5 段，共鸣技能，共鸣解放，重击·爆裂爆发。'
+    forteDesc: '散华是<b style="color:#7bd6ff">冷凝副C</b>：核心是攒满<b class="term-resource">冰棘</b>后施放<b class="term-heavy">重击·爆裂</b>，再以延奏·凛絜交棒。<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>普攻/技能灌冰棘 →（可选解放挂 4 链窗）→ 重击·爆裂清空 → 切换交给主 C。'
   },
   '卜灵': {
     intro: '导电 · 音感仪 · 辅助 · 「五雷荡煞阵」',

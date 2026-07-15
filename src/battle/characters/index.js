@@ -26,6 +26,7 @@ import xiakong from './xiakong.js';
 import younuo from './younuo.js';
 import lupa from './lupa.js';
 import gaberina from './gaberina.js';
+import sanhua from './sanhua.js';
 
 // 轻量角色：仅标记 hasHeavy + 可选倍率 hook（Phase 3 校准）
 const LIGHTWEIGHT = {
@@ -117,15 +118,7 @@ const LIGHTWEIGHT = {
     resolveBurstMult: () => ({ baseMain: 4.0, baseSide: 2.0 }),
   },
   // ── 4★ 工厂（encore Lv10 抽象 · 2026-07-15）──
-  // 散华：S360 / 爆裂 H370 / 解放 810·405 / 变奏 140
-  '散华': {
-    hasHeavy: true,
-    normalMult: () => 1.2,
-    skillMult: () => 3.6,
-    heavyMult: () => 3.7,
-    variationMult: () => 1.4,
-    resolveBurstMult: () => ({ baseMain: 8.1, baseSide: 4.05 }),
-  },
+  // 散华 → FULL sanhua.js（冰棘·重击爆裂）
   // 桃祈盾辅：低伤 S130/H220/B450·225/V210
   '桃祈': {
     hasHeavy: true,
@@ -316,7 +309,8 @@ const FULL = {
   '夏空': xiakong,
   '尤诺': younuo,
   '露帕': lupa,
-  '嘉贝莉娜': gaberina
+  '嘉贝莉娜': gaberina,
+  '散华': sanhua
 };
 
 const ALL = { ...LIGHTWEIGHT, ...FULL };

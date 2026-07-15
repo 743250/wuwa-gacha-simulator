@@ -1,11 +1,12 @@
 // 商店
 // 数据校准（2026-06）：按鸣潮真实商店档位实装
-import { S, fmt } from '../state.js';
+import { S } from '../state.js';
 import { msg } from '../ui/services/toast.ts';
 import { rerenderAll } from '../rerender.js';
 import { openModal } from '../modal.js';
 import { unlockPaid, unlockPremium } from '../podcast/core.js';
 import { commit } from '../state/commit.ts';
+import { maybePromptLoginClaims } from '../daily/loginClaim.js';
 
 export const shopCatalog = {
   // ===== 月相充值（六档，鸣潮真实档位） =====
@@ -171,13 +172,7 @@ export function applyShopItem(it) {
       S.lunite += Math.round(overflow * 11);
       msg(`月卡延长至上限 180 天 · 超出 ${overflow} 天补偿 ${Math.round(overflow*11)} 月相`, false);
     }
-    // ★ 月卡新需求 #15：购买当天也会自动领一份每日星声（如果今天还没领）
-    const today = fmt(S.today);
-    if (S.days > 0 && S.lastMonthlyClaim !== today) {
-      S.days--;
-      S.astrite += 90;
-      S.lastMonthlyClaim = today;
-    }
+    // 购买只叠天数；当日星声改由上线补给弹窗领取
   }
   // 养成材料
   if (it.exp_low) S.materials.exp_low = (S.materials.exp_low || 0) + it.exp_low;
@@ -249,6 +244,15 @@ export function buyShop(id) {
         });
         msg('购买成功', false);
         rerenderAll();
+        // 月卡只叠天数，当日星声走上线补给弹窗。
+        // 延后一帧：购买确认框刚关，同步 openModal 会与同一 tick 的关窗抢焦点（对齐 timeline.advanceTo）。
+        if (it.days) {
+          const prompt = () => {
+            try { maybePromptLoginClaims({ force: true }); } catch (_) { /* ignore */ }
+          };
+          if (typeof queueMicrotask === 'function') queueMicrotask(prompt);
+          else setTimeout(prompt, 0);
+        }
       }}
     ]
   });

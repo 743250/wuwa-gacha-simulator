@@ -251,18 +251,25 @@ export function startAbyssFloor(idOrFloor) {
   return battle;
 }
 
+// 评星：任意胜利至少 ★1（超时仍算通关，避免「赢了 0 星 → 0 星声 + 文案像已打过」）
+// ★2/★3 仍要求回合与均血门槛
 function evaluateAbyssStars(battle) {
   if (battle.result !== 'win') return 0;
-  const hpPct = battle.team.reduce((a, t) => a + t.hp / t.hpMax, 0) / battle.team.length;
-  const turn = battle.turn;
+  const alive = battle.team.filter(t => t.alive);
+  const pool = alive.length ? alive : battle.team;
+  const hpPct = pool.length
+    ? pool.reduce((a, t) => a + (t.hpMax > 0 ? t.hp / t.hpMax : 0), 0) / pool.length
+    : 0;
+  const turn = battle.turn || 0;
   if (turn <= STAR_CRITERIA.threeStar.turn && hpPct >= STAR_CRITERIA.threeStar.hp) return 3;
-  if (turn <= STAR_CRITERIA.twoStar.turn   && hpPct >= STAR_CRITERIA.twoStar.hp)   return 2;
-  if (turn <= STAR_CRITERIA.oneStar.turn) return 1;
-  return 0;
+  if (turn <= STAR_CRITERIA.twoStar.turn && hpPct >= STAR_CRITERIA.twoStar.hp) return 2;
+  // 胜利即至少 1 星（含超过 oneStar.turn 的慢通）
+  return 1;
 }
 
 function rewardForStars(info, stars) {
   if (stars <= 0) return 0;
+  // 稳定/实验：首通一次发满额（不按星数打折）
   if (info.oneShot) return info.baseReward;
   return Math.round(info.baseReward * Math.min(stars, 3) / 3);
 }
@@ -275,15 +282,20 @@ export function settleAbyss(battle) {
   S.abyss = S.abyss || { stars: {}, lastReset: '', vigor: {} };
   S.abyss.stars = S.abyss.stars || {};
   const prevStars = S.abyss.stars[info.id] || 0;
+
+  // 0 星不应出现在胜利路径；若出现则不写档、不锁 oneShot，可重试
+  if (newStars <= 0) {
+    return { stars: 0, reward: 0, floor: info.id, name: info.name, noStar: true };
+  }
+  // oneShot 已领过 / 危险区未刷新星数
   if (newStars <= prevStars || (info.oneShot && prevStars > 0)) {
     return { stars: prevStars, reward: 0, floor: info.id, name: info.name, repeated: true };
   }
+
   S.abyss.stars[info.id] = Math.max(prevStars, newStars);
-  // 扣活力（仅危险区，胜利后扣）
   if (info.zone === 'hazard') {
     consumeVigor(battle.team.map(t => t.name), info.floor || 1);
   }
-  // 只发本次新增评星对应的差额
   const reward = rewardForStars(info, newStars) - rewardForStars(info, prevStars);
   S.astrite += reward;
   if (newStars >= 3 && prevStars < 3) {
@@ -294,6 +306,18 @@ export function settleAbyss(battle) {
     S.materials.weapon_book = (S.materials.weapon_book || 0) + 2;
   }
   return { stars: newStars, reward, floor: info.id, name: info.name };
+}
+
+/**
+ * 一次性补偿：超时通关曾按 0 星结算 → 0 星声，或误显示已打过。
+ * 每位存档只发一次 200 星声（稳定区一关首通额）。
+ */
+export function grantStableZoneMissedRewardOnce() {
+  S.abyss = S.abyss || { stars: {}, lastReset: '', vigor: {} };
+  if (S.abyss._stableMissComp200) return { ok: false, reason: 'already' };
+  S.abyss._stableMissComp200 = true;
+  S.astrite = (S.astrite || 0) + 200;
+  return { ok: true, reward: 200 };
 }
 
 export function nextHazardResetDate(today) {

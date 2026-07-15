@@ -1,0 +1,253 @@
+{
+  "name": "卡提希娅",
+  "source": "https://wiki.biligame.com/wutheringwaves/%E5%85%B1%E9%B8%A3%E8%80%85/%E5%8D%A1%E6%8F%90%E5%B8%8C%E5%A8%85",
+  "fetchedAt": "2026-07-15",
+  "rows": [
+    {
+      "label": "第一段伤害",
+      "levels": 10,
+      "lvMaxExpr": "4.78%",
+      "lvMaxSum": 4.78
+    },
+    {
+      "label": "第二段伤害",
+      "levels": 10,
+      "lvMaxExpr": "3.94%+3.94%+5.25%",
+      "lvMaxSum": 13.13
+    },
+    {
+      "label": "第三段伤害",
+      "levels": 10,
+      "lvMaxExpr": "4.28%+4.28%+4.28%+4.28%",
+      "lvMaxSum": 17.12
+    },
+    {
+      "label": "第四段伤害",
+      "levels": 10,
+      "lvMaxExpr": "2.52%*3+7.54%",
+      "lvMaxSum": 15.1
+    },
+    {
+      "label": "闪避反击伤害",
+      "levels": 10,
+      "lvMaxExpr": "6.85%+6.85%+6.85%+6.85%",
+      "lvMaxSum": 27.4
+    },
+    {
+      "label": "重击伤害",
+      "levels": 10,
+      "lvMaxExpr": "2.08%*3+6.24%",
+      "lvMaxSum": 12.48
+    },
+    {
+      "label": "技能伤害",
+      "levels": 10,
+      "lvMaxExpr": "6.89%*3+8.86%",
+      "lvMaxSum": 29.53
+    },
+    {
+      "label": "普攻第一段伤害",
+      "levels": 10,
+      "lvMaxExpr": "6.49%",
+      "lvMaxSum": 6.49
+    },
+    {
+      "label": "普攻第二段伤害",
+      "levels": 10,
+      "lvMaxExpr": "3.63%+1.82%+1.82%+1.82%",
+      "lvMaxSum": 9.09
+    },
+    {
+      "label": "普攻第三段伤害",
+      "levels": 10,
+      "lvMaxExpr": "2.13%+2.13%+2.13%+4.26%",
+      "lvMaxSum": 10.65
+    },
+    {
+      "label": "普攻第四段伤害",
+      "levels": 10,
+      "lvMaxExpr": "2.74%*5",
+      "lvMaxSum": 13.7
+    },
+    {
+      "label": "普攻第五段伤害",
+      "levels": 10,
+      "lvMaxExpr": "7.20%+28.80%",
+      "lvMaxSum": 36
+    },
+    {
+      "label": "上挑攻击伤害",
+      "levels": 10,
+      "lvMaxExpr": "4.54%*2",
+      "lvMaxSum": 9.08
+    },
+    {
+      "label": "强化重击伤害",
+      "levels": 10,
+      "lvMaxExpr": "7.78%*2+3.89%",
+      "lvMaxSum": 19.45
+    },
+    {
+      "label": "空中攻击第一段伤害",
+      "levels": 10,
+      "lvMaxExpr": "2.99%+2.99%+3.08%",
+      "lvMaxSum": 9.06
+    },
+    {
+      "label": "空中攻击第二段伤害",
+      "levels": 10,
+      "lvMaxExpr": "7.39%+7.39%+14.77%",
+      "lvMaxSum": 29.55
+    },
+    {
+      "label": "空中攻击第三段伤害",
+      "levels": 10,
+      "lvMaxExpr": "2.20%",
+      "lvMaxSum": 2.2
+    },
+    {
+      "label": "共鸣技能·此剑为潮浪之意伤害",
+      "levels": 10,
+      "lvMaxExpr": "1.86%*4+17.36%",
+      "lvMaxSum": 24.8
+    },
+    {
+      "label": "共鸣技能·凭风斩浪破敌伤害",
+      "levels": 10,
+      "lvMaxExpr": "1.86%*2+7.03%*3",
+      "lvMaxSum": 24.81
+    },
+    {
+      "label": "看潮怒风哮之刃伤害",
+      "levels": 10,
+      "lvMaxExpr": "13.12%*7",
+      "lvMaxSum": 91.84
+    },
+    {
+      "label": "此剑，为潮水的过去伤害",
+      "levels": 10,
+      "lvMaxExpr": "2.08%*3+6.24%",
+      "lvMaxSum": 12.48
+    },
+    {
+      "label": "此剑，为自由的未来伤害",
+      "levels": 10,
+      "lvMaxExpr": "4.28%+9.97%",
+      "lvMaxSum": 14.25
+    }
+  ],
+  "inlineFixed": [],
+  "anchors": {
+    "normalish": [
+      {
+        "label": "第一段伤害",
+        "levels": 10,
+        "lvMaxExpr": "4.78%",
+        "lvMaxSum": 4.78
+      },
+      {
+        "label": "第二段伤害",
+        "levels": 10,
+        "lvMaxExpr": "3.94%+3.94%+5.25%",
+        "lvMaxSum": 13.13
+      },
+      {
+        "label": "第三段伤害",
+        "levels": 10,
+        "lvMaxExpr": "4.28%+4.28%+4.28%+4.28%",
+        "lvMaxSum": 17.12
+      },
+      {
+        "label": "第四段伤害",
+        "levels": 10,
+        "lvMaxExpr": "2.52%*3+7.54%",
+        "lvMaxSum": 15.1
+      },
+      {
+        "label": "普攻第一段伤害",
+        "levels": 10,
+        "lvMaxExpr": "6.49%",
+        "lvMaxSum": 6.49
+      },
+      {
+        "label": "普攻第二段伤害",
+        "levels": 10,
+        "lvMaxExpr": "3.63%+1.82%+1.82%+1.82%",
+        "lvMaxSum": 9.09
+      },
+      {
+        "label": "普攻第三段伤害",
+        "levels": 10,
+        "lvMaxExpr": "2.13%+2.13%+2.13%+4.26%",
+        "lvMaxSum": 10.65
+      },
+      {
+        "label": "普攻第四段伤害",
+        "levels": 10,
+        "lvMaxExpr": "2.74%*5",
+        "lvMaxSum": 13.7
+      },
+      {
+        "label": "普攻第五段伤害",
+        "levels": 10,
+        "lvMaxExpr": "7.20%+28.80%",
+        "lvMaxSum": 36
+      },
+      {
+        "label": "空中攻击第一段伤害",
+        "levels": 10,
+        "lvMaxExpr": "2.99%+2.99%+3.08%",
+        "lvMaxSum": 9.06
+      },
+      {
+        "label": "空中攻击第二段伤害",
+        "levels": 10,
+        "lvMaxExpr": "7.39%+7.39%+14.77%",
+        "lvMaxSum": 29.55
+      },
+      {
+        "label": "空中攻击第三段伤害",
+        "levels": 10,
+        "lvMaxExpr": "2.20%",
+        "lvMaxSum": 2.2
+      }
+    ],
+    "skillish": [
+      {
+        "label": "技能伤害",
+        "levels": 10,
+        "lvMaxExpr": "6.89%*3+8.86%",
+        "lvMaxSum": 29.53
+      },
+      {
+        "label": "共鸣技能·此剑为潮浪之意伤害",
+        "levels": 10,
+        "lvMaxExpr": "1.86%*4+17.36%",
+        "lvMaxSum": 24.8
+      },
+      {
+        "label": "共鸣技能·凭风斩浪破敌伤害",
+        "levels": 10,
+        "lvMaxExpr": "1.86%*2+7.03%*3",
+        "lvMaxSum": 24.81
+      }
+    ],
+    "heavyish": [
+      {
+        "label": "重击伤害",
+        "levels": 10,
+        "lvMaxExpr": "2.08%*3+6.24%",
+        "lvMaxSum": 12.48
+      },
+      {
+        "label": "强化重击伤害",
+        "levels": 10,
+        "lvMaxExpr": "7.78%*2+3.89%",
+        "lvMaxSum": 19.45
+      }
+    ],
+    "burstish": [],
+    "variationish": [],
+    "outroish": []
+  }
+}

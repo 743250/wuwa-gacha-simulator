@@ -58,10 +58,10 @@ export function PullPanel() {
 
   let gtxt = '';
   let gcls = '';
-  if (pool === 'eventChar') {
+  if (pool === 'eventChar' || pool === 'noviceChoice') {
     if (S.g[pkey]) { gtxt = '下个五星必为本期角色'; gcls = 'guar'; }
     else gtxt = '下个五星 50% 为本期角色';
-  } else if (pool === 'collabChar' || pool === 'noviceChoice') {
+  } else if (pool === 'collabChar') {
     gtxt = '下个五星必为本期角色'; gcls = 'guar';
   } else if (pool === 'eventWeapon' || pool === 'collabWeapon') {
     gtxt = '下个五星必为本期武器'; gcls = 'guar';

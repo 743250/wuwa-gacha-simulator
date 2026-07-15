@@ -31,7 +31,7 @@ describe('AbyssPanel', () => {
     bumpStateVersion();
     const el = mount(<AbyssPanel />);
     expect(el.textContent).toContain('编队为空');
-    expect(el.textContent).toContain('逆 境 深 塔');
+    expect(el.textContent).toContain('逆境深塔');
   });
 
   it('renders three hazard towers (回音/残响/深境)', () => {

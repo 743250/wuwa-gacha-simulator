@@ -1,0 +1,196 @@
+{
+  "name": "安可",
+  "source": "https://wiki.biligame.com/wutheringwaves/%E5%85%B1%E9%B8%A3%E8%80%85/%E5%AE%89%E5%8F%AF",
+  "fetchedAt": "2026-07-15",
+  "rows": [
+    {
+      "label": "第一段伤害",
+      "levels": 10,
+      "lvMaxExpr": "55.66%",
+      "lvMaxSum": 55.66
+    },
+    {
+      "label": "第二段伤害",
+      "levels": 10,
+      "lvMaxExpr": "66.20%",
+      "lvMaxSum": 66.2
+    },
+    {
+      "label": "第三段伤害",
+      "levels": 10,
+      "lvMaxExpr": "66.30%*2",
+      "lvMaxSum": 132.6
+    },
+    {
+      "label": "第四段伤害",
+      "levels": 10,
+      "lvMaxExpr": "38.27%*4",
+      "lvMaxSum": 153.08
+    },
+    {
+      "label": "咩咩伤害",
+      "levels": 10,
+      "lvMaxExpr": "238.57%",
+      "lvMaxSum": 238.57
+    },
+    {
+      "label": "重击伤害",
+      "levels": 10,
+      "lvMaxExpr": "187.08%",
+      "lvMaxSum": 187.08
+    },
+    {
+      "label": "闪避反击伤害",
+      "levels": 10,
+      "lvMaxExpr": "125.94%*2",
+      "lvMaxSum": 251.88
+    },
+    {
+      "label": "白咩·失控之炎伤害",
+      "levels": 10,
+      "lvMaxExpr": "334.00%",
+      "lvMaxSum": 334
+    },
+    {
+      "label": "黑咩·暴走之炎伤害",
+      "levels": 10,
+      "lvMaxExpr": "46.42%*6+495.21%",
+      "lvMaxSum": 773.73
+    },
+    {
+      "label": "黑咩·胡闹第一段伤害",
+      "levels": 10,
+      "lvMaxExpr": "90.18%*2",
+      "lvMaxSum": 180.36
+    },
+    {
+      "label": "黑咩·胡闹第二段伤害",
+      "levels": 10,
+      "lvMaxExpr": "56.40%*3",
+      "lvMaxSum": 169.2
+    },
+    {
+      "label": "黑咩·胡闹第三段伤害",
+      "levels": 10,
+      "lvMaxExpr": "65.99%*4",
+      "lvMaxSum": 263.96
+    },
+    {
+      "label": "黑咩·胡闹第四段伤害",
+      "levels": 10,
+      "lvMaxExpr": "194.01%*3",
+      "lvMaxSum": 582.03
+    },
+    {
+      "label": "黑咩·重击伤害",
+      "levels": 10,
+      "lvMaxExpr": "217.58%",
+      "lvMaxSum": 217.58
+    },
+    {
+      "label": "黑咩·狂热伤害",
+      "levels": 10,
+      "lvMaxExpr": "63.32%*4",
+      "lvMaxSum": 253.28
+    },
+    {
+      "label": "黑咩·闪避反击伤害",
+      "levels": 10,
+      "lvMaxExpr": "65.99%*4",
+      "lvMaxSum": 263.96
+    },
+    {
+      "label": "技能伤害",
+      "levels": 10,
+      "lvMaxExpr": "198.81%",
+      "lvMaxSum": 198.81
+    }
+  ],
+  "inlineFixed": [
+    {
+      "context": "以技能目标为中心，生成半径3米的地炎。地炎将持续灼烧范围内的目标，每1.5秒后造成安可176.76%攻击的",
+      "pct": 176.76
+    },
+    {
+      "context": "以技能目标为中心，生成半径3米的地炎。地炎将持续灼烧范围内的目标，每1.5秒后造成安可176.76%攻击的",
+      "pct": 176.76
+    }
+  ],
+  "anchors": {
+    "normalish": [
+      {
+        "label": "第一段伤害",
+        "levels": 10,
+        "lvMaxExpr": "55.66%",
+        "lvMaxSum": 55.66
+      },
+      {
+        "label": "第二段伤害",
+        "levels": 10,
+        "lvMaxExpr": "66.20%",
+        "lvMaxSum": 66.2
+      },
+      {
+        "label": "第三段伤害",
+        "levels": 10,
+        "lvMaxExpr": "66.30%*2",
+        "lvMaxSum": 132.6
+      },
+      {
+        "label": "第四段伤害",
+        "levels": 10,
+        "lvMaxExpr": "38.27%*4",
+        "lvMaxSum": 153.08
+      },
+      {
+        "label": "黑咩·胡闹第一段伤害",
+        "levels": 10,
+        "lvMaxExpr": "90.18%*2",
+        "lvMaxSum": 180.36
+      },
+      {
+        "label": "黑咩·胡闹第二段伤害",
+        "levels": 10,
+        "lvMaxExpr": "56.40%*3",
+        "lvMaxSum": 169.2
+      },
+      {
+        "label": "黑咩·胡闹第三段伤害",
+        "levels": 10,
+        "lvMaxExpr": "65.99%*4",
+        "lvMaxSum": 263.96
+      },
+      {
+        "label": "黑咩·胡闹第四段伤害",
+        "levels": 10,
+        "lvMaxExpr": "194.01%*3",
+        "lvMaxSum": 582.03
+      }
+    ],
+    "skillish": [
+      {
+        "label": "技能伤害",
+        "levels": 10,
+        "lvMaxExpr": "198.81%",
+        "lvMaxSum": 198.81
+      }
+    ],
+    "heavyish": [
+      {
+        "label": "重击伤害",
+        "levels": 10,
+        "lvMaxExpr": "187.08%",
+        "lvMaxSum": 187.08
+      },
+      {
+        "label": "黑咩·重击伤害",
+        "levels": 10,
+        "lvMaxExpr": "217.58%",
+        "lvMaxSum": 217.58
+      }
+    ],
+    "burstish": [],
+    "variationish": [],
+    "outroish": []
+  }
+}

@@ -315,7 +315,7 @@
 ## 弗洛洛
 
 **1 链 · 钥匙，通往冥界的奥秘**
-亡与死的乐章、永不消逝的梦呓伤害倍率提升 <b class="term-num">80%</b>。
+<b class="term-skill">亡与死的乐章</b>、<b class="term-skill">永不消逝的梦呓</b>伤害倍率提升 <b class="term-num">80%</b>。
 
 **2 链 · 绳索，重生更新的纽带**
 <b class="term-heavy">谱曲终末</b>伤害倍率提升 <b class="term-num">75%</b>，<b class="term-resource">余响</b>对谱曲终末的倍率增加效果提升 <b class="term-num">75%</b>。施放<b class="term-heavy">谱曲终末</b>时获得 <b class="term-num">14</b> 层<b class="term-resource">余响</b>。
@@ -337,7 +337,7 @@
 ## 忌炎
 
 **1 链 · 济世**
-<b class="term-skill">共鸣技能·枪扫风定</b>的冷却时间从 <b class="term-num">3</b> 回合缩短为 <b class="term-num">2</b> 回合。
+<b class="term-skill">共鸣技能·枪扫风定</b>充能上限提升至 <b class="term-num">2</b> 层（可连续施放两次；每层约 <b class="term-num">3</b> 回合回复）。
 
 **2 链 · 通变**
 忌炎变奏入场时，<b class="term-resource">破阵值</b> +<b class="term-num">30</b>，自身攻击 +<b class="term-num">28%</b>，持续 <b class="term-num">2</b> 回合。
@@ -349,10 +349,10 @@
 忌炎施放<b class="term-burst">共鸣解放</b>后，全队所有存活角色<b class="term-heavy">重击</b>伤害 +<b class="term-num">25%</b>，持续 <b class="term-num">2</b> 回合。
 
 **5 链 · 明断**
-忌炎变奏入场时，自身攻击 +<b class="term-num">45%</b>，持续 <b class="term-num">2</b> 回合。
+忌炎攻击命中时自身攻击 +<b class="term-num">3%</b>/层，最多 <b class="term-num">15</b> 层（合计 +45%），每层持续 <b class="term-num">2</b> 回合；变奏入场时叠满。
 
 **6 链 · 移山**
-<b class="term-resource">锐意之势</b>上限由 <b class="term-num">2</b> 层提升至 <b class="term-num">3</b> 层；每层锐意提供的<b class="term-burst">共鸣解放</b>伤害倍率加成由 +<b class="term-num">100%</b> 提升至 +<b class="term-num">120%</b>。
+<b class="term-resource">锐意之势</b>上限由 <b class="term-num">2</b> 层提升至 <b class="term-num">3</b> 层；每层锐意提供的<b class="term-burst">共鸣解放</b>伤害倍率加成由 +<b class="term-num">40%</b> 提升至 +<b class="term-num">120%</b>。
 
 ---
 
@@ -381,7 +381,7 @@
 ## 鉴心
 
 **1 链 · 林间青枝**
-鉴心<b class="term-variation">变奏入场</b>后,<b class="term-normal">普攻</b>伤害加成提升 <b class="term-num">20%</b>,持续 <b class="term-num">2</b> 回合。
+鉴心<b class="term-variation">变奏入场</b>后 <b class="term-num">2</b> 回合内，普攻获得的<b class="term-resource">气</b>额外增加 <b class="term-num">100%</b>。
 
 **2 链 · 道者稚徒**
 鉴心<b class="term-skill">共鸣技能</b>伤害加成提升 <b class="term-num">30%</b>。
@@ -406,7 +406,7 @@
 今汐<b class="term-skill">共鸣技能·惊龙破空</b>伤害 +<b class="term-num">80%</b>。
 
 **2 链 · 绒雪凝屏息**
-今汐攻击 +<b class="term-num">5%</b>。
+今汐不在场时，每回合结束回复 <b class="term-num">1</b> 层<b class="term-resource">韶光</b>（上限 <b class="term-num">4</b>）。
 
 **3 链 · 天定神子身**
 今汐<b class="term-variation">变奏入场</b>后获得 <b class="term-num">1</b> 层<b class="term-resource">谪仙</b>，每层攻击 +<b class="term-num">25%</b>，可叠 <b class="term-num">2</b> 层；满层时攻击共 +<b class="term-num">50%</b>。
@@ -497,7 +497,7 @@
 珂莱塔<b class="term-burst">共鸣解放</b>伤害提升 <b class="term-num">126%</b>。
 
 **3 链 · 切步、向前，此为优雅的进行式**
-珂莱塔<b class="term-skill">共鸣技能·暴力美学</b>与<b class="term-skill">共鸣技能·示我璀璨</b>的伤害 +<b class="term-num">93%</b>。
+珂莱塔<b class="term-skill">共鸣技能·暴力美学</b>与示我璀璨伤害 +<b class="term-num">93%</b>。切人离场时追加<b class="term-skill">碎璃镜花</b>，造成攻击 <b class="term-num">1032%</b> 的冷凝伤害。
 
 **4 链 · 以旧雨，为颂赞的苦酒**
 珂莱塔施放<b class="term-heavy">重击·末路见行</b>后，全队所有存活角色<b class="term-skill">共鸣技能</b>伤害 +<b class="term-num">25%</b>，持续 <b class="term-num">2</b> 回合。
@@ -730,6 +730,72 @@
 
 ---
 
+## 漂泊者·气动
+
+**1 链 · 风止息于无明界**
+漂泊者全伤害加成提升 <b class="term-num">5%</b>。
+
+**2 链 · 流光乍隐于长夜**
+施放<b class="term-skill">共鸣技能·缥缈无相</b>后，为队伍回复生命；治疗效果加成提升 <b class="term-num">10%</b>。
+
+**3 链 · 虚相陷落于掌中**
+漂泊者气动伤害加成提升 <b class="term-num">15%</b>。
+
+**4 链 · 界限崩折于刹那**
+漂泊者共鸣技能伤害加成提升 <b class="term-num">15%</b>。
+
+**5 链 · 生灭交错于来路**
+<b class="term-burst">共鸣解放·万象归墟</b>伤害倍率提升 <b class="term-num">20%</b>。
+
+**6 链 · 万象崩落于风间**
+<b class="term-skill">共鸣技能·缥缈无相</b>伤害倍率提升 <b class="term-num">30%</b>。
+
+---
+
+## 漂泊者·湮灭
+
+**1 链 · 弦外知机**
+漂泊者共鸣技能伤害加成提升 <b class="term-num">30%</b>。
+
+**2 链 · 晦明如朔**
+施放<b class="term-heavy">重击·灭音</b>进入<b class="term-resource">暗涌</b>后，共鸣技能伤害加成提升 <b class="term-num">10%</b>。
+
+**3 链 · 声息涌动**
+处于<b class="term-resource">暗涌</b>时，治疗效果加成提升 <b class="term-num">8%</b>。
+
+**4 链 · 尘声湮灭**
+<b class="term-heavy">重击·灭音</b>或<b class="term-burst">临渊死寂</b>命中时，漂泊者湮灭伤害加成提升 <b class="term-num">10%</b>。
+
+**5 链 · 万物寂听**
+处于<b class="term-resource">暗涌</b>时，普攻伤害加成提升 <b class="term-num">15%</b>。
+
+**6 链 · 暗涌潮升**
+处于<b class="term-resource">暗涌</b>时，漂泊者暴击提升 <b class="term-num">25%</b>。
+
+---
+
+## 漂泊者·衍射
+
+**1 链 · 始源纪行**
+施放<b class="term-skill">共鸣技能·浮声千斩</b>后，漂泊者暴击提升 <b class="term-num">15%</b>。
+
+**2 链 · 微物细语**
+漂泊者衍射伤害加成提升 <b class="term-num">20%</b>。
+
+**3 链 · 尘声百面**
+施放共鸣技能时，额外回复 <b class="term-num">10</b> 点共鸣能量。
+
+**4 链 · 连音扫弦**
+施放<b class="term-burst">共鸣解放·回响奏鸣</b>时，为队伍回复生命；治疗效果加成提升 <b class="term-num">10%</b>。
+
+**5 链 · 回声流转**
+漂泊者共鸣解放伤害加成提升 <b class="term-num">40%</b>。
+
+**6 链 · 长路归鸣**
+<b class="term-skill">浮声千斩</b>命中目标时，漂泊者衍射伤害加成提升 <b class="term-num">10%</b>。
+
+---
+
 ## 千咲
 
 **1 链 · 穿行于荒芜长廊**
@@ -777,22 +843,22 @@
 ## 散华
 
 **1 链 · 孤身孑然**
-散华施放第 <b class="term-num">5</b> 段普攻时，自身暴击加成提升 <b class="term-num">15%</b>，持续 <b class="term-num">2</b> 回合。
+散华每施放第 <b class="term-num">5</b> 次普攻时，自身暴击提升 <b class="term-num">15%</b>，持续 <b class="term-num">2</b> 回合。
 
 **2 链 · 净雪明心**
-散华重击伤害加成提升 <b class="term-num">20%</b>。
+散华重击伤害提升 <b class="term-num">20%</b>。
 
 **3 链 · 目视异常**
-散华造成的伤害加成提升 <b class="term-num">20%</b>。
+散华攻击生命低于 <b class="term-num">70%</b> 的目标时，造成的伤害提升 <b class="term-num">35%</b>。
 
 **4 链 · 剑修五蕴**
-散华施放<b class="term-burst">共鸣解放·焦瞑冻土</b>后，下次<b class="term-heavy">重击·爆裂</b>伤害加成提升 <b class="term-num">50%</b>，持续 <b class="term-num">2</b> 回合。
+散华施放<b class="term-burst">共鸣解放·焦瞑冻土</b>时，回复 <b class="term-num">10</b> 点共鸣能量；并在 <b class="term-num">2</b> 回合内，使下一次<b class="term-heavy">重击·爆裂</b>造成的伤害提升 <b class="term-num">120%</b>。
 
 **5 链 · 颠覆无常**
-散华暴击伤害加成提升 <b class="term-num">100%</b>。
+散华<b class="term-heavy">重击·爆裂</b>的暴击伤害提升 <b class="term-num">100%</b>。
 
 **6 链 · 曙色天光**
-散华施放<b class="term-heavy">重击·爆裂</b>后，队伍中的角色攻击加成提升 <b class="term-num">20%</b>，持续 <b class="term-num">3</b> 回合。
+散华施放<b class="term-heavy">重击·爆裂</b>后，队伍中的角色攻击提升 <b class="term-num">10%</b>，持续 <b class="term-num">3</b> 回合，可叠加 <b class="term-num">2</b> 层。
 
 ---
 
@@ -814,7 +880,7 @@
 <b class="term-normal">普攻·真源构演</b>命中目标后，对一名相邻敌人造成等同本次普攻的<b class="term-normal">衍射伤害</b>。
 
 **6 链 · 我所驶向的新世界**
-协奏值满时切换角色，入场角色的<b class="term-variation">变奏技能·洞悉</b>伤害倍率提升至原本的 <b class="term-num">6</b> 倍。
+守岸人<b class="term-variation">变奏技能·洞悉</b>伤害倍率 +<b class="term-num">42%</b>。施放变奏时自身暴击伤害 +<b class="term-num">500%</b>，持续 <b class="term-num">2</b> 回合。
 
 ---
 
@@ -893,7 +959,7 @@
 夏空处于<b class="term-state">演绎状态</b>期间，全队所有存活角色的气动伤害加成 +<b class="term-num">40%</b>。
 
 **3 链 · 星烁此时的即兴演奏**
-<b class="term-normal">普攻</b>额外获得 <b class="term-num">1</b> 格<b class="term-resource">音律</b>。<b class="term-skill">共鸣技能</b>冷却时间从 <b class="term-num">3</b> 回合缩短为 <b class="term-num">2</b> 回合。
+<b class="term-normal">普攻</b>额外获得 <b class="term-num">1</b> 格<b class="term-resource">音律</b>。<b class="term-skill">共鸣技能·谐律速奏</b>充能上限 <b class="term-num">2</b> 层（可连续施放两次）。
 
 **4 链 · 托卡塔与赋格**
 <b class="term-heavy">重击·四拍重奏</b>和<b class="term-burst">共鸣解放·歌者的三重华彩</b>无视敌人 <b class="term-num">45%</b> 防御。
@@ -959,7 +1025,7 @@
 吟霖命中带有<b class="term-resource">审判印记</b>的目标时，额外回复 <b class="term-num">5</b> 点<b class="term-resource">审判值</b>和 <b class="term-num">5</b> 点共鸣能量。
 
 **3 链 · 无情的断罪**
-带有<b class="term-resource">审判印记</b>的目标每层印记使受到的伤害额外 +<b class="term-num">10%</b>（全队全伤害类型生效）。
+<b class="term-resource">审判之雷</b>伤害倍率提升 <b class="term-num">55%</b>。
 
 **4 链 · 前行的鼓舞**
 <b class="term-resource">审判之雷</b>触发时，全队所有存活角色攻击 +<b class="term-num">15%</b>，持续 <b class="term-num">2</b> 回合。
@@ -968,7 +1034,7 @@
 吟霖<b class="term-burst">共鸣解放</b>命中带有<b class="term-resource">审判印记</b>的目标时，伤害额外 +<b class="term-num">50%</b>。
 
 **6 链 · 正义的践行**
-施放<b class="term-burst">共鸣解放</b>后 <b class="term-num">2</b> 回合内，吟霖<b class="term-normal">普攻</b>命中带<b class="term-resource">审判印记</b>的目标时额外触发一次<b class="term-skill">疾霆昭彰</b>，造成攻击 <b class="term-num">70%</b> 的导电伤害，每回合最多触发 <b class="term-num">1</b> 次。
+施放<b class="term-burst">共鸣解放</b>后 <b class="term-num">2</b> 回合内，吟霖<b class="term-normal">普攻</b>命中带<b class="term-resource">审判印记</b>的目标时额外触发一次<b class="term-skill">疾霆昭彰</b>，造成攻击 <b class="term-num">420%</b> 的导电伤害，每回合最多触发 <b class="term-num">1</b> 次。
 
 ---
 
@@ -984,7 +1050,7 @@
 尤诺处于<b class="term-resource">月相流转</b>状态时，造成的伤害加深 <b class="term-num">65%</b>。
 
 **4 链 · 任雨季栖息于眼眸**
-施放<b class="term-heavy">重击·至臻的完满</b>时，队伍中的角色攻击提升 <b class="term-num">10%</b>，持续 <b class="term-num">3</b> 回合。
+施放<b class="term-heavy">重击·至臻的完满</b>时，队伍中的角色获得基于尤诺攻击 <b class="term-num">160%</b> 的护盾，持续 <b class="term-num">3</b> 回合。
 
 **5 链 · 万千次虚掷的注视**
 <b class="term-burst">共鸣解放</b>伤害加成提升 <b class="term-num">20%</b>。
@@ -1047,7 +1113,7 @@
 赞妮暴击提升 <b class="term-num">20%</b>。<b class="term-skill">共鸣技能</b>倍率提升 <b class="term-num">80%</b>。
 
 **3 链 · 日复一日的通勤**
-赞妮处于<b class="term-state">灼焰形态</b>时，每消耗 <b class="term-num">1</b> 点<b class="term-resource">焰光</b>，本次<b class="term-burst">共鸣解放·终绝将至之刻</b>倍率提升 <b class="term-num">2%</b>，最多提升 <b class="term-num">200%</b>。
+赞妮处于<b class="term-state">灼焰形态</b>时，每消耗 <b class="term-num">1</b> 点<b class="term-resource">焰光</b>，本次<b class="term-burst">共鸣解放·终绝将至之刻</b>倍率提升 <b class="term-num">8%</b>，最多提升 <b class="term-num">800%</b>。
 
 **4 链 · 高效节能主义者**
 赞妮施放<b class="term-variation">变奏技能·即刻执行</b>时，队伍中所有角色攻击加成提升 <b class="term-num">20%</b>，持续 <b class="term-num">2</b> 回合。
@@ -1085,7 +1151,7 @@
 ## 折枝
 
 **1 链 · 骨法用笔**
-折枝暴击提升 <b class="term-num">10%</b>。
+折枝施放<b class="term-skill">共鸣技能</b>时，额外回复 <b class="term-num">15</b> 点共鸣能量，自身暴击 +<b class="term-num">10%</b>，持续 <b class="term-num">3</b> 回合。
 
 **2 链 · 气韵生动**
 <b class="term-resource">墨鹤</b>的召唤上限增加 <b class="term-num">6</b> 只。

@@ -13,8 +13,9 @@
 //
 // 关键约束：
 //   - 出金率用全局计数器算
-//   - 歪率只统计 eventChar/collabChar（真正 50/50）
-//   - 武器/常驻/新手/新旅不算「歪」
+//   - 歪率只统计 eventChar/collabChar/noviceChoice 的「小保底」结果
+//   - 大保底（歪后的 100% UP）不进歪率分母
+//   - 武器/常驻/新手池/新旅武器不算「歪」
 
 // 鸣潮硬保 80；社区经验期望约 60~64 抽出金。主轴 = 平均抽数，辅轴 = 歪率/近况。
 // 称号档位对齐常见抽卡分析工具：不止「欧皇/非酋」，按均抽细分 + 组合副标。
@@ -67,8 +68,8 @@ const TITLES = [
   { key: 'juefei',   label: '绝非',     comment: '呜… 建议关掉唤取界面冷静',     color: 'red'    },
 ];
 
-// 真正的 50/50 池子（小保底机制）
-const PVP_POOLS = new Set(['eventChar', 'collabChar']);
+// 真正的 50/50 池子（小保底机制；新旅角色同款）
+const PVP_POOLS = new Set(['eventChar', 'collabChar', 'noviceChoice']);
 
 function safeDiv(a, b) {
   if (!b || b <= 0) return 0;
@@ -178,6 +179,36 @@ function computeAvgUpCost(fives) {
   return upCount > 0 ? costSum / upCount : 0;
 }
 
+// 50/50 歪率：只计小保底
+// 按池内时间序：歪后的下一次 5★ 是大保底（100% UP），不进分母
+// 小保底 = 非大保底的限定池 5★（歪 or 小保底出 UP）
+// 歪率 = 小保底歪次数 / 小保底次数
+function computeSoftPityLoss(fives) {
+  const byPool = {};
+  for (const x of fives) {
+    if (!x || !PVP_POOLS.has(x.pool)) continue;
+    (byPool[x.pool] || (byPool[x.pool] = [])).push(x);
+  }
+  let softTrials = 0, softLost = 0;
+  for (const list of Object.values(byPool)) {
+    list.sort((a, b) => (a.no || 0) - (b.no || 0));
+    let hardNext = false; // 上一发小保底歪了 → 下一发大保底
+    for (const x of list) {
+      if (hardNext) {
+        // 大保底：必 UP，不计入 50/50 样本
+        hardNext = false;
+        continue;
+      }
+      softTrials++;
+      if (!x.up) {
+        softLost++;
+        hardNext = true;
+      }
+    }
+  }
+  return { softTrials, softLost };
+}
+
 // 计算分池统计：必须喂完整 log，不能只喂 5★
 function computePerPool(log) {
   const map = {};
@@ -241,17 +272,12 @@ export function computeAnalysis(S) {
     // 平均 UP 抽数：拿到 1 次限定 UP 平均花多少抽
     // 正确口径（社区工具同款）：按池时间序把「歪 + 随后大保底 UP」合并为一次成本
     //   例：70 抽歪 → 65 抽 UP ⇒ 该次 UP 成本 135，不是 65
-    // 未闭合的歪（后面还没出 UP）不计入；武器/常驻/新旅不参与
+    // 未闭合的歪（后面还没出 UP）不计入；武器/常驻/新旅武器不参与
     const avgUpPity = computeAvgUpCost(fives);
 
-    // 歪率：只看 eventChar/collabChar
-    let limitedFive = 0, limitedLost = 0;
-    for (const x of fives) {
-      if (PVP_POOLS.has(x.pool)) {
-        limitedFive++;
-        if (!x.up) limitedLost++;
-      }
-    }
+    // 歪率：eventChar/collabChar/noviceChoice 的小保底（50/50）
+    // 大保底 UP 必中，不进分母（例：歪→大保底UP→小保底UP = 1/2，不是 1/3）
+    const { softTrials: limitedFive, softLost: limitedLost } = computeSoftPityLoss(fives);
     const lossRateReliable = limitedFive >= THRESHOLDS.loss.minSamples;
     const lossRate = limitedFive >= 1 ? safeDiv(limitedLost, limitedFive) : null;
 
@@ -335,10 +361,10 @@ export function poolsTouched(S) {
   return order;
 }
 
-// 限定池 50/50 语义；其余池 fixed
+// 限定/新旅角色池 50/50 语义；其余池 fixed
 export function fiveStarKind(x) {
   if (!x) return 'fixed';
-  if (x.pool === 'eventChar' || x.pool === 'collabChar') {
+  if (x.pool === 'eventChar' || x.pool === 'collabChar' || x.pool === 'noviceChoice') {
     return x.up ? 'up' : 'lost';
   }
   return 'fixed';

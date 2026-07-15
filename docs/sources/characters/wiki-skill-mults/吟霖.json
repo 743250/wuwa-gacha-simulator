@@ -1,0 +1,133 @@
+{
+  "name": "吟霖",
+  "source": "https://wiki.biligame.com/wutheringwaves/%E5%85%B1%E9%B8%A3%E8%80%85/%E5%90%9F%E9%9C%96",
+  "fetchedAt": "2026-07-15",
+  "rows": [
+    {
+      "label": "第一段伤害",
+      "levels": 10,
+      "lvMaxExpr": "28.81%",
+      "lvMaxSum": 28.81
+    },
+    {
+      "label": "第二段伤害",
+      "levels": 10,
+      "lvMaxExpr": "33.82%*2",
+      "lvMaxSum": 67.64
+    },
+    {
+      "label": "第三段伤害",
+      "levels": 10,
+      "lvMaxExpr": "13.99%*7",
+      "lvMaxSum": 97.93
+    },
+    {
+      "label": "第四段伤害",
+      "levels": 10,
+      "lvMaxExpr": "75.16%",
+      "lvMaxSum": 75.16
+    },
+    {
+      "label": "重击伤害",
+      "levels": 10,
+      "lvMaxExpr": "29.83%*2",
+      "lvMaxSum": 59.66
+    },
+    {
+      "label": "空中攻击伤害",
+      "levels": 10,
+      "lvMaxExpr": "123.27%",
+      "lvMaxSum": 123.27
+    },
+    {
+      "label": "闪避反击伤害",
+      "levels": 10,
+      "lvMaxExpr": "24.22%*7",
+      "lvMaxSum": 169.54
+    },
+    {
+      "label": "磁殛咆哮伤害",
+      "levels": 10,
+      "lvMaxExpr": "59.65%*3",
+      "lvMaxSum": 178.95
+    },
+    {
+      "label": "召雷磁爆伤害",
+      "levels": 10,
+      "lvMaxExpr": "89.47%*4",
+      "lvMaxSum": 357.88
+    },
+    {
+      "label": "磁殛爆发伤害",
+      "levels": 10,
+      "lvMaxExpr": "19.89%",
+      "lvMaxSum": 19.89
+    },
+    {
+      "label": "千面魅影伤害",
+      "levels": 10,
+      "lvMaxExpr": "178.93%*2",
+      "lvMaxSum": 357.86
+    },
+    {
+      "label": "审判之雷伤害",
+      "levels": 10,
+      "lvMaxExpr": "78.64%",
+      "lvMaxSum": 78.64
+    },
+    {
+      "label": "技能伤害",
+      "levels": 10,
+      "lvMaxExpr": "116.56%*7",
+      "lvMaxSum": 815.92
+    }
+  ],
+  "inlineFixed": [],
+  "anchors": {
+    "normalish": [
+      {
+        "label": "第一段伤害",
+        "levels": 10,
+        "lvMaxExpr": "28.81%",
+        "lvMaxSum": 28.81
+      },
+      {
+        "label": "第二段伤害",
+        "levels": 10,
+        "lvMaxExpr": "33.82%*2",
+        "lvMaxSum": 67.64
+      },
+      {
+        "label": "第三段伤害",
+        "levels": 10,
+        "lvMaxExpr": "13.99%*7",
+        "lvMaxSum": 97.93
+      },
+      {
+        "label": "第四段伤害",
+        "levels": 10,
+        "lvMaxExpr": "75.16%",
+        "lvMaxSum": 75.16
+      }
+    ],
+    "skillish": [
+      {
+        "label": "技能伤害",
+        "levels": 10,
+        "lvMaxExpr": "116.56%*7",
+        "lvMaxSum": 815.92
+      }
+    ],
+    "heavyish": [
+      {
+        "label": "重击伤害",
+        "levels": 10,
+        "lvMaxExpr": "29.83%*2",
+        "lvMaxSum": 59.66
+      }
+    ],
+    "burstish": [],
+    "variationish": [],
+    "outroish": []
+  }
+}

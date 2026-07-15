@@ -1,0 +1,170 @@
+{
+  "name": "卡卡罗",
+  "source": "https://wiki.biligame.com/wutheringwaves/%E5%85%B1%E9%B8%A3%E8%80%85/%E5%8D%A1%E5%8D%A1%E7%BD%97",
+  "fetchedAt": "2026-07-15",
+  "rows": [
+    {
+      "label": "第一段伤害",
+      "levels": 10,
+      "lvMaxExpr": "45.73%*2",
+      "lvMaxSum": 91.46
+    },
+    {
+      "label": "第二段伤害",
+      "levels": 10,
+      "lvMaxExpr": "99.41%",
+      "lvMaxSum": 99.41
+    },
+    {
+      "label": "第三段伤害",
+      "levels": 10,
+      "lvMaxExpr": "85.18%+42.59%*3",
+      "lvMaxSum": 212.95
+    },
+    {
+      "label": "第四段伤害",
+      "levels": 10,
+      "lvMaxExpr": "79.51%*2+106.01%",
+      "lvMaxSum": 265.03
+    },
+    {
+      "label": "重击伤害",
+      "levels": 10,
+      "lvMaxExpr": "41.36%*5",
+      "lvMaxSum": 206.8
+    },
+    {
+      "label": "空中攻击伤害",
+      "levels": 10,
+      "lvMaxExpr": "123.27%",
+      "lvMaxSum": 123.27
+    },
+    {
+      "label": "闪避反击伤害",
+      "levels": 10,
+      "lvMaxExpr": "66.48%*3+85.47%",
+      "lvMaxSum": 284.91
+    },
+    {
+      "label": "灭杀指令第一段伤害",
+      "levels": 10,
+      "lvMaxExpr": "51.57%*2+68.76%",
+      "lvMaxSum": 171.9
+    },
+    {
+      "label": "灭杀指令第二段伤害",
+      "levels": 10,
+      "lvMaxExpr": "77.36%*2+103.14%",
+      "lvMaxSum": 257.86
+    },
+    {
+      "label": "灭杀指令第三段伤害",
+      "levels": 10,
+      "lvMaxExpr": "214.87%*2",
+      "lvMaxSum": 429.74
+    },
+    {
+      "label": "「仁慈」伤害",
+      "levels": 10,
+      "lvMaxExpr": "39.11%*8+78.22%",
+      "lvMaxSum": 391.1
+    },
+    {
+      "label": "「死告」伤害",
+      "levels": 10,
+      "lvMaxExpr": "97.77%*8+195.53%",
+      "lvMaxSum": 977.69
+    },
+    {
+      "label": "技能伤害",
+      "levels": 10,
+      "lvMaxExpr": "596.43%",
+      "lvMaxSum": 596.43
+    },
+    {
+      "label": "「必要的手段」伤害",
+      "levels": 10,
+      "lvMaxExpr": "198.81%*2",
+      "lvMaxSum": 397.62
+    }
+  ],
+  "inlineFixed": [
+    {
+      "context": "的攻击将造成卡卡罗195.98%+391.96%攻击的",
+      "pct": 391.96
+    },
+    {
+      "context": "的攻击将造成卡卡罗195.98%+391.96%攻击的",
+      "pct": 391.96
+    },
+    {
+      "context": "可造成卡卡罗100.00%攻击的",
+      "pct": 100
+    }
+  ],
+  "anchors": {
+    "normalish": [
+      {
+        "label": "第一段伤害",
+        "levels": 10,
+        "lvMaxExpr": "45.73%*2",
+        "lvMaxSum": 91.46
+      },
+      {
+        "label": "第二段伤害",
+        "levels": 10,
+        "lvMaxExpr": "99.41%",
+        "lvMaxSum": 99.41
+      },
+      {
+        "label": "第三段伤害",
+        "levels": 10,
+        "lvMaxExpr": "85.18%+42.59%*3",
+        "lvMaxSum": 212.95
+      },
+      {
+        "label": "第四段伤害",
+        "levels": 10,
+        "lvMaxExpr": "79.51%*2+106.01%",
+        "lvMaxSum": 265.03
+      },
+      {
+        "label": "灭杀指令第一段伤害",
+        "levels": 10,
+        "lvMaxExpr": "51.57%*2+68.76%",
+        "lvMaxSum": 171.9
+      },
+      {
+        "label": "灭杀指令第二段伤害",
+        "levels": 10,
+        "lvMaxExpr": "77.36%*2+103.14%",
+        "lvMaxSum": 257.86
+      },
+      {
+        "label": "灭杀指令第三段伤害",
+        "levels": 10,
+        "lvMaxExpr": "214.87%*2",
+        "lvMaxSum": 429.74
+      }
+    ],
+    "skillish": [
+      {
+        "label": "技能伤害",
+        "levels": 10,
+        "lvMaxExpr": "596.43%",
+        "lvMaxSum": 596.43
+      }
+    ],
+    "heavyish": [
+      {
+        "label": "重击伤害",
+        "levels": 10,
+        "lvMaxExpr": "41.36%*5",
+        "lvMaxSum": 206.8
+      }
+    ],
+    "burstish": [],
+    "variationish": [],
+    "outroish": []
+  }
+}
