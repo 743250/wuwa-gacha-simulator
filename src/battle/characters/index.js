@@ -29,13 +29,17 @@ import gaberina from './gaberina.js';
 
 // 轻量角色：仅标记 hasHeavy + 可选倍率 hook（Phase 3 校准）
 const LIGHTWEIGHT = {
-  // Phase 3 · 洛可可：N100/S180/H400/变奏170；解放全局700·350×满想象力 enhancedBurst1.6
+  // Phase 3 · 洛可可：N100/S180/H400/变奏170；解放开场 835·417.5（WIKI）；满想象力 ×1.6 烘焙进 resolveBurst
   '洛可可': {
     hasHeavy: true,
     normalMult: () => 1.0,
     skillMult: () => 1.8,
     heavyMult: () => 4.0,
     variationMult: () => 1.7,
+    // resolveBurst 跳过 enhancedBurst 再乘，故 ready 侧手写 ×1.6
+    resolveBurstMult: (self) => self.forte?.ready
+      ? { baseMain: 13.36, baseSide: 6.68 }
+      : { baseMain: 8.35, baseSide: 4.175 },
   },
   // Phase 3 · 鉴心：N110/S300/H400/解放650·325/变奏100
   '鉴心': {
@@ -45,15 +49,33 @@ const LIGHTWEIGHT = {
     heavyMult: () => 4.0,
     variationMult: () => 1.0,
     resolveBurstMult: () => ({ baseMain: 6.5, baseSide: 3.25 }),
+    // 1 链 · 林间青枝：变奏后 2 回合普攻积气 ×2
+    onVariation: (self, ctx) => {
+      if (!self.jianxinQiDouble) return;
+      const cfg = self.jianxinQiDouble;
+      const mult = cfg.mult || 2;
+      const dur = cfg.dur || 2;
+      self.buffs = (self.buffs || []).filter(b => b.src !== '林间青枝');
+      self.buffs.push({
+        type: 'jianxinQiDouble',
+        value: mult,
+        duration: dur + 1,
+        src: '林间青枝',
+      });
+      ctx?.battle?.log.push({
+        type: 'mechanic', src: self.name,
+        msg: `林间青枝 · 普攻积气 ×${mult}（${dur} 回合）`,
+      });
+    },
   },
-  // Phase 3 · 相里要：N130/S200/H400/变奏100/解放1500·750（洞见窗不改解放基底）
+  // Phase 3 · 相里要：N130/S200/H400/变奏100/解放思维矩阵 1466·733（WIKI）
   '相里要': {
     hasHeavy: true,
     normalMult: () => 1.3,
     skillMult: () => 2.0,
     heavyMult: () => 4.0,
     variationMult: () => 1.0,
-    resolveBurstMult: () => ({ baseMain: 15.0, baseSide: 7.5 }),
+    resolveBurstMult: () => ({ baseMain: 14.66, baseSide: 7.33 }),
   },
   // Phase 3 · 维里奈治疗位：N100/S120/解放200·100/变奏100
   '维里奈': {
@@ -62,6 +84,29 @@ const LIGHTWEIGHT = {
     skillMult: () => 1.2,
     variationMult: () => 1.0,
     resolveBurstMult: () => ({ baseMain: 2.0, baseSide: 1.0 }),
+  },
+  // 漂泊者三形态 · A 级工厂（B-Tier 温和）
+  '漂泊者·衍射': {
+    hasHeavy: false,
+    normalMult: () => 1.0,
+    skillMult: () => 2.0,
+    variationMult: () => 1.2,
+    resolveBurstMult: () => ({ baseMain: 6.0, baseSide: 3.0 }),
+  },
+  '漂泊者·湮灭': {
+    hasHeavy: true,
+    normalMult: () => 1.1,
+    skillMult: () => 2.2,
+    heavyMult: () => 4.0,
+    variationMult: () => 1.2,
+    resolveBurstMult: () => ({ baseMain: 6.5, baseSide: 3.25 }),
+  },
+  '漂泊者·气动': {
+    hasHeavy: false,
+    normalMult: () => 1.0,
+    skillMult: () => 2.4,
+    variationMult: () => 1.2,
+    resolveBurstMult: () => ({ baseMain: 6.2, baseSide: 3.1 }),
   },
   // Phase 3 · 凌阳：N125/S210/解放400·200/变奏100；无重击
   '凌阳': {

@@ -146,7 +146,11 @@ export function applyChainBonuses(unit) {
         break;
       // ===== 忌炎「锐意之势」=====
       case 'jiyanSkillChargeFaster':
-        unit.skillCdReduce = Math.max(unit.skillCdReduce || 0, 1);
+      case 'jiyanSkillCharges':
+      case 'xiakongSkillCharges':
+        // 忌炎1链 / 夏空3链：技能充能上限 2
+        unit.skillChargesMax = Math.max(unit.skillChargesMax || 1, e.max || 2);
+        unit.skillCharges = unit.skillChargesMax;
         break;
       case 'jiyanTongBian':
         unit.jiyanTongBian = { forteGain: e.forteGain || 30, atkUp: e.atkUp || 0.28, dur: e.dur || 2 };
@@ -158,7 +162,13 @@ export function applyChainBonuses(unit) {
         unit.jiyanQiZheng = { value: e.value || 0.25, dur: e.dur || 2 };
         break;
       case 'jiyanMingDuan':
-        unit.jiyanMingDuan = { value: e.value || 0.45, dur: e.dur || 2 };
+        unit.jiyanMingDuan = {
+          perStack: e.perStack != null ? e.perStack : 0.03,
+          cap: e.cap || 15,
+          dur: e.dur || 2,
+          // 兼容旧 value=0.45 满层写法
+          value: e.value,
+        };
         break;
       case 'jiyanRuiyiUpgrade':
         unit.jiyanRuiyiCap = e.cap || 3;
@@ -172,7 +182,11 @@ export function applyChainBonuses(unit) {
         unit.yinlinMarkRefund = { verdict: e.verdict || 5, energy: e.energy || 5 };
         break;
       case 'yinlinMarkVuln':
+        // 旧易伤链已废止；保留字段兼容旧存档
         unit.yinlinMarkVulnPerStack = (unit.yinlinMarkVulnPerStack || 0) + e.value;
+        break;
+      case 'yinlinJudgmentBoost':
+        unit.yinlinJudgmentBoost = (unit.yinlinJudgmentBoost || 0) + (e.value || 0.55);
         break;
       case 'yinlinJudgmentTeamAtk':
         unit.yinlinJudgmentTeamAtk = { value: e.value || 0.20, dur: e.dur || 2 };
@@ -190,12 +204,19 @@ export function applyChainBonuses(unit) {
       case 'jinhsiTeamAllDmg':
         unit.jinhsiTeamAllDmg = true;
         break;
+      case 'jinhsiC2OffstageShaoguang':
+        unit.jinhsiC2OffstageShaoguang = e.value || 1;
+        break;
       // ===== 珂莱塔「解离 / 重击拐」=====
       case 'carlottaCrateVsDebuff':
         unit.carlottaCrateVsDebuff = (unit.carlottaCrateVsDebuff || 0) + (e.value || 0);
         break;
       case 'carlottaTeamSkillAfterHeavy':
         unit.carlottaTeamSkillAfterHeavy = e.value || 0.25;
+        break;
+      case 'carlottaC3':
+        unit.skillBonus = (unit.skillBonus || 0) + (e.skillDmg || 0.93);
+        unit.carlottaOutroMult = e.outroMult || 10.32;
         break;
       // ===== 折枝「墨鹤召唤」=====
       case 'zhezhiCraneCapBonus':
@@ -209,6 +230,23 @@ export function applyChainBonuses(unit) {
         break;
       case 'zhezhiWhiteCrane':
         unit.zhezhiWhiteCrane = true;
+        break;
+      case 'zhezhiC1Skill':
+        unit.zhezhiC1Skill = {
+          energy: e.energy || 15,
+          crate: e.crate || 0.1,
+          dur: e.dur || 3,
+        };
+        break;
+      case 'jianxinQiDouble':
+        unit.jianxinQiDouble = { mult: e.mult || 2, dur: e.dur || 2 };
+        break;
+      case 'shorekeeperC6':
+        unit.variationBonus = (unit.variationBonus || 0) + (e.variationBonus || 0.42);
+        unit.shorekeeperC6Cdmg = { value: e.cdmg || 5, dur: e.dur || 2 };
+        break;
+      case 'younuoC4Shield':
+        unit.younuoC4Shield = { value: e.value || 1.6, duration: e.duration || 3 };
         break;
     }
   });

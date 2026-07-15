@@ -112,11 +112,12 @@ describe('battle/characters/xiakong — 夏空', () => {
     const a = xk(battle);
     battle.active = xkIdx(battle);
 
-    // C1 atk / C2 teamElem / C4 pierce 占位；C3 skillCdReduce + C5 burstDmg 为真 flat
+    // C1 atk / C2 teamElem / C4 pierce 占位；C3 技能充能 2 + C5 burstDmg 为真 flat
     expect(a.pierceDef || 0).toBe(0);
     expect(a.elemBonus?.['气动'] || 0).toBe(0);
     expect(a.burstBonus || 0).toBeCloseTo(0.4, 5);
-    expect(a.skillCdReduce || 0).toBe(1);
+    expect(a.skillChargesMax || 1).toBe(2);
+    expect(a.skillCharges || 0).toBe(2);
 
     battle.ap = 4;
     expect(combat.doAttack(battle, firstEnemy(battle)).ok).toBe(true);

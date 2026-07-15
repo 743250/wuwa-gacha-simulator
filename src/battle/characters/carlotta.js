@@ -3,7 +3,11 @@
 //   技能 +1 晶体（上限 5），满层强化技能 ×2.0
 //   技能命中挂解离，再命中升级变彩
 //   C1：对解离/变彩目标暴击 +12.5%（crateBonus hook）
+//   C3：技能 +93% + 切人离场碎璃镜花 1032%
 //   C4：重击后全队 skillDmgUp +25% · 2 回合
+
+import { registerSwitchOutHook } from '../switchHooks.js';
+import { calcDamage, dealDamage } from '../combat/damage.js';
 
 export function carlottaApplyDissociation(self, target, battle) {
   if (self.name !== '珂莱塔') return;
@@ -61,15 +65,30 @@ export function carlottaSkillMult(self) {
   return self.name === '珂莱塔' ? 2.8 : null;
 }
 export function carlottaHeavyMult(self) {
-  return self.name === '珂莱塔' ? 5.5 : null;
+  return self.name === '珂莱塔' ? 8.35 : null; // WIKI 末路见行 835.36%
 }
 export function carlottaVariationMult(self) {
   return self.name === '珂莱塔' ? 2.0 : null;
 }
 export function carlottaResolveBurstMult(self) {
   if (self.name !== '珂莱塔') return null;
-  return { baseMain: 10.0, baseSide: 5.0 };
+  return { baseMain: 6.44, baseSide: 3.22 }; // WIKI 致死以终 644.33%
 }
+
+// 3 链：切人离场碎璃镜花
+export function carlottaSwitchOut({ from, battle }) {
+  if (!from || from.name !== '珂莱塔' || !from.carlottaOutroMult || !battle) return;
+  const target = battle.enemies.find(e => e.alive);
+  if (!target) return;
+  const { dmg, crit } = calcDamage(from, target, from.carlottaOutroMult, 'skill');
+  const real = dealDamage(target, dmg);
+  battle.log.push({
+    type: 'attack', src: from.name, tgt: target.name, dmg: real, crit,
+    action: '碎璃镜花（3 链延奏）'
+  });
+}
+
+registerSwitchOutHook('珂莱塔', carlottaSwitchOut);
 
 export default {
   name: '珂莱塔',
@@ -83,5 +102,6 @@ export default {
   skillMult: carlottaSkillMult,
   heavyMult: carlottaHeavyMult,
   variationMult: carlottaVariationMult,
-  resolveBurstMult: carlottaResolveBurstMult
+  resolveBurstMult: carlottaResolveBurstMult,
+  switchOut: carlottaSwitchOut,
 };

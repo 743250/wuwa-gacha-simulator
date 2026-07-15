@@ -38,7 +38,17 @@ export function canSkill(self, battle, targetIdx) {
   if (self.frozenTurns > 0) return { ok: false, err: `当前角色被冻结（${self.frozenTurns} 回合）` };
   if (self.skillLockedTurns > 0) return { ok: false, err: `技能被封锁中（${self.skillLockedTurns} 回合）` };
   const inMindEye = !!queryCharacterHook(self, 'inMindEye');
-  if (self.cd.skill > 0 && !inMindEye) return { ok: false, err: `技能冷却中（${self.cd.skill} 回合）` };
+  if (!inMindEye) {
+    // CD 已归零则至少 1 层可用（兼容测试/外部清 CD；多充能未满仍靠 turnEnd 继续回）
+    if (!(self.cd?.skill > 0) && (self.skillCharges == null || self.skillCharges < 1)) {
+      self.skillCharges = 1;
+    }
+    const charges = self.skillCharges != null ? self.skillCharges : 1;
+    if (charges < 1) {
+      const cdLeft = self.cd?.skill || 0;
+      return { ok: false, err: cdLeft > 0 ? `技能冷却中（${cdLeft} 回合）` : '技能充能耗尽' };
+    }
+  }
   const cost = resolveActionCost(self, 'skill', ACTION_COST.skill);
   if (battle.finished || battle.ap < cost.apCost) return { ok: false, err: 'AP 不足' };
   const target = battle.enemies[targetIdx];
@@ -197,7 +207,14 @@ export function doSkill(battle, targetIdx) {
   reduceVibration(target, VIBRATION_DAMAGE.skill + (fEnh ? VIBRATION_DAMAGE.skillForteBonus : 0), battle, self);
   applyReflect(battle, self, target, real);
   battle.ap -= cost.apCost;
-  if (!inMindEye) self.cd.skill = Math.max(1, 3 - (self.skillCdReduce || 0));
+  if (!inMindEye) {
+    const maxCh = self.skillChargesMax || 1;
+    self.skillCharges = Math.max(0, (self.skillCharges != null ? self.skillCharges : maxCh) - 1);
+    // 充能回复：不满时启动/维持 CD；skillCdReduce 仍缩短回复间隔
+    if (self.skillCharges < maxCh && !(self.cd.skill > 0)) {
+      self.cd.skill = Math.max(1, 3 - (self.skillCdReduce || 0));
+    }
+  }
   self.energy = Math.min(self.energyMax, Math.round(self.energy + (22 + self.energyRefund) * (1 + self.resonanceBonus)));
   gainConcerto(self, 18);
   gainForte(self, 'skill');

@@ -117,7 +117,9 @@ describe('battle/combat', () => {
 
     it('rejects when skill on cooldown', () => {
       const battle = quickBattle();
-      battle.team[battle.active].cd.skill = 2;
+      const self = battle.team[battle.active];
+      self.cd.skill = 2;
+      self.skillCharges = 0; // 充能耗尽 + 回复中
       const result = combat.doSkill(battle, firstEnemy(battle));
       expect(result.ok).toBe(false);
       expect(result.err).toContain('冷却');

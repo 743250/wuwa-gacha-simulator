@@ -76,6 +76,18 @@ describe('battle/characters/jinhsi — 今汐', () => {
     expect(unit.forte.current).toBeGreaterThanOrEqual(2);
   });
 
+  it('C2 离场回合结束 +1 韶光', () => {
+    const { battle, unit } = makeSoloTeam('今汐', { chain: 2 });
+    expect(unit.jinhsiC2OffstageShaoguang).toBe(1);
+    unit.forte.current = 0;
+    unit.forte.ready = false;
+    const other = battle.team.findIndex(t => t.name !== '今汐');
+    battle.active = other;
+    combat.endTurn(battle);
+    expect(unit.forte.current).toBe(1);
+    expect(battle.log.some(l => /离场韶光/.test(String(l.msg || '')))).toBe(true);
+  });
+
   it('skillHints C6 惊龙/解放数字含 C1/C5 与 ×3.4', () => {
     const entry = skillHints.SKILL_HINTS['今汐'];
     // 注入 skillBonus/burstBonus 模拟 getSkillHintRoleContext

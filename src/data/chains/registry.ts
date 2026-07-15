@@ -11,8 +11,8 @@ export const REGISTRY: Record<string, CharacterChains> = {
     chains: [
     {
       index: 1,
-      effect: {"effect":"jiyanSkillChargeFaster"},
-      text: { name: "济世", desc: "<b class=\"term-skill\">共鸣技能·枪扫风定</b>的冷却时间从 <b class=\"term-num\">3</b> 回合缩短为 <b class=\"term-num\">2</b> 回合。" },
+      effect: {"effect":"jiyanSkillCharges","max":2},
+      text: { name: "济世", desc: "<b class=\"term-skill\">共鸣技能·枪扫风定</b>充能上限提升至 <b class=\"term-num\">2</b> 层（可连续施放两次；每层约 <b class=\"term-num\">3</b> 回合回复）。" },
     },
     {
       index: 2,
@@ -31,8 +31,8 @@ export const REGISTRY: Record<string, CharacterChains> = {
     },
     {
       index: 5,
-      effect: {"effect":"jiyanMingDuan","value":0.45,"dur":2},
-      text: { name: "明断", desc: "忌炎变奏入场时，自身攻击 +<b class=\"term-num\">45%</b>，持续 <b class=\"term-num\">2</b> 回合。" },
+      effect: {"effect":"jiyanMingDuan","perStack":0.03,"cap":15,"dur":2},
+      text: { name: "明断", desc: "忌炎攻击命中时自身攻击 +<b class=\"term-num\">3%</b>/层，最多 <b class=\"term-num\">15</b> 层（合计 +45%），每层持续 <b class=\"term-num\">2</b> 回合；变奏入场时叠满。" },
     },
     {
       index: 6,
@@ -57,8 +57,8 @@ export const REGISTRY: Record<string, CharacterChains> = {
     },
     {
       index: 3,
-      effect: {"effect":"yinlinMarkVuln","value":0.1},
-      text: { name: "无情的断罪", desc: "带有<b class=\"term-resource\">审判印记</b>的目标每层印记使受到的伤害额外 +<b class=\"term-num\">10%</b>（全队全伤害类型生效）。" },
+      effect: {"effect":"yinlinJudgmentBoost","value":0.55},
+      text: { name: "无情的断罪", desc: "<b class=\"term-resource\">审判之雷</b>伤害倍率提升 <b class=\"term-num\">55%</b>。" },
     },
     {
       index: 4,
@@ -72,8 +72,8 @@ export const REGISTRY: Record<string, CharacterChains> = {
     },
     {
       index: 6,
-      effect: {"effect":"yinlinJiTing","value":0.7,"dur":2},
-      text: { name: "正义的践行", desc: "施放<b class=\"term-burst\">共鸣解放</b>后 <b class=\"term-num\">2</b> 回合内，吟霖<b class=\"term-normal\">普攻</b>命中带<b class=\"term-resource\">审判印记</b>的目标时额外触发一次<b class=\"term-skill\">疾霆昭彰</b>，造成攻击 <b class=\"term-num\">70%</b> 的导电伤害，每回合最多触发 <b class=\"term-num\">1</b> 次。" },
+      effect: {"effect":"yinlinJiTing","value":4.2,"dur":2},
+      text: { name: "正义的践行", desc: "施放<b class=\"term-burst\">共鸣解放</b>后 <b class=\"term-num\">2</b> 回合内，吟霖<b class=\"term-normal\">普攻</b>命中带<b class=\"term-resource\">审判印记</b>的目标时额外触发一次<b class=\"term-skill\">疾霆昭彰</b>，造成攻击 <b class=\"term-num\">420%</b> 的导电伤害，每回合最多触发 <b class=\"term-num\">1</b> 次。" },
     }
     ],
   },
@@ -88,8 +88,8 @@ export const REGISTRY: Record<string, CharacterChains> = {
     },
     {
       index: 2,
-      effect: {"effect":"atk","value":0.05,"label":"攻击 +5%"},
-      text: { name: "绒雪凝屏息", desc: "今汐攻击 +<b class=\"term-num\">5%</b>。" },
+      effect: {"effect":"jinhsiC2OffstageShaoguang","value":1,"label":"不在场时每回合结束 +1 韶光"},
+      text: { name: "绒雪凝屏息", desc: "今汐不在场时，每回合结束回复 <b class=\"term-num\">1</b> 层<b class=\"term-resource\">韶光</b>（上限 <b class=\"term-num\">4</b>）。" },
     },
     {
       index: 3,
@@ -208,8 +208,8 @@ export const REGISTRY: Record<string, CharacterChains> = {
     },
     {
       index: 3,
-      effect: {"effect":"skillDmg","value":0.93,"label":"共鸣技能伤害 +93%"},
-      text: { name: "切步、向前，此为优雅的进行式", desc: "珂莱塔<b class=\"term-skill\">共鸣技能·暴力美学</b>与<b class=\"term-skill\">共鸣技能·示我璀璨</b>的伤害 +<b class=\"term-num\">93%</b>。" },
+      effect: {"effect":"carlottaC3","skillDmg":0.93,"outroMult":10.32,"label":"技能+93%；切人离场碎璃镜花 1032%"},
+      text: { name: "切步、向前，此为优雅的进行式", desc: "珂莱塔<b class=\"term-skill\">共鸣技能·暴力美学</b>与示我璀璨伤害 +<b class=\"term-num\">93%</b>。切人离场时追加<b class=\"term-skill\">碎璃镜花</b>，造成攻击 <b class=\"term-num\">1032%</b> 的冷凝伤害。" },
     },
     {
       index: 4,
@@ -374,8 +374,8 @@ export const REGISTRY: Record<string, CharacterChains> = {
     chains: [
     {
       index: 1,
-      effect: {"effect":"crate","value":0.1,"label":"暴击 +10%"},
-      text: { name: "骨法用笔", desc: "折枝暴击提升 <b class=\"term-num\">10%</b>。" },
+      effect: {"effect":"zhezhiC1Skill","energy":15,"crate":0.1,"dur":3,"label":"技能回 15 能 + 暴击 10%·3 回合"},
+      text: { name: "骨法用笔", desc: "折枝施放<b class=\"term-skill\">共鸣技能</b>时，额外回复 <b class=\"term-num\">15</b> 点共鸣能量，自身暴击 +<b class=\"term-num\">10%</b>，持续 <b class=\"term-num\">3</b> 回合。" },
     },
     {
       index: 2,
@@ -654,8 +654,8 @@ export const REGISTRY: Record<string, CharacterChains> = {
     chains: [
     {
       index: 1,
-      effect: {"effect":"normalDmg","value":0.2,"label":"变奏后普攻 +20%"},
-      text: { name: "林间青枝", desc: "鉴心<b class=\"term-variation\">变奏入场</b>后,<b class=\"term-normal\">普攻</b>伤害加成提升 <b class=\"term-num\">20%</b>,持续 <b class=\"term-num\">2</b> 回合。" },
+      effect: {"effect":"jianxinQiDouble","mult":2,"dur":2,"label":"变奏后 2 回合普攻积气 ×2"},
+      text: { name: "林间青枝", desc: "鉴心<b class=\"term-variation\">变奏入场</b>后 <b class=\"term-num\">2</b> 回合内，普攻获得的<b class=\"term-resource\">气</b>额外增加 <b class=\"term-num\">100%</b>。" },
     },
     {
       index: 2,
@@ -1135,8 +1135,8 @@ export const REGISTRY: Record<string, CharacterChains> = {
     },
     {
       index: 6,
-      effect: {"effect":"variationDmg","value":5},
-      text: { name: "我所驶向的新世界", desc: "协奏值满时切换角色，入场角色的<b class=\"term-variation\">变奏技能·洞悉</b>伤害倍率提升至原本的 <b class=\"term-num\">6</b> 倍。" },
+      effect: {"effect":"shorekeeperC6","variationBonus":0.42,"cdmg":5,"dur":2},
+      text: { name: "我所驶向的新世界", desc: "守岸人<b class=\"term-variation\">变奏技能·洞悉</b>伤害倍率 +<b class=\"term-num\">42%</b>。施放变奏时自身暴击伤害 +<b class=\"term-num\">500%</b>，持续 <b class=\"term-num\">2</b> 回合。" },
     }
     ],
   },
@@ -1157,8 +1157,8 @@ export const REGISTRY: Record<string, CharacterChains> = {
     },
     {
       index: 3,
-      effect: {"effect":"zanyanBurstFinaleBoost","value":0.02,"cap":2.0,"label":"灼焰形态:每消耗1焰光,终绝将至之刻倍率+2%(上限+200%)"},
-      text: { name: "日复一日的通勤", desc: "赞妮处于<b class=\"term-state\">灼焰形态</b>时，每消耗 <b class=\"term-num\">1</b> 点<b class=\"term-resource\">焰光</b>，本次<b class=\"term-burst\">共鸣解放·终绝将至之刻</b>倍率提升 <b class=\"term-num\">2%</b>，最多提升 <b class=\"term-num\">200%</b>。" },
+      effect: {"effect":"zanyanBurstFinaleBoost","value":0.08,"cap":8.0,"label":"灼焰形态:每消耗1焰光,终绝+8%(上限+800%)"},
+      text: { name: "日复一日的通勤", desc: "赞妮处于<b class=\"term-state\">灼焰形态</b>时，每消耗 <b class=\"term-num\">1</b> 点<b class=\"term-resource\">焰光</b>，本次<b class=\"term-burst\">共鸣解放·终绝将至之刻</b>倍率提升 <b class=\"term-num\">8%</b>，最多提升 <b class=\"term-num\">800%</b>。" },
     },
     {
       index: 4,
@@ -1197,8 +1197,8 @@ export const REGISTRY: Record<string, CharacterChains> = {
     },
     {
       index: 3,
-      effect: {"effect":"skillCdReduce","value":1,"label":"共鸣技能冷却 -1 回合；普攻额外 +1 音律"},
-      text: { name: "星烁此时的即兴演奏", desc: "<b class=\"term-normal\">普攻</b>额外获得 <b class=\"term-num\">1</b> 格<b class=\"term-resource\">音律</b>。<b class=\"term-skill\">共鸣技能</b>冷却时间从 <b class=\"term-num\">3</b> 回合缩短为 <b class=\"term-num\">2</b> 回合。" },
+      effect: {"effect":"xiakongSkillCharges","max":2,"label":"普攻额外 +1 音律；技能充能上限 2"},
+      text: { name: "星烁此时的即兴演奏", desc: "<b class=\"term-normal\">普攻</b>额外获得 <b class=\"term-num\">1</b> 格<b class=\"term-resource\">音律</b>。<b class=\"term-skill\">共鸣技能·谐律速奏</b>充能上限 <b class=\"term-num\">2</b> 层（可连续施放两次）。" },
     },
     {
       index: 4,
@@ -1348,8 +1348,8 @@ export const REGISTRY: Record<string, CharacterChains> = {
     {
       index: 4,
       // 至臻完满后全队 atkUp 由 younuo.js；勿写 teamAtk 常驻
-      effect: {"effect":"younuoC4TeamAtk","value":0.1,"duration":3,"label":"至臻完满时全队攻击 +10%（3 回合）"},
-      text: { name: "任雨季栖息于眼眸", desc: "施放<b class=\"term-heavy\">重击·至臻的完满</b>时，队伍中的角色攻击提升 <b class=\"term-num\">10%</b>，持续 <b class=\"term-num\">3</b> 回合。" },
+      effect: {"effect":"younuoC4Shield","value":1.6,"duration":3,"label":"至臻完满时全队护盾 160% 攻击（3 回合）"},
+      text: { name: "任雨季栖息于眼眸", desc: "施放<b class=\"term-heavy\">重击·至臻的完满</b>时，队伍中的角色获得基于尤诺攻击 <b class=\"term-num\">160%</b> 的护盾，持续 <b class=\"term-num\">3</b> 回合。" },
     },
     {
       index: 5,
@@ -1792,5 +1792,110 @@ export const REGISTRY: Record<string, CharacterChains> = {
       text: { name: "在如烟的时间里张望", desc: "洛瑟菈<b class=\"term-skill\">共鸣技能</b>伤害提升 <b class=\"term-num\">100%</b>。" },
     }
     ],
-  }
+  },
+  "漂泊者·衍射": {
+    character: "漂泊者·衍射",
+    chains: [
+    {
+      index: 1,
+      effect: {"effect":"crate","value":0.15,"label":"暴击 +15%"},
+      text: { name: "始源纪行", desc: "施放<b class=\"term-skill\">共鸣技能·浮声千斩</b>后，漂泊者暴击提升 <b class=\"term-num\">15%</b>。" },
+    },
+    {
+      index: 2,
+      effect: {"effect":"elemDmg","value":0.2,"element":"衍射","label":"衍射伤害 +20%"},
+      text: { name: "微物细语", desc: "漂泊者衍射伤害加成提升 <b class=\"term-num\">20%</b>。" },
+    },
+    {
+      index: 3,
+      effect: {"effect":"energyRefund","value":10,"label":"技能额外回 10 能量"},
+      text: { name: "尘声百面", desc: "施放共鸣技能时，额外回复 <b class=\"term-num\">10</b> 点共鸣能量。" },
+    },
+    {
+      index: 4,
+      effect: {"effect":"heal","value":0.1,"label":"治疗效果 +10%"},
+      text: { name: "连音扫弦", desc: "施放<b class=\"term-burst\">共鸣解放·回响奏鸣</b>时，为队伍回复生命；治疗效果加成提升 <b class=\"term-num\">10%</b>。" },
+    },
+    {
+      index: 5,
+      effect: {"effect":"burstDmg","value":0.4,"label":"共鸣解放伤害 +40%"},
+      text: { name: "回声流转", desc: "漂泊者共鸣解放伤害加成提升 <b class=\"term-num\">40%</b>。" },
+    },
+    {
+      index: 6,
+      effect: {"effect":"elemDmg","value":0.1,"element":"衍射","label":"衍射伤害 +10%"},
+      text: { name: "长路归鸣", desc: "<b class=\"term-skill\">浮声千斩</b>命中目标时，漂泊者衍射伤害加成提升 <b class=\"term-num\">10%</b>。" },
+    }
+    ],
+  },
+  "漂泊者·湮灭": {
+    character: "漂泊者·湮灭",
+    chains: [
+    {
+      index: 1,
+      effect: {"effect":"skillDmg","value":0.3,"label":"共鸣技能伤害 +30%"},
+      text: { name: "弦外知机", desc: "漂泊者共鸣技能伤害加成提升 <b class=\"term-num\">30%</b>。" },
+    },
+    {
+      index: 2,
+      effect: {"effect":"skillDmg","value":0.1,"label":"共鸣技能伤害 +10%"},
+      text: { name: "晦明如朔", desc: "施放<b class=\"term-heavy\">重击·灭音</b>进入<b class=\"term-resource\">暗涌</b>后，共鸣技能伤害加成提升 <b class=\"term-num\">10%</b>。" },
+    },
+    {
+      index: 3,
+      effect: {"effect":"heal","value":0.08,"label":"治疗效果 +8%"},
+      text: { name: "声息涌动", desc: "处于<b class=\"term-resource\">暗涌</b>时，治疗效果加成提升 <b class=\"term-num\">8%</b>。" },
+    },
+    {
+      index: 4,
+      effect: {"effect":"elemDmg","value":0.1,"element":"湮灭","label":"湮灭伤害 +10%"},
+      text: { name: "尘声湮灭", desc: "<b class=\"term-heavy\">重击·灭音</b>或<b class=\"term-burst\">临渊死寂</b>命中时，漂泊者湮灭伤害加成提升 <b class=\"term-num\">10%</b>。" },
+    },
+    {
+      index: 5,
+      effect: {"effect":"normalDmg","value":0.15,"label":"普攻伤害 +15%"},
+      text: { name: "万物寂听", desc: "处于<b class=\"term-resource\">暗涌</b>时，普攻伤害加成提升 <b class=\"term-num\">15%</b>。" },
+    },
+    {
+      index: 6,
+      effect: {"effect":"crate","value":0.25,"label":"暴击 +25%"},
+      text: { name: "暗涌潮升", desc: "处于<b class=\"term-resource\">暗涌</b>时，漂泊者暴击提升 <b class=\"term-num\">25%</b>。" },
+    }
+    ],
+  },
+  "漂泊者·气动": {
+    character: "漂泊者·气动",
+    chains: [
+    {
+      index: 1,
+      effect: {"effect":"allDmg","value":0.05,"label":"全伤害 +5%"},
+      text: { name: "风止息于无明界", desc: "漂泊者全伤害加成提升 <b class=\"term-num\">5%</b>。" },
+    },
+    {
+      index: 2,
+      effect: {"effect":"heal","value":0.1,"label":"治疗效果 +10%"},
+      text: { name: "流光乍隐于长夜", desc: "施放<b class=\"term-skill\">共鸣技能·缥缈无相</b>后，为队伍回复生命；治疗效果加成提升 <b class=\"term-num\">10%</b>。" },
+    },
+    {
+      index: 3,
+      effect: {"effect":"elemDmg","value":0.15,"element":"气动","label":"气动伤害 +15%"},
+      text: { name: "虚相陷落于掌中", desc: "漂泊者气动伤害加成提升 <b class=\"term-num\">15%</b>。" },
+    },
+    {
+      index: 4,
+      effect: {"effect":"skillDmg","value":0.15,"label":"共鸣技能伤害 +15%"},
+      text: { name: "界限崩折于刹那", desc: "漂泊者共鸣技能伤害加成提升 <b class=\"term-num\">15%</b>。" },
+    },
+    {
+      index: 5,
+      effect: {"effect":"burstDmg","value":0.2,"label":"共鸣解放伤害 +20%"},
+      text: { name: "生灭交错于来路", desc: "<b class=\"term-burst\">共鸣解放·万象归墟</b>伤害倍率提升 <b class=\"term-num\">20%</b>。" },
+    },
+    {
+      index: 6,
+      effect: {"effect":"skillDmg","value":0.3,"label":"共鸣技能伤害 +30%"},
+      text: { name: "万象崩落于风间", desc: "<b class=\"term-skill\">共鸣技能·缥缈无相</b>伤害倍率提升 <b class=\"term-num\">30%</b>。" },
+    }
+    ],
+  },
 };

@@ -108,6 +108,23 @@ export function shorekeeperSkipGenericBurstHeal(self) {
   return self.name === '守岸人';
 }
 
+// 6 链：变奏·洞悉时自身暴伤 +500%（倍率 +42% 已由 variationBonus）
+export function shorekeeperOnVariation(self, ctx) {
+  if (self.name !== '守岸人' || !self.shorekeeperC6Cdmg) return;
+  const cfg = self.shorekeeperC6Cdmg;
+  self.buffs = (self.buffs || []).filter(b => b.src !== '我所驶向的新世界');
+  self.buffs.push({
+    type: 'cdmgUp',
+    value: cfg.value || 5,
+    duration: (cfg.dur || 2) + 1,
+    src: '我所驶向的新世界',
+  });
+  ctx?.battle?.log.push({
+    type: 'mechanic', src: self.name,
+    msg: `我所驶向的新世界 · 暴击伤害 +${((cfg.value || 5) * 100).toFixed(0)}%（${cfg.dur || 2} 回合）`
+  });
+}
+
 export default {
   name: '守岸人',
   hasHeavy: false,
@@ -117,5 +134,6 @@ export default {
   starfield: shorekeeperStarfield,
   burstRefund: shorekeeperBurstRefund,
   onBurst: shorekeeperOnBurst,
+  onVariation: shorekeeperOnVariation,
   skipGenericBurstHeal: shorekeeperSkipGenericBurstHeal
 };

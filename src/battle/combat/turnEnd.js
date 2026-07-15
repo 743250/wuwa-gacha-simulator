@@ -173,7 +173,17 @@ export function endTurn(battle) {
       }
     });
     t.buffs = (t.buffs || []).filter(b => --b.duration > 0);
-    if (t.cd.skill > 0) t.cd.skill--;
+    if (t.cd.skill > 0) {
+      t.cd.skill--;
+      if (t.cd.skill === 0) {
+        const maxCh = t.skillChargesMax || 1;
+        t.skillCharges = Math.min(maxCh, (t.skillCharges != null ? t.skillCharges : 0) + 1);
+        // 仍未满则继续下一轮充能
+        if (t.skillCharges < maxCh) {
+          t.cd.skill = Math.max(1, 3 - (t.skillCdReduce || 0));
+        }
+      }
+    }
     if (t.cd.heavy > 0) t.cd.heavy--;
     if (t.frozenTurns > 0) t.frozenTurns--;
     if (t.skillLockedTurns > 0) t.skillLockedTurns--;

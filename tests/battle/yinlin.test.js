@@ -55,7 +55,7 @@ describe('battle/characters/yinlin — 吟霖', () => {
     const enemy = battle.enemies[enemyIdx];
     expect(unit.yinlinMarkSkillBonus).toBeCloseTo(0.7, 5);
     expect(unit.yinlinMarkBurstBonus).toBeCloseTo(0.5, 5);
-    expect(unit.yinlinMarkVulnPerStack).toBeCloseTo(0.1, 5);
+    expect(unit.yinlinJudgmentBoost).toBeCloseTo(0.55, 5);
 
     forceEnergy(unit);
     battle.ap = 4;
@@ -73,7 +73,7 @@ describe('battle/characters/yinlin — 吟霖', () => {
   it('C4 审判之雷或解放挂前行的鼓舞全队 atk+15%；C6 疾霆窗口', () => {
     const { battle, unit, enemyIdx } = makeSoloTeam('吟霖', { chain: 6 });
     expect(unit.yinlinJudgmentTeamAtk?.value).toBeCloseTo(0.15, 5);
-    expect(unit.yinlinJiTing?.value).toBeCloseTo(0.7, 5);
+    expect(unit.yinlinJiTing?.value).toBeCloseTo(4.2, 5);
 
     // 直接把审判值堆满触发审判之雷（C4 buff）
     unit.verdict = 90;
@@ -102,16 +102,16 @@ describe('battle/characters/yinlin — 吟霖', () => {
     const smoke = skillHintsSmoke(entry, 6);
     expect(smoke.ok).toBe(true);
     const atk = 1000;
-    // 技能：1800 × 1.7 × (1+0.1*3) = 1800 × 1.7 × 1.3
-    const markedSkill = Math.round(atk * 1.8 * 1.7 * 1.3);
-    // 解放主：7000 × 1.7 × 1.5 × 1.3
-    const markedBurst = Math.round(atk * 7.0 * 1.7 * 1.5 * 1.3);
+    // 技能：1800 × 1.7（3 链只改审判之雷，不进技能易伤）
+    const markedSkill = Math.round(atk * 1.8 * 1.7);
+    // 解放主：8160 × 1.7 × 1.5
+    const markedBurst = Math.round(atk * 8.16 * 1.7 * 1.5);
     const skillLine = smoke.lines.find(l => l.name && l.name.includes('共鸣技能'));
     const burstLine = smoke.lines.find(l => l.name && l.name.includes('解放'));
     expect(skillLine?.desc).toMatch(new RegExp(String(markedSkill)));
     expect(burstLine?.desc).toMatch(new RegExp(String(markedBurst)));
-    // 疾霆 1000×0.7×1.7
-    const jiTing = Math.round(atk * 0.7 * 1.7);
+    // 疾霆 1000×4.2
+    const jiTing = Math.round(atk * 4.2);
     const normalLine = smoke.lines.find(l => l.name && l.name.includes('普攻'));
     expect(normalLine?.desc).toMatch(new RegExp(String(jiTing)));
   });

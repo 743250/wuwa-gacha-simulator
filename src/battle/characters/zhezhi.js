@@ -115,10 +115,26 @@ export function zhezhiSkillSummon(self, battle) {
   }
 }
 
-// onSkill hook：折枝共鸣技能补货 + 6 链白鹤（追击 craneAssist 仍由 combat.js 在此之后具名调用）
+// onSkill hook：折枝共鸣技能补货 + 1 链骨法用笔 + 6 链白鹤
 export function zhezhiOnSkill(self, ctx) {
   if (self.name !== '折枝') return;
   zhezhiSkillSummon(self, ctx.battle);
+  const c1 = self.zhezhiC1Skill;
+  if (c1 && ctx.battle) {
+    const energy = c1.energy || 15;
+    self.energy = Math.min(self.energyMax, Math.round((self.energy || 0) + energy));
+    self.buffs = (self.buffs || []).filter(b => b.src !== '骨法用笔');
+    self.buffs.push({
+      type: 'crateUp',
+      value: c1.crate || 0.1,
+      duration: (c1.dur || 3) + 1,
+      src: '骨法用笔',
+    });
+    ctx.battle.log.push({
+      type: 'mechanic', src: self.name,
+      msg: `骨法用笔 · 共鸣能量 +${energy} · 暴击 +${((c1.crate || 0.1) * 100).toFixed(0)}%（${c1.dur || 3} 回合）`
+    });
+  }
 }
 
 // 墨鹤追击：己方角色每次攻击命中主目标时消耗 1 只墨鹤追击

@@ -146,6 +146,8 @@ function createTeamUnit(roleName, idx) {
     healBonus: s.healBonus || 0,
     pierceDef: s.defPierce || 0,
     skillCdReduce: s.skillCdReduce || 0,
+    skillChargesMax: s.skillChargesMax || 1,
+    skillCharges: s.skillCharges != null ? s.skillCharges : (s.skillChargesMax || 1),
     resonanceBonus: s.resonanceBonus || 0,
     weapon: s.weapon,
     weaponTriggers: s.weaponTriggers || [],

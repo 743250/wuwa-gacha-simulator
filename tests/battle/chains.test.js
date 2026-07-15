@@ -85,11 +85,11 @@ describe('battle/chains', () => {
 
       expect(unit0).toBeTruthy();
       expect(unit6).toBeTruthy();
-      // 6-chain 忌炎 has: jiyanSkillChargeFaster (skillCdReduce), jiyanRuiyiUpgrade (cap + perStack), etc.
-      // At minimum, skillCdReduce should differ
+      // 6-chain 忌炎 has: skillChargesMax 2 (C1) + ruiyi upgrade (C6) 等
       const hasDiff =
-        (unit0.skillCdReduce || 0) !== (unit6.skillCdReduce || 0) ||
-        (unit0.jiyanRuiyiCap || 0) !== (unit6.jiyanRuiyiCap || 0);
+        (unit0.skillChargesMax || 1) !== (unit6.skillChargesMax || 1) ||
+        (unit0.jiyanRuiyiCap || 0) !== (unit6.jiyanRuiyiCap || 0) ||
+        !!unit6.jiyanMingDuan !== !!unit0.jiyanMingDuan;
       expect(hasDiff).toBe(true);
     });
   });
@@ -135,16 +135,17 @@ describe('battle/chains', () => {
 
     it('守岸人 6-chain has variation damage bonus', () => {
       const effects = chains.getChainEffects('守岸人', 6);
-      const vari = effects.find(e => e.effect === 'variationDmg');
-      expect(vari).toBeTruthy();
-      expect(vari.value).toBe(5.0);
+      const c6 = effects.find(e => e.effect === 'shorekeeperC6');
+      expect(c6).toBeTruthy();
+      expect(c6.variationBonus).toBeCloseTo(0.42, 5);
+      expect(c6.cdmg).toBe(5);
     });
 
     it('吟霖 3-chain has yinlinMarkVuln effect', () => {
       const effects = chains.getChainEffects('吟霖', 3);
-      const vuln = effects.find(e => e.effect === 'yinlinMarkVuln');
-      expect(vuln).toBeTruthy();
-      expect(vuln.value).toBeGreaterThan(0);
+      const boost = effects.find(e => e.effect === 'yinlinJudgmentBoost');
+      expect(boost).toBeTruthy();
+      expect(boost.value).toBeCloseTo(0.55, 5);
     });
   });
 });

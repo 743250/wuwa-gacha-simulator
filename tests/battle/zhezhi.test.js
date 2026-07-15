@@ -56,8 +56,9 @@ describe('battle/characters/zhezhi — 折枝', () => {
     }
   });
 
-  it('C2 cap12；C4 解放全队 atk；C6 白鹤；skillHints 有数', () => {
+  it('C1 技能回能+暴击；C2 cap12；C4 解放全队 atk；C6 白鹤；skillHints 有数', () => {
     const { battle, unit } = makeSoloTeam('折枝', { chain: 6 });
+    expect(unit.zhezhiC1Skill?.energy).toBe(15);
     expect(unit.zhezhiCraneCapBonus).toBe(6);
     expect(unit.zhezhiTeamAtk4Chain).toBe(true);
     expect(unit.zhezhiWhiteCrane).toBe(true);
@@ -74,8 +75,11 @@ describe('battle/characters/zhezhi — 折枝', () => {
     }
 
     unit.cd.skill = 0;
+    unit.energy = 0;
     battle.ap = 4;
     combat.doSkill(battle, 0);
+    expect(unit.energy).toBeGreaterThanOrEqual(15);
+    expect((unit.buffs || []).some(b => b.src === '骨法用笔' && b.type === 'crateUp')).toBe(true);
     expect(battle.log.some(l => /白鹤/.test(String(l.action || '')))).toBe(true);
 
     const smoke = skillHintsSmoke(skillHints.SKILL_HINTS['折枝'], 6);

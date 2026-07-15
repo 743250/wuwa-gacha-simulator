@@ -126,8 +126,8 @@ describe('battle/characters/zanyan — 赞妮', () => {
 
     a.zanYanFlameConsumed = 100;
     const fin = idx.queryCharacterHook(a, 'finalMult');
-    // C3: 100 * 0.02 = 2.0 cap → ×3
-    expect(fin).toBeCloseTo(0.20 * 3, 5);
+    // C3: 100 * 0.08 = 8.0 cap → ×9
+    expect(fin).toBeCloseTo(0.20 * 9, 5);
   });
 
   it('C6 重斩×1.4 + 致死不倒；C1 技能后衍射 buff', () => {

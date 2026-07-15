@@ -4,7 +4,7 @@
 //   赞妮是"攒焰光→进灼焰形态→重斩连段消耗焰光→终结爆发"的爆发型主C。
 //   灼焰形态 3 回合：普攻键替换为重斩（HP×12%，消耗 20 焰光），每回合自动 +10 焰光。
 //   形态结束时自动施放终绝将至之刻（HP×20% × (1 + 焰光消耗加成)）。
-//   3 链：每点焰光消耗 +2% 终绝加成（最多 +200%）。
+//   3 链：每点焰光消耗 +8% 终绝加成（最多 +800%）。
 //   6 链：重斩 ×1.4 + 终夜额外 +0.5%/点 + 焰光回复（每场 1 次）+ 致死不倒（每场 1 次）。
 //
 // 焰光来源（简化版烈阳余烬团队联动）：进灼焰形态 +50，每回合 +10。
@@ -25,9 +25,9 @@ const BURST_REKIND_HP_MULT = 0.16;  // 重燃主目标 HP × 16%
 const BURST_REKIND_SIDE_MULT = 0.08;// 重燃副目标 HP × 8%
 const BURST_FINAL_HP_MULT = 0.20;   // 终绝将至之刻 HP × 20%
 const FINAL_BONUS_PER_FLAME_DEFAULT = 0.0;  // 默认无加成
-const FINAL_BONUS_PER_FLAME_C3 = 0.02;      // 3 链每点焰光 +2%
+const FINAL_BONUS_PER_FLAME_C3 = 0.08;      // 3 链每点焰光 +8%
 const FINAL_BONUS_CAP_DEFAULT = 0.0;
-const FINAL_BONUS_CAP_C3 = 2.0;             // 3 链最多 +200%
+const FINAL_BONUS_CAP_C3 = 8.0;             // 3 链最多 +800%
 const HEAVY_SLASH_C6_MULT = 1.4;            // 6 链重斩 ×1.4
 const FINAL_NIGHT_PER_FLAME_C6 = 0.005;     // 6 链终夜每点焰光额外 +0.5%
 const C6_FLAME_REFILL_THRESHOLD = 70;       // 6 链焰光 <70 时回 70

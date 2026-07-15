@@ -160,10 +160,10 @@ export const FORTE = {
   },
   '相里要': {
     kind: 'gauge', resourceName: '衍构', max: 100,
-    gainPerNormal: 8, gainPerSkill: 18, gainPerBurst: 25,
+    gainPerNormal: 8, gainPerSkill: 18, gainPerHeavy: 12, gainPerBurst: 25,
     effectType: 'burstWindow',
     effectMult: 1.5,
-    desc: '满衍构时进入「思维矩阵」，攻击/技能伤害 +50%，持续 2 回合'
+    desc: '满衍构施放共鸣解放进入洞见 2 回合：普攻/技能伤害 +50%（6 链 +90%）'
   },
   '洛可可': {
     kind: 'gauge', resourceName: '想象力', max: 100,
@@ -428,6 +428,11 @@ export function gainForte(unit, actionType /* 'normal'|'skill'|'burst'|'heavy' *
   else if (actionType === 'skill') gain = f.gainPerSkill;
   else if (actionType === 'burst') gain = f.gainPerBurst;
   else if (actionType === 'heavy') gain = (f.gainPerHeavy ?? f.gainPerNormal * 1.5);
+  // 鉴心 1 链：变奏后普攻积气 ×2
+  if (actionType === 'normal' && unit.name === '鉴心') {
+    const qi = (unit.buffs || []).find(b => b.src === '林间青枝' || b.type === 'jianxinQiDouble');
+    if (qi) gain = Math.round(gain * (qi.value || 2));
+  }
   f.current = Math.min(f.max, f.current + gain);
   if (f.current >= f.max) f.ready = true;
 }

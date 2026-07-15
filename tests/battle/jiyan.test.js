@@ -102,4 +102,20 @@ describe('battle/characters/jiyan — 忌炎', () => {
       expect((t.buffs || []).some(b => b.src === '奇正' && b.type === 'heavyDmgUp' && Math.abs(b.value - 0.25) < 1e-6)).toBe(true);
     }
   });
+
+  it('C1 技能充能上限 2：可连放两次再进 CD', () => {
+    const { battle, unit, enemyIdx } = makeSoloTeam('忌炎', { chain: 1 });
+    expect(unit.skillChargesMax).toBe(2);
+    expect(unit.skillCharges).toBe(2);
+    battle.ap = 4;
+    expect(combat.doSkill(battle, enemyIdx).ok).toBe(true);
+    expect(unit.skillCharges).toBe(1);
+    // 仍有 1 层，可立刻再放
+    battle.ap = 4;
+    expect(combat.doSkill(battle, enemyIdx).ok).toBe(true);
+    expect(unit.skillCharges).toBe(0);
+    battle.ap = 4;
+    const blocked = combat.doSkill(battle, enemyIdx);
+    expect(blocked.ok).toBe(false);
+  });
 });

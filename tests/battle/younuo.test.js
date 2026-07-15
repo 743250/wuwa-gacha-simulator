@@ -130,7 +130,9 @@ describe('battle/characters/younuo — 尤诺', () => {
     expect(a.younuoMoonTurns).toBe(3);
     expect(a.younuoFullMoonTurns).toBe(3);
     expect(a.cd.skill).toBe(0);
-    expect((a.buffs || []).some(b => b.src === '尤诺4链' && b.type === 'atkUp' && b.value === 0.10)).toBe(true);
+    // C4：全队护盾 160% 攻击（不再是 atk+10%）
+    const shieldAmt = Math.round((a.atk || 0) * 1.6);
+    expect(battle.team.every(t => !t.alive || (t.shield || 0) >= shieldAmt)).toBe(true);
 
     // C2：切到尤诺触发变奏
     battle.active = 1;
@@ -140,6 +142,32 @@ describe('battle/characters/younuo — 尤诺', () => {
     expect(battle.team.every(t =>
       !t.alive || (t.buffs || []).some(b => b.src === '尤诺2链' && b.value === 0.40)
     )).toBe(true);
+  });
+
+  it('C4 至臻完满全队护盾 160% 攻击', () => {
+    resetState({
+      team: ['尤诺', '守岸人', '安可'],
+      roles: {
+        '尤诺': { level: 90, chain: 4 },
+        '守岸人': { level: 90, chain: 0 },
+        '安可': { level: 90, chain: 0 },
+      },
+    });
+    const battle = quickBattle();
+    const a = yn(battle);
+    expect(a.younuoC4Shield?.value).toBeCloseTo(1.6, 5);
+    battle.active = ynIdx(battle);
+    a.younuoLingxing = 100;
+    a.buffs = [];
+    const mech = idx.getCharacterMechanic('尤诺');
+    mech.enterMoonFlow(a, battle);
+    battle.ap = 4;
+    expect(combat.doHeavy(battle, firstEnemy(battle)).ok).toBe(true);
+    const expected = Math.round((a.atk || 0) * 1.6);
+    for (const t of battle.team) {
+      if (!t.alive) continue;
+      expect(t.shield || 0).toBeGreaterThanOrEqual(expected);
+    }
   });
 
   it('skillHints 至臻完满展示 atk×400% / C6×2000%，非工厂 220%', () => {

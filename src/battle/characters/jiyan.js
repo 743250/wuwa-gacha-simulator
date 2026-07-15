@@ -32,20 +32,47 @@ export function jiyanGainRuiyi(self, source, battle) {
   gainStack(self, 'jiyan_ruiyi', source, battle);
 }
 
-// onSkill hook：共鸣技能积锐意 + 3 链观势
+function jiyanApplyMingDuan(self, battle, addStacks) {
+  const cfg = self.jiyanMingDuan;
+  if (!cfg || !battle) return;
+  const per = cfg.perStack != null ? cfg.perStack : (cfg.value != null ? cfg.value / 15 : 0.03);
+  const cap = cfg.cap || 15;
+  const dur = cfg.dur || 2;
+  const add = addStacks == null ? 1 : addStacks;
+  self.jiyanMingDuanStacks = Math.min(cap, (self.jiyanMingDuanStacks || 0) + add);
+  const value = self.jiyanMingDuanStacks * per;
+  self.buffs = (self.buffs || []).filter(b => b.src !== '明断');
+  self.buffs.push({ type: 'atkUp', value, duration: dur + 1, src: '明断' });
+  if (add > 0) {
+    battle.log.push({
+      type: 'mechanic', src: self.name,
+      msg: `明断 · 攻击 +${(value * 100).toFixed(0)}%（${self.jiyanMingDuanStacks}/${cap} 层 · ${dur} 回合）`
+    });
+  }
+}
+
+// onAttack：5 链明断叠攻
+export function jiyanOnAttack(self, ctx) {
+  if (self.name !== '忌炎') return;
+  jiyanApplyMingDuan(self, ctx.battle, 1);
+}
+
+// onSkill hook：共鸣技能积锐意 + 3 链观势 + 5 链明断
 export function jiyanOnSkill(self, ctx) {
   if (self.name !== '忌炎') return;
   const battle = ctx.battle;
   jiyanGainRuiyi(self, '共鸣技能', battle);
   jiyanGuanShiBuff(self, battle);
+  jiyanApplyMingDuan(self, battle, 1);
 }
 
-// onHeavy hook：重击积锐意 + 3 链观势
+// onHeavy hook：重击积锐意 + 3 链观势 + 5 链明断
 export function jiyanOnHeavy(self, ctx) {
   if (self.name !== '忌炎') return;
   const battle = ctx.battle;
   jiyanGainRuiyi(self, '重击', battle);
   jiyanGuanShiBuff(self, battle);
+  jiyanApplyMingDuan(self, battle, 1);
 }
 
 export function jiyanGuanShiBuff(self, battle) {
@@ -117,13 +144,9 @@ export function jiyanSwitchIn(self, battle) {
     });
   }
   if (self.jiyanMingDuan) {
-    const cfg = self.jiyanMingDuan;
-    self.buffs = (self.buffs || []).filter(b => b.src !== '明断');
-    self.buffs.push({ type: 'atkUp', value: cfg.value, duration: cfg.dur + 1, src: '明断' });
-    battle.log.push({
-      type: 'mechanic', src: self.name,
-      msg: `明断 · 攻击 +${(cfg.value*100).toFixed(0)}%（${cfg.dur} 回合）`
-    });
+    const cap = self.jiyanMingDuan.cap || 15;
+    self.jiyanMingDuanStacks = 0;
+    jiyanApplyMingDuan(self, battle, cap); // 变奏入场叠满
   }
 }
 
@@ -174,6 +197,7 @@ export default {
   collectBadges: collectJiyanBadges,
   gainRuiyi: jiyanGainRuiyi,
   guanShi: jiyanGuanShiBuff,
+  onAttack: jiyanOnAttack,
   onSkill: jiyanOnSkill,
   onHeavy: jiyanOnHeavy,
   burstRuiyi: jiyanBurstRuiyi,

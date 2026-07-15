@@ -53,6 +53,25 @@ export function jinhsiOnBurst(self, ctx) {
   applyC4TeamAllDmg(self, ctx?.battle, '移岁诛邪');
 }
 
+// 2 链：不在场时每回合结束 +1 韶光
+export function jinhsiTurnCleanup(self, ctx) {
+  if (self.name !== '今汐' || !self.jinhsiC2OffstageShaoguang) return;
+  const battle = ctx?.battle;
+  if (!battle || !self.alive) return;
+  if (battle.team[battle.active] === self) return;
+  if (!self.forte || self.forte.resourceName !== '韶光层数') return;
+  const gain = self.jinhsiC2OffstageShaoguang || 1;
+  const before = self.forte.current || 0;
+  self.forte.current = Math.min(self.forte.max, before + gain);
+  if (self.forte.current >= self.forte.max) self.forte.ready = true;
+  if (self.forte.current !== before) {
+    battle.log.push({
+      type: 'mechanic', src: self.name,
+      msg: `绒雪凝屏息 · 离场韶光 +${gain}（${before} → ${self.forte.current}/${self.forte.max}）`
+    });
+  }
+}
+
 // Phase 3 倍率：流光 160% / 惊龙 = skillMult × effectMult(3.0) = 480% / 解放 1000%/500%
 export function jinhsiNormalMult(self) {
   return self.name === '今汐' ? 1.1 : null;
@@ -79,6 +98,7 @@ export default {
   switchIn: jinhsiSwitchIn,
   onSkill: jinhsiOnSkill,
   onBurst: jinhsiOnBurst,
+  turnCleanup: jinhsiTurnCleanup,
   normalMult: jinhsiNormalMult,
   skillMult: jinhsiSkillMult,
   heavyMult: jinhsiHeavyMult,

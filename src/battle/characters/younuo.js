@@ -31,7 +31,7 @@ const C1_MOON_ATK_BONUS = 0.40;
 const C2_TEAM_ALL_DMG = 0.40;
 const C2_DURATION = 2;
 const C3_MOON_ALL_DMG = 0.65;
-const C4_TEAM_ATK = 0.10;
+const C4_SHIELD_ATK = 1.6;
 const C4_DURATION = 3;
 
 const SRC_MOON = '尤诺月相';
@@ -223,20 +223,24 @@ export function younuoExecuteZhenWan(self, battle) {
   if (self.name !== '尤诺') return;
 
   if (self.chain >= 4 && battle) {
+    const mult = self.younuoC4Shield?.value || C4_SHIELD_ATK;
+    const dur = self.younuoC4Shield?.duration || C4_DURATION;
+    const amt = Math.round((self.atk || 0) * mult);
     battle.team.forEach(t => {
       if (!t.alive) return;
+      t.shield = (t.shield || 0) + amt;
       t.buffs = (t.buffs || []).filter(b => b.src !== SRC_C4);
       t.buffs.push({
-        type: 'atkUp',
-        value: C4_TEAM_ATK,
-        duration: C4_DURATION,
+        type: 'shieldMark',
+        value: amt,
+        duration: dur + 1,
         src: SRC_C4,
         installer: self.idx
       });
     });
     battle.log.push({
       type: 'mechanic', src: self.name,
-      msg: `4 链 · 任雨季栖息于眼眸 · 全队攻击 +${(C4_TEAM_ATK * 100).toFixed(0)}%（${C4_DURATION} 回合）`
+      msg: `4 链 · 任雨季栖息于眼眸 · 全队护盾 ${amt}（攻击 ×${(mult * 100).toFixed(0)}% · ${dur} 回合）`
     });
   }
 

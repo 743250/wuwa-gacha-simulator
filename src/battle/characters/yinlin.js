@@ -1,10 +1,11 @@
 // 吟霖「审判印记」标记型副C
 //
 //   普攻 / 共鸣技能积"审判值"，满 100 自动触发"审判之雷" → 给当前主目标挂"审判印记"
-//   印记挂在敌人身上，所有攻击者命中印记目标时，按印记层数额外增伤（3 链 +15%/层）
-//   吟霖自己 1 链/5 链对印记目标技能/解放追加倍率
-//   2 链：吟霖命中印记目标 +5 审判 +5 能量；4 链：触发审判之雷时全队 atk +20%/2 回合
-//   6 链：解放后 2 回合，吟霖普攻命中印记目标额外触发疾霆昭彰（atk×100% 导电，每回合 1 次）
+//   印记挂在敌人身上
+//   1/5 链：对印记目标技能/解放追加倍率
+//   2 链：命中印记 +5 审判 +5 能量；3 链：审判之雷伤害 +55%
+//   4 链：审判之雷时全队 atk +15%/2 回合
+//   6 链：解放后 2 回合普攻命中印记额外疾霆昭彰（atk×420% 导电，每回合 1 次）
 
 const MARK_CAP = 3;
 const MARK_DURATION = 3;
@@ -21,11 +22,21 @@ function yinlinAddMark(target, layers) {
   }
 }
 
-function yinlinTriggerJudgment(self, battle, source) {
+function yinlinTriggerJudgment(self, battle, source, helpers) {
   const aliveEnemies = battle.enemies.filter(e => e.alive);
   if (!aliveEnemies.length) return;
   const targetIdx = (typeof battle.targetIdx === 'number') ? battle.targetIdx : -1;
   const target = (battle.enemies[targetIdx] && battle.enemies[targetIdx].alive) ? battle.enemies[targetIdx] : aliveEnemies[0];
+  // 3 链：审判之雷本体伤害 +55%（基底按技能 100% ATK 折算）
+  if (helpers?.calcDamage && helpers?.dealDamage) {
+    const jMult = 1 * (1 + (self.yinlinJudgmentBoost || 0));
+    const { dmg, crit } = helpers.calcDamage(self, target, jMult, 'skill');
+    const real = helpers.dealDamage(target, dmg);
+    battle.log.push({
+      type: 'attack', src: self.name, tgt: target.name, dmg: real, crit,
+      action: '审判之雷'
+    });
+  }
   yinlinAddMark(target, 1);
   battle.log.push({
     type: 'mechanic', src: self.name,
@@ -51,14 +62,14 @@ function syncVerdictForte(self) {
   self.forte.ready = (self.verdict || 0) >= 100;
 }
 
-export function yinlinGainVerdict(self, amount, source, battle) {
+export function yinlinGainVerdict(self, amount, source, battle, helpers) {
   if (self.name !== '吟霖') return;
   const before = self.verdict || 0;
   self.verdict = Math.min(100, before + amount);
   if (self.verdict >= 100) {
     self.verdict = 0;
     syncVerdictForte(self);
-    yinlinTriggerJudgment(self, battle, source);
+    yinlinTriggerJudgment(self, battle, source, helpers);
   } else if (self.verdict > before) {
     syncVerdictForte(self);
     battle.log.push({ type: 'mechanic', src: self.name, msg: `${source} → 审判值 ${self.verdict}/100` });
@@ -94,7 +105,7 @@ export function yinlinOnAttack(self, ctx) {
   if (self.name !== '吟霖') return;
   const battle = ctx.battle;
   yinlinOnHit(self, ctx.target, 'normal', battle, ctx.helpers);
-  yinlinGainVerdict(self, 15, '普攻', battle);
+  yinlinGainVerdict(self, 15, '普攻', battle, ctx.helpers);
 }
 
 // onSkill hook：共鸣技能命中印记回调 + 积 30 审判
@@ -102,7 +113,7 @@ export function yinlinOnSkill(self, ctx) {
   if (self.name !== '吟霖') return;
   const battle = ctx.battle;
   yinlinOnHit(self, ctx.target, 'skill', battle, ctx.helpers);
-  yinlinGainVerdict(self, 30, '共鸣技能', battle);
+  yinlinGainVerdict(self, 30, '共鸣技能', battle, ctx.helpers);
 }
 
 export function yinlinMarkedTargetMultiplier(self, dmgType) {
@@ -162,7 +173,7 @@ export function yinlinSkillMult(self) { return self.name === '吟霖' ? 1.8 : nu
 export function yinlinVariationMult(self) { return self.name === '吟霖' ? 1.5 : null; }
 export function yinlinResolveBurstMult(self) {
   if (self.name !== '吟霖') return null;
-  return { baseMain: 7.0, baseSide: 3.5 };
+  return { baseMain: 8.16, baseSide: 4.08 }; // WIKI 破天 815.92%
 }
 
 export default {

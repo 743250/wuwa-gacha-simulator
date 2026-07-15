@@ -65,7 +65,7 @@ describe('battle/characters/shorekeeper — 守岸人', () => {
     }
   });
 
-  it('C1 5 回×2.5 增益；C2 全队攻击；C4 仅技能治疗；C6 变奏×6', () => {
+  it('C1 5 回×2.5 增益；C2 全队攻击；C4 仅技能治疗；C6 变奏+42%+暴伤500%', () => {
     resetState({
       team: ['安可', '守岸人', '忌炎'],
       roles: {
@@ -82,7 +82,8 @@ describe('battle/characters/shorekeeper — 守岸人', () => {
     expect(a.healBuff4Chain).toBeCloseTo(0.7, 5);
     expect(a.burstEnergyRefund).toBe(20);
     expect(a.normalSplit).toBe(2);
-    expect(a.variationBonus).toBeCloseTo(5, 5);
+    expect(a.variationBonus).toBeCloseTo(0.42, 5);
+    expect(a.shorekeeperC6Cdmg?.value).toBeCloseTo(5, 5);
 
     battle.active = skIdx(battle);
     a.energy = a.energyMax;
