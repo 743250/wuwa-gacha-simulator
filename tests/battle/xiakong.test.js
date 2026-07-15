@@ -72,7 +72,7 @@ describe('battle/characters/xiakong — 夏空', () => {
     expect(battle.log.some(l => l.action === '重击·四拍重奏')).toBe(true);
   });
 
-  it('技能 atk×150% 只叠风蚀不加音律；解放进演绎+护盾 350%/175%', () => {
+  it('技能 atk×150% 只叠风蚀不加音律；解放进演绎+护盾 1100%/550%', () => {
     const battle = quickBattle();
     const a = xk(battle);
     battle.active = xkIdx(battle);
@@ -88,8 +88,8 @@ describe('battle/characters/xiakong — 夏空', () => {
     expect(erosion.getErosionStacks(battle.enemies[ei])).toBeGreaterThan(stacks0);
 
     const bm = idx.queryCharacterHook(a, 'resolveBurstMult');
-    expect(bm.baseMain).toBeCloseTo(3.5, 5);
-    expect(bm.baseSide).toBeCloseTo(1.75, 5);
+    expect(bm.baseMain).toBeCloseTo(11.0, 5);
+    expect(bm.baseSide).toBeCloseTo(5.5, 5);
 
     a.energy = a.energyMax;
     battle.ap = 4;
@@ -129,14 +129,14 @@ describe('battle/characters/xiakong — 夏空', () => {
     expect(idx.queryCharacterHook(a, 'extraPierce', 'normal')).toBe(0);
   });
 
-  it('skillHints 技能 150% / 解放 350% / 四拍 200%，非工厂 180/400', () => {
+  it('skillHints 技能 150% / 解放 1100% / 四拍 200%，非工厂 180/400', () => {
     const lines = skillHints.SKILL_HINTS['夏空'].customLines({ atk: 1000 }, { chain: 0 });
     const skill = lines.find(l => l.name.includes('谐律'));
     const burst = lines.find(l => l.name.includes('三重'));
     expect(skill.desc).toContain('1500');
     expect(skill.desc).not.toContain('1800');
-    expect(burst.desc).toContain('3500');
-    expect(burst.desc).toContain('1750');
+    expect(burst.desc).toContain('11000');
+    expect(burst.desc).toContain('5500');
     const normal = lines.find(l => l.name.includes('四拍的舞曲'));
     expect(normal.desc).toContain('2000');
   });

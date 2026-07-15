@@ -6,7 +6,7 @@
 
 import { ACTION_COST, ACTION_MULTIPLIER, VIBRATION_DAMAGE } from '../balance.js';
 import { forteEnhances, gainForte, consumeForte } from '../forte.js';
-import { fireTrigger } from '../weaponTriggers.js';
+import { fireTrigger, clearOffstageWeaponStacks } from '../weaponTriggers.js';
 import { fireEchoSetTrigger, fireEchoSetOnHitErosion, fireRoleEchoTriggers } from '../echoSetTriggers.js';
 import { onUnitSwitchOut } from '../forms.js';
 import { fireSwitchHook, fireSwitchOutHook } from '../switchHooks.js';
@@ -91,9 +91,11 @@ export function doAttack(battle, targetIdx) {
   // 赞妮灼焰形态:普攻键替换为重斩(HP×12%,消耗 20 焰光,heavy 类型)
   const zyForm = queryCharacterHook(self, 'resolveNormal', battle);
   const fEnh = (meForm || zyForm) ? null : forteEnhances(self, 'normal');
+  const characterNormalMult = (!meForm && !zyForm) ? queryCharacterHook(self, 'normalMult') : null;
   let mult;
   if (meForm) mult = meForm.mult;
   else if (zyForm) mult = zyForm.mult;
+  else if (characterNormalMult != null) mult = fEnh ? characterNormalMult * fEnh.effectMult : characterNormalMult;
   else mult = fEnh ? ACTION_MULTIPLIER.normal * fEnh.effectMult : ACTION_MULTIPLIER.normal;
   const dmgType = meForm ? meForm.dmgType : (zyForm ? zyForm.dmgType : 'normal');
   // resolveNormal 提供的 mult 对 HP 核是生命%（烈阳/重斩等），须 explicitHpMult 以免被普攻/重击表覆写
@@ -182,7 +184,8 @@ export function doSkill(battle, targetIdx) {
   let mult;
   if (meForm) mult = meForm.mult;
   else if (chunForm) mult = chunForm.mult;
-  else if (characterSkillMult != null) mult = characterSkillMult;
+  // 与普攻一致：角色 skillMult × forte effectMult（今汐惊龙等）
+  else if (characterSkillMult != null) mult = fEnh ? characterSkillMult * fEnh.effectMult : characterSkillMult;
   else mult = (fEnh && fEnh.effectMult ? ACTION_MULTIPLIER.skill * fEnh.effectMult : ACTION_MULTIPLIER.skill);
   // resolveSkill 生命%（齿轨轮回 isChigui / explicitHpMult）勿再套 skill 表 override
   const skillExplicitHp = characterSkillMult != null
@@ -275,8 +278,9 @@ export function doBurst(battle) {
     VIBRATION_DAMAGE
   });
   const characterBurstMult = characterBurstDamage ? null : queryCharacterHook(self, 'resolveBurstMult');
-  const baseMain = characterBurstMult?.baseMain ?? ACTION_MULTIPLIER.burstMain * (fEnh ? fEnh.effectMult : 1.0) * ruiyiMult;
-  const baseSide = characterBurstMult?.baseSide ?? ACTION_MULTIPLIER.burstSide * (fEnh ? fEnh.effectMult : 1.0) * ruiyiMult;
+  // 锐意等角色乘区始终乘在基底上（含 resolveBurstMult 专属基底）
+  const baseMain = (characterBurstMult?.baseMain ?? ACTION_MULTIPLIER.burstMain * (fEnh ? fEnh.effectMult : 1.0)) * ruiyiMult;
+  const baseSide = (characterBurstMult?.baseSide ?? ACTION_MULTIPLIER.burstSide * (fEnh ? fEnh.effectMult : 1.0)) * ruiyiMult;
   const results = characterBurstDamage?.results || aliveEnemies.map(e => {
     const mult = (e === primary) ? baseMain : baseSide;
     const { dmg, crit } = calcDamage(self, e, mult, 'burst');
@@ -468,8 +472,12 @@ export function doSwitch(battle, toIdx) {
   if (prev && prev.alive) {
     onUnitSwitchOut(prev, battle);
     fireTrigger(prev, 'outro', { battle });
+    // 掣傀之手等：后台 offstage 叠层
+    fireTrigger(prev, 'offstage', { battle });
     fireSwitchOutHook({ from: prev, to: target, battle });
   }
+  // 入场：清掉自身 offstage 叠层（仅后台生效）
+  clearOffstageWeaponStacks(target);
   // 入场角色变奏:对当前主目标造成一段伤害
   const aliveEnemies = battle.enemies.filter(e => e.alive);
   let variationTarget = null;
@@ -477,6 +485,12 @@ export function doSwitch(battle, toIdx) {
     const tgt = aliveEnemies[0];
     variationTarget = tgt;
     let variMult = concertoFull ? ACTION_MULTIPLIER.concertoVariation : ACTION_MULTIPLIER.variation;
+    const charVar = queryCharacterHook(target, 'variationMult');
+    if (charVar != null) {
+      variMult = concertoFull
+        ? charVar * (ACTION_MULTIPLIER.concertoVariation / ACTION_MULTIPLIER.variation)
+        : charVar;
+    }
     if (target.variationBonus > 0) {
       variMult *= (1 + target.variationBonus);
     }
@@ -489,9 +503,10 @@ export function doSwitch(battle, toIdx) {
       action: target.variationBonus > 0 ? '强化变奏 · 6链' : (concertoFull ? '强化变奏' : '变奏')
     });
   }
+  // 武器变奏/入场触发：始终开火（苍鳞千嶂等「变奏后重击+」不绑协奏满）
+  fireTrigger(target, 'variation', { battle });
   if (concertoFull) {
     prev.concerto = 0;
-    fireTrigger(target, 'variation', { battle });
     fireEchoSetTrigger(target, 'variation_in', battle);
     fireRoleEchoTriggers(target, 'variation_in', variationTarget || battle.enemies.find(e => e.alive), battle, prev);
     battle.log.push({ type: 'mechanic', src: prev.name, msg: `协奏满 · ${prev.name} 延奏 → ${target.name} 强化变奏` });

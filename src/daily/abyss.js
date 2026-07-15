@@ -1,22 +1,17 @@
-// 逆境深塔系统（按官方对齐 · 3.4 校准 · 2026-06 重构）
+// 逆境深塔（结构对齐官方 · 强度按模拟器定位）
 //
-// 官方 3 区结构：
-//   - 稳定区：一次性奖励，1 塔 4 关合计 800 星声（送免费渊武）
-//   - 实验区：一次性奖励，2 塔各 4 关合计 1000 星声
-//   - 危险区：28 天重置，3 塔各 4 关 = 12 关满星 800 星声（核心循环）
+// 分区定位：
+//   - 稳定区：练手领奖 · 4 关一次性 · 800 星声（永久）
+//   - 实验区：过渡练手 · 5 关一次性 · 1000 星声（永久，官方 8 关简化）
+//   - 危险区：月常星声 · 三塔 12 关 · 28 天重置 · 满星 800
 //
-// 活力系统（Vigor · 模拟器抽象）：
-//   - 每个角色 10 点活力，跨塔共享
-//   - 第 N 层消耗 N 点活力（1→2→3→4）
-//   - 单塔通刷消耗 10 点/角色 → 刚好耗尽一队
-//   - 满星 3 塔需要 3 支不同队伍（≈9 名角色）→ 逼氪多队养成
-//   - 失败不扣活力（可无限重试）
-//   - 活力随危险区重置恢复
+// 强度原则：
+//   - 稳定/实验固定低 scale，不跟版本涨
+//   - 危险区只抬生命（ABYSS_TEMPERATURE_TABLE.hp），攻防不跟版本
+//   - 塔/层基数压低，保证开服能清左塔领星声；后期靠血量筛练度
 //
-// 评星条件（全层统一）：
-//   ★1：20 回合内通关
-//   ★2：18 回合内 + 队伍均血 ≥ 70%
-//   ★3：15 回合内 + 队伍均血 ≥ 70%
+// 活力：每角色 10 点；第 N 层耗 N；失败不扣；满星约需 3 队
+// 评星：★1 20 回合 / ★2 18 回合+均血70% / ★3 15 回合+均血70%
 import { S, DAY } from '../state.js';
 import { startEncounter, getCombatTeamNames } from '../battle/combat.js';
 import { flattenEnemies, currentVersion } from '../battle/dungeon.js';
@@ -48,34 +43,36 @@ const EXPERIMENT_FLOORS = [
 // 满星合计 800 星声：
 //   左塔 55×4=220 · 右塔 60×4=240 · 中塔 85×4=340 = 800
 
+// towerScale：萌新可清左/右拿星声；中塔略高但仍远低于旧版高压
+// scaleBias：补偿「基值过薄」的层（如 hl2 仅双小怪），避免层间倒挂
 const HAZARD_LEFT = [
-  { id: 'hl1', floor: 1, tower: 'left',  towerName: '回音之塔', zone: 'hazard', name: '回音之塔·第 1 层', enemies: ['火鬃狼×3'],               baseReward: 55, towerScale: 0.90 },
-  { id: 'hl2', floor: 2, tower: 'left',  towerName: '回音之塔', zone: 'hazard', name: '回音之塔·第 2 层', enemies: ['幽翎火×2'],            baseReward: 55, towerScale: 0.90 },
-  { id: 'hl3', floor: 3, tower: 'left',  towerName: '回音之塔', zone: 'hazard', name: '回音之塔·第 3 层', enemies: ['惊蛰猎手×2','火鬃狼×2'],        baseReward: 55, towerScale: 0.90 },
-  { id: 'hl4', floor: 4, tower: 'left',  towerName: '回音之塔', zone: 'hazard', name: '回音之塔·第 4 层', enemies: ['海之女'],                baseReward: 55, towerScale: 0.90 }
+  { id: 'hl1', floor: 1, tower: 'left',  towerName: '回音之塔', zone: 'hazard', name: '回音之塔·第 1 层', enemies: ['火鬃狼×3'],               baseReward: 55, towerScale: 0.42 },
+  { id: 'hl2', floor: 2, tower: 'left',  towerName: '回音之塔', zone: 'hazard', name: '回音之塔·第 2 层', enemies: ['幽翎火×2'],            baseReward: 55, towerScale: 0.42, scaleBias: 1.55 },
+  { id: 'hl3', floor: 3, tower: 'left',  towerName: '回音之塔', zone: 'hazard', name: '回音之塔·第 3 层', enemies: ['惊蛰猎手×2','火鬃狼×2'],        baseReward: 55, towerScale: 0.42 },
+  { id: 'hl4', floor: 4, tower: 'left',  towerName: '回音之塔', zone: 'hazard', name: '回音之塔·第 4 层', enemies: ['海之女'],                baseReward: 55, towerScale: 0.42 }
 ];
 
 const HAZARD_RIGHT = [
-  { id: 'hr1', floor: 1, tower: 'right', towerName: '残响之塔', zone: 'hazard', name: '残响之塔·第 1 层', enemies: ['幻象×1','火鬃狼×2'],        baseReward: 60, towerScale: 1.00 },
-  { id: 'hr2', floor: 2, tower: 'right', towerName: '残响之塔', zone: 'hazard', name: '残响之塔·第 2 层', enemies: ['云闪之鳞'],              baseReward: 60, towerScale: 1.00 },
-  { id: 'hr3', floor: 3, tower: 'right', towerName: '残响之塔', zone: 'hazard', name: '残响之塔·第 3 层', enemies: ['荣耀狮像'],              baseReward: 60, towerScale: 1.00 },
-  { id: 'hr4', floor: 4, tower: 'right', towerName: '残响之塔', zone: 'hazard', name: '残响之塔·第 4 层', enemies: ['梦魇亚当·重锤'],        baseReward: 60, towerScale: 1.00 }
+  { id: 'hr1', floor: 1, tower: 'right', towerName: '残响之塔', zone: 'hazard', name: '残响之塔·第 1 层', enemies: ['幻象×1','火鬃狼×2'],        baseReward: 60, towerScale: 0.55, scaleBias: 1.25 },
+  { id: 'hr2', floor: 2, tower: 'right', towerName: '残响之塔', zone: 'hazard', name: '残响之塔·第 2 层', enemies: ['云闪之鳞'],              baseReward: 60, towerScale: 0.55 },
+  { id: 'hr3', floor: 3, tower: 'right', towerName: '残响之塔', zone: 'hazard', name: '残响之塔·第 3 层', enemies: ['荣耀狮像'],              baseReward: 60, towerScale: 0.55 },
+  { id: 'hr4', floor: 4, tower: 'right', towerName: '残响之塔', zone: 'hazard', name: '残响之塔·第 4 层', enemies: ['梦魇亚当·重锤'],        baseReward: 60, towerScale: 0.55 }
 ];
 
 const HAZARD_CENTER = [
-  { id: 'hc1', floor: 1, tower: 'center', towerName: '深境之塔', zone: 'hazard', name: '深境之塔·第 1 层', enemies: ['燎照之骑'],              baseReward: 85, towerScale: 1.15 },
-  { id: 'hc2', floor: 2, tower: 'center', towerName: '深境之塔', zone: 'hazard', name: '深境之塔·第 2 层', enemies: ['无常凶鹭','辉萤军势'],   baseReward: 85, towerScale: 1.15 },
-  { id: 'hc3', floor: 3, tower: 'center', towerName: '深境之塔', zone: 'hazard', name: '深境之塔·第 3 层', enemies: ['无归的谬误','异构武装'], baseReward: 85, towerScale: 1.15 },
-  { id: 'hc4', floor: 4, tower: 'center', towerName: '深境之塔', zone: 'hazard', name: '深境之塔·第 4 层', enemies: ['叹息古龙','赫卡忒'],     baseReward: 85, towerScale: 1.15 }
+  { id: 'hc1', floor: 1, tower: 'center', towerName: '深境之塔', zone: 'hazard', name: '深境之塔·第 1 层', enemies: ['燎照之骑'],              baseReward: 85, towerScale: 0.68 },
+  { id: 'hc2', floor: 2, tower: 'center', towerName: '深境之塔', zone: 'hazard', name: '深境之塔·第 2 层', enemies: ['无常凶鹭','辉萤军势'],   baseReward: 85, towerScale: 0.68 },
+  { id: 'hc3', floor: 3, tower: 'center', towerName: '深境之塔', zone: 'hazard', name: '深境之塔·第 3 层', enemies: ['无归的谬误','异构武装'], baseReward: 85, towerScale: 0.68 },
+  { id: 'hc4', floor: 4, tower: 'center', towerName: '深境之塔', zone: 'hazard', name: '深境之塔·第 4 层', enemies: ['叹息古龙','赫卡忒'],     baseReward: 85, towerScale: 0.68 }
 ];
 
 const HAZARD_FLOORS = [...HAZARD_LEFT, ...HAZARD_RIGHT, ...HAZARD_CENTER];
 
 // 三塔元数据（UI 渲染用）
 export const HAZARD_TOWERS = [
-  { key: 'left',   name: '回音之塔', desc: '较易 · 副队可通',         floors: HAZARD_LEFT,   color: 'var(--accent)' },
-  { key: 'right',  name: '残响之塔', desc: '中等 · 二队挑战',         floors: HAZARD_RIGHT,  color: '#69b8ff' },
-  { key: 'center', name: '深境之塔', desc: '最难关卡 · 主力队攻坚',   floors: HAZARD_CENTER, color: 'var(--gold)' }
+  { key: 'left',   name: '回音之塔', desc: '副队可清 · 星声 220', floors: HAZARD_LEFT,   color: 'var(--accent)' },
+  { key: 'right',  name: '残响之塔', desc: '二队挑战 · 星声 240', floors: HAZARD_RIGHT,  color: '#69b8ff' },
+  { key: 'center', name: '深境之塔', desc: '主力攻坚 · 星声 340', floors: HAZARD_CENTER, color: 'var(--gold)' }
 ];
 
 // 注入评星条件，供 UI 显示
@@ -88,9 +85,9 @@ export const HAZARD_TOWERS = [
 const ALL_FLOORS = [...STABLE_FLOORS, ...EXPERIMENT_FLOORS, ...HAZARD_FLOORS];
 
 export const ABYSS_ZONES = {
-  stable:     { name: '稳定区',  desc: '一次性 4 关 · 满星合计 800 星声（永久保留）',   floors: STABLE_FLOORS,     oneShot: true  },
-  experiment: { name: '实验区',  desc: '一次性 5 关 · 满星合计 1000 星声（永久保留）',  floors: EXPERIMENT_FLOORS, oneShot: true  },
-  hazard:     { name: '危险区',  desc: '28 天重置 · 三塔 12 关满星 800 星声（核心循环）', floors: HAZARD_FLOORS,     oneShot: false }
+  stable:     { name: '稳定区',  desc: '练手领奖 · 4 关一次性 · 满星 800 星声（永久）',   floors: STABLE_FLOORS,     oneShot: true  },
+  experiment: { name: '实验区',  desc: '过渡练手 · 5 关一次性 · 满星 1000 星声（永久）', floors: EXPERIMENT_FLOORS, oneShot: true  },
+  hazard:     { name: '危险区',  desc: '月常星声 · 三塔 12 关 · 28 天重置 · 满星 800', floors: HAZARD_FLOORS,     oneShot: false }
 };
 
 export const ABYSS_FLOORS = HAZARD_FLOORS;
@@ -186,26 +183,45 @@ export function getAbyssTemperature(today = S.today) {
   return { version, ...picked };
 }
 
-export function getAbyssFloorScale(info, today = S.today) {
-  // 层基数：第 1 层 1.0，每层 +8%（温和递增）
-  const floorBase = 1 + ((info.floor || 1) - 1) * 0.08;
-  // 塔倍率：左塔 0.85 / 右塔 1.0 / 中塔 1.2
-  const towerMult = info.towerScale || 1.0;
+// 稳定区：萌新教学领奖，按关递增（补偿 s2 基值偏薄）
+const STABLE_ZONE_SCALE = {
+  s1: 0.28, // ~11 万总血
+  s2: 0.62, // ~13 万
+  s3: 0.34, // ~27 万 BOSS
+  s4: 0.40  // ~33 万 BOSS
+};
+// 实验区：过渡内容，整体轻压（仍高于稳定区）
+const EXPERIMENT_ZONE_SCALE = {
+  e1: 0.55, e2: 0.70, e3: 0.65, e4: 0.58, e5: 0.60
+};
 
-  if (info.zone !== 'hazard') {
-    const base = info.zone === 'experiment' ? 1.6 : 1.2;
+export function getAbyssFloorScale(info, today = S.today) {
+  // 层基数：第 1 层 1.0，每层 +5%
+  const floorBase = 1 + ((info.floor || 1) - 1) * 0.05;
+  // 塔倍率：左 0.42 / 右 0.55 / 中 0.68（见 HAZARD_*）
+  const towerMult = info.towerScale || 1.0;
+  const bias = info.scaleBias || 1.0;
+
+  if (info.zone === 'stable') {
+    const base = STABLE_ZONE_SCALE[info.id] ?? 0.32;
+    return { hp: base, atk: base, def: base, base, temp: null };
+  }
+  if (info.zone === 'experiment') {
+    const base = EXPERIMENT_ZONE_SCALE[info.id] ?? 0.60;
     return { hp: base, atk: base, def: base, base, temp: null };
   }
 
-  // 水温：唯一的版本膨胀因子，已包含官方各版本中一血量增长
+  // 危险区设计：
+  //   - 攻/防不跟版本涨（避免越打越肉又越痛）
+  //   - 只抬生命：跟 ABYSS_TEMPERATURE_TABLE.hp 走，逼版本练度换满星星声
+  //   - 塔/层基数压在较低档，开服也能清左塔领奖
   const temp = getAbyssTemperature(today);
-  // 危险区 HP = 层基数 × 塔倍率 × 版本水温
-  //   例：3.4 中塔 4 层 = 1.24 × 1.20 × 3.44 = 5.12×（官方 550/160≈3.44，中塔上层偏高合理）
+  const core = floorBase * towerMult * bias;
   return {
-    hp: +(floorBase * towerMult * temp.hp).toFixed(3),
-    atk: +(floorBase * towerMult * temp.atk).toFixed(3),
-    def: +(floorBase * towerMult * temp.def).toFixed(3),
-    base: +(floorBase * towerMult).toFixed(3),
+    hp:  +(core * temp.hp).toFixed(3),
+    atk: +core.toFixed(3),
+    def: +core.toFixed(3),
+    base: +core.toFixed(3),
     temp
   };
 }

@@ -17,6 +17,23 @@ export function kakaroDeathbladeBonus(self, dmgType) {
   return 1.0;
 }
 
+export function kakaroNormalMult(self) {
+  return self.name === '卡卡罗' ? 1.7 : null;
+}
+export function kakaroSkillMult(self) {
+  return self.name === '卡卡罗' ? 2.4 : null;
+}
+export function kakaroHeavyMult(self) {
+  return self.name === '卡卡罗' ? 4.0 : null;
+}
+export function kakaroVariationMult(self) {
+  return self.name === '卡卡罗' ? 2.0 : null;
+}
+export function kakaroResolveBurstMult(self) {
+  if (self.name !== '卡卡罗') return null;
+  return { baseMain: 6.0, baseSide: 3.0 };
+}
+
 // 死告（6 链：重击时额外召唤猎杀影协同）
 export function kakaroShikaku(self, target, dmg, battle) {
   if (self.name !== '卡卡罗' || !target?.alive) return;
@@ -50,6 +67,12 @@ export default {
   hasHeavy: true,
   enterDeathblade: kakaroEnterDeathblade,
   deathbladeBonus: kakaroDeathbladeBonus,
+  windowMultiplier: kakaroDeathbladeBonus,
+  normalMult: kakaroNormalMult,
+  skillMult: kakaroSkillMult,
+  heavyMult: kakaroHeavyMult,
+  variationMult: kakaroVariationMult,
+  resolveBurstMult: kakaroResolveBurstMult,
   shikaku: kakaroShikaku,
   onBurst: kakaroOnBurst,
   turnCleanup: kakaroTurnCleanup

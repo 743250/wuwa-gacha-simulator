@@ -31,7 +31,7 @@ describe('battle/characters/lupa — 露帕', () => {
     return battle.team.findIndex(t => t.name === '露帕');
   }
 
-  it('普攻/技能/重击攒狼焰；满时技能替换狼舞×320% burst 并清空', () => {
+  it('普攻/技能/重击攒狼焰；满时技能替换狼舞×580% burst 并清空', () => {
     const battle = quickBattle();
     const a = lp(battle);
     battle.active = lpIdx(battle);
@@ -46,7 +46,7 @@ describe('battle/characters/lupa — 露帕', () => {
     a.forte.ready = true;
     const form = idx.queryCharacterHook(a, 'resolveSkill', battle);
     expect(form?.isLangwu).toBe(true);
-    expect(form.mult).toBeCloseTo(3.2, 5);
+    expect(form.mult).toBeCloseTo(5.8, 5);
     expect(form.dmgType).toBe('burst');
 
     battle.ap = 4;
@@ -80,7 +80,7 @@ describe('battle/characters/lupa — 露帕', () => {
     )).toBe(true);
   });
 
-  it('C4 狼舞×720%；C6 穿防 + 凶噬回焰；C1/C2/C5 不 flat 双算', () => {
+  it('C4 狼舞×1305%；C6 穿防 + 凶噬回焰；C1/C2/C5 不 flat 双算', () => {
     resetState({
       team: ['露帕', '安可', '忌炎'],
       roles: {
@@ -104,7 +104,7 @@ describe('battle/characters/lupa — 露帕', () => {
     a.forte.ready = true;
     // C6 FORTE_BOOST +0.4 → 3.6 基线；C4 ×2.25 → 8.1
     const form = idx.queryCharacterHook(a, 'resolveSkill', battle);
-    expect(form.mult).toBeCloseTo(3.6 * 2.25, 5);
+    expect(form.mult).toBeCloseTo(6.2 * 2.25, 5);
 
     expect(idx.queryCharacterHook(a, 'extraPierce', 'burst')).toBeCloseTo(0.3, 5);
     expect(idx.queryCharacterHook(a, 'extraPierce', 'skill')).toBe(0);
@@ -118,14 +118,14 @@ describe('battle/characters/lupa — 露帕', () => {
     expect(a.forte.ready).toBe(true);
   });
 
-  it('skillHints 狼舞 3200/解放 4000，非工厂假数', () => {
+  it('skillHints 狼舞 5800/解放 11000，非工厂假数', () => {
     const lines = skillHints.SKILL_HINTS['露帕'].customLines({ atk: 1000 }, { chain: 0 });
     const langwu = lines.find(l => l.name.includes('狼舞'));
     const burst = lines.find(l => l.name.includes('荣光欢酣'));
     const skill = lines.find(l => l.name.includes('凶噬'));
-    expect(langwu.desc).toContain('3200');
-    expect(burst.desc).toContain('4000');
-    expect(burst.desc).toContain('2000');
-    expect(skill.desc).toContain('1800');
+    expect(langwu.desc).toContain('5800');
+    expect(burst.desc).toContain('11000'); // 全局解放主 700%
+    expect(burst.desc).toContain('5500'); // 副目标 350%
+    expect(skill.desc).toContain('3000');
   });
 });

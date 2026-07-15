@@ -237,8 +237,21 @@ export function collectZhezhiBadges(unit) {
   return out;
 }
 
+// Phase 3 · S280 / 解放 400·200 / 变奏 200；重击点睛非伤害
+export function zhezhiNormalMult(self) { return self.name === '折枝' ? 1.0 : null; }
+export function zhezhiSkillMult(self) { return self.name === '折枝' ? 2.8 : null; }
+export function zhezhiVariationMult(self) { return self.name === '折枝' ? 2.0 : null; }
+export function zhezhiResolveBurstMult(self) {
+  if (self.name !== '折枝') return null;
+  return { baseMain: 4.0, baseSide: 2.0 };
+}
+
 export default {
   name: '折枝',
+  normalMult: zhezhiNormalMult,
+  skillMult: zhezhiSkillMult,
+  variationMult: zhezhiVariationMult,
+  resolveBurstMult: zhezhiResolveBurstMult,
   hasHeavy: true,
   summonField: zhezhiSummonField,
   skillSummon: zhezhiSkillSummon,

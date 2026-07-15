@@ -21,15 +21,16 @@ export const FORTE = {
     kind: 'gauge', resourceName: '破阵值', max: 100,
     gainPerNormal: 12, gainPerSkill: 25, gainPerBurst: 40,
     effectType: 'enhancedNormal',  // 满后下一次普攻强化（大范围长枪连段）
-    effectMult: 2.0,
-    desc: '攒满破阵值后，下次普攻进入强化形态（×2 段伤害）'
+    effectMult: 3.2 / 2.2,
+    desc: '攒满破阵值后，下次普攻强化为攻击力 320% 气动伤害'
   },
   '今汐': {
     kind: 'stacks', resourceName: '韶光层数', max: 4,
     gainPerNormal: 0, gainPerSkill: 1, gainPerBurst: 2,
     effectType: 'enhancedSkill',
-    effectMult: 1.8,
-    desc: '韶光满层时共鸣技能进入强化形态（×1.8 伤害）'
+    // 惊龙破空绝对倍率 480% = skillMult(1.6) × effectMult(3.0)；6 链 FORTE_BOOST +0.4 → ×3.4
+    effectMult: 3.0,
+    desc: '韶光满 4 层时共鸣技能替换为惊龙破空（攻击力 480% 衍射，6 链约 544%）'
   },
   '长离': {
     // 离火由 combat.js 的 changliGainLihuo 专门控制（含心眼进出 + 每层 +5% 热熔），
@@ -119,8 +120,8 @@ export const FORTE = {
     gainPerNormal: 10, gainPerSkill: 15, gainPerBurst: 100, gainPerHeavy: 20,
     // 满值由 lupa.js resolveSkill 替换为狼舞·决意·极，勿走 enhancedBurst（否则误乘解放）
     effectType: 'lupaLangwu',
-    effectMult: 3.2,
-    desc: '普攻+10/技能+15/重击+20/解放全满。满100时共鸣技能替换为狼舞·决意·极（atk×320%热熔，视为共鸣解放伤害；链4+125%=×720%）并消耗全部狼焰'
+    effectMult: 5.8,
+    desc: '普攻+10/技能+15/重击+20/解放全满。满100时共鸣技能替换为狼舞·决意·极（atk×580%热熔，视为共鸣解放伤害；链4+125%）并消耗全部狼焰'
   },
   '安可': {
     kind: 'gauge', resourceName: '失序值', max: 100,

@@ -43,9 +43,27 @@ export function collectGaberinaBadges(unit) {
   }];
 }
 
+// Phase 3 · encore Lv10：N130 / S140 / H400 / 解放吃全局 700·350×阈值 / 变奏 100
+export function gaberinaNormalMult(self) {
+  return self.name === '嘉贝莉娜' ? 1.3 : null;
+}
+export function gaberinaSkillMult(self) {
+  return self.name === '嘉贝莉娜' ? 1.4 : null;
+}
+export function gaberinaHeavyMult(self) {
+  return self.name === '嘉贝莉娜' ? 4.0 : null;
+}
+export function gaberinaVariationMult(self) {
+  return self.name === '嘉贝莉娜' ? 1.0 : null;
+}
+
 export default {
   name: '嘉贝莉娜',
   hasHeavy: true,
   onBurst: gaberinaOnBurst,
-  collectBadges: collectGaberinaBadges
+  collectBadges: collectGaberinaBadges,
+  normalMult: gaberinaNormalMult,
+  skillMult: gaberinaSkillMult,
+  heavyMult: gaberinaHeavyMult,
+  variationMult: gaberinaVariationMult
 };

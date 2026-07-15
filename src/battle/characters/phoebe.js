@@ -45,6 +45,24 @@ export function phoebeFormBonus(self, dmgType) {
   return 1.0;
 }
 
+// Phase 3 · encore Lv10：N100 / S180 / H400 / 解放 400·200 / 变奏 200
+export function phoebeNormalMult(self) {
+  return self.name === '菲比' ? 1.0 : null;
+}
+export function phoebeSkillMult(self) {
+  return self.name === '菲比' ? 1.8 : null;
+}
+export function phoebeHeavyMult(self) {
+  return self.name === '菲比' ? 4.0 : null;
+}
+export function phoebeVariationMult(self) {
+  return self.name === '菲比' ? 2.0 : null;
+}
+export function phoebeResolveBurstMult(self) {
+  if (self.name !== '菲比') return null;
+  return { baseMain: 4.0, baseSide: 2.0 };
+}
+
 export default {
   name: '菲比',
   hasHeavy: true,
@@ -56,5 +74,10 @@ export default {
     }
   },
   toggleForm: phoebeToggleForm,
-  formBonus: phoebeFormBonus
+  formBonus: phoebeFormBonus,
+  normalMult: phoebeNormalMult,
+  skillMult: phoebeSkillMult,
+  heavyMult: phoebeHeavyMult,
+  variationMult: phoebeVariationMult,
+  resolveBurstMult: phoebeResolveBurstMult
 };

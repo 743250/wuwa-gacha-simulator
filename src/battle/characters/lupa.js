@@ -6,7 +6,7 @@
 
 import { registerSwitchHook } from '../switchHooks.js';
 
-const LANGWU_BASE = 3.2;
+const LANGWU_BASE = 5.8; // Phase3 encore 586%
 const HUNT_ELEM = 0.10;
 const GLORY_RESIST_BASE = 0.03;
 const GLORY_RESIST_C3 = 0.15;
@@ -161,14 +161,25 @@ export function lupaOnSkill(self, ctx) {
   });
 }
 
-// 解放前：1 链暴击；返回 null 走默认 400/200
+// 解放前：1 链暴击；Phase 3 解放主 1100% / 副 550%
 export function lupaResolveBurstMult(self) {
   if (self.name !== '露帕') return null;
   if ((self.chain || 0) >= 1) {
     self.buffs = (self.buffs || []).filter(b => b.src !== SRC_C1);
     self.buffs.push({ type: 'crateUp', value: C1_CRATE, duration: 1, src: SRC_C1 });
   }
-  return null;
+  return { baseMain: 11.0, baseSide: 5.5 };
+}
+
+export function lupaNormalMult(self) {
+  return self.name === '露帕' ? 1.2 : null;
+}
+export function lupaSkillMult(self) {
+  // 狼舞走 resolveSkill 替换；常态凶噬 300%
+  return self.name === '露帕' ? 3.0 : null;
+}
+export function lupaHeavyMult(self) {
+  return self.name === '露帕' ? 4.0 : null;
 }
 
 export function lupaOnBurst(self, ctx) {
@@ -254,7 +265,7 @@ export function collectLupaBadges(unit) {
     cls: ready ? 'burst' : 'field',
     icon: ready ? '✦' : '◈',
     label: ready ? `狼焰 ${cur} · 狼舞就绪` : `狼焰 ${cur}/${max}`,
-    tip: `<b>狼焰</b><br>普攻 +10 / 凶噬 +15 / 重击 +20 / 解放回满<br>满 100 → 共鸣技能替换为<b>狼舞·决意·极</b>（atk×320% 热熔，视为共鸣解放伤害）`
+    tip: `<b>狼焰</b><br>普攻 +10 / 凶噬 +15 / 重击 +20 / 解放回满<br>满 100 → 共鸣技能替换为<b>狼舞·决意·极</b>（atk×580% 热熔，视为共鸣解放伤害）`
   });
   const hunt = (unit.buffs || []).find(b => b.src === SRC_HUNT);
   if (hunt) {
@@ -282,6 +293,9 @@ export default {
   enterHanbao: lupaEnterHanbao,
   finishSkill: lupaFinishSkill,
   resolveBurstMult: lupaResolveBurstMult,
+  normalMult: lupaNormalMult,
+  skillMult: lupaSkillMult,
+  heavyMult: lupaHeavyMult,
   onBurst: lupaOnBurst,
   onSkill: lupaOnSkill,
   onHeavy: lupaOnHeavy,

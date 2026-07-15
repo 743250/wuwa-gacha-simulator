@@ -156,8 +156,21 @@ export function yinlinTurnCleanup(self, ctx) {
   self._jiTingFiredThisTurn = false;
 }
 
+// Phase 3 · N100/S180/解放吃全局700·350/变奏150
+export function yinlinNormalMult(self) { return self.name === '吟霖' ? 1.0 : null; }
+export function yinlinSkillMult(self) { return self.name === '吟霖' ? 1.8 : null; }
+export function yinlinVariationMult(self) { return self.name === '吟霖' ? 1.5 : null; }
+export function yinlinResolveBurstMult(self) {
+  if (self.name !== '吟霖') return null;
+  return { baseMain: 7.0, baseSide: 3.5 };
+}
+
 export default {
   name: '吟霖',
+  normalMult: yinlinNormalMult,
+  skillMult: yinlinSkillMult,
+  variationMult: yinlinVariationMult,
+  resolveBurstMult: yinlinResolveBurstMult,
   hasHeavy: false,
   gainVerdict: yinlinGainVerdict,
   onHit: yinlinOnHit,

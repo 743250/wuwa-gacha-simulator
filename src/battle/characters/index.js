@@ -27,24 +27,237 @@ import younuo from './younuo.js';
 import lupa from './lupa.js';
 import gaberina from './gaberina.js';
 
-// 轻量角色：仅标记 hasHeavy，无完整 mechanic 文
+// 轻量角色：仅标记 hasHeavy + 可选倍率 hook（Phase 3 校准）
 const LIGHTWEIGHT = {
-  '洛可可':   { hasHeavy: true },
-  '鉴心':     { hasHeavy: true },
-  '相里要':   { hasHeavy: true },
-  '维里奈':   { hasHeavy: false },
-  '凌阳':     { hasHeavy: false },
-  // ── 3.0-3.4 限定 5★（A 级工厂，暂无专属状态机）──
-  '琳奈':     { hasHeavy: true },   // 蓄力重击 → 灵感碰撞
-  '莫宁':     { hasHeavy: false },
-  '爱弥斯':   { hasHeavy: true },   // 蓄力重击 → 同步率爆发
-  '陆·赫斯':  { hasHeavy: false },
-  '西格莉卡': { hasHeavy: true },   // 黄语义符文入口
-  '绯雪':     { hasHeavy: true },   // 进入预求身入口
-  '达妮娅':   { hasHeavy: false },  // 重击键替换为形态切换
-  '露西':     { hasHeavy: true },   // 快速编码入口
-  '丽贝卡':   { hasHeavy: true },   // 铁胆形态入口
-  '洛瑟菈':   { hasHeavy: false }
+  // Phase 3 · 洛可可：N100/S180/H400/变奏170；解放全局700·350×满想象力 enhancedBurst1.6
+  '洛可可': {
+    hasHeavy: true,
+    normalMult: () => 1.0,
+    skillMult: () => 1.8,
+    heavyMult: () => 4.0,
+    variationMult: () => 1.7,
+  },
+  // Phase 3 · 鉴心：N110/S300/H400/解放650·325/变奏100
+  '鉴心': {
+    hasHeavy: true,
+    normalMult: () => 1.1,
+    skillMult: () => 3.0,
+    heavyMult: () => 4.0,
+    variationMult: () => 1.0,
+    resolveBurstMult: () => ({ baseMain: 6.5, baseSide: 3.25 }),
+  },
+  // Phase 3 · 相里要：N130/S200/H400/变奏100/解放1500·750（洞见窗不改解放基底）
+  '相里要': {
+    hasHeavy: true,
+    normalMult: () => 1.3,
+    skillMult: () => 2.0,
+    heavyMult: () => 4.0,
+    variationMult: () => 1.0,
+    resolveBurstMult: () => ({ baseMain: 15.0, baseSide: 7.5 }),
+  },
+  // Phase 3 · 维里奈治疗位：N100/S120/解放200·100/变奏100
+  '维里奈': {
+    hasHeavy: false,
+    normalMult: () => 1.0,
+    skillMult: () => 1.2,
+    variationMult: () => 1.0,
+    resolveBurstMult: () => ({ baseMain: 2.0, baseSide: 1.0 }),
+  },
+  // Phase 3 · 凌阳：N125/S210/解放400·200/变奏100；无重击
+  '凌阳': {
+    hasHeavy: false,
+    normalMult: () => 1.25,
+    skillMult: () => 2.1,
+    variationMult: () => 1.0,
+    resolveBurstMult: () => ({ baseMain: 4.0, baseSide: 2.0 }),
+  },
+  // ── 4★ 工厂（encore Lv10 抽象 · 2026-07-15）──
+  // 散华：S360 / 爆裂 H370 / 解放 810·405 / 变奏 140
+  '散华': {
+    hasHeavy: true,
+    normalMult: () => 1.2,
+    skillMult: () => 3.6,
+    heavyMult: () => 3.7,
+    variationMult: () => 1.4,
+    resolveBurstMult: () => ({ baseMain: 8.1, baseSide: 4.05 }),
+  },
+  // 桃祈盾辅：低伤 S130/H220/B450·225/V210
+  '桃祈': {
+    hasHeavy: true,
+    normalMult: () => 1.1,
+    skillMult: () => 1.3,
+    heavyMult: () => 2.2,
+    variationMult: () => 2.1,
+    resolveBurstMult: () => ({ baseMain: 4.5, baseSide: 2.25 }),
+  },
+  // 炽霞：S250 / 解放 950·475（热压弹叙事）
+  '炽霞': {
+    hasHeavy: false,
+    normalMult: () => 1.2,
+    skillMult: () => 2.5,
+    variationMult: () => 1.0,
+    resolveBurstMult: () => ({ baseMain: 9.5, baseSide: 4.75 }),
+  },
+  // 白芷治疗位：伤害压低
+  '白芷': {
+    hasHeavy: false,
+    normalMult: () => 1.0,
+    skillMult: () => 0.2,
+    variationMult: () => 0.8,
+    resolveBurstMult: () => ({ baseMain: 0.5, baseSide: 0.25 }),
+  },
+  // 丹瑾：技能多段压 S350 / 解放 790·395 / 变奏 200
+  '丹瑾': {
+    hasHeavy: false,
+    normalMult: () => 1.0,
+    skillMult: () => 3.5,
+    variationMult: () => 2.0,
+    resolveBurstMult: () => ({ baseMain: 7.9, baseSide: 3.95 }),
+  },
+  // 秧秧：S140 / 释羽 H220 / B560·280 / V160
+  '秧秧': {
+    hasHeavy: true,
+    normalMult: () => 1.1,
+    skillMult: () => 1.4,
+    heavyMult: () => 2.2,
+    variationMult: () => 1.6,
+    resolveBurstMult: () => ({ baseMain: 5.6, baseSide: 2.8 }),
+  },
+  // 渊武盾辅
+  '渊武': {
+    hasHeavy: false,
+    normalMult: () => 1.1,
+    skillMult: () => 2.0,
+    variationMult: () => 0.6,
+    resolveBurstMult: () => ({ baseMain: 3.5, baseSide: 1.75 }),
+  },
+  // 莫特斐：解放直伤低，协同为主
+  '莫特斐': {
+    hasHeavy: false,
+    normalMult: () => 1.2,
+    skillMult: () => 2.1,
+    variationMult: () => 1.7,
+    resolveBurstMult: () => ({ baseMain: 3.2, baseSide: 1.6 }),
+  },
+  // 灯灯：S360 / 解放 950·475
+  '灯灯': {
+    hasHeavy: false,
+    normalMult: () => 1.1,
+    skillMult: () => 3.6,
+    variationMult: () => 1.7,
+    resolveBurstMult: () => ({ baseMain: 9.5, baseSide: 4.75 }),
+  },
+  // 釉瑚：诗中物技能核 S370 / B330·165
+  '釉瑚': {
+    hasHeavy: false,
+    normalMult: () => 1.0,
+    skillMult: () => 3.7,
+    variationMult: () => 0.9,
+    resolveBurstMult: () => ({ baseMain: 3.3, baseSide: 1.65 }),
+  },
+  // 卜灵辅助
+  '卜灵': {
+    hasHeavy: false,
+    normalMult: () => 1.0,
+    skillMult: () => 0.6,
+    variationMult: () => 1.3,
+    resolveBurstMult: () => ({ baseMain: 5.4, baseSide: 2.7 }),
+  },
+  // 秋水：技能召唤向 / B400·200 / V200
+  '秋水': {
+    hasHeavy: false,
+    normalMult: () => 1.2,
+    skillMult: () => 0.6,
+    variationMult: () => 2.0,
+    resolveBurstMult: () => ({ baseMain: 4.0, baseSide: 2.0 }),
+  },
+  // ── 3.0-3.4 限定 5★（设计 §4 基底 · 2026-07-15；状态机仍工厂/未专属）──
+  // 琳奈：N100/S180·加色200/H满流光400/B280·140/V80
+  '琳奈': {
+    hasHeavy: true,
+    normalMult: () => 1.0,
+    skillMult: () => 1.8,
+    heavyMult: () => 4.0,
+    variationMult: () => 0.8,
+    resolveBurstMult: () => ({ baseMain: 2.8, baseSide: 1.4 }),
+  },
+  // 莫宁：N100/S150（阵列）/B400·200/V80；无重击
+  '莫宁': {
+    hasHeavy: false,
+    normalMult: () => 1.0,
+    skillMult: () => 1.5,
+    variationMult: () => 0.8,
+    resolveBurstMult: () => ({ baseMain: 4.0, baseSide: 2.0 }),
+  },
+  // 爱弥斯：N100/S180/H300 聚爆/B400·200/V80
+  '爱弥斯': {
+    hasHeavy: true,
+    normalMult: () => 1.0,
+    skillMult: () => 1.8,
+    heavyMult: () => 3.0,
+    variationMult: () => 0.8,
+    resolveBurstMult: () => ({ baseMain: 4.0, baseSide: 2.0 }),
+  },
+  // 陆·赫斯治疗辅：S150/B300·150/V60；无重击
+  '陆·赫斯': {
+    hasHeavy: false,
+    normalMult: () => 1.0,
+    skillMult: () => 1.5,
+    variationMult: () => 0.6,
+    resolveBurstMult: () => ({ baseMain: 3.0, baseSide: 1.5 }),
+  },
+  // 西格莉卡：S180/H220/B400·200/V80；重击黄语义入口
+  '西格莉卡': {
+    hasHeavy: true,
+    normalMult: () => 1.0,
+    skillMult: () => 1.8,
+    heavyMult: () => 2.2,
+    variationMult: () => 0.8,
+    resolveBurstMult: () => ({ baseMain: 4.0, baseSide: 2.0 }),
+  },
+  // 绯雪：S180/B400·200/V80；重击进预求身（伤害 0，居合走普攻键）
+  '绯雪': {
+    hasHeavy: true,
+    normalMult: () => 1.0,
+    skillMult: () => 1.8,
+    heavyMult: () => 0.01, // 入口无伤，占位避免 0 被当缺省
+    variationMult: () => 0.8,
+    resolveBurstMult: () => ({ baseMain: 4.0, baseSide: 2.0 }),
+  },
+  // 达妮娅：S180/B400·200/V80；重击键形态切换无伤
+  '达妮娅': {
+    hasHeavy: false,
+    normalMult: () => 1.0,
+    skillMult: () => 1.8,
+    variationMult: () => 0.8,
+    resolveBurstMult: () => ({ baseMain: 4.0, baseSide: 2.0 }),
+  },
+  // 露西：S180/H220/B450·225/V80
+  '露西': {
+    hasHeavy: true,
+    normalMult: () => 1.0,
+    skillMult: () => 1.8,
+    heavyMult: () => 2.2,
+    variationMult: () => 0.8,
+    resolveBurstMult: () => ({ baseMain: 4.5, baseSide: 2.25 }),
+  },
+  // 丽贝卡：S180/B400·200/V80；重击进铁胆
+  '丽贝卡': {
+    hasHeavy: true,
+    normalMult: () => 1.0,
+    skillMult: () => 1.8,
+    heavyMult: () => 2.2,
+    variationMult: () => 0.8,
+    resolveBurstMult: () => ({ baseMain: 4.0, baseSide: 2.0 }),
+  },
+  // 洛瑟菈：S160/V80；解放无直接伤害（追忆窗），爆发在断舍离
+  '洛瑟菈': {
+    hasHeavy: false,
+    normalMult: () => 1.0,
+    skillMult: () => 1.6,
+    variationMult: () => 0.8,
+    resolveBurstMult: () => ({ baseMain: 0, baseSide: 0 }),
+  },
 };
 
 const FULL = {

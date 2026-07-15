@@ -95,7 +95,7 @@ describe('battle/characters/gaberina — 嘉贝莉娜', () => {
   it('skillHints 炼净/阈值文案对齐设计', () => {
     const lines0 = skillHints.SKILL_HINTS['嘉贝莉娜'].customLines({ atk: 1000 }, { chain: 0 });
     const burst0 = lines0.find(l => l.name.includes('炼净'));
-    expect(burst0.desc).toContain('4000');
+    expect(burst0.desc).toContain('7000'); // 全局解放主 700%
     expect(burst0.desc).toContain('1.6');
     expect(skillHints.SKILL_HINTS['嘉贝莉娜'].intro).toContain('猎杀阈值');
     expect(skillHints.SKILL_HINTS['嘉贝莉娜'].forteName).toBe('猎杀阈值');

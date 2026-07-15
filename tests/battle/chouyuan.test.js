@@ -74,7 +74,7 @@ describe('battle/characters/chouyuan — 仇远', () => {
     expect(battle.log.some(l => l.action === '答剑三连')).toBe(true);
   });
 
-  it('C2 竹照 60%；C3 解放×900% 且无 flat burstBonus；荷蓑出林进窗无且从容', () => {
+  it('C2 竹照 60%；C3 解放×1200% 且无 flat burstBonus；荷蓑出林进窗无且从容', () => {
     resetState({
       team: ['仇远', '守岸人', '安可'],
       roles: {
@@ -90,8 +90,8 @@ describe('battle/characters/chouyuan — 仇远', () => {
     expect(a.heavyBonus || 0).toBe(0);
 
     const bm = idx.queryCharacterHook(a, 'resolveBurstMult');
-    expect(bm.baseMain).toBeCloseTo(9.0, 5);
-    expect(bm.baseSide).toBeCloseTo(4.5, 5);
+    expect(bm.baseMain).toBeCloseTo(12.0, 5);
+    expect(bm.baseSide).toBeCloseTo(6.0, 5);
 
     a.concerto = 100;
     const skillForm = idx.queryCharacterHook(a, 'resolveSkill', battle);

@@ -312,9 +312,20 @@ function chouyuanExitDrunk(self, battle, opts = {}) {
 // ── 解放 hook ──
 export function chouyuanResolveBurstMult(self) {
   if (self.name !== '仇远') return null;
-  // 链3：解放倍率 +500% → 主 900% / 副 450%（状态机权威，registry 不写 flat burstDmg）
-  if (self.chain >= 3) return { baseMain: 9.0, baseSide: 4.5 };
-  return { baseMain: 4.0, baseSide: 2.0 };
+  // Phase 3 · 万钧一断 encore 795% → 主 800% / 副 400%；C3 抬至 1200%/600%
+  if (self.chain >= 3) return { baseMain: 12.0, baseSide: 6.0 };
+  return { baseMain: 8.0, baseSide: 4.0 };
+}
+
+export function chouyuanNormalMult(self) {
+  return self.name === '仇远' ? 1.2 : null;
+}
+export function chouyuanSkillMult(self) {
+  // resolveSkill 替换路径（荷蓑/不辞远）优先；此为常态技能基底
+  return self.name === '仇远' ? 2.2 : null;
+}
+export function chouyuanVariationMult(self) {
+  return self.name === '仇远' ? 2.0 : null;
 }
 
 export function chouyuanOnBurst(self, ctx) {
@@ -444,6 +455,9 @@ export default {
   resolveHeavy: chouyuanResolveHeavy,
   resolveSkill: chouyuanResolveSkill,
   resolveBurstMult: chouyuanResolveBurstMult,
+  normalMult: chouyuanNormalMult,
+  skillMult: chouyuanSkillMult,
+  variationMult: chouyuanVariationMult,
   onAttack: chouyuanOnAttack,
   onSkill: chouyuanOnSkill,
   onHeavy: chouyuanOnHeavy,

@@ -58,3 +58,5 @@ npm run build
 - 不要为了让新 SS 角色有压力,把普通副本同步抬爆。
 - 不要只用 HP 膨胀解决难度问题;优先用机制、环境、目标选择压力。
 - 奖励循环要稳定,普通玩家不能因为版本后移而无法刷养成资源。
+
+- [技能倍率与 AP 经济校准](skill-multiplier-calibration.md) — 全局 ACTION_MULTIPLIER / 官方锚 / 重击 2AP 铁律 / 分批 backlog（2026-07-15）

@@ -33,21 +33,44 @@ export function shorekeeperSkillMult(self) {
   return 0.8;
 }
 
+// 星域 HOT：生命×5% + 攻击×40% / 跳（原 8%+80% 过厚，2026-07-15 下调）
+// 展开时立即回 1 跳，之后 endTurn 再按 duration 结算（按下即稳）
+const STARFIELD_HOT_HP = 0.05;
+const STARFIELD_HOT_ATK = 0.4;
+
+function shorekeeperHotAmount(self, fieldMult) {
+  const healUp = 1 + (self.healBonus || 0);
+  return Math.round((self.hp * STARFIELD_HOT_HP + self.atk * STARFIELD_HOT_ATK) * healUp * fieldMult);
+}
+
+function shorekeeperApplyPulse(self, battle, amount, label) {
+  if (!amount || amount <= 0) return;
+  battle.team.forEach(t => {
+    if (!t.alive) return;
+    const healUp = (t.buffs || []).reduce((a, b) => b.type === 'healUp' ? a + b.value : a, 0);
+    const finalHeal = Math.round(amount * (1 + healUp));
+    const healed = Math.min(t.hpMax - t.hp, finalHeal);
+    t.hp += healed;
+    if (healed > 0) {
+      battle.log.push({ type: 'heal', src: self.name, tgt: t.name, dmg: healed, msg: label || '星域回复' });
+    }
+  });
+}
+
 // 共鸣解放 · 终末回环 → 展开「星域」
 // 4 链只放大技能治疗，不进星域 HOT（见设计 §7 边界）
 export function shorekeeperStarfield(self, battle) {
   if (self.name !== '守岸人') return;
   const dur1Chain = self.fieldExtendDur || 0;
   const baseDur = 3 + dur1Chain;
-  const healUp = 1 + (self.healBonus || 0);
   const heal1chain = self.fieldPersistOnSwitch ? 2.5 : 1.0;
-  let sampleHot = 0;
   const fieldCrate = (0.20 + (self.fieldExtraCrate || 0)) * heal1chain;
   const fieldCdmg = 0.30 * heal1chain;
   const fieldAtk = (self.fieldExtraAtk || 0) * heal1chain;
 
-  const hot = Math.round((self.hp * 0.08 + self.atk * 0.8) * healUp * heal1chain);
-  sampleHot = hot;
+  const hot = shorekeeperHotAmount(self, heal1chain);
+  // 按下解放当场回一跳（此前只挂 HOT 要等 endTurn 才见血）
+  shorekeeperApplyPulse(self, battle, hot, '星域展开回复');
 
   const buffs = [
     { type: 'healOverTime', value: hot, duration: baseDur, src: '星域', scope: 'team', persistent: !!self.fieldPersistOnSwitch },
@@ -60,7 +83,7 @@ export function shorekeeperStarfield(self, battle) {
   pushTeamBuffs(self, battle, buffs);
   battle.log.push({
     type: 'mechanic', src: self.name,
-    msg: `「星域 · 终末回环」展开 · 全队每回合回血 ~${sampleHot} · 暴击 +${(fieldCrate*100).toFixed(0)}% · 暴伤 +${(fieldCdmg*100).toFixed(0)}%${fieldAtk > 0 ? ` · 攻击 +${(fieldAtk * 100).toFixed(0)}%` : ''}（${baseDur} 回合${self.fieldPersistOnSwitch ? ' · 切人不结束' : ''}）`
+    msg: `「星域 · 终末回环」展开 · 立即回血 ~${hot} · 之后每回合 ~${hot} · 暴击 +${(fieldCrate * 100).toFixed(0)}% · 暴伤 +${(fieldCdmg * 100).toFixed(0)}%${fieldAtk > 0 ? ` · 攻击 +${(fieldAtk * 100).toFixed(0)}%` : ''}（${baseDur} 回合${self.fieldPersistOnSwitch ? ' · 切人不结束' : ''}）`
   });
 }
 

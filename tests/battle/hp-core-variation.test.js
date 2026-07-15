@@ -1,5 +1,5 @@
 // HP 核变奏：dmgType=variation 不得被 normal 的 hpMultOverride 吞掉；
-// 协奏满时 multiplier 1.6 应对设计变奏 HP% 生效（相对 0.8 约 2 倍）。
+// 协奏满时 multiplier 3.0 应对设计变奏 HP% 生效（相对 1.5 约 2 倍）。
 import { describe, it, expect, beforeAll, beforeEach } from 'vitest';
 import { resetState, quickBattle } from '../helpers.js';
 import { ACTION_MULTIPLIER } from '../../src/battle/balance.js';
@@ -62,7 +62,7 @@ describe('HP 核变奏路径', () => {
     expect(mid).toBeLessThan(0.95);
   });
 
-  it('卡提希娅：协奏满变奏约为普通变奏的 2 倍（1.6/0.8）', () => {
+  it('卡提希娅：协奏满变奏约为普通变奏的 2 倍（3.0/1.5）', () => {
     const battle = quickBattle();
     setCurrentBattle(battle, queryCharacterHook);
     const self = unit(battle, '卡提希娅');

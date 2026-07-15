@@ -152,4 +152,17 @@ describe('battle/characters/younuo — 尤诺', () => {
     const heavy6 = lines6.find(l => l.name.includes('至臻'));
     expect(heavy6.desc).toContain('20000');
   });
+
+  it('解放 400/200 · 变奏 80% 对齐设计 §4（非全局 700/150）', () => {
+    const battle = quickBattle();
+    const a = battle.team.find(t => t.name === '尤诺');
+    expect(idx.queryCharacterHook(a, 'resolveBurstMult')).toEqual({ baseMain: 4.0, baseSide: 2.0 });
+    expect(idx.queryCharacterHook(a, 'variationMult')).toBeCloseTo(0.8, 5);
+    const lines = skillHints.SKILL_HINTS['尤诺'].customLines({ atk: 1000 }, { chain: 0 });
+    const burst = lines.find(l => l.name.includes('溺失') || l.name.includes('解放'));
+    expect(burst.desc).toContain('4000');
+    expect(burst.desc).not.toContain('7000');
+    const v = lines.find(l => l.name.includes('变奏') || l.name.includes('照我'));
+    expect(v.desc).toContain('800');
+  });
 });

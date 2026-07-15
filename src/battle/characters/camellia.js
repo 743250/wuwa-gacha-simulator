@@ -19,7 +19,7 @@ const YONGSHENG_RUI_THRESHOLD = 100;
 const YONGSHENG_CONCERTO_THRESHOLD = 50;
 const YONGSHENG_RUI_COST = 50;
 const YONGSHENG_CONCERTO_COST = 50;
-const YONGSHENG_BASE_MULT = 2.5;  // atk × 250%
+const YONGSHENG_BASE_MULT = 8.0;  // atk × 800%（Phase 3 · 官方一日花 1262% ×0.63）
 
 export function chunInHanbao(self) {
   return !!(self?.forte && self.forte.hanbao && self.forte.hanbao > 0);
@@ -159,6 +159,24 @@ export function collectChunBadges(unit) {
   return badges;
 }
 
+// Phase 3：普攻 120% / 技能 200% / 重击 400% / 解放 900%/450% / 变奏 200%
+export function chunNormalMult(self) {
+  return self.name === '椿' ? 1.2 : null;
+}
+export function chunSkillMult(self) {
+  return self.name === '椿' ? 2.0 : null;
+}
+export function chunHeavyMult(self) {
+  return self.name === '椿' ? 4.0 : null;
+}
+export function chunVariationMult(self) {
+  return self.name === '椿' ? 2.0 : null;
+}
+export function chunResolveBurstMult(self) {
+  if (self.name !== '椿') return null;
+  return { baseMain: 9.0, baseSide: 4.5 };
+}
+
 export default {
   name: '椿',
   hasHeavy: true,
@@ -171,5 +189,10 @@ export default {
   tick: chunTick,
   turnCleanup: chunTick,
   switchIn: chunSwitchIn,
+  normalMult: chunNormalMult,
+  skillMult: chunSkillMult,
+  heavyMult: chunHeavyMult,
+  variationMult: chunVariationMult,
+  resolveBurstMult: chunResolveBurstMult,
   collectBadges: collectChunBadges
 };

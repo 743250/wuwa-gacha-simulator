@@ -45,11 +45,35 @@ export function brantOnBurst(self, ctx) {
   brantFlameDirge(self, ctx.battle);
 }
 
+// Phase 3 · 起锚 320 / 重击 400 / 未满解放 400·200；满航路火焰归亡曲 1650·825 / 变奏 250
+export function brantNormalMult(self) {
+  return self.name === '布兰特' ? 1.0 : null;
+}
+export function brantSkillMult(self) {
+  return self.name === '布兰特' ? 3.2 : null;
+}
+export function brantHeavyMult(self) {
+  return self.name === '布兰特' ? 4.0 : null;
+}
+export function brantVariationMult(self) {
+  return self.name === '布兰特' ? 2.5 : null;
+}
+export function brantResolveBurstMult(self) {
+  if (self.name !== '布兰特') return null;
+  if (self.forte?.ready) return { baseMain: 16.5, baseSide: 8.25 };
+  return { baseMain: 4.0, baseSide: 2.0 };
+}
+
 export default {
   name: '布兰特',
   hasHeavy: true,
   gainWindRide: brantGainWindRide,
   windRideBonus: brantWindRideBonus,
   flameDirge: brantFlameDirge,
-  onBurst: brantOnBurst
+  onBurst: brantOnBurst,
+  normalMult: brantNormalMult,
+  skillMult: brantSkillMult,
+  heavyMult: brantHeavyMult,
+  variationMult: brantVariationMult,
+  resolveBurstMult: brantResolveBurstMult
 };

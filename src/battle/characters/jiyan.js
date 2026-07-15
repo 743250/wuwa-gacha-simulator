@@ -2,7 +2,7 @@
 //
 // 创作者思路：忌炎是「攒势 → 解放终结」的爆发型主C
 //   每次 重击 / 共鸣技能 / 变奏(切入) 积 1 层【锐意之势】，上限默认 2，6 链 3
-//   释放共鸣解放时消耗全部锐意，每层放大解放伤害（默认 +100%，6 链 +120%）
+//   释放共鸣解放时消耗全部锐意，每层放大解放伤害（0–5 链每层 +40%，6 链每层 +120%；解放基底后动 715%）
 //   3 链 观势：任何技能动作后，自身暴击 +16% / 暴伤 +32% / 2 回合
 
 import { registerStack, gainStack, consumeStack, getStack, getStackCap, renderStacks } from '../stacks.js';
@@ -19,7 +19,7 @@ registerStack('jiyan_ruiyi', {
   render(unit) {
     const cap = unit.jiyanRuiyiCap || 2;
     const cur = getStack(unit, 'jiyan_ruiyi');
-    const perStack = unit.jiyanRuiyiPerStack || 1.0;
+    const perStack = unit.jiyanRuiyiPerStack || 0.4;
     const nextMult = 1 + cur * perStack;
     const color = cur >= cap ? 'var(--red)' : cur > 0 ? 'var(--gold)' : 'var(--muted)';
     return `<div style="font-size:9px;color:${color};margin-top:2px;letter-spacing:.3px">锐意之势 ${'◆'.repeat(cur)}${'◇'.repeat(cap - cur)} ${cur}/${cap}${cur > 0 ? ` · 解放 ×${nextMult.toFixed(1)}` : ''}</div>`;
@@ -67,7 +67,7 @@ export function jiyanBurstRuiyi(self, battle) {
   if (self.name !== '忌炎') return { ruiyiMult, ruiyiUsed };
   ruiyiUsed = consumeStack(self, 'jiyan_ruiyi', battle);
   if (ruiyiUsed > 0) {
-    ruiyiMult = 1.0 + ruiyiUsed * (self.jiyanRuiyiPerStack || 1.0);
+    ruiyiMult = 1.0 + ruiyiUsed * (self.jiyanRuiyiPerStack || 0.4);
     battle.log.push({
       type: 'mechanic', src: self.name,
       msg: `消耗锐意之势 ${ruiyiUsed} 层 → 解放伤害 ×${ruiyiMult.toFixed(1)}`
@@ -136,13 +136,33 @@ export function collectJiyanBadges(unit) {
   const cap = unit.jiyanRuiyiCap || 2;
   const cur = getStack(unit, 'jiyan_ruiyi');
   if (cur <= 0) return [];
-  const perStack = unit.jiyanRuiyiPerStack || 1.0;
+  const perStack = unit.jiyanRuiyiPerStack || 0.4;
   const nextMult = 1 + cur * perStack;
   return [{
     key: 'ruiyi', cls: 'field', icon: '◆',
     label: `锐意 ${cur}/${cap} · 解放 ×${nextMult.toFixed(1)}`,
     tip: `<b>锐意之势</b><br>每层提升解放倍率 ×${perStack.toFixed(1)}。当前 ${cur}/${cap} 层 → 解放倍率 ×${nextMult.toFixed(1)}。`
   }];
+}
+
+
+// 招式倍率（2026-07-15 文档校准 · docs/plans/characters/忌炎.md）
+// 后动 715% 重击结算基底；锐意乘区由 burstRuiyi 叠加
+export function jiyanNormalMult(self) {
+  return self.name === '忌炎' ? 2.2 : null;
+}
+export function jiyanSkillMult(self) {
+  return self.name === '忌炎' ? 2.4 : null;
+}
+export function jiyanHeavyMult(self) {
+  return self.name === '忌炎' ? 4.4 : null;
+}
+export function jiyanResolveBurstMult(self) {
+  if (self.name !== '忌炎') return null;
+  return { baseMain: 7.15, baseSide: 3.58 };
+}
+export function jiyanVariationMult(self) {
+  return self.name === '忌炎' ? 2.0 : null;
 }
 
 export default {
@@ -159,5 +179,10 @@ export default {
   burstRuiyi: jiyanBurstRuiyi,
   qiZheng: jiyanQiZheng,
   onBurst: jiyanOnBurst,
-  switchIn: jiyanSwitchIn
+  switchIn: jiyanSwitchIn,
+  normalMult: jiyanNormalMult,
+  skillMult: jiyanSkillMult,
+  heavyMult: jiyanHeavyMult,
+  resolveBurstMult: jiyanResolveBurstMult,
+  variationMult: jiyanVariationMult
 };

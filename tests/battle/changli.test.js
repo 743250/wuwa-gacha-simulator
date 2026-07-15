@@ -33,7 +33,7 @@ describe('battle/characters/changli — 长离', () => {
     return battle.team.findIndex(t => t.name === '长离');
   }
 
-  it('普攻攒离火满 6 进心眼；征×1.8 skill、离火抵 AP；倾泻后退出', () => {
+  it('普攻攒离火满 6 进心眼；征×3.0 skill、离火抵 AP；倾泻后退出', () => {
     const battle = quickBattle();
     const a = ch(battle);
     battle.active = chIdx(battle);
@@ -50,7 +50,7 @@ describe('battle/characters/changli — 长离', () => {
 
     const form = idx.queryCharacterHook(a, 'mindEyeForm', 'normal');
     expect(form?.label).toBe('心眼·征');
-    expect(form.mult).toBeCloseTo(1.8, 5);
+    expect(form.mult).toBeCloseTo(3.0, 5);
     expect(form.dmgType).toBe('skill');
 
     const cost = idx.queryCharacterHook(a, 'resolveCost', 'normal', 1);
@@ -127,16 +127,15 @@ describe('battle/characters/changli — 长离', () => {
     )).toBe(true);
   });
 
-  it('skillHints 心眼 180/200/400 与解放 4000', () => {
+  it('skillHints 心眼 300/410/650 与解放 9000', () => {
     const lines = skillHints.SKILL_HINTS['长离'].customLines({ atk: 1000 }, { chain: 0 });
     const zheng = lines.find(l => l.name.includes('衔火') || l.desc?.includes('心眼·征'));
     const jie = lines.find(l => l.name.includes('赫羽'));
     const chong = lines.find(l => l.name.includes('焚身'));
     const burst = lines.find(l => l.name.includes('离火照丹心') || l.name.includes('丹心'));
-    // makeSkillLines 基线数
     const all = lines.map(l => l.desc).join(' ');
-    expect(all).toMatch(/1800|180%/);
-    expect(all).toMatch(/4000|400%/);
+    expect(all).toMatch(/300%|3000/);
+    expect(all).toMatch(/410%|650%|9000|900%/);
     expect(zheng || jie || chong || burst).toBeTruthy();
   });
 });

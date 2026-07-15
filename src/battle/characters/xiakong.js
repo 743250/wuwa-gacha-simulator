@@ -17,8 +17,10 @@ const PERFORM_SHIELD_HP_MULT = 1.0;
 const QUAD_MULT = 2.0;
 const C6_SOLO_DMG_MULT = 2.2;
 const SKILL_MULT = 1.5;
-const BURST_MAIN_MULT = 3.5;
-const BURST_SIDE_MULT = 1.75;
+// Phase 3 · encore 歌者的三重华彩 Lv10 ≈1100%
+const BURST_MAIN_MULT = 11.0;
+const BURST_SIDE_MULT = 5.5;
+const VARIATION_MULT = 1.9;
 const C1_ATK = 0.35;
 const C1_DURATION = 2;
 const C2_AERO = 0.40;
@@ -145,6 +147,10 @@ export function xiakongResolveSkill(self) {
 export function xiakongResolveBurstMult(self) {
   if (self.name !== '夏空') return null;
   return { baseMain: BURST_MAIN_MULT, baseSide: BURST_SIDE_MULT };
+}
+
+export function xiakongVariationMult(self) {
+  return self.name === '夏空' ? VARIATION_MULT : null;
 }
 
 // 4 链：仅四拍/解放吃穿透
@@ -366,6 +372,7 @@ export default {
   resolveHeavy: xiakongResolveHeavy,
   resolveSkill: xiakongResolveSkill,
   resolveBurstMult: xiakongResolveBurstMult,
+  variationMult: xiakongVariationMult,
   extraPierce: xiakongExtraPierce,
   onAttack: xiakongOnAttack,
   onSkill: xiakongOnSkill,

@@ -53,6 +53,24 @@ export function jinhsiOnBurst(self, ctx) {
   applyC4TeamAllDmg(self, ctx?.battle, '移岁诛邪');
 }
 
+// Phase 3 倍率：流光 160% / 惊龙 = skillMult × effectMult(3.0) = 480% / 解放 1000%/500%
+export function jinhsiNormalMult(self) {
+  return self.name === '今汐' ? 1.1 : null;
+}
+export function jinhsiSkillMult(self) {
+  return self.name === '今汐' ? 1.6 : null;
+}
+export function jinhsiHeavyMult(self) {
+  return self.name === '今汐' ? 4.0 : null;
+}
+export function jinhsiVariationMult(self) {
+  return self.name === '今汐' ? 1.6 : null;
+}
+export function jinhsiResolveBurstMult(self) {
+  if (self.name !== '今汐') return null;
+  return { baseMain: 10.0, baseSide: 5.0 };
+}
+
 registerSwitchHook('今汐', ({ to, battle }) => jinhsiSwitchIn(to, battle));
 
 export default {
@@ -60,5 +78,10 @@ export default {
   hasHeavy: true,
   switchIn: jinhsiSwitchIn,
   onSkill: jinhsiOnSkill,
-  onBurst: jinhsiOnBurst
+  onBurst: jinhsiOnBurst,
+  normalMult: jinhsiNormalMult,
+  skillMult: jinhsiSkillMult,
+  heavyMult: jinhsiHeavyMult,
+  variationMult: jinhsiVariationMult,
+  resolveBurstMult: jinhsiResolveBurstMult
 };

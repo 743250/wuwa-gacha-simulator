@@ -23,10 +23,11 @@ const LIHUO_CAP = 6;
 
 // 心眼变身映射：心眼态下三招的倍率 / 伤害类型 / 名字
 // 关键：dmgType 全变 'skill'（共鸣技能伤害）—— 普攻键打出技能伤害是心眼的灵魂
+// Phase 3：征 300% / 劫 410% / 冲 650%（锚官方心眼表 + 回路焚身顶点）
 const MIND_EYE_FORMS = {
-  normal: { mult: 1.8, dmgType: 'skill', label: '心眼·征' },
-  skill:  { mult: 2.0, dmgType: 'skill', label: '心眼·劫' },
-  heavy:  { mult: 4.0, dmgType: 'skill', label: '心眼·冲' },
+  normal: { mult: 3.0, dmgType: 'skill', label: '心眼·征' },
+  skill:  { mult: 4.1, dmgType: 'skill', label: '心眼·劫' },
+  heavy:  { mult: 6.5, dmgType: 'skill', label: '心眼·冲' },
 };
 
 export function changliInMindEye(self) {
@@ -190,6 +191,24 @@ function collectBadges(self) {
   return badges;
 }
 
+// Phase 3 常态倍率：技能 200% / 重击 400% / 解放 900%/450% / 变奏 150%
+export function changliNormalMult(self) {
+  return self.name === '长离' ? 1.0 : null;
+}
+export function changliSkillMult(self) {
+  return self.name === '长离' ? 2.0 : null;
+}
+export function changliHeavyMult(self) {
+  return self.name === '长离' ? 4.0 : null;
+}
+export function changliVariationMult(self) {
+  return self.name === '长离' ? 1.5 : null;
+}
+export function changliResolveBurstMult(self) {
+  if (self.name !== '长离') return null;
+  return { baseMain: 9.0, baseSide: 4.5 };
+}
+
 export default {
   name: '长离',
   hasHeavy: true,
@@ -203,5 +222,10 @@ export default {
   onSkill: changliOnSkill,
   onHeavy: changliOnHeavy,
   onBurst: changliOnBurst,
+  normalMult: changliNormalMult,
+  skillMult: changliSkillMult,
+  heavyMult: changliHeavyMult,
+  variationMult: changliVariationMult,
+  resolveBurstMult: changliResolveBurstMult,
   collectBadges,
 };

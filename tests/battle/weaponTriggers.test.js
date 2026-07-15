@@ -1,12 +1,15 @@
 // Unit tests for battle/weaponTriggers.js — weapon passive trigger runtime
 // AI safety net: verify weapon trigger logic after adding/modifying weapon effects
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeAll, beforeEach } from 'vitest';
+import { resetState, quickBattle, firstEnemy } from '../helpers.js';
 
 describe('battle/weaponTriggers', () => {
   let wt;
+  let combat;
 
   beforeAll(async () => {
     wt = await import('../../src/battle/weaponTriggers.js');
+    combat = await import('../../src/battle/combat.js');
   });
 
   let unit;
@@ -182,6 +185,88 @@ describe('battle/weaponTriggers', () => {
       ];
       const fired = wt.fireTrigger(unit, 'normal_hit', { target: null });
       expect(fired).toBe(0);
+    });
+  });
+
+  describe('team_atk / 实战集成', () => {
+    it('team_atk 写入全队 atkUp buff', () => {
+      unit.name = '守岸人';
+      unit.idx = 0;
+      unit.weaponTriggers = [
+        { on: 'heal_skill', effect: 'team_atk', value: 0.14, maxStacks: 1, duration: 2 },
+      ];
+      const ally = { name: '忌炎', alive: true, buffs: [] };
+      const battle = { team: [unit, ally] };
+      unit.alive = true;
+      unit.buffs = [];
+      expect(wt.fireTrigger(unit, 'heal_skill', { battle })).toBe(1);
+      for (const t of battle.team) {
+        expect((t.buffs || []).some(b => b.type === 'atkUp' && Math.abs(b.value - 0.14) < 1e-6)).toBe(true);
+      }
+      // collect 不双算
+      expect(wt.collectWeaponBonus(unit, 'skill').atkBonus).toBe(0);
+    });
+
+    it('苍鳞千嶂：解放叠重击%（不依赖协奏）', () => {
+      resetState({
+        team: ['忌炎', '守岸人', '安可'],
+        roles: {
+          '忌炎': { level: 90, chain: 0, equipWeapon: '苍鳞千嶂' },
+          '守岸人': { level: 90, chain: 0 },
+          '安可': { level: 90, chain: 0 },
+        },
+      });
+      const battle = quickBattle();
+      const j = battle.team.find(t => t.name === '忌炎');
+      battle.active = battle.team.findIndex(t => t.name === '忌炎');
+      expect(j.weaponTriggers?.some(t => t.effect === 'heavy_pct')).toBe(true);
+      expect((j.elemAllBonus || 0)).toBeGreaterThanOrEqual(0.12 - 1e-6);
+      j.energy = j.energyMax;
+      battle.ap = 4;
+      expect(combat.doBurst(battle).ok).toBe(true);
+      const wb = wt.collectWeaponBonus(j, 'heavy');
+      expect(wb.heavyBonus).toBeCloseTo(0.24, 5);
+    });
+
+    it('苍鳞千嶂：普通切人变奏也叠重击%（不绑协奏满）', () => {
+      resetState({
+        team: ['安可', '忌炎', '守岸人'],
+        roles: {
+          '忌炎': { level: 90, chain: 0, equipWeapon: '苍鳞千嶂' },
+          '安可': { level: 90, chain: 0 },
+          '守岸人': { level: 90, chain: 0 },
+        },
+      });
+      const battle = quickBattle();
+      const j = battle.team.find(t => t.name === '忌炎');
+      battle.active = battle.team.findIndex(t => t.name === '安可');
+      // 确保协奏未满
+      const anke = battle.team.find(t => t.name === '安可');
+      anke.concerto = 0;
+      battle.ap = 4;
+      expect(combat.doSwitch(battle, battle.team.findIndex(t => t.name === '忌炎')).ok).toBe(true);
+      expect(wt.collectWeaponBonus(j, 'heavy').heavyBonus).toBeCloseTo(0.24, 5);
+    });
+
+    it('星序协响：治疗技能给全队 atkUp', () => {
+      resetState({
+        team: ['守岸人', '忌炎', '安可'],
+        roles: {
+          '守岸人': { level: 90, chain: 0, equipWeapon: '星序协响' },
+          '忌炎': { level: 90, chain: 0 },
+          '安可': { level: 90, chain: 0 },
+        },
+      });
+      const battle = quickBattle();
+      const sk = battle.team.find(t => t.name === '守岸人');
+      battle.active = battle.team.findIndex(t => t.name === '守岸人');
+      battle.ap = 4;
+      expect(combat.doSkill(battle, firstEnemy(battle)).ok).toBe(true);
+      for (const t of battle.team) {
+        if (!t.alive) continue;
+        expect((t.buffs || []).some(b => b.type === 'atkUp' && b.src?.includes('武器·全队攻击'))).toBe(true);
+      }
+      expect(sk.weaponStacks && Object.keys(sk.weaponStacks).length).toBeGreaterThan(0);
     });
   });
 });

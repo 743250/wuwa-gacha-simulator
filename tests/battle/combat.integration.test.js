@@ -182,22 +182,26 @@ describe('battle/combat — integration', () => {
     });
 
     it('skill damage > normal attack damage for same character', () => {
-      const battle = quickBattle();
-      const target = firstEnemy(battle);
+      // 禁暴击：忌炎 N220/S240 基底技能应 ≥ 普攻；暴击 RNG 会让单次对比失真
+      const rnd = Math.random;
+      Math.random = () => 0.999;
+      try {
+        const battle = quickBattle();
+        const target = firstEnemy(battle);
 
-      // Get skill damage
-      combat.doAttack(battle, target);
-      const atkLog = battle.log.find(l => l.type === 'attack');
-      const normalDmg = atkLog.dmg;
+        combat.doAttack(battle, target);
+        const atkLog = battle.log.find(l => l.type === 'attack');
+        const normalDmg = atkLog.dmg;
 
-      // Reset and get skill damage
-      battle.ap = 4; // restore AP
-      combat.endTurn(battle);
-      // start fresh
-      const skillResult = combat.doSkill(battle, target);
-      if (skillResult.ok) {
-        const skillLog = battle.log.find(l => l.type === 'skill');
-        expect(skillLog.dmg).toBeGreaterThanOrEqual(normalDmg);
+        battle.ap = 4;
+        combat.endTurn(battle);
+        const skillResult = combat.doSkill(battle, target);
+        if (skillResult.ok) {
+          const skillLog = battle.log.find(l => l.type === 'skill');
+          expect(skillLog.dmg).toBeGreaterThanOrEqual(normalDmg);
+        }
+      } finally {
+        Math.random = rnd;
       }
     });
 

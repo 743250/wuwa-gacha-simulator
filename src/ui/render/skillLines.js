@@ -13,6 +13,7 @@
 
 import { escTip } from './utils.js';
 import { encoreBurstModeSignal } from '../../ui/panels/roleModal/signals.js';
+import { ACTION_MULTIPLIER } from '../../battle/balance.js';
 
 export function makeSkillLines(cfg) {
   return (stats, role) => {
@@ -46,14 +47,24 @@ export function makeSkillLines(cfg) {
       return out.join(' ');
     }
 
-    // 通用倍率
-    const normalDmg = Math.round(atk * 1.0);
-    const skillDmg  = Math.round(atk * 1.8);
-    const heavyDmg  = Math.round(atk * 2.2);
-    const burstMain = Math.round(atk * 4.0);
-    const burstSide = Math.round(atk * 2.0);
-    const varDmg    = Math.round(atk * 0.8);
-    const varConcerto = Math.round(atk * 1.6);
+    // 倍率：cfg 可覆盖角色专属基底（与 characters/*.js hook 对账）
+    const m = {
+      normal: cfg.normalMult ?? ACTION_MULTIPLIER.normal,
+      skill: cfg.skillMult ?? ACTION_MULTIPLIER.skill,
+      heavy: cfg.heavyMult ?? ACTION_MULTIPLIER.heavy,
+      burstMain: cfg.burstMain ?? ACTION_MULTIPLIER.burstMain,
+      burstSide: cfg.burstSide ?? ACTION_MULTIPLIER.burstSide,
+      variation: cfg.variationMult ?? ACTION_MULTIPLIER.variation,
+      concertoVariation: cfg.concertoVariationMult ?? ACTION_MULTIPLIER.concertoVariation,
+    };
+    const pct = (x) => Math.round(x * 100);
+    const normalDmg = Math.round(atk * m.normal);
+    const skillDmg  = Math.round(atk * m.skill);
+    const heavyDmg  = Math.round(atk * m.heavy);
+    const burstMain = Math.round(atk * m.burstMain);
+    const burstSide = Math.round(atk * m.burstSide);
+    const varDmg    = Math.round(atk * m.variation);
+    const varConcerto = Math.round(atk * m.concertoVariation);
 
     // typeBonus：须由 getSkillHintRoleContext（applyChainBonuses + battleStart）注入；
     // 存档角色没有这些字段，会恒为 0 → 公式失真
@@ -72,33 +83,40 @@ export function makeSkillLines(cfg) {
 
     const encoreMode = cfg.encoreBurstToggle ? encoreBurstModeSignal.value : '';
     const isEncoreBlack = encoreMode === 'black';
+    // 黑咩窗仅普攻/技能 ×1.5；重击不吃窗（爆发在失序满替换）
     const encoreMult = isEncoreBlack ? (cfg.encoreDamageMult || 1.5) : 1;
     const normalShown = Math.round(finalNormal * encoreMult);
     const skillShown = Math.round(finalSkill * encoreMult);
-    const heavyShown = Math.round(finalHeavy * encoreMult);
+    const heavyShown = finalHeavy;
 
     const normalTip = escTip(
       `<b style="color:var(--gold)">普攻伤害公式</b><br>` +
-      `= 攻击 <b>${atk}</b> × 100%${normalBonus>0?` × (1 + 普攻加成 ${fmtPct(normalBonus)})`:''}${encoreMult>1?` × 黑咩强化 ${encoreMult}`:''} = <b style="color:var(--text)">${normalShown}</b><br>` +
+      `= 攻击 <b>${atk}</b> × ${pct(m.normal)}%${normalBonus>0?` × (1 + 普攻加成 ${fmtPct(normalBonus)})`:''}${encoreMult>1?` × 黑咩强化 ${encoreMult}`:''} = <b style="color:var(--text)">${normalShown}</b><br>` +
       `<span style="color:var(--muted);font-size:10px">命中前结算，最终伤害受暴击/抗性/防御影响</span>`
     );
     const skillTip = escTip(
       `<b style="color:var(--gold)">共鸣技能伤害公式</b><br>` +
-      `= 攻击 <b>${atk}</b> × 180%${skillBonus>0?` × (1 + 技能加成 ${fmtPct(skillBonus)})`:''}${encoreMult>1?` × 黑咩强化 ${encoreMult}`:''} = <b style="color:var(--accent)">${skillShown}</b>`
+      `= 攻击 <b>${atk}</b> × ${pct(m.skill)}%${skillBonus>0?` × (1 + 技能加成 ${fmtPct(skillBonus)})`:''}${encoreMult>1?` × 黑咩强化 ${encoreMult}`:''} = <b style="color:var(--accent)">${skillShown}</b>`
     );
     const heavyTip = cfg.hasHeavy ? escTip(
       `<b style="color:var(--gold)">重击伤害公式</b><br>` +
-      `= 攻击 <b>${atk}</b> × 220%${heavyBonus>0?` × (1 + 重击加成 ${fmtPct(heavyBonus)})`:''}${encoreMult>1?` × 黑咩强化 ${encoreMult}`:''} = <b style="color:#ff8c5e">${heavyShown}</b>`
+      `= 攻击 <b>${atk}</b> × ${pct(m.heavy)}%${heavyBonus>0?` × (1 + 重击加成 ${fmtPct(heavyBonus)})`:''} = <b style="color:#ff8c5e">${heavyShown}</b>` +
+      (cfg.encoreBurstToggle
+        ? `<br>失序满：白咩·失控之炎 <b>${Math.round(atk * 5.0 * (1 + heavyBonus))}</b>（500%） / 黑咩·暴走之炎 <b>${Math.round(atk * 7.75 * (1 + heavyBonus))}</b>（775%），均为共鸣解放伤害`
+        : '')
     ) : '';
+    const burstOpenOnly = cfg.burstMain === 0 && cfg.burstSide === 0;
     const burstTip = escTip(
-      `<b style="color:var(--gold)">解放伤害公式</b><br>` +
-      `· 主目标：攻击 <b>${atk}</b> × 400%${burstBonus>0?` × (1 + 解放加成 ${fmtPct(burstBonus)})`:''} = <b style="color:#ff8c5e">${finalBurstMain}</b><br>` +
-      `· 副目标：攻击 <b>${atk}</b> × 200%${burstBonus>0?` × (1 + 解放加成 ${fmtPct(burstBonus)})`:''} = <b style="color:#ff8c5e">${finalBurstSide}</b>`
+      burstOpenOnly
+        ? `<b style="color:var(--gold)">共鸣解放</b><br>仅开启形态窗口，无独立开场大伤`
+        : `<b style="color:var(--gold)">解放伤害公式</b><br>` +
+          `· 主目标：攻击 <b>${atk}</b> × ${pct(m.burstMain)}%${burstBonus>0?` × (1 + 解放加成 ${fmtPct(burstBonus)})`:''} = <b style="color:#ff8c5e">${finalBurstMain}</b><br>` +
+          `· 副目标：攻击 <b>${atk}</b> × ${pct(m.burstSide)}%${burstBonus>0?` × (1 + 解放加成 ${fmtPct(burstBonus)})`:''} = <b style="color:#ff8c5e">${finalBurstSide}</b>`
     );
     const varTip = escTip(
       `<b style="color:var(--gold)">变奏伤害公式</b><br>` +
-      `· 普通：攻击 <b>${atk}</b> × 80% = ${varDmg}<br>` +
-      `· 协奏满：攻击 <b>${atk}</b> × 160% = <b style="color:var(--accent)">${varConcerto}</b>`
+      `· 普通：攻击 <b>${atk}</b> × ${pct(m.variation)}% = ${varDmg}<br>` +
+      `· 协奏满：攻击 <b>${atk}</b> × ${pct(m.concertoVariation)}% = <b style="color:var(--accent)">${varConcerto}</b>`
     );
 
     const pickEncore = (base, white, black) => {
@@ -147,7 +165,9 @@ export function makeSkillLines(cfg) {
     lines.push({
       icon: '⚡', name: `共鸣解放 · ${cfg.burstName || '元素爆发'}`, cost: `3 AP · 需共鸣能量满 ${energyMax}`,
       color: 'var(--gold)',
-      desc: `对主目标造成 <span class="tip" data-tip='${burstTip}'><b style="color:#ff8c5e">${finalBurstMain}</b> 点</span>、副目标 <span class="tip" data-tip='${burstTip}'><b style="color:#ff8c5e">${finalBurstSide}</b> 点</span><b class="term-burst">${elem}伤害</b>。${rawBurstMech ? '<br>' + rawBurstMech : ''}${burstFollow ? '<br>' + burstFollow : ''}`
+      desc: burstOpenOnly
+        ? `<span class="tip" data-tip='${burstTip}'>开启形态窗口</span>（无独立开场大伤）。${rawBurstMech ? '<br>' + rawBurstMech : ''}${burstFollow ? '<br>' + burstFollow : ''}`
+        : `对主目标造成 <span class="tip" data-tip='${burstTip}'><b style="color:#ff8c5e">${finalBurstMain}</b> 点</span>、副目标 <span class="tip" data-tip='${burstTip}'><b style="color:#ff8c5e">${finalBurstSide}</b> 点</span><b class="term-burst">${elem}伤害</b>。${rawBurstMech ? '<br>' + rawBurstMech : ''}${burstFollow ? '<br>' + burstFollow : ''}`
     });
     lines.push({
       icon: '🎵', name: `变奏技能 · ${cfg.varName || '上场袭击'}`, cost: '切换上场时触发',

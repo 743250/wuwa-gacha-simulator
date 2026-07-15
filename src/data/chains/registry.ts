@@ -37,7 +37,7 @@ export const REGISTRY: Record<string, CharacterChains> = {
     {
       index: 6,
       effect: {"effect":"jiyanRuiyiUpgrade","cap":3,"perStack":1.2},
-      text: { name: "移山", desc: "<b class=\"term-resource\">锐意之势</b>上限由 <b class=\"term-num\">2</b> 层提升至 <b class=\"term-num\">3</b> 层；每层锐意提供的<b class=\"term-burst\">共鸣解放</b>伤害倍率加成由 +<b class=\"term-num\">100%</b> 提升至 +<b class=\"term-num\">120%</b>。" },
+      text: { name: "移山", desc: "<b class=\"term-resource\">锐意之势</b>上限由 <b class=\"term-num\">2</b> 层提升至 <b class=\"term-num\">3</b> 层；每层锐意提供的<b class=\"term-burst\">共鸣解放</b>伤害倍率加成由 +<b class=\"term-num\">40%</b> 提升至 +<b class=\"term-num\">120%</b>。" },
     }
     ],
   },

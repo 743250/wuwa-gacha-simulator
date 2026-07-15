@@ -45,7 +45,7 @@ describe('battle/characters/camellia — 椿', () => {
     a.concerto = 50;
     const form = idx.queryCharacterHook(a, 'resolveSkill', battle);
     expect(form?.yongsheng).toBe(true);
-    expect(form.mult).toBeCloseTo(2.5, 5);
+    expect(form.mult).toBeCloseTo(8.0, 5);
 
     battle.ap = 4;
     expect(combat.doSkill(battle, firstEnemy(battle)).ok).toBe(true);
@@ -54,7 +54,7 @@ describe('battle/characters/camellia — 椿', () => {
     expect(battle.log.some(l => l.action === '永生花')).toBe(true);
   });
 
-  it('C1/C3/C4 不常驻双算；C2 永生花×5.5；C6 续窗', () => {
+  it('C1/C3/C4 不常驻双算；C2 永生花×17.6；C6 续窗', () => {
     resetState({
       team: ['椿', '安可', '忌炎'],
       roles: {
@@ -74,7 +74,7 @@ describe('battle/characters/camellia — 椿', () => {
     a.forte.current = 100;
     a.concerto = 50;
     const form = idx.queryCharacterHook(a, 'resolveSkill', battle);
-    expect(form.mult).toBeCloseTo(2.5 * 2.2, 5);
+    expect(form.mult).toBeCloseTo(8.0 * 2.2, 5);
 
     battle.ap = 4;
     expect(combat.doSkill(battle, firstEnemy(battle)).ok).toBe(true);
@@ -89,11 +89,11 @@ describe('battle/characters/camellia — 椿', () => {
     expect(refresh?.isRefresh).toBe(true);
   });
 
-  it('skillHints 永生花 2500 / 解放 4000', () => {
+  it('skillHints 永生花 8000 / 解放 9000', () => {
     const lines = skillHints.SKILL_HINTS['椿'].customLines({ atk: 1000 }, { chain: 0 });
     const yong = lines.find(l => l.name.includes('永生花'));
     const burst = lines.find(l => l.name.includes('芳华'));
-    expect(yong.desc).toContain('2500');
-    expect(burst.desc).toContain('4000');
+    expect(yong.desc).toContain('8000');
+    expect(burst.desc).toContain('9000'); // Phase3 解放主 900%
   });
 });

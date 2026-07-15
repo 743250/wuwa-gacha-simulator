@@ -20,6 +20,9 @@ const LINGXING_BURST = 40;
 
 const NORMAL_MULT = 1.0;
 const SKILL_MULT = 1.8;
+const BURST_MAIN_MULT = 4.0; // 设计 §4 主 400%（非全局 700）
+const BURST_SIDE_MULT = 2.0;
+const VARIATION_MULT = 0.8; // 设计 §4 变奏 80%
 const ZHEN_WAN_MULT = 4.0;
 const ZHEN_WAN_C6_MULT = 20.0;
 
@@ -374,9 +377,33 @@ export function younuoCollectBadges(self) {
   return out;
 }
 
+export function younuoResolveBurstMult(self) {
+  if (self.name !== '尤诺') return null;
+  return { baseMain: BURST_MAIN_MULT, baseSide: BURST_SIDE_MULT };
+}
+
+export function younuoVariationMult(self) {
+  if (self.name !== '尤诺') return null;
+  return VARIATION_MULT;
+}
+
+export function younuoNormalMult(self) {
+  if (self.name !== '尤诺') return null;
+  return NORMAL_MULT;
+}
+
+export function younuoSkillMult(self) {
+  if (self.name !== '尤诺') return null;
+  return SKILL_MULT;
+}
+
 export default {
   name: '尤诺',
   hasHeavy: true,
+  normalMult: younuoNormalMult,
+  skillMult: younuoSkillMult,
+  variationMult: younuoVariationMult,
+  resolveBurstMult: younuoResolveBurstMult,
   lingxing: younuoLingxing,
   inMoonFlow: younuoInMoonFlow,
   inFullMoon: younuoInFullMoon,

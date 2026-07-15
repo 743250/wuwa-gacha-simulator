@@ -104,8 +104,8 @@ describe('battle/characters/yinlin — 吟霖', () => {
     const atk = 1000;
     // 技能：1800 × 1.7 × (1+0.1*3) = 1800 × 1.7 × 1.3
     const markedSkill = Math.round(atk * 1.8 * 1.7 * 1.3);
-    // 解放主：4000 × 1.7 × 1.5 × 1.3
-    const markedBurst = Math.round(atk * 4.0 * 1.7 * 1.5 * 1.3);
+    // 解放主：7000 × 1.7 × 1.5 × 1.3
+    const markedBurst = Math.round(atk * 7.0 * 1.7 * 1.5 * 1.3);
     const skillLine = smoke.lines.find(l => l.name && l.name.includes('共鸣技能'));
     const burstLine = smoke.lines.find(l => l.name && l.name.includes('解放'));
     expect(skillLine?.desc).toMatch(new RegExp(String(markedSkill)));

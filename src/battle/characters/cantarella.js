@@ -49,9 +49,28 @@ export function cantarellaOnBurst(self, ctx) {
   cantarellaMarkDream(self, ctx.target, ctx.battle);
 }
 
+// Phase 3 · encore Lv10：S380 / H400 / 解放 400·200（满迷离 enhancedBurst×1.8 → 720·360）/ 变奏 120
+export function cantarellaNormalMult(self) { return self.name === '坎特蕾拉' ? 1.0 : null; }
+export function cantarellaSkillMult(self) { return self.name === '坎特蕾拉' ? 3.8 : null; }
+export function cantarellaHeavyMult(self) { return self.name === '坎特蕾拉' ? 4.0 : null; }
+export function cantarellaVariationMult(self) { return self.name === '坎特蕾拉' ? 1.2 : null; }
+export function cantarellaResolveBurstMult(self) {
+  if (self.name !== '坎特蕾拉') return null;
+  // resolveBurstMult 覆盖全局时需自带 enhancedBurst（否则 fEnh 不乘倍率）
+  const ready = !!(self.forte?.ready);
+  return ready
+    ? { baseMain: 7.2, baseSide: 3.6 }
+    : { baseMain: 4.0, baseSide: 2.0 };
+}
+
 export default {
   name: '坎特蕾拉',
   hasHeavy: true,
+  normalMult: cantarellaNormalMult,
+  skillMult: cantarellaSkillMult,
+  heavyMult: cantarellaHeavyMult,
+  variationMult: cantarellaVariationMult,
+  resolveBurstMult: cantarellaResolveBurstMult,
   enterMirage: cantarellaEnterMirage,
   exitMirage: cantarellaExitMirage,
   awaken: cantarellaAwaken,

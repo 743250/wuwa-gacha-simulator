@@ -39,6 +39,13 @@ describe('battle/balance', () => {
       expect(b.ACTION_MULTIPLIER.heavy).toBeGreaterThan(b.ACTION_MULTIPLIER.skill);
       expect(b.ACTION_MULTIPLIER.skill).toBeGreaterThan(b.ACTION_MULTIPLIER.normal);
     });
+
+    it('AP economy: heavy ≥ 2×normal, burstMain 700% tier', () => {
+      expect(b.ACTION_MULTIPLIER.heavy).toBeGreaterThanOrEqual(b.ACTION_MULTIPLIER.normal * 2);
+      expect(b.ACTION_MULTIPLIER.burstMain).toBeCloseTo(7.0);
+      expect(b.ACTION_MULTIPLIER.burstSide).toBeCloseTo(3.5);
+      expect(b.ACTION_MULTIPLIER.concertoVariation / b.ACTION_MULTIPLIER.variation).toBeCloseTo(2);
+    });
   });
 
   // ===== VIBRATION_DAMAGE =====

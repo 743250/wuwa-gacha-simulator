@@ -44,13 +44,13 @@ describe('battle/characters/jiyan — 忌炎', () => {
     const beforeAtk = unit.atk;
     expect(combat.doBurst(battle).ok).toBe(true);
     expect(stacks.getStack(unit, 'jiyan_ruiyi')).toBe(0);
-    // 2 层 ×1.0 → 解放 ×3；主目标约 atk*4*3
+    // 2 层 ×0.4 → 解放 ×1.8；基底后动 715% → 约 12.87×atk
     const burstLog = [...battle.log].reverse().find(l => l.type === 'burst' && l.src === '忌炎');
     expect(burstLog).toBeTruthy();
     const primary = (burstLog.results || []).find(r => r.primary) || burstLog.results?.[0];
     expect(primary?.dmg).toBeGreaterThan(0);
-    // 命中前主目标倍率 12×atk 量级，扣抗后仍应明显高于 4×atk
-    expect(primary.dmg).toBeGreaterThan(beforeAtk * 4);
+    // 命中前主目标约 12.87×atk，扣抗后仍应明显高于 7×atk
+    expect(primary.dmg).toBeGreaterThan(beforeAtk * 7);
     expect(battle.log.some(l => l.type === 'mechanic' && /锐意之势 2/.test(l.msg || ''))).toBe(true);
   });
 
@@ -75,10 +75,11 @@ describe('battle/characters/jiyan — 忌炎', () => {
     const smoke = skillHintsSmoke(entry, 6);
     expect(smoke.ok).toBe(true);
     const fullMult = 1 + 3 * 1.2; // 4.6
-    const burstFull = Math.round(atk * 4.0 * fullMult); // 4600
+    const burstFull = Math.round(atk * 7.15 * fullMult); // 32890（后动 715% × 满锐意）
     const burstLine = smoke.lines.find(l => l.name && l.name.includes('解放'));
     expect(burstLine?.desc).toMatch(new RegExp(String(burstFull)));
     expect(burstLine?.desc).toMatch(/×4\.6|4\.6/);
+    expect(burstLine?.desc).toMatch(/715%/);
   });
 
   it('C2/C5 变奏入场挂攻击；C4 解放后全队重击加深', () => {

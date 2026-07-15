@@ -10,14 +10,16 @@ export const ACTION_COST = {
   burst: 3
 };
 
+// AP 经济（2026-07-15）：heavy ≥ 2×normal；burst 700% 档
+// 详见 docs/plans/mechanisms/skill-multiplier-calibration.md
 export const ACTION_MULTIPLIER = {
   normal: 1.0,
   skill: 1.8,
-  heavy: 2.2,
-  burstMain: 4.0,
-  burstSide: 2.0,
-  variation: 0.8,
-  concertoVariation: 1.6
+  heavy: 4.0,
+  burstMain: 7.0,
+  burstSide: 3.5,
+  variation: 1.5,
+  concertoVariation: 3.0
 };
 
 export const VIBRATION_DAMAGE = {

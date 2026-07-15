@@ -53,6 +53,24 @@ export function carlottaDeathKnell(self) {
   return 1.0 + self.carlottaDeathKnellBonus;
 }
 
+// Phase 3 · encore Lv10：N120 / S280 / 满晶体×2→560 / H550 / 解放 1000·500 / 变奏 200
+export function carlottaNormalMult(self) {
+  return self.name === '珂莱塔' ? 1.2 : null;
+}
+export function carlottaSkillMult(self) {
+  return self.name === '珂莱塔' ? 2.8 : null;
+}
+export function carlottaHeavyMult(self) {
+  return self.name === '珂莱塔' ? 5.5 : null;
+}
+export function carlottaVariationMult(self) {
+  return self.name === '珂莱塔' ? 2.0 : null;
+}
+export function carlottaResolveBurstMult(self) {
+  if (self.name !== '珂莱塔') return null;
+  return { baseMain: 10.0, baseSide: 5.0 };
+}
+
 export default {
   name: '珂莱塔',
   hasHeavy: true,
@@ -60,5 +78,10 @@ export default {
   onSkill: carlottaOnSkill,
   onHeavy: carlottaOnHeavy,
   crateBonus: carlottaCrateBonus,
-  deathKnell: carlottaDeathKnell
+  deathKnell: carlottaDeathKnell,
+  normalMult: carlottaNormalMult,
+  skillMult: carlottaSkillMult,
+  heavyMult: carlottaHeavyMult,
+  variationMult: carlottaVariationMult,
+  resolveBurstMult: carlottaResolveBurstMult
 };
