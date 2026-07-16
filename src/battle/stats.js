@@ -287,12 +287,15 @@ function applyBonus(stats, b) {
     case 'heal':          stats.healBonus += b.value; break;
     case 'teamAtk':
     case 'team_atk':      stats.teamAtkBonus += b.value; break;
-    case 'resonance':     stats.resonanceBonus += b.value; break;
+    case 'resonance':
+    case 'resonance_efficiency':
+      // 武器副词条用 resonance，声骸主/副/套装用 resonance_efficiency —— 统一进回能乘区
+      stats.resonanceBonus += b.value;
+      break;
     case 'def_pierce':    stats.defPierce += b.value; break;
     case 'atk_flat':      stats._atkFlatSum += b.value; break;
     case 'hp_flat':       stats._hpFlatSum += b.value; break;
     case 'def_flat':      stats._defFlatSum += b.value; break;
-    case 'resonance_efficiency':  stats.resonanceEfficiency = (stats.resonanceEfficiency || 0) + b.value; break;
   }
 }
 

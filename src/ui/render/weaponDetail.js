@@ -126,7 +126,10 @@ function renderWeaponRuntime(data, refineMult, refine = 1) {
       formulaLines.push(`常驻 = 原值 ${fmtPct(orig)} × 精炼倍率 ${refineMult.toFixed(2)} = <b style="color:var(--accent)">${fmtPct(v)}</b>`);
     }
     g.triggers.forEach(t => {
-      const trig = TRIGGER_LABEL[t.on] || t.on;
+      const condLabel = CONDITION_LABEL[t.condition];
+      const trig = t.on === 'always'
+        ? (condLabel ? `对${condLabel}` : '常驻')
+        : (TRIGGER_LABEL[t.on] || t.on);
       const orig = t.value;
       const v = orig * refineMult;
       const vStr = fmtVal(t, v);
@@ -139,13 +142,27 @@ function renderWeaponRuntime(data, refineMult, refine = 1) {
       }
       const stacks = t.maxStacks > 1 ? `，最多 ${t.maxStacks} 层` : '';
       const dur = t.duration && t.duration < 99 ? `，持续 ${t.duration} 回合` : '';
-      mechLines.push(`${trig}时叠加 +${vStr}${stacks}${dur}`);
-      formulaLines.push(`${trig}时 = 原值 ${origStr} × 精炼倍率 ${refineMult.toFixed(2)} = <b style="color:var(--accent)">${vStr}</b>${stacks}${dur}`);
+      if (t.effect === 'condition_bonus') {
+        mechLines.push(`${trig}时伤害加深 +${vStr}${stacks}${dur}`);
+        formulaLines.push(`${trig}时伤害加深 = 原值 ${origStr} × 精炼倍率 ${refineMult.toFixed(2)} = <b style="color:var(--accent)">${vStr}</b>${stacks}${dur}`);
+      } else if (t.on === 'always') {
+        mechLines.push(`${trig} +${vStr}${stacks}${dur}`);
+        formulaLines.push(`${trig} = 原值 ${origStr} × 精炼倍率 ${refineMult.toFixed(2)} = <b style="color:var(--accent)">${vStr}</b>${stacks}${dur}`);
+      } else {
+        mechLines.push(`${trig}时叠加 +${vStr}${stacks}${dur}`);
+        formulaLines.push(`${trig}时 = 原值 ${origStr} × 精炼倍率 ${refineMult.toFixed(2)} = <b style="color:var(--accent)">${vStr}</b>${stacks}${dur}`);
+      }
     });
-    const mechTip = tipAttrEsc(`<b style="color:var(--gold)">${labelName}</b><br>${mechLines.join('<br>')}`);
+    const effectLabel = (g.type === 'condition_bonus')
+      ? '对风蚀目标伤害加深'
+      : (PASSIVE_TYPE_LABEL[g.type] || EFFECT_LABEL[g.type] || g.type);
+    const labelNameResolved = `${effectLabel}${g.element && g.type !== 'condition_bonus' ? ' · ' + g.element : ''}`;
+    const mechTip = tipAttrEsc(`<b style="color:var(--gold)">${labelNameResolved}</b><br>${mechLines.join('<br>')}`);
     const formulaTip = tipAttrEsc(`<b style="color:var(--gold)">精炼公式</b><br>${formulaLines.join('<br>')}`);
-    const prefix = (!g.passive && g.triggers.length) ? '最多 +' : '+';
-    parts.push(`<span class="tip" data-tip='${mechTip}'><b>${labelName}</b></span> <span class="tip" data-tip='${formulaTip}'><b>${prefix}${displayValue}</b></span>`);
+    // 条件/叠层触发用「最多」；常驻被动与 always 条件用「+」
+    const isPeak = !g.passive && g.triggers.some(t => (t.maxStacks || 1) > 1 || (t.on !== 'always' && t.duration && t.duration < 99));
+    const prefix = isPeak ? '最多 +' : '+';
+    parts.push(`<span class="tip" data-tip='${mechTip}'><b>${labelNameResolved}</b></span> <span class="tip" data-tip='${formulaTip}'><b>${prefix}${displayValue}</b></span>`);
   }
   if (!parts.length) return '';
   return `<div style="margin-top:5px;padding-top:5px;border-top:1px dashed var(--line);color:var(--accent);font-size:10px;line-height:1.7">▸ ${parts.join(' · ')}</div>`;
@@ -182,7 +199,11 @@ const EFFECT_LABEL = {
   burst_pct: '解放伤害', heavy_pct: '重击伤害',
   elem_dmg: '元素伤害', def_pierce: '防御穿透',
   team_atk: '全队攻击', concerto_refund: '协奏值',
-  condition_bonus: '条件加成', crate: '暴击率'
+  condition_bonus: '对风蚀目标伤害加深', crate: '暴击率'
+};
+const CONDITION_LABEL = {
+  enemy_has_erosion_aero: '带风蚀的敌人',
+  enemy_has_spectro_frazzle: '带光噪的敌人',
 };
 
 function formatStatValue(stat, value) {

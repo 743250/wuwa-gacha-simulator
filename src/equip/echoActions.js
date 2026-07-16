@@ -91,6 +91,25 @@ export function generateEcho(echoId, preferSetId = null) {
   return echo;
 }
 
+// 隐藏编辑用：第二主词条可在攻击/生命/防御固定值间轮换（满级锚点）
+const SECONDARY_EDIT_POOL = {
+  4: [
+    { key: 'atk_flat', label: '攻击', value: 150 },
+    { key: 'hp_flat',  label: '生命', value: 2280 },
+    { key: 'def_flat', label: '防御', value: 150 },
+  ],
+  3: [
+    { key: 'atk_flat', label: '攻击', value: 100 },
+    { key: 'hp_flat',  label: '生命', value: 1520 },
+    { key: 'def_flat', label: '防御', value: 100 },
+  ],
+  1: [
+    { key: 'hp_flat',  label: '生命', value: 2280 },
+    { key: 'atk_flat', label: '攻击', value: 100 },
+    { key: 'def_flat', label: '防御', value: 100 },
+  ],
+};
+
 /** 旧存档 / 半成品声骸：回填第二主词条与主词条 maxValue，并按当前等级重算数值 */
 export function ensureEchoStats(echo) {
   if (!echo) return echo;
@@ -114,13 +133,21 @@ export function ensureEchoStats(echo) {
     }
   }
   const secDef = ECHO_SECONDARY_MAIN[echo.cost];
-  if (secDef) {
-    if (!echo.secondaryStat || echo.secondaryStat.key !== secDef.key) {
+  const editPool = SECONDARY_EDIT_POOL[echo.cost] || SECONDARY_EDIT_POOL[4];
+  if (!echo.secondaryStat) {
+    if (secDef) echo.secondaryStat = secondaryStatAtLevel(echo.cost, echo.level || 1);
+  } else {
+    // 保留隐藏编辑后的第二主词条 key，不再强制回默认 COST 固有
+    const poolDef = editPool.find(d => d.key === echo.secondaryStat.key)
+      || (secDef && echo.secondaryStat.key === secDef.key ? secDef : null);
+    if (poolDef) {
+      const maxV = echo.secondaryStat.maxValue != null ? echo.secondaryStat.maxValue : poolDef.value;
+      echo.secondaryStat.key = poolDef.key;
+      echo.secondaryStat.label = poolDef.label;
+      echo.secondaryStat.maxValue = maxV;
+      echo.secondaryStat.value = mainStatAtLevel({ key: poolDef.key, value: maxV }, echo.level || 1);
+    } else if (secDef) {
       echo.secondaryStat = secondaryStatAtLevel(echo.cost, echo.level || 1);
-    } else {
-      echo.secondaryStat.maxValue = secDef.value;
-      echo.secondaryStat.label = secDef.label;
-      echo.secondaryStat.value = mainStatAtLevel(secDef, echo.level || 1);
     }
   }
   return echo;
@@ -397,4 +424,107 @@ export function retuneEchoSubStat(echoId, subIdx) {
   const oldVal = sub.value;
   sub.value = randomStatValue(def);
   return { ok: true, oldVal, newVal: sub.value, label: sub.label };
+}
+
+// 隐藏编辑：可选词条列表（主/副/第二主）
+export function listEchoMainStatOptions(echoId) {
+  const echo = S.echos.find(e => e.id === echoId || String(e.id) === String(echoId));
+  if (!echo?.mainStat) return { ok: false, err: '声骸不存在', options: [] };
+  const pool = MAIN_STAT_POOL[echo.cost] || [];
+  return {
+    ok: true,
+    currentKey: echo.mainStat.key,
+    options: pool.map(d => ({ key: d.key, label: d.label })),
+  };
+}
+
+export function listEchoSubStatOptions(echoId, subIdx) {
+  const echo = S.echos.find(e => e.id === echoId || String(e.id) === String(echoId));
+  if (!echo) return { ok: false, err: '声骸不存在', options: [] };
+  const sub = echo.subStats?.[subIdx];
+  if (!sub) return { ok: false, err: '副词条不存在', options: [] };
+  if (sub.unlocked === false) return { ok: false, err: '副词条未解锁', options: [] };
+  const used = new Set((echo.subStats || []).map(s => s.key));
+  used.delete(sub.key);
+  const pool = SUB_STAT_POOL.filter(d => !used.has(d.key));
+  return {
+    ok: true,
+    currentKey: sub.key,
+    options: pool.map(d => ({ key: d.key, label: d.label })),
+  };
+}
+
+export function listEchoSecondaryStatOptions(echoId) {
+  const echo = S.echos.find(e => e.id === echoId || String(e.id) === String(echoId));
+  if (!echo) return { ok: false, err: '声骸不存在', options: [] };
+  const pool = SECONDARY_EDIT_POOL[echo.cost] || SECONDARY_EDIT_POOL[4] || [];
+  return {
+    ok: true,
+    currentKey: echo.secondaryStat?.key || null,
+    options: pool.map(d => ({ key: d.key, label: d.label })),
+  };
+}
+
+// 隐藏：直接设为指定词条（不消耗材料）
+export function setEchoMainStatType(echoId, key) {
+  const echo = S.echos.find(e => e.id === echoId || String(e.id) === String(echoId));
+  if (!echo?.mainStat) return { ok: false, err: '声骸不存在' };
+  const pool = MAIN_STAT_POOL[echo.cost];
+  if (!pool?.length) return { ok: false, err: '主词条池缺失' };
+  const next = pool.find(d => d.key === key);
+  if (!next) return { ok: false, err: '无效主词条' };
+  if (next.key === echo.mainStat.key) return { ok: false, err: '已是当前词条' };
+  const oldKey = echo.mainStat.key;
+  const oldLabel = echo.mainStat.label;
+  echo.mainStat.key = next.key;
+  echo.mainStat.label = next.label;
+  echo.mainStat.maxValue = next.value;
+  echo.mainStat.value = mainStatAtLevel(next, echo.level || 1);
+  return {
+    ok: true, oldKey, oldLabel,
+    key: echo.mainStat.key, label: echo.mainStat.label, value: echo.mainStat.value,
+  };
+}
+
+export function setEchoSubStatType(echoId, subIdx, key) {
+  const echo = S.echos.find(e => e.id === echoId || String(e.id) === String(echoId));
+  if (!echo) return { ok: false, err: '声骸不存在' };
+  const sub = echo.subStats?.[subIdx];
+  if (!sub) return { ok: false, err: '副词条不存在' };
+  if (sub.unlocked === false) return { ok: false, err: '副词条未解锁' };
+  if (sub.key === key) return { ok: false, err: '已是当前词条' };
+  const used = new Set((echo.subStats || []).map(s => s.key));
+  used.delete(sub.key);
+  if (used.has(key)) return { ok: false, err: '该词条已存在' };
+  const next = SUB_STAT_POOL.find(d => d.key === key);
+  if (!next) return { ok: false, err: '无效副词条' };
+  const oldKey = sub.key;
+  const oldLabel = sub.label;
+  sub.key = next.key;
+  sub.label = next.label;
+  sub.value = randomStatValue(next);
+  return { ok: true, oldKey, oldLabel, key: sub.key, label: sub.label, value: sub.value };
+}
+
+export function setEchoSecondaryStatType(echoId, key) {
+  const echo = S.echos.find(e => e.id === echoId || String(e.id) === String(echoId));
+  if (!echo) return { ok: false, err: '声骸不存在' };
+  const pool = SECONDARY_EDIT_POOL[echo.cost] || SECONDARY_EDIT_POOL[4];
+  if (!pool?.length) return { ok: false, err: '第二主词条池缺失' };
+  const next = pool.find(d => d.key === key);
+  if (!next) return { ok: false, err: '无效第二主词条' };
+  if (!echo.secondaryStat) {
+    echo.secondaryStat = secondaryStatAtLevel(echo.cost, echo.level || 1);
+  }
+  if (echo.secondaryStat.key === next.key) return { ok: false, err: '已是当前词条' };
+  const oldKey = echo.secondaryStat.key;
+  const oldLabel = echo.secondaryStat.label;
+  echo.secondaryStat.key = next.key;
+  echo.secondaryStat.label = next.label;
+  echo.secondaryStat.maxValue = next.value;
+  echo.secondaryStat.value = mainStatAtLevel(next, echo.level || 1);
+  return {
+    ok: true, oldKey, oldLabel,
+    key: echo.secondaryStat.key, label: echo.secondaryStat.label, value: echo.secondaryStat.value,
+  };
 }

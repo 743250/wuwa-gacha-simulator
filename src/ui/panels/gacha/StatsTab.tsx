@@ -2,7 +2,7 @@
 //
 // 三层结构：
 //   A. 称号横幅（欧皇/小欧/平稳/小非/非酋/大非酋 + 评语）
-//   B. 指标网格（累计充值/总抽数/平均五星抽数/平均 UP 抽数/最欧/最非/歪率）
+//   B. 指标网格（累计充值/总抽数/UP 五星武器均抽/UP 角色均抽/最欧/最非/小保底不歪率）
 //   C. 出金时间线（展开按钮后显示）
 //      - 顶部 tab 按池子分类（角色限定/武器限定/角色常驻/武器常驻）
 //      - 列表倒序，时间近的在上，时间远的在下
@@ -47,10 +47,11 @@ function rateClass(rate: number | null, good: number, bad: number): string {
   return 'rate-mid';
 }
 
-function lossClass(loss: number | null): string {
-  if (loss == null) return 'rate-na';
-  if (loss < 0.35) return 'rate-good';
-  if (loss > 0.65) return 'rate-bad';
+// 小保底不歪率：越高越好（与旧歪率颜色相反）
+function softWinClass(win: number | null): string {
+  if (win == null) return 'rate-na';
+  if (win > 0.65) return 'rate-good';
+  if (win < 0.35) return 'rate-bad';
   return 'rate-mid';
 }
 
@@ -99,7 +100,7 @@ export function StatsTab() {
             <div class="tb-label">{a.title.label}</div>
             <div class="tb-comment">{a.title.comment}</div>
             <div class="tb-summary">
-              综合评分 {a.title.score.toFixed(2)} · 均抽 {a.avgPity > 0 ? num(a.avgPity, 1) : '--'} · 出金率 {pct(a.overallRate)} · 歪率 {a.lossRateReliable ? pct(a.lossRate, 1) : (a.lossRate != null ? pct(a.lossRate, 1) + '（样本少）' : '--')}
+              综合评分 {a.title.score.toFixed(2)} · 均抽 {a.avgPity > 0 ? num(a.avgPity, 1) : '--'} · 出金率 {pct(a.overallRate)} · 小保底不歪率 {a.lossRateReliable ? pct(a.softWinRate, 1) : (a.softWinRate != null ? pct(a.softWinRate, 1) + '（样本少）' : '--')}
               {a.title.flavor ? ` · ${a.title.flavor}` : ''}
             </div>
           </Fragment>
@@ -111,13 +112,13 @@ export function StatsTab() {
         <div class="stat"><b style={{ color: 'var(--red)' }}>¥{(((S as any).spent) || 0).toLocaleString()}</b><span>累计充值</span></div>
         <div class="stat"><b style={{ color: 'var(--gold)' }}>{(((S as any).astriteSpent) || 0).toLocaleString()}</b><span>已花费星声</span></div>
         <div class="stat"><b>{a.totalPulls}</b><span>总抽数</span></div>
-        <div class="stat"><b>{a.avgPity > 0 ? num(a.avgPity, 1) : '--'}</b><span>平均五星抽数</span></div>
-        <div class="stat"><b>{a.avgUpPity > 0 ? num(a.avgUpPity, 1) : '--'}</b><span>平均 UP 抽数</span></div>
+        <div class="stat"><b>{a.avgWeaponUpPity > 0 ? num(a.avgWeaponUpPity, 1) : '--'}</b><span>UP 五星武器均抽</span></div>
+        <div class="stat"><b>{a.avgUpPity > 0 ? num(a.avgUpPity, 1) : '--'}</b><span>UP 角色平均抽数</span></div>
         <div class="stat"><b>{a.luckiestPity ?? '--'}</b><span>最欧</span></div>
         <div class="stat"><b>{a.unluckiestPity ?? '--'}</b><span>最非</span></div>
         <div class="stat">
-          <b class={lossClass(a.lossRate)}>{a.lossRateReliable ? pct(a.lossRate, 1) : '--'}</b>
-          <span>歪率</span>
+          <b class={softWinClass(a.softWinRate)}>{a.lossRateReliable ? pct(a.softWinRate, 1) : '--'}</b>
+          <span>小保底不歪率</span>
         </div>
         <div class="stat"><b>{roleArr.length}</b><span>已拥角色</span></div>
         <div class="stat"><b>{weaponArr.length}</b><span>已拥武器</span></div>

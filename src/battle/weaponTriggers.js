@@ -106,9 +106,8 @@ function checkCondition(condition, ctx) {
 export function collectWeaponBonus(unit, dmgType, ctx = {}) {
   const out = { atkBonus: 0, normalBonus: 0, skillBonus: 0, burstBonus: 0, heavyBonus: 0,
                 elemBonus: {}, defPierce: 0, condBonus: 0 };
-  if (!unit.weaponStacks) return out;
-  Object.values(unit.weaponStacks).forEach(s => {
-    const total = s.value * s.stacks;
+  const applyStack = (s) => {
+    const total = (s.value || 0) * (s.stacks || 1);
     switch (s.effect) {
       case 'atk_pct':     out.atkBonus += total; break;
       case 'normal_pct':  out.normalBonus += total; break;
@@ -125,7 +124,23 @@ export function collectWeaponBonus(unit, dmgType, ctx = {}) {
       case 'crate':       out.crateBonus = (out.crateBonus || 0) + total; break;
       // team_atk 已通过 applyTeamAtkFromWeapon 写入 buffs，不在此重复
     }
-  });
+  };
+  if (unit.weaponStacks) {
+    Object.values(unit.weaponStacks).forEach(applyStack);
+  }
+  // on:'always' 不会经 fireTrigger 入栈；结算时直接读武器触发表
+  if (unit.weaponTriggers) {
+    unit.weaponTriggers.forEach(t => {
+      if (t.on !== 'always') return;
+      applyStack({
+        effect: t.effect,
+        value: t.value,
+        stacks: 1,
+        element: t.element,
+        condition: t.condition,
+      });
+    });
+  }
   return out;
 }
 

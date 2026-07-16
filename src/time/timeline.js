@@ -165,11 +165,6 @@ export function jumpToDate(timestamp) {
 }
 
 export function jumpToday() {
-  commit(() => {
-    S.today = date('2026-06-23');
-    refreshVersion();
-    // Phase 3 步骤 A:跳日期后回填 S.selected(activeBanners 可能变)
-    ensureSelectedBanner();
-  });
-  // 注意：不在内部调 __render，由 main.js caller 统一调 rerenderAll()
+  // 与 jumpToDate 一致：走 advanceTo，邮箱/体力/版本刷新都跟上日历
+  advanceTo(date('2026-06-23'));
 }

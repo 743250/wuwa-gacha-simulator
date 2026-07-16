@@ -70,10 +70,23 @@ const TITLES = [
 
 // 真正的 50/50 池子（小保底机制；新旅角色同款）
 const PVP_POOLS = new Set(['eventChar', 'collabChar', 'noviceChoice']);
+// UP 五星武器池（模拟器内出金即目标武器，up 恒为 true）
+const WEAPON_UP_POOLS = new Set(['eventWeapon', 'collabWeapon', 'noviceWeapon']);
 
 function safeDiv(a, b) {
   if (!b || b <= 0) return 0;
   return a / b;
+}
+
+/** UP 五星武器平均抽数：武器限定/联动/新旅武器池出金 pity 均值 */
+function computeAvgWeaponUpPity(fives) {
+  let sum = 0, n = 0;
+  for (const x of fives) {
+    if (!x || !WEAPON_UP_POOLS.has(x.pool) || typeof x.pity !== 'number') continue;
+    sum += x.pity;
+    n++;
+  }
+  return n > 0 ? sum / n : 0;
 }
 
 // 主档：只由平均抽数决定（社区工具主轴）
@@ -242,8 +255,8 @@ function computePerPool(log) {
 export function computeAnalysis(S) {
   const empty = {
     totalPulls: 0, fiveCount: 0, fourCount: 0,
-    overallRate: 0, avgPity: 0, avgUpPity: 0,
-    limitedPvpFive: 0, limitedPvpLost: 0, lossRate: null, lossRateReliable: false,
+    overallRate: 0, avgPity: 0, avgUpPity: 0, avgWeaponUpPity: 0,
+    limitedPvpFive: 0, limitedPvpLost: 0, lossRate: null, softWinRate: null, lossRateReliable: false,
     luckiestPity: null, unluckiestPity: null,
     recent100Rate: 0, recent100Five: 0,
     perPool: [],
@@ -269,17 +282,21 @@ export function computeAnalysis(S) {
     }
     const avgPity = pityCount > 0 ? pitySum / pityCount : 0;
 
-    // 平均 UP 抽数：拿到 1 次限定 UP 平均花多少抽
+    // UP 角色平均抽数：拿到 1 次限定角色 UP 平均花多少抽
     // 正确口径（社区工具同款）：按池时间序把「歪 + 随后大保底 UP」合并为一次成本
     //   例：70 抽歪 → 65 抽 UP ⇒ 该次 UP 成本 135，不是 65
-    // 未闭合的歪（后面还没出 UP）不计入；武器/常驻/新旅武器不参与
+    // 未闭合的歪（后面还没出 UP）不计入；武器/常驻不参与
     const avgUpPity = computeAvgUpCost(fives);
+    // UP 五星武器平均抽数：武器限定池出金 pity 均值（本模拟器武器池出金即目标）
+    const avgWeaponUpPity = computeAvgWeaponUpPity(fives);
 
-    // 歪率：eventChar/collabChar/noviceChoice 的小保底（50/50）
+    // 小保底歪率 / 不歪率：eventChar/collabChar/noviceChoice 的 50/50
     // 大保底 UP 必中，不进分母（例：歪→大保底UP→小保底UP = 1/2，不是 1/3）
     const { softTrials: limitedFive, softLost: limitedLost } = computeSoftPityLoss(fives);
     const lossRateReliable = limitedFive >= THRESHOLDS.loss.minSamples;
     const lossRate = limitedFive >= 1 ? safeDiv(limitedLost, limitedFive) : null;
+    // 展示用：小保底不歪率 = 1 - 歪率
+    const softWinRate = lossRate != null ? Math.max(0, 1 - lossRate) : null;
 
     // 欧非极值
     let luckiest = null, unluckiest = null;
@@ -307,9 +324,11 @@ export function computeAnalysis(S) {
       overallRate,
       avgPity,
       avgUpPity,
+      avgWeaponUpPity,
       limitedPvpFive: limitedFive,
       limitedPvpLost: limitedLost,
       lossRate,
+      softWinRate,
       lossRateReliable,
       luckiestPity: luckiest,
       unluckiestPity: unluckiest,

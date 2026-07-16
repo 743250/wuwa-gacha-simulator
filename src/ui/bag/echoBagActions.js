@@ -5,21 +5,154 @@ import { msg } from '../services/toast.ts';
 import { rerenderAll } from '../../rerender.js';
 import { openModal, closeModal } from '../../modal.js';
 import { h } from 'preact';
-import { levelUpEcho, levelUpEchoMax, recycleEcho, previewRecycleEcho, toggleEchoLock, unequipEcho, unequipSlot, equipEcho, getEquippableEchoes, echoToNext, retuneEchoSubStat, levelUpEchoWithFeed, previewEchoFeed } from '../../equip/echoActions.js';
+import { levelUpEcho, levelUpEchoMax, recycleEcho, previewRecycleEcho, toggleEchoLock, unequipEcho, unequipSlot, equipEcho, getEquippableEchoes, echoToNext, retuneEchoSubStat, listEchoMainStatOptions, listEchoSubStatOptions, listEchoSecondaryStatOptions, setEchoMainStatType, setEchoSubStatType, setEchoSecondaryStatType, levelUpEchoWithFeed, previewEchoFeed } from '../../equip/echoActions.js';
 import { getSetById, formatEchoStatValue, formatSetBonus, getSubStatRange } from '../../data/echoes.js';
 import { totalExp } from '../../equip/actions.js';
+
+// 隐藏：详情内连点 COST 5 次 → 右上角「编辑」→ 编辑模式下点词条打开列表选择；关详情重置
+const SECRET_COST_NEED = 5;
+const SECRET_COST_WINDOW_MS = 5000;
+const _secret = {
+  echoId: null,
+  unlocked: false,
+  editing: false,
+  costClicks: 0,
+  lastCostT: 0,
+  // 词条选择器：null | { kind:'main'|'sub'|'secondary', subIdx?, options, currentKey }
+  picker: null,
+};
+function resetSecretSession() {
+  _secret.echoId = null;
+  _secret.unlocked = false;
+  _secret.editing = false;
+  _secret.costClicks = 0;
+  _secret.lastCostT = 0;
+  _secret.picker = null;
+}
+function bindSecretEcho(id) {
+  const sid = String(id);
+  if (_secret.echoId !== sid) {
+    resetSecretSession();
+    _secret.echoId = sid;
+  }
+}
+const editNameStyle = 'user-select:none;cursor:pointer;padding:4px 8px 4px 0;min-width:4.5em;display:inline-block;color:var(--gold)';
 
 export function registerEchoBagActions({ renderBag }) {
   // 标记详情 modal 是否从角色面板进入（关闭时回到角色声骸面板）
   let _echoDetailFromRole = false;
 
+  // 点遮罩关详情时也清隐藏态（与底部「关闭」一致）
+  const modalEl = typeof document !== 'undefined' ? document.getElementById('modal') : null;
+  if (modalEl && !modalEl.dataset.echoSecretBound) {
+    modalEl.dataset.echoSecretBound = '1';
+    modalEl.addEventListener('click', (e) => {
+      if (e.target === modalEl) resetSecretSession();
+    });
+  }
+
+  const bagEchoCloseDetail = () => {
+    resetSecretSession();
+  };
+
+  const bagEchoToggleEditMode = (id) => {
+    bindSecretEcho(id);
+    if (!_secret.unlocked) return;
+    _secret.editing = !_secret.editing;
+    _secret.picker = null;
+    bagEchoDetail(id, _echoDetailFromRole);
+  };
+
+  const bagEchoCostClick = (id) => {
+    bindSecretEcho(id);
+    if (_secret.unlocked) return;
+    const now = Date.now();
+    if (!_secret.lastCostT || now - _secret.lastCostT > SECRET_COST_WINDOW_MS) {
+      _secret.costClicks = 1;
+    } else {
+      _secret.costClicks += 1;
+    }
+    _secret.lastCostT = now;
+    if (_secret.costClicks < SECRET_COST_NEED) return;
+    _secret.unlocked = true;
+    _secret.editing = false;
+    _secret.costClicks = 0;
+    _secret.picker = null;
+    bagEchoDetail(id, _echoDetailFromRole);
+  };
+
+  const closePicker = () => {
+    _secret.picker = null;
+  };
+
+  const bagEchoEditMain = (id) => {
+    if (!_secret.editing || String(_secret.echoId) !== String(id)) return;
+    const listed = listEchoMainStatOptions(id);
+    if (!listed.ok) { msg(listed.err); return; }
+    _secret.picker = {
+      kind: 'main',
+      title: '选择主词条',
+      options: listed.options,
+      currentKey: listed.currentKey,
+    };
+    bagEchoDetail(id, _echoDetailFromRole);
+  };
+
+  const bagEchoEditSub = (id, idx) => {
+    if (!_secret.editing || String(_secret.echoId) !== String(id)) return;
+    const listed = listEchoSubStatOptions(id, idx);
+    if (!listed.ok) { msg(listed.err); return; }
+    _secret.picker = {
+      kind: 'sub',
+      subIdx: idx,
+      title: '选择副词条',
+      options: listed.options,
+      currentKey: listed.currentKey,
+    };
+    bagEchoDetail(id, _echoDetailFromRole);
+  };
+
+  const bagEchoEditSecondary = (id) => {
+    if (!_secret.editing || String(_secret.echoId) !== String(id)) return;
+    const listed = listEchoSecondaryStatOptions(id);
+    if (!listed.ok) { msg(listed.err); return; }
+    _secret.picker = {
+      kind: 'secondary',
+      title: '选择第二主词条',
+      options: listed.options,
+      currentKey: listed.currentKey,
+    };
+    bagEchoDetail(id, _echoDetailFromRole);
+  };
+
+  const bagEchoPickStat = (id, key) => {
+    if (!_secret.editing || String(_secret.echoId) !== String(id) || !_secret.picker) return;
+    const e = S.echos.find(x => x.id === id || String(x.id) === String(id));
+    if (!e) return;
+    const p = _secret.picker;
+    let r;
+    if (p.kind === 'main') r = setEchoMainStatType(id, key);
+    else if (p.kind === 'sub') r = setEchoSubStatType(id, p.subIdx, key);
+    else if (p.kind === 'secondary') r = setEchoSecondaryStatType(id, key);
+    else return;
+    if (!r.ok) { msg(r.err); return; }
+    msg(`${e.name} · ${r.oldLabel} → ${r.label} ${formatEchoStatValue(r.key, r.value)}`, false);
+    _secret.picker = null;
+    bagEchoDetail(id, _echoDetailFromRole);
+    renderBag();
+    rerenderAll();
+  };
+
   const bagEchoDetail = (id, fromRole = false) => {
     _echoDetailFromRole = !!fromRole;
     const e = S.echos.find(x => x.id === id);
     if (!e) return;
+    bindSecretEcho(id);
     const box = document.getElementById('modalBox');
     const wasSameEcho = box && box.dataset.echoId === String(id);
     const set = getSetById(Array.isArray(e.set) ? e.set[0] : e.set);
+    const secretOn = _secret.unlocked && String(_secret.echoId) === String(id);
+    const editing = secretOn && _secret.editing;
 
     const subRows = (e.subStats && e.subStats.length
       ? e.subStats.map((s, idx) => {
@@ -37,9 +170,15 @@ export function registerEchoBagActions({ renderBag }) {
                 rng.pct != null ? h('span', { style: `color:${rng.pct >= 66 ? 'var(--green)' : rng.pct >= 33 ? 'var(--gold)' : 'var(--muted)'}` }, ` · ${rng.pct}%`) : ''
               )
             : null;
+          const nameNode = editing
+            ? h('span', {
+                style: editNameStyle,
+                onPointerUp: (ev) => { ev.stopPropagation(); bagEchoEditSub(e.id, idx); },
+              }, s.label)
+            : h('span', { style: 'color:var(--muted)' }, s.label);
           return h('div', { style: 'border-bottom:1px dashed var(--line);padding:3px 0' },
             h('div', { style: 'display:flex;justify-content:space-between;align-items:center;font-size:11px' },
-              h('span', { style: 'color:var(--muted)' }, s.label),
+              nameNode,
               h('span', { style: 'display:flex;align-items:center;gap:6px' },
                 h('span', { style: 'color:var(--gold)' }, formatEchoStatValue(s.key, s.value)),
                 h('button', {
@@ -57,18 +196,84 @@ export function registerEchoBagActions({ renderBag }) {
 
     const canLevel = e.level < 25;
     const nextCost = canLevel ? echoToNext(e) : 0;
+    const mainNameNode = editing
+      ? h('span', {
+          style: editNameStyle,
+          onPointerUp: (ev) => { ev.stopPropagation(); bagEchoEditMain(e.id); },
+        }, e.mainStat?.label || '')
+      : h('span', null, e.mainStat?.label || '');
+
+    const picker = editing ? _secret.picker : null;
+    const pickerPanel = picker
+      ? h('div', {
+          style: 'margin:0 0 10px;padding:8px;border:1px solid var(--gold);border-radius:6px;background:rgba(0,0,0,.25)',
+        },
+          h('div', { style: 'display:flex;justify-content:space-between;align-items:center;margin-bottom:6px' },
+            h('div', { style: 'font-size:12px;color:var(--gold)' }, picker.title || '选择词条'),
+            h('button', {
+              class: 'mbtn',
+              style: 'font-size:10px;padding:1px 6px',
+              onClick: (ev) => {
+                ev.stopPropagation();
+                closePicker();
+                bagEchoDetail(id, _echoDetailFromRole);
+              },
+            }, '取消')
+          ),
+          h('div', {
+            style: 'max-height:220px;overflow-y:auto;display:flex;flex-direction:column;gap:4px',
+          },
+            (picker.options || []).map(opt => {
+              const active = opt.key === picker.currentKey;
+              return h('button', {
+                key: opt.key,
+                class: 'mbtn',
+                style: `text-align:left;font-size:12px;padding:6px 8px;width:100%${active ? ';border-color:var(--gold);color:var(--gold)' : ''}`,
+                disabled: active || undefined,
+                onClick: (ev) => {
+                  ev.stopPropagation();
+                  bagEchoPickStat(e.id, opt.key);
+                },
+              }, active ? `${opt.label} · 当前` : opt.label);
+            })
+          )
+        )
+      : null;
+
     openModal({
       title: `${e.name} · LV ${e.level} · COST ${e.cost}`,
-      keepScroll: wasSameEcho,
+      keepScroll: wasSameEcho && !picker,
       body: h('div', null,
-        h('div', { style: 'font-size:11px;color:var(--muted);margin-bottom:8px' }, `COST ${e.cost} · ${e.element} · ${set?.name || '无套装'}`),
+        h('div', { style: 'display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px' },
+          h('div', { style: 'font-size:11px;color:var(--muted);flex:1;min-width:0' },
+            h('span', {
+              style: 'user-select:none;cursor:default;padding:2px 4px 2px 0',
+              onPointerUp: (ev) => { ev.stopPropagation(); bagEchoCostClick(e.id); },
+            }, `COST ${e.cost}`),
+            ` · ${e.element} · ${set?.name || '无套装'}`,
+            editing ? h('span', { style: 'color:var(--gold);margin-left:6px' }, '· 编辑中') : null
+          ),
+          secretOn
+            ? h('button', {
+                class: 'mbtn',
+                style: `font-size:10px;padding:2px 8px;flex-shrink:0${editing ? ';border-color:var(--gold);color:var(--gold)' : ''}`,
+                onClick: (ev) => { ev.stopPropagation(); bagEchoToggleEditMode(e.id); },
+              }, editing ? '完成' : '编辑')
+            : null
+        ),
+        pickerPanel,
         h('div', { style: 'font-size:11px;color:var(--muted);margin-bottom:4px' }, '主词条'),
         h('div', { style: 'display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid var(--line)' },
-          h('span', null, e.mainStat?.label || ''),
+          mainNameNode,
           h('span', { style: 'color:var(--gold)' }, e.mainStat ? formatEchoStatValue(e.mainStat.key, e.mainStat.value) : '')
         ),
         e.secondaryStat ? h('div', { style: 'display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid var(--line);margin-bottom:8px' },
-          h('span', null, e.secondaryStat.label || ''),
+          editing
+            ? h('span', {
+                style: editNameStyle,
+                onPointerUp: (ev) => { ev.stopPropagation(); bagEchoEditSecondary(e.id); },
+              }, e.secondaryStat.label || '')
+            : h('span', { style: 'color:var(--dim)' }, e.secondaryStat.label || ''),
           h('span', { style: 'color:var(--gold)' }, formatEchoStatValue(e.secondaryStat.key, e.secondaryStat.value))
         ) : h('div', { style: 'margin-bottom:8px' }),
         h('div', { style: 'font-size:11px;color:var(--muted);margin-bottom:4px' }, `副词条（${(e.subStats||[]).filter(s=>s.unlocked!==false).length}/${(e.subStats||[]).length}）`),
@@ -93,7 +298,7 @@ export function registerEchoBagActions({ renderBag }) {
         ...(!e.lock && !e.equippedBy ? [{ label: '分解', cls: '', fn: () => {
           bagEchoConfirmRecycle(id);
         } }] : []),
-        { label: '关闭', cls: '', fn: () => { } }
+        { label: '关闭', cls: '', fn: () => { bagEchoCloseDetail(); } }
       ]
     });
     if (box) box.dataset.echoId = String(id);

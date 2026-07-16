@@ -125,8 +125,9 @@ export function addEffect(target, effectType, n, battle, opts = {}) {
     target.debuffs.push(entry);
   }
   const before = entry.stacks;
-  const max = entry.maxStacks || def.maxStacks;
-  const wouldOverflow = before + n > max;
+  const max = entry.maxStacks ?? def.maxStacks;
+  const hasCap = Number.isFinite(max);
+  const wouldOverflow = hasCap && before + n > max;
 
   // 电磁效应溢出 → 转化为电磁爆发
   if (wouldOverflow && def.overflowTo) {
@@ -142,22 +143,30 @@ export function addEffect(target, effectType, n, battle, opts = {}) {
         };
         target.debuffs.push(burst);
       }
-      burst.stacks = Math.min(burst.maxStacks, burst.stacks + overflow);
+      const burstCap = Number.isFinite(burst.maxStacks) ? burst.maxStacks : Infinity;
+      burst.stacks = Math.min(burstCap, burst.stacks + overflow);
+      const burstLabel = Number.isFinite(burst.maxStacks)
+        ? `${burst.stacks}/${burst.maxStacks}`
+        : `${burst.stacks}`;
       battle?.log?.push({
         type: 'mechanic', src: opts.src || def.name,
-        msg: `${target.name} ${def.name}溢出 → ${burstDef.name} +${overflow}（${burst.stacks}/${burst.maxStacks}）`
+        msg: `${target.name} ${def.name}溢出 → ${burstDef.name} +${overflow}（${burstLabel}）`
       });
     }
   } else {
-    entry.stacks = Math.min(max, before + n);
+    entry.stacks = hasCap ? Math.min(max, before + n) : before + n;
   }
 
   entry.duration = opts.refreshDuration === false ? (entry.duration || def.duration) : def.duration;
 
   if (entry.stacks !== before) {
+    // 无上限效应（风蚀/光噪）只显示当前层，不拼 /Infinity
+    const stackLabel = hasCap
+      ? `${before} → ${entry.stacks}/${max}`
+      : `${before} → ${entry.stacks}`;
     battle?.log?.push({
       type: 'mechanic', src: opts.src || def.name,
-      msg: `${target.name} ${def.name} +${entry.stacks - before} 层（${before} → ${entry.stacks}/${max}）`
+      msg: `${target.name} ${def.name} +${entry.stacks - before} 层（${stackLabel}）`
     });
   }
 }

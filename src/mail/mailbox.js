@@ -53,27 +53,27 @@ export function isMailExpired(sendAt, today = S.today, def = null) {
 }
 
 /**
- * 清理过期 / 超容邮件。
- * - 过期：仅标记 purged，保留 delivered 键，避免再次投递
- * - 超 99：按发送时间从旧到新标记 purged（保留最新）
+ * 清理超容邮件 + 兼容旧存档的「过期永久 purged」。
+ * - 过期：不再永久 purged；可见性按当前日历实时算，回跳日期后可再看见
+ * - 超 99：仅对「当前日历下仍可见」的邮件，按发送时间从旧到新 purged（cap）
+ * - 旧存档 purgeReason==='expire'：清除 purged，改由 isMailExpired 判定
  */
 export function pruneMailbox(today = S.today) {
   const box = ensureMailbox();
   let changed = false;
 
-  for (const [id, meta] of Object.entries(box.delivered)) {
-    if (meta.purged) continue;
-    const at = resolveSendAt(id, meta);
-    const def = getMailDef(id);
-    if (at != null && isMailExpired(at, today, def)) {
-      meta.purged = true;
-      meta.purgeReason = 'expire';
+  // 兼容：以前把过期永久 purged 掉，时间回跳后邮箱会空；解冻 expire 标记
+  for (const meta of Object.values(box.delivered)) {
+    if (meta?.purged && meta.purgeReason === 'expire') {
+      delete meta.purged;
+      delete meta.purgeReason;
       changed = true;
     }
   }
 
+  // 容量：只对当前可见（未过期、未 cap 清）的邮件计数
   const active = Object.entries(box.delivered)
-    .filter(([, m]) => !m.purged)
+    .filter(([id, m]) => isVisibleMail(id, m, today))
     .map(([id, meta]) => ({ id, meta, at: resolveSendAt(id, meta) || 0 }))
     .sort((a, b) => a.at - b.at); // 旧 → 新
 
@@ -91,8 +91,9 @@ export function pruneMailbox(today = S.today) {
 function isVisibleMail(id, meta, today = S.today) {
   if (!meta || meta.purged) return false;
   const at = resolveSendAt(id, meta);
+  if (at == null || at > today) return false;
   const def = getMailDef(id);
-  if (at != null && isMailExpired(at, today, def)) return false;
+  if (isMailExpired(at, today, def)) return false;
   return true;
 }
 
@@ -120,7 +121,12 @@ export function getMailDef(id) {
   return MAIL_CATALOG.find(m => m.id === id) || null;
 }
 
-/** 按 S.today 投递到期邮件；返回新投递 id 列表（已剔除随即过期/超容清掉的） */
+/**
+ * 按日历投递 sendAt ≤ today 的邮件。
+ * - 已投递的不重复写（claimed / read 永久保留，时间来回跳不丢）
+ * - 即使当前已过有效期也写入 delivered：回跳到有效期内仍可再看见 / 已领状态仍在
+ * - 「新邮件」toast 只计当前可见且未领的
+ */
 export function deliverDueMails(today = S.today) {
   const box = ensureMailbox();
   pruneMailbox(today);
@@ -129,17 +135,6 @@ export function deliverDueMails(today = S.today) {
     if (box.delivered[mail.id]) continue;
     const at = mailSendAt(mail);
     if (at == null || at > today) continue;
-    // 投递时已过有效期则记一条 purged，避免日后重复尝试
-    if (isMailExpired(at, today, mail)) {
-      box.delivered[mail.id] = {
-        at,
-        deliveredOn: fmt(today),
-        read: false,
-        purged: true,
-        purgeReason: 'expire',
-      };
-      continue;
-    }
     box.delivered[mail.id] = {
       at,
       deliveredOn: fmt(today),
@@ -148,10 +143,10 @@ export function deliverDueMails(today = S.today) {
     newly.push(mail.id);
   }
   pruneMailbox(today);
-  // 超容清掉的新信不计入「收到 N 封」
+  // 仅当前可见且未领的算「收到新邮件」
   return newly.filter(id => {
-    const meta = box.delivered[id];
-    return meta && !meta.purged;
+    if (box.claimed[id]) return false;
+    return isVisibleMail(id, box.delivered[id], today);
   });
 }
 

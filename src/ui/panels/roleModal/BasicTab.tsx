@@ -7,16 +7,81 @@ interface BasicTabProps {
     hp: number;
     atk: number;
     def: number;
-    maxEnergy: number;
+    maxEnergy?: number;
     crate: number;
     cdmg: number;
     dodge?: number;
     resonanceBonus?: number;
+    normalBonus?: number;
+    skillBonus?: number;
+    heavyBonus?: number;
+    burstBonus?: number;
+    healBonus?: number;
+    elemAllBonus?: number;
+    elemBonus?: Record<string, number>;
+    element?: string;
+    defPierce?: number;
   };
   previewNote: string;
 }
 
+function pct(v: number | null | undefined, digits = 1): string {
+  if (v == null || !isFinite(v)) return '0.0%';
+  return (v * 100).toFixed(digits) + '%';
+}
+
+/** 官方共鸣效率面板 = 100% + 加成 */
+function resonancePct(bonus: number | null | undefined): string {
+  return (100 + (bonus || 0) * 100).toFixed(1) + '%';
+}
+
+function StatRow({ label, value, color }: { label: string; value: string; color?: string }) {
+  return (
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 8, minWidth: 0 }}>
+      <span style={{ color: 'var(--muted)', fontSize: 11, whiteSpace: 'nowrap' }}>{label}</span>
+      <b style={{ color: color || 'var(--text)', fontSize: 13, fontVariantNumeric: 'tabular-nums' }}>{value}</b>
+    </div>
+  );
+}
+
 export function BasicTab({ level, bp, stats, previewNote }: BasicTabProps) {
+  const elem = stats.element || '';
+  const elemBonus =
+    (stats.elemAllBonus || 0) +
+    (elem && stats.elemBonus ? (stats.elemBonus[elem] || 0) : 0);
+
+  // 与官方共鸣者属性表对齐的两列网格（至少覆盖官方条目）
+  const rows: Array<{ label: string; value: string; color?: string }> = [
+    { label: '生命', value: (stats.hp || 0).toLocaleString(), color: 'var(--green)' },
+    { label: '攻击', value: (stats.atk || 0).toLocaleString(), color: 'var(--red)' },
+    { label: '防御', value: (stats.def || 0).toLocaleString(), color: 'var(--blue)' },
+    { label: '暴击', value: pct(stats.crate), color: 'var(--gold)' },
+    { label: '暴击伤害', value: pct(stats.cdmg), color: 'var(--gold)' },
+    { label: '共鸣效率', value: resonancePct(stats.resonanceBonus), color: '#c39bff' },
+    // 模拟器暂无独立偏谐值养成，基础 100%（与官方面板一致显示）
+    { label: '偏谐值累积效率', value: '100.0%', color: 'var(--text)' },
+    { label: '共鸣技能伤害加成', value: pct(stats.skillBonus || 0) },
+    { label: '普攻伤害加成', value: pct(stats.normalBonus || 0) },
+    { label: '重击伤害加成', value: pct(stats.heavyBonus || 0) },
+    { label: '共鸣解放伤害加成', value: pct(stats.burstBonus || 0) },
+    { label: elem ? `${elem}伤害加成` : '属性伤害加成', value: pct(elemBonus), color: elemBonus > 0 ? 'var(--accent)' : undefined },
+  ];
+
+  // 有治疗加成时追加（治疗位）
+  if ((stats.healBonus || 0) > 0) {
+    rows.push({ label: '治疗加成', value: pct(stats.healBonus || 0), color: '#8de6a6' });
+  }
+  // 模拟器扩展：能量上限 / 闪避 / 防御穿透（官方面板没有，但战斗有用）
+  if (stats.maxEnergy != null) {
+    rows.push({ label: '能量上限', value: String(stats.maxEnergy), color: 'var(--accent)' });
+  }
+  if ((stats.dodge || 0) > 0) {
+    rows.push({ label: '闪避', value: pct(stats.dodge || 0, 0), color: '#8de6a6' });
+  }
+  if ((stats.defPierce || 0) > 0) {
+    rows.push({ label: '防御穿透', value: pct(stats.defPierce || 0), color: 'var(--red)' });
+  }
+
   return (
     <div>
       <div dangerouslySetInnerHTML={{ __html: previewNote }} />
@@ -33,25 +98,15 @@ export function BasicTab({ level, bp, stats, previewNote }: BasicTabProps) {
       </div>
 
       <div style={{ border: '1px solid var(--line)', borderRadius: 8, padding: '11px 13px', background: 'rgba(255,255,255,.02)' }}>
-        <div style={{ fontSize: 9, color: 'var(--muted)', letterSpacing: 2, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
-          面 板 属 性
+        <div style={{ fontSize: 9, color: 'var(--muted)', letterSpacing: 2, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 4 }}>
+          共 鸣 者 属 性
           <span title="最终值 = 基础 + 武器 + 声骸 + 共鸣链增益" style={{ color: 'var(--accent)', cursor: 'help', fontSize: 11 }}>ⓘ</span>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontSize: 12, color: 'var(--muted)', lineHeight: 1.8 }}>
-          <div>💚 生命 <b style={{ color: 'var(--green)', float: 'right' }}>{stats.hp.toLocaleString()}</b></div>
-          <div>⚔ 攻击 <b style={{ color: 'var(--red)', float: 'right' }}>{stats.atk.toLocaleString()}</b></div>
-          <div>🛡 防御 <b style={{ color: 'var(--blue)', float: 'right' }}>{stats.def.toLocaleString()}</b></div>
-          <div>⚡ 能量 <b style={{ color: 'var(--accent)', float: 'right' }}>{stats.maxEnergy}</b></div>
-          <div>✦ 暴击 <b style={{ color: 'var(--gold)', float: 'right' }}>{(stats.crate * 100).toFixed(1)}%</b></div>
-          <div>✦ 暴伤 <b style={{ color: 'var(--gold)', float: 'right' }}>{((stats.cdmg - 1) * 100).toFixed(0)}%</b></div>
-          <div>💨 闪避 <b style={{ color: '#8de6a6', float: 'right' }}>{((stats.dodge || 0) * 100).toFixed(0)}%</b></div>
-          <div>🎵 共鸣效率 <b style={{ color: '#c39bff', float: 'right' }}>{(100 + (stats.resonanceBonus || 0) * 100).toFixed(1)}%</b></div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px 16px' }}>
+          {rows.map((r) => (
+            <StatRow key={r.label} label={r.label} value={r.value} color={r.color} />
+          ))}
         </div>
-      </div>
-
-      <div style={{ marginTop: 10, padding: '9px 11px', border: '1px solid var(--line)', borderRadius: 8, background: 'rgba(141,230,166,.03)', fontSize: 11, color: 'var(--muted)', lineHeight: 1.6 }}>
-        <div style={{ color: 'var(--accent)', fontSize: 10, letterSpacing: 1, marginBottom: 3 }}>💡 闪避率</div>
-        敌方攻击时按此概率躲避。主C 18% / 副C 14% / 辅助 10% / 治疗 8%
       </div>
     </div>
   );

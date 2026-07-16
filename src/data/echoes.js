@@ -305,12 +305,19 @@ export const ECHO_SETS = [
   // ID 16 · 卡提希娅专属「流云逝尽之空」
   { id: 'cartethyia_wind', name: '流云逝尽之空', element: '气动',
     bonus2: { type: 'elem_dmg', value: 0.10, elem: '气动' },
-    bonus5: { type: 'cartethyia_wind_team', value: 0.15, extraSelf: 0.15, elem: '气动', cond: '添加风蚀效应时全队气动+15% / 自身额外+15%,持续4回合' } },
+    bonus5: {
+      type: 'cartethyia_wind_team', value: 0.15, extraSelf: 0.15, elem: '气动',
+      // 多效果条件型：cond 写全，formatSetBonus 只展示 cond，避免「类型 + 单一 %」歧义
+      cond: '为敌人添加风蚀效应时，全队气动伤害 +15%，自身气动伤害额外 +15%，持续 4 回合',
+    } },
 
   // ID 17 · 卡提希娅专属「愿戴荣光之旅」
   { id: 'cartethyia_glory', name: '愿戴荣光之旅', element: '气动',
     bonus2: { type: 'elem_dmg', value: 0.10, elem: '气动' },
-    bonus5: { type: 'cartethyia_glory_self', value: 0.30, crate: 0.10, elem: '气动', cond: '命中风蚀目标时自身暴击+10% / 气动+30%,持续2回合' } },
+    bonus5: {
+      type: 'cartethyia_glory_self', value: 0.30, crate: 0.10, elem: '气动',
+      cond: '攻击命中带有风蚀效应的敌人时，自身暴击 +10%、气动伤害 +30%，持续 2 回合',
+    } },
 
   // ID 18 · 布兰特专属「奔狼燎原之焰」
   { id: 'brant_burst', name: '奔狼燎原之焰', element: '热熔',
@@ -583,6 +590,13 @@ const SET_BONUS_TYPE_LABEL = {
 
 export function formatSetBonus(bonus) {
   if (!bonus || !bonus.type) return '';
+  // 条件型多效果（同时有 crate/valueAlt/extraSelf 等）已在 cond 写清数值；
+  // 再拼「类型 + 单一 %」会读成两套互相矛盾的数字（如「气动/暴击 +30%」）。
+  const multiValue = bonus.crate != null || bonus.cdmg != null
+    || bonus.valueAlt != null || bonus.valueSelf != null
+    || bonus.extraSelf != null || bonus.stacks != null;
+  if (bonus.cond && multiValue) return bonus.cond;
+
   const label = SET_BONUS_TYPE_LABEL[bonus.type];
   const prefix = label ? label(bonus) : bonus.type;
   const valueStr = bonus.flat ? `+${bonus.value} 点` : `+${(bonus.value * 100).toFixed(0)}%`;
