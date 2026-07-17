@@ -1276,73 +1276,67 @@ export const SKILL_HINTS = {
     forteDesc: '露帕的核心资源 <b class="term-resource">狼焰</b>（0-100）：<br>· <b class="term-normal">普攻</b>+10，<b class="term-skill">凶噬</b>+15，<b class="term-heavy">重击</b>+20，<b class="term-burst">共鸣解放</b>全满。<br>· 满 100 时共鸣技能替换为<b class="term-heavy">狼舞·决意·极</b>（atk×580% 热熔，视为共鸣解放伤害）。<br>· <b class="term-burst">共鸣解放</b>激活 <b class="term-resource">追猎</b>（全队热熔 +10%）与 <b class="term-resource">荣光</b>（全队无视热熔抗性，3 链 15%），持续 4 回合。<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>技能/重击攒狼焰，满 100 放狼舞·决意·极，解放开荣光，切主C。'
   },
 
-  // 2.5 · 弗洛洛（主C 湮灭 音感仪 · HP 核）— 乐声·谱曲终末·定音·指挥状态·赫卡忒
+  // 2.5 · 弗洛洛（主C 湮灭 音感仪 · ATK 核）— 乐声·谱曲终末·定音·指挥状态·赫卡忒
   '弗洛洛': {
     intro: '湮灭 · 音感仪 · 主C · 「乐声 · 谱曲终末 · 赫卡忒指挥」',
     hasHeavy: true,
     customLines: (stats, role) => {
       const tipAttr = s => s.replace(/&/g, '&amp;').replace(/'/g, '&#39;');
       const chain = role.chain || 0;
-      const hp = stats.hp;
+      const atk = stats.atk || 0;
 
-      // 官方基础招式与重世派生在模拟器中合并为一次按钮；1 链只强化这两个按钮。
       const c1RequiemMult = chain >= 1 ? 1.80 : 1;
-      const normalMult = 0.04 * c1RequiemMult;              // 亡与死的乐章 HP×4%（1链 ×1.80）
-      const skillMult  = 0.075 * c1RequiemMult;             // 永不消逝的梦呓 HP×7.5%（1链 ×1.80）
-      const heavyMult  = 0.09;                              // 普通重击 HP×9%
-      // 谱曲终末:HP×20% × (1 + 余响层数×0.60[2链×1.05]) × (1 + 0.80[3链 heavyDmg])
-      // 展示满 24 层余响时的伤害数值
-      const perLayer = chain >= 2 ? 1.05 : 0.60;
-      const dirgeBase = 0.20 * (chain >= 2 ? 1.75 : 1);
-      const dirgeHeavyBonus = chain >= 3 ? 1.80 : 1;  // 3 链 heavyDmg +80%
-      const dirgeFull = dirgeBase * (1 + 24 * perLayer) * dirgeHeavyBonus;
-      const hecastAutoMult = 0.12;
-      const hecastAugMult = 0.24 * (chain >= 6 ? 1.24 : 1);
-      const c6PhantomMult = 0.08;  // 6 链重世幻象 HP×8%
-      const varMult = 0.033;
+      const normalMult = 5.05 * c1RequiemMult;
+      const skillMult  = 4.64 * c1RequiemMult;
+      const c2 = chain >= 2 ? 1.75 : 1;
+      const dirgeBase = 6.6016 * c2;
+      const echoAdd = 0.30 * c2;
+      const dirgeFullMult = dirgeBase + 24 * echoAdd;
+      const dirgeHeavyBonus = chain >= 3 ? 1.80 : 1;
+      const hecastAutoMult = 0.56;
+      const hecastAugMult = 3.40 * (chain >= 6 ? 1.24 : 1);
+      const c6PhantomMult = 2.164;
+      const varMult = 2.02;
+      const varCmdMult = 5.96;
 
-      const normalDmg = Math.round(hp * normalMult);
-      const skillDmg  = Math.round(hp * skillMult);
-      const heavyDmg  = Math.round(hp * heavyMult);
-      const dirgeDmg  = Math.round(hp * dirgeFull);
-      const hecastAutoDmg = Math.round(hp * hecastAutoMult);
-      const hecastAugDmg  = Math.round(hp * hecastAugMult);
-      const c6PhantomDmg  = Math.round(hp * c6PhantomMult);
-      const varDmg    = Math.round(hp * varMult);
+      const normalDmg = Math.round(atk * normalMult);
+      const skillDmg  = Math.round(atk * skillMult);
+      const dirgeDmg  = Math.round(atk * dirgeFullMult * dirgeHeavyBonus);
+      const hecastAutoDmg = Math.round(atk * hecastAutoMult);
+      const hecastAugDmg  = Math.round(atk * hecastAugMult);
+      const c6PhantomDmg  = Math.round(atk * c6PhantomMult);
+      const varDmg    = Math.round(atk * varMult);
+      const varCmdDmg = Math.round(atk * varCmdMult);
 
       const normalTip = tipAttr(
-        `<b style="color:var(--gold)">普攻伤害公式（HP 核）</b><br>` +
-        `= 最大生命 <b>${hp}</b> × 4%${chain>=1?` × 1.80（1链）`:''} = <b style="color:var(--text)">${normalDmg}</b><br>` +
-        `命中后 +1 乐声 +3 余响`
+        `<b style="color:var(--gold)">普攻 · 亡与死的乐章</b><br>` +
+        `= 攻击 <b>${atk}</b> × 505%${chain>=1?` × 1.80（1链）`:''} = <b style="color:var(--text)">${normalDmg}</b><br>` +
+        `命中后 +1 乐声`
       );
       const skillTip = tipAttr(
-        `<b style="color:var(--gold)">共鸣技能伤害公式（HP 核）</b><br>` +
-        `= 最大生命 <b>${hp}</b> × 7.5%${chain>=1?` × 1.80（1链）`:''} = <b style="color:var(--accent)">${skillDmg}</b><br>` +
-        `命中后 +1 乐声 +5 余响`
-      );
-      const heavyTip = tipAttr(
-        `<b style="color:var(--gold)">普通重击伤害公式（HP 核）</b><br>` +
-        `= 最大生命 <b>${hp}</b> × 9% = <b style="color:var(--text)">${heavyDmg}</b><br>` +
-        `命中后 +1 乐声 +4 余响（乐声未满 6 时可用）`
+        `<b style="color:var(--gold)">共鸣技能 · 永不消逝的梦呓</b><br>` +
+        `= 攻击 <b>${atk}</b> × 464%${chain>=1?` × 1.80（1链）`:''} = <b style="color:var(--accent)">${skillDmg}</b><br>` +
+        `命中后 +1 乐声`
       );
       const dirgeTip = tipAttr(
-        `<b style="color:var(--gold)">谱曲终末伤害公式</b><br>` +
-        `= 最大生命 <b>${hp}</b> × 20%${chain>=2?` × 1.75（2链）`:''}<br>` +
-        `× (1 + 余响层数 × ${perLayer*100}%) · 满 24 层时 × ${(1 + 24 * perLayer).toFixed(1)}${chain>=3?` × 1.80（3链）`:''}<br>` +
-        `= <b style="color:#ff6b9d">${dirgeDmg}</b>（满余响时）<br>` +
-        `消耗全部 6 枚乐声，进入定音状态`
+        `<b style="color:var(--gold)">谱曲终末</b><br>` +
+        `= 攻击 <b>${atk}</b> ×（${dirgeBase.toFixed(4)} + 余响 × ${echoAdd.toFixed(4)}）` +
+        `${chain>=3?` × 1.80（3链）`:''}<br>` +
+        `满 24 层时倍率 ≈ ${(dirgeFullMult * dirgeHeavyBonus).toFixed(2)} = <b style="color:#ff6b9d">${dirgeDmg}</b><br>` +
+        `消耗全部 6 枚乐声与全部余响，进入定音状态`
       );
       const hecastTip = tipAttr(
         `<b style="color:var(--gold)">赫卡忒协同追击</b><br>` +
-        `弗洛洛普攻/技能/重击/变奏命中后触发,伤害类型继承弗洛洛本击<br>` +
-        `· 协同追击：HP × 12% = ${hecastAutoDmg}（+1 乐声 +2 余响）<br>` +
-        `· 强化追击：HP × 24%${chain>=6?` × 1.24（6链）`:''} = ${hecastAugDmg}（额外 +1 乐声 +3 余响）<br>` +
+        `弗洛洛普攻/技能/重击/变奏命中后触发，伤害类型继承本击<br>` +
+        `· 协同追击：攻击 × 56% = ${hecastAutoDmg}（+1 乐声 +1 余响）<br>` +
+        `· 强化追击：攻击 × 340%${chain>=6?` × 1.24（6链）`:''} = ${hecastAugDmg}（+1 乐声 +1 余响）<br>` +
         `每第 2 次协同后升级为强化`
       );
       const varTip = tipAttr(
-        `<b style="color:var(--gold)">变奏伤害公式（HP 核）</b><br>` +
-        `= 最大生命 <b>${hp}</b> × 3.3% = ${varDmg}<br>` +
-        `+1 乐声 +2 余响`
+        `<b style="color:var(--gold)">变奏 · 致命组歌</b><br>` +
+        `= 攻击 <b>${atk}</b> × 202% = ${varDmg}<br>` +
+        `指挥状态期间替换为永生组歌：攻击 × 596% = ${varCmdDmg}<br>` +
+        `+1 乐声`
       );
 
       return [
@@ -1350,33 +1344,33 @@ export const SKILL_HINTS = {
           icon: '⚔', name: '普攻 · 亡与死的乐章',
           nameHtml: '普攻 · <b class="term-skill">亡与死的乐章</b>', cost: '1 AP',
           color: 'var(--text)',
-          desc: `对主目标造成 <span class="tip" data-tip='${normalTip}'><b style="color:var(--text)">${normalDmg}</b> 点</span><b class="term-normal">湮灭伤害</b>。命中后获得 1 枚<b class="term-resource">乐声</b>、3 层<b class="term-resource">余响</b>。${chain>=1?'<br><span style="color:var(--gold)">[1 链]</span> 伤害倍率提升 80%。':''}${chain>=6?'<br><span style="color:var(--gold)">[6 链]</span> 施放时召唤赫卡忒施放重世幻象·赫卡忒追击，造成弗洛洛最大生命 <b>8%</b>（<b>'+c6PhantomDmg+'</b>）的湮灭伤害，并获得 8 层余响。':''}`
+          desc: `对主目标造成 <span class="tip" data-tip='${normalTip}'><b style="color:var(--text)">${normalDmg}</b> 点</span><b class="term-normal">湮灭伤害</b>。命中后获得 1 枚<b class="term-resource">乐声</b>。${chain>=1?'<br><span style="color:var(--gold)">[1 链]</span> 伤害倍率提升 80%。':''}${chain>=6?'<br><span style="color:var(--gold)">[6 链]</span> <b class="term-state">指挥状态</b>期间施放时，赫卡忒追加重世幻象追击，造成攻击 <b>216.4%</b>（<b>'+c6PhantomDmg+'</b>）的湮灭伤害，并获得 8 层余响。':''}`
         },
         {
           icon: '✦', name: '共鸣技能 · 永不消逝的梦呓',
           nameHtml: '共鸣技能 · <b class="term-skill">永不消逝的梦呓</b>', cost: '1 AP · CD 3 回合',
           color: 'var(--accent)',
-          desc: `对主目标造成 <span class="tip" data-tip='${skillTip}'><b style="color:var(--accent)">${skillDmg}</b> 点</span><b class="term-skill">湮灭伤害</b>。命中后获得 1 枚<b class="term-resource">乐声</b>、5 层<b class="term-resource">余响</b>。${chain>=1?'<br><span style="color:var(--gold)">[1 链]</span> 伤害倍率提升 80%。':''}${chain>=6?'<br><span style="color:var(--gold)">[6 链]</span> 施放时召唤赫卡忒施放重世幻象·赫卡忒追击。':''}`
+          desc: `对主目标造成 <span class="tip" data-tip='${skillTip}'><b style="color:var(--accent)">${skillDmg}</b> 点</span><b class="term-skill">湮灭伤害</b>。命中后获得 1 枚<b class="term-resource">乐声</b>。${chain>=1?'<br><span style="color:var(--gold)">[1 链]</span> 伤害倍率提升 80%。':''}${chain>=6?'<br><span style="color:var(--gold)">[6 链]</span> <b class="term-state">指挥状态</b>期间施放时，赫卡忒追加重世幻象追击。':''}`
         },
         {
           icon: '🎼', name: '谱曲终末（重击替换）', cost: '2 AP · CD 1 回合 · 需 6 乐声',
           color: '#ff6b9d',
-          desc: `乐声满 6 枚时，重击替换为谱曲终末。对主目标造成 <span class="tip" data-tip='${dirgeTip}'><b style="color:#ff6b9d">${dirgeDmg}</b> 点</span><b class="term-skill">湮灭范围伤害</b>。施放时消耗全部 6 枚乐声。每层<b class="term-resource">余响</b>使本次伤害倍率线性提升 60%（2 链为 105%）。施放后进入<b class="term-state">定音</b>状态。${chain>=2?'<br><span style="color:var(--gold)">[2 链]</span> 基础倍率提升 75%，余响增伤效果提升 75%，施放后获得 14 层余响。':''}${chain>=4?'<br><span style="color:var(--gold)">[4 链]</span> 施放时全队全属性伤害提升 20%，持续 4 回合。':''}`
+          desc: `乐声满 6 枚时，重击替换为谱曲终末。对主目标造成 <span class="tip" data-tip='${dirgeTip}'><b style="color:#ff6b9d">${dirgeDmg}</b> 点</span><b class="term-heavy">湮灭范围伤害</b>（满 24 层余响示意）。施放时消耗全部 6 枚乐声与全部余响。倍率 = 660.16% + 每层余响 30%（2 链两系数均 ×1.75）。施放后进入<b class="term-state">定音</b>状态。${chain>=2?'<br><span style="color:var(--gold)">[2 链]</span> 基础倍率与余响加点均提升 75%，施放后获得 14 层余响。':''}${chain>=4?'<br><span style="color:var(--gold)">[4 链]</span> 施放时全队全属性伤害提升 20%，持续 4 回合。':''}`
         },
         {
           icon: '⚡', name: '共鸣解放 · 往日深渊的圆舞曲', cost: '0 AP · 需定音状态',
           color: 'var(--gold)',
-          desc: `弗洛洛处于<b class="term-state">定音</b>状态时可施放，不消耗 AP。进入<b class="term-state">指挥状态</b>，持续 3 回合，期间弗洛洛暴击伤害提升 120% 并召唤<b class="term-resource">赫卡忒</b><span class="tip" data-tip='${hecastTip}'>协同追击</span>。${chain>=5?'<span style="color:var(--gold)">[5 链]</span> 指挥状态期间赫卡忒及弗洛洛受到的伤害降低 30%。':''}${chain>=6?'<span style="color:var(--gold)">[6 链]</span> 弗洛洛为登场角色时湮灭伤害加成提升 60%；为非登场角色时，目标受到赫卡忒和弗洛洛的伤害提升 40%。':''}`
+          desc: `弗洛洛处于<b class="term-state">定音</b>状态时可施放，不消耗 AP。进入<b class="term-state">指挥状态</b>，持续 3 回合，期间弗洛洛攻击提升 120% 并召唤<b class="term-resource">赫卡忒</b><span class="tip" data-tip='${hecastTip}'>协同追击</span>。登场时赫卡忒与弗洛洛共伤（同额，不替挡）。大招前不会召唤赫卡忒。${chain>=5?'<span style="color:var(--gold)">[5 链]</span> 指挥状态期间受到的伤害降低 30%。':''}${chain>=6?'<span style="color:var(--gold)">[6 链]</span> 指挥期间普攻/技能额外触发重世幻象（攻击 <b>216.4%</b> +8 余响）；登场湮灭伤害加成提升 60%；非登场时目标受到赫卡忒与弗洛洛的伤害提升 36%。':''}`
         },
         {
           icon: '🎵', name: '变奏入场 · 致命组歌', cost: '切换上场时触发',
           color: '#c39bff',
-          desc: `切换上场时，对主目标造成 <span class="tip" data-tip='${varTip}'><b style="color:var(--accent)">${varDmg}</b> 点</span><b class="term-variation">湮灭伤害</b>。获得 1 枚<b class="term-resource">乐声</b>、2 层<b class="term-resource">余响</b>。指挥状态期间，此变奏替换为永生组歌，伤害倍率提升至弗洛洛最大生命 6.6%。`
+          desc: `切换上场时，对主目标造成 <span class="tip" data-tip='${varTip}'><b style="color:var(--accent)">${varDmg}</b> 点</span><b class="term-variation">湮灭伤害</b>。获得 1 枚<b class="term-resource">乐声</b>。指挥状态期间，此变奏替换为永生组歌（攻击 × 596%）。`
         }
       ];
     },
     forteName: '余响 / 乐声',
-    forteDesc: '<span style="color:var(--gold);font-size:11px">▸ 共鸣回路 · 新世界狂想曲</span><br>· <b class="term-resource">乐声</b>（上限 6 枚）：满 6 枚时重击替换为<b class="term-heavy">谱曲终末</b>。<br>· <b class="term-resource">余响</b>（上限 24 层，指挥状态期间 36 层）：每层谱曲终末倍率 +60%（2 链 +105%），每层暴伤 +2.5%。<br>· <b class="term-state">定音</b>：谱曲终末后进入，解锁共鸣解放。<br>· <b class="term-state">指挥状态</b>（3 回合）：暴伤 +120%，召唤<b class="term-resource">赫卡忒</b>协同追击。'
+    forteDesc: '<span style="color:var(--gold);font-size:11px">▸ 共鸣回路 · 新世界狂想曲</span><br>· <b class="term-resource">乐声</b>（上限 6 枚）：满 6 枚时重击替换为<b class="term-heavy">谱曲终末</b>。<br>· <b class="term-resource">余响</b>（上限 24 层）：战斗开始 +10；赫卡忒每次攻击 +1；共鸣链额外层数。谱曲终末每层绝对 +30% 攻击倍率（2 链 ×1.75），施放后消耗全部余响；每层暴伤 +2.5%。不上场 3 回合后消散。<br>· <b class="term-state">定音</b>：谱曲终末后进入，解锁共鸣解放。<br>· <b class="term-state">指挥状态</b>（3 回合）：攻击 +120%，召唤<b class="term-resource">赫卡忒</b>协同追击。'
   },
 
   // 2.6 · 奥古斯塔（主C 导电 长刃）— 以众愿为冕 · HP 核

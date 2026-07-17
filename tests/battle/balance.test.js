@@ -155,6 +155,19 @@ describe('battle/balance', () => {
       expect(b.getAbyssTemperatureForVersion('3.4').hp).toBe(3.44);
     });
 
+    it('exposes HP absolute anchor so 3.4 mid-4 single boss is ~500-600万', () => {
+      expect(b.ABYSS_HP_ABS_ANCHOR).toBeCloseTo(2.15, 2);
+      // 3.4 中 4：floorBase 1.15 × tower 0.68 × temp 3.44 × 锚
+      const scale34_f4 = 1.15 * 0.68 * 3.44 * b.ABYSS_HP_ABS_ANCHOR;
+      const dragon = 953575 * scale34_f4;
+      expect(dragon).toBeGreaterThan(5_000_000);
+      expect(dragon).toBeLessThan(6_000_000);
+      // 中 1 燎照应低于中 4，约 400 万级
+      const mid1 = 833910 * 0.68 * 3.44 * b.ABYSS_HP_ABS_ANCHOR;
+      expect(mid1).toBeGreaterThan(3_800_000);
+      expect(mid1).toBeLessThan(4_600_000);
+    });
+
     it('returns nearest lower entry for patch versions not in table', () => {
       const t = b.getAbyssTemperatureForVersion('2.5');
       expect(t.v).toBe('2.5');

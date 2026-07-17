@@ -411,6 +411,7 @@
 
 - 来源：https://wiki.biligame.com/wutheringwaves/%E5%85%B1%E9%B8%A3%E8%80%85/%E5%BC%97%E6%B4%9B%E6%B4%9B
 - 抓取：2026-07-15
+- **伤害基数（官方）**：攻击 / ATK%（非最大生命）。判定见 [wiki-skill-mults/弗洛洛.scaling-note.md](wiki-skill-mults/弗洛洛.scaling-note.md)；individual 技能全文已于 2026-07-16 按 wiki 回填。
 
 | 标签 | 档数 | Lv10 表达式 | 合计% |
 |---|---:|---|---:|

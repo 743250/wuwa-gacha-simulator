@@ -529,6 +529,12 @@ input,select{font:inherit;color:inherit}
   opacity:.95;
 }
 .tip-term:hover{opacity:1}
+/* 技能文案里的裸数字公式 tip（与 .tip 同交互，样式更轻） */
+.tip-num{
+  display:inline;
+  border-bottom:1px dashed rgba(245,207,107,.45);
+  cursor:help;
+}
 .tip-pop{
   position:fixed;
   z-index:9999;

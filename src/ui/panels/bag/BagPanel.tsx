@@ -19,6 +19,7 @@ import { msg } from '../../services/toast.ts';
 import { openModal } from '../../../modal.js';
 import { renderWeaponDetail } from '../../render/weaponDetail.js';
 import { levelUpWeapon, levelUpWeaponMax, unequipWeapon, refineWeapon } from '../../../equip/actions.js';
+import { openRoleModal } from '../../render/roleModal.js';
 
 function openWeaponModal(name: string) {
   const weapon = S.weapons[name];
@@ -138,6 +139,48 @@ function PotionCard({ potion, have, canUse, stamina, staminaMax }: any) {
         <button class="mbtn gold" style={{ flex: 1, fontSize: 10, padding: 5 }} disabled={!canUse || useCountAll <= 0}
           onClick={() => usePotion(potion.id, useCountAll)}>{useLabelAll}</button>
       </div>
+    </div>
+  );
+}
+
+function RoleCard({ role }: any) {
+  const r = role.r || 0;
+  const stars = '★'.repeat(r);
+  const is5 = r === 5, is4 = r === 4;
+  const chain = role.chain || 0;
+  const spare = role.spare || 0;
+  const cardStyle = is5
+    ? { borderColor: 'rgba(245,207,107,.55)', background: 'radial-gradient(circle at 50% 30%,rgba(245,207,107,.18),transparent 70%),rgba(74,54,20,.15)', boxShadow: '0 0 18px rgba(245,207,107,.18) inset,0 4px 14px rgba(245,207,107,.18)' }
+    : is4
+    ? { borderColor: 'rgba(195,155,255,.5)', background: 'radial-gradient(circle at 50% 30%,rgba(195,155,255,.16),transparent 70%),rgba(51,35,90,.18)', boxShadow: '0 0 16px rgba(195,155,255,.16) inset,0 4px 12px rgba(195,155,255,.18)' }
+    : {};
+  const starColor = is5 ? 'var(--gold)' : is4 ? 'var(--purple)' : 'var(--accent)';
+  const nameColor = is5 ? 'var(--gold)' : is4 ? '#dbc6ff' : 'var(--text)';
+  const chainColor = chain >= 6 ? 'var(--gold)' : chain > 0 ? 'var(--accent)' : 'var(--muted)';
+  return (
+    <div class={`role r${r}`}
+      onClick={() => openRoleModal(role.n)}
+      style={{
+        cursor: 'pointer', position: 'relative', aspectRatio: '1',
+        border: '1px solid var(--line)', borderRadius: 10, padding: '8px 5px',
+        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 2,
+        ...cardStyle,
+      }}>
+      <div style={{
+        position: 'absolute', top: 4, right: 5, fontSize: 8, fontWeight: 700,
+        padding: '1px 5px', borderRadius: 5,
+        background: chain >= 6 ? 'rgba(245,207,107,.18)' : 'rgba(255,255,255,.06)',
+        color: chainColor, border: `1px solid ${chain >= 6 ? 'rgba(245,207,107,.35)' : 'var(--line2)'}`,
+      }}>+{chain}/6</div>
+      {spare > 0 && (
+        <div style={{ position: 'absolute', bottom: 4, left: 5, fontSize: 7, color: 'var(--accent)', fontWeight: 600 }}>频段 {spare}</div>
+      )}
+      {role.equipWeapon && (
+        <div style={{ position: 'absolute', top: 4, left: 5, fontSize: 8, fontWeight: 700, padding: '1px 5px', borderRadius: 5, background: 'rgba(100,220,140,.18)', color: 'var(--green)' }}>装</div>
+      )}
+      <div style={{ fontSize: 10, letterSpacing: '1px', textAlign: 'center', lineHeight: 1, color: starColor }}>{stars}</div>
+      <div style={{ fontSize: 10, fontWeight: 600, textAlign: 'center', letterSpacing: '.3px', lineHeight: 1.2, wordBreak: 'break-all', color: nameColor }}>{role.n}</div>
+      <div style={{ fontSize: 8, color: 'var(--muted)', textAlign: 'center' }}>LV {role.level || 1}</div>
     </div>
   );
 }
@@ -275,6 +318,18 @@ export function BagPanel() {
   const pendingBox = S.podcast?.pendingWeaponBox || 0;
   const pendingRefine = S.podcast?.pendingRefine || 0;
 
+  const roles = Object.values(S.roles || {})
+    .filter((o: any) => o && o.n && (o.owned || 0) > 0)
+    .sort((a: any, b: any) => {
+      const ra = b.r || 0, rb = a.r || 0;
+      if (ra !== rb) return ra - rb;
+      const ca = b.chain || 0, cb = a.chain || 0;
+      if (ca !== cb) return ca - cb;
+      const la = b.level || 0, lb = a.level || 0;
+      if (la !== lb) return la - lb;
+      return String(a.n || '').localeCompare(String(b.n || ''));
+    });
+
   const weapons = Object.entries(S.weapons || {}).sort((a: any, b: any) => {
     const ra = b[1].r || 0, rb = a[1].r || 0;
     if (ra !== rb) return ra - rb;
@@ -363,6 +418,17 @@ export function BagPanel() {
                   onClick={() => bagUseRefineStone()}>选择武器</button>
               </div>
             )}
+          </div>
+        </>
+      )}
+
+      {roles.length > 0 && (
+        <>
+          <div style={{ fontSize: 10, color: 'var(--muted)', letterSpacing: '2px', margin: '14px 0 6px' }}>
+            已 拥 有 角 色 ({roles.length})
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(85px,1fr))', gap: 6 }}>
+            {roles.map((role: any) => <RoleCard key={role.n} role={role} />)}
           </div>
         </>
       )}

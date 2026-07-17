@@ -228,13 +228,15 @@ export const DUNGEONS = [
     minLevel: 50, desc: '无铭探索者 · 剪心辑梦之影 · 60 波片'
   },
 
-  // ===== 2.6+ 新增 9 套（子代理未确认独立关卡，按套装归属配置）=====
+  // ===== 2.5 弗洛洛专属套 + 2.6+ 其余套 =====
+  // 失序彼岸之梦：2.5 与弗洛洛同期（能量上限0 + 梦魇·赫卡忒），勿标 2.6
   {
-    id: 'silent_lost_dream', type: 'echo', name: '无音区·失序彼岸之梦', cost: 60, version: '2.6',
+    id: 'silent_lost_dream', type: 'echo', name: '无音区·失序彼岸之梦', cost: 60, version: '2.5',
     enemies: ['梦魇·赫卡忒'],
     drops: { exp_super: 1, exp_high: 2, weapon_book: 6, astrite: 10, echo_set: 'lost_dream', echo_count: 1, echo_tuner: 1 },
     minLevel: 50, desc: '梦魇·赫卡忒 · 失序彼岸之梦 · 60 波片'
   },
+  // ===== 2.6+ 其余套 =====
   {
     id: 'silent_glory_forge', type: 'echo', name: '无音区·荣斗铸锋之冠', cost: 60, version: '2.6',
     enemies: ['伪作的神王'],

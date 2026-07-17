@@ -34,12 +34,9 @@ function EchoSlot({ id, idx, isSel, roleName, echos, getSetById }: any) {
   const isSelStyle = isSel ? 'var(--gold)' : borderColor;
 
   function handleClick() {
+    // 只切换选中槽；详情 / 换装走下方按钮，避免一点就弹详情
     selectEchoSlot(roleName, idx);
-    if (e) {
-      bagEchoDetail(e.id, true);
-    } else {
-      bagEchoOpenPicker(roleName, idx);
-    }
+    if (!e) bagEchoOpenPicker(roleName, idx);
   }
 
   return (
@@ -99,7 +96,7 @@ export function EchoTab({ roleName, preview, previewNote, slots, totalCost, cap,
           ))}
         </div>
         <div style={{ fontSize: 10, color: 'var(--muted)', textAlign: 'center', marginTop: 10 }}>
-          点击已装备槽位查看详情 · 点击空槽位装备 · COST 上限 {cap} · 持有 {echos.length} 个
+          点击槽位选中 · 空槽直接装备 · 已装槽用下方「换装/详情」· COST 上限 {cap} · 持有 {echos.length} 个
         </div>
       </div>
 

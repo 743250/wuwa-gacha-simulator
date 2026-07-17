@@ -18,6 +18,10 @@
  *   crystal_solvent?: number,
  *   standard_selector?: number,
  *   shell_credit?: number,
+ *   exp_high?: number,
+ *   weapon_book?: number,
+ *   stamina?: number,
+ *   podcast_exp?: number,
  * }} MailRewards */
 
 /**
@@ -40,6 +44,40 @@
  */
 export const MAIL_CATALOG = [
   // ── 1.0 开服期（Fandom Mail/* + 官方体验公告）──
+  {
+    // 预约里程碑全员答谢；档位文案按用户提供的官方口径；最终超 3000 万 → 全档合并发放
+    // Fandom 另记社媒武器箱 / 羁旅印章；印章无库存键，不进 rewards（正文档位仍照录）
+    id: 'mail_1_0_prereg_milestones',
+    date: '2024-05-23', category: 'reward',
+    title: '《鸣潮》预约及社媒关注里程碑达成！',
+    body:
+      '亲爱的漂泊者：\n\n' +
+      '感谢各位漂泊者的支持与期待，《鸣潮》预约人数已突破3000万！' +
+      '各档预约里程碑现已全部达成，相关答谢奖励将通过邮件一并发放，请查收附件。\n\n' +
+      '✦ 达成「500万预约」可解锁：贝币*80000\n' +
+      '✦ 达成「1000万预约」可解锁：高级共鸣促剂*10\n' +
+      '✦ 达成「1500万预约」可解锁：星声*200\n' +
+      '✦ 达成「2000万预约」可解锁：羁旅印章·启程*1\n' +
+      '✦ 达成「3000万预约」可解锁：唤声涡纹*20\n\n' +
+      '✦答谢附件：唤声涡纹*20、星声*200、高级共鸣促剂*10、贝币*80000\n\n' +
+      '感谢您对《鸣潮》一直以来的支持与理解！\n\n' +
+      '《鸣潮》项目组',
+    rewards: { lustrous: 20, astrite: 200, exp_high: 10, shell_credit: 80000 },
+    source: '用户提供预约档位口径 + Fandom Mail 预注册里程碑页 · 2024-05-23 · 全档合并；En Route/Rangers chest 不入 rewards',
+  },
+  {
+    // 官方社媒关注答谢（与 5/24 性能/体验公告同日）
+    id: 'mail_1_0_social_follower',
+    date: '2024-05-24', category: 'reward',
+    title: '《鸣潮》官方社媒现已上线',
+    body:
+      '亲爱的漂泊者：\n\n' +
+      '感谢您关注《鸣潮》官方社交媒体账号。请查收邮箱中的答谢奖励。\n\n' +
+      '✦答谢附件：星声*60\n\n' +
+      '《鸣潮》项目组',
+    rewards: { astrite: 60 },
+    source: 'Fandom Mail/Wuthering Waves Official Social Media Follower Rewards · 2024-05-24 · Astrite*60',
+  },
   {
     id: 'mail_1_0_experience_lustrous',
     date: '2024-05-24', category: 'apology',
@@ -166,6 +204,23 @@ export const MAIL_CATALOG = [
       '《鸣潮》项目组',
     rewards: { radiant: 10, forging: 5, crystal_solvent: 20 },
     source: 'TapTap 2024-06-02 致歉公告 + Fandom Mail/Official Apologies (2024-06-03) 三附件合一',
+  },
+  {
+    // 1.0 先约电台档期提前结束补偿（Fandom 英文正文 → 目录口吻中译）
+    id: 'mail_1_0_podcast_duration',
+    date: '2024-06-03', category: 'apology',
+    expiresOn: '2024-06-28',
+    title: '关于1.0版本「先约电台」活动时间调整的说明',
+    body:
+      '亲爱的漂泊者：\n\n' +
+      '因1.0版本活动时间调整，当前「先约电台」活动将提前于2024年6月27日03:59（服务器时间）结束。' +
+      '针对此次调整，我们将向漂泊者发放补偿：先约电台经验*10000。\n\n' +
+      '✦补偿内容：先约电台经验*10000\n' +
+      '✦领取条件：已解锁【先约电台】功能\n' +
+      '✦领取时限：至2024年6月28日05:59（UTC+8）\n\n' +
+      '《鸣潮》项目组',
+    rewards: { podcast_exp: 10000 },
+    source: 'Fandom Mail/Version 1.0 Pioneer Podcast Event Duration Ajdustments · 2024-06-03 · Podcast Experience*10000',
   },
   {
     // 6/2 公告：对声骸回收问题处理不妥善的追加补偿

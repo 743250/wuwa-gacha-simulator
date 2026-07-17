@@ -7,15 +7,15 @@
 //
 // 强度原则：
 //   - 稳定/实验固定低 scale，不跟版本涨
-//   - 危险区只抬生命（ABYSS_TEMPERATURE_TABLE.hp），攻防不跟版本
-//   - 塔/层基数压低，保证开服能清左塔领星声；后期靠血量筛练度
+//   - 危险区只抬生命（相对水温 × ABYSS_HP_ABS_ANCHOR），攻防不跟版本
+//   - 塔/层相对档位保留；绝对锚把中一对齐官方 160→550 万
 //
 // 活力：每角色 10 点；第 N 层耗 N；失败不扣；满星约需 3 队
 // 评星：★1 20 回合 / ★2 18 回合+均血70% / ★3 15 回合+均血70%
 import { S, DAY } from '../state.js';
 import { startEncounter, getCombatTeamNames } from '../battle/combat.js';
 import { flattenEnemies, currentVersion } from '../battle/dungeon.js';
-import { STAR_CRITERIA, getAbyssTemperatureForVersion, getAbyssEnvironment } from '../battle/balance.js';
+import { STAR_CRITERIA, getAbyssTemperatureForVersion, getAbyssEnvironment, ABYSS_HP_ABS_ANCHOR } from '../battle/balance.js';
 
 // 稳定区 4 关：满星合计 800 星声 → 4 × 200
 const STABLE_FLOORS = [
@@ -213,12 +213,14 @@ export function getAbyssFloorScale(info, today = S.today) {
 
   // 危险区设计：
   //   - 攻/防不跟版本涨（避免越打越肉又越痛）
-  //   - 只抬生命：跟 ABYSS_TEMPERATURE_TABLE.hp 走，逼版本练度换满星星声
-  //   - 塔/层基数压在较低档，开服也能清左塔领奖
+  //   - 只抬生命：相对水温 temp.hp × 绝对锚 ABYSS_HP_ABS_ANCHOR
+  //     （锚把 encore×塔压 对齐官方中一 160→550 万，见 balance.js）
+  //   - 塔/层相对档位保留：左 < 右 < 中；层间 +5%
   const temp = getAbyssTemperature(today);
   const core = floorBase * towerMult * bias;
+  const hpScale = core * temp.hp * ABYSS_HP_ABS_ANCHOR;
   return {
-    hp:  +(core * temp.hp).toFixed(3),
+    hp:  +hpScale.toFixed(3),
     atk: +core.toFixed(3),
     def: +core.toFixed(3),
     base: +core.toFixed(3),

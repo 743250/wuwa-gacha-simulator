@@ -2,7 +2,7 @@ import { h } from 'preact';
 import { S } from '../../../state.js';
 import { msg } from '../../services/toast.ts';
 import { openModal, closeModal } from '../../../modal.js';
-import { levelUpWeapon, levelUpWeaponMax, unequipWeapon, getEquippableWeapons, equipWeapon } from '../../../equip/actions.js';
+import { levelUpWeapon, levelUpWeaponMax, unequipWeapon, getEquippableWeapons, equipWeapon, refineWeapon } from '../../../equip/actions.js';
 import { bumpStateVersion } from '../../signals';
 
 interface WeaponTabProps {
@@ -10,7 +10,7 @@ interface WeaponTabProps {
   weaponType: string;
   wName: string | null;
   wInfo: string;
-  wObj: { level: number } | null;
+  wObj: { level: number; refine?: number; spareRefine?: number } | null;
   preview: boolean;
   weaponDetailHtml: string;
   weaponBook: number;
@@ -82,7 +82,25 @@ function doLevelUpWeaponMax(wName: string) {
   }
 }
 
+function doRefineWeapon(wName: string) {
+  const r = refineWeapon(wName);
+  if (r && 'refine' in r && r.ok !== false && (r as any).refine != null) {
+    msg(`${wName} 精炼 +1（现 R${(r as any).refine}）`, false);
+    bumpStateVersion();
+  } else {
+    msg((r as any)?.err || '无法精炼');
+  }
+}
+
 export function WeaponTab({ roleName, weaponType, wName, wInfo, wObj, preview, weaponDetailHtml, weaponBook, weaponNextCost }: WeaponTabProps) {
+  // 以存档实时字段为准（精炼/升级后 wObj 可能滞后一帧）
+  const live = wName ? S.weapons[wName] : null;
+  const level = live?.level ?? wObj?.level ?? 1;
+  const refine = live?.refine ?? wObj?.refine ?? 1;
+  const spare = live?.spareRefine ?? wObj?.spareRefine ?? 0;
+  const canRefine = !preview && !!wName && spare > 0 && refine < 5;
+  const canLevel = !preview && !!wName && level < 90;
+
   return (
     <div style={{ border: '1px solid var(--line)', borderRadius: 8, padding: '11px 13px', background: 'rgba(255,255,255,.02)' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 6 }}>
@@ -90,6 +108,12 @@ export function WeaponTab({ roleName, weaponType, wName, wInfo, wObj, preview, w
         <span style={{ fontSize: 10, padding: '2px 8px', border: '1px solid var(--line2)', color: 'var(--muted)', borderRadius: 999 }}>{weaponType}</span>
       </div>
       <div style={{ fontSize: 13, fontWeight: 700, color: wName ? 'var(--gold)' : 'var(--dim)' }}>{wInfo}</div>
+      {wName && !preview && (
+        <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 4 }}>
+          Lv {level}/90 · 精炼 R{refine}/5
+          {spare > 0 ? <span style={{ color: 'var(--accent)' }}> · 可精炼 +{spare}</span> : null}
+        </div>
+      )}
       {preview ? (
         <div style={{ fontSize: 10, color: 'var(--gold)', marginTop: 8 }}>未持有时仅显示适配武器类型。</div>
       ) : (
@@ -107,17 +131,23 @@ export function WeaponTab({ roleName, weaponType, wName, wInfo, wObj, preview, w
         {!preview && wName && (
           <button class="mbtn" onClick={() => doUnequipWeapon(roleName)}>卸下</button>
         )}
-        {!preview && wName && wObj && wObj.level < 90 && (
+        {canLevel && (
           <>
-            <button class="mbtn gold" onClick={() => doLevelUpWeapon(wName)}>
-              武器升级 ({weaponNextCost} 石)
+            <button class="mbtn gold" onClick={() => doLevelUpWeapon(wName!)}>
+              升级 ({weaponNextCost} 石)
             </button>
-            <button class="mbtn" onClick={() => doLevelUpWeaponMax(wName)}>升满</button>
+            <button class="mbtn" onClick={() => doLevelUpWeaponMax(wName!)}>升满</button>
           </>
+        )}
+        {canRefine && (
+          <button class="mbtn gold" onClick={() => doRefineWeapon(wName!)}>
+            精炼 +1（R{refine}→R{refine + 1}）
+          </button>
         )}
       </div>
       <div style={{ fontSize: 10, color: 'var(--muted)', textAlign: 'center', marginTop: 10 }}>
         武器石库存 <b style={{ color: 'var(--gold)' }}>{weaponBook}</b>
+        {wName && spare > 0 ? <> · 备用精炼 <b style={{ color: 'var(--accent)' }}>{spare}</b></> : null}
       </div>
     </div>
   );

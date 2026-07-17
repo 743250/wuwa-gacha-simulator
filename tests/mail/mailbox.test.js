@@ -78,10 +78,43 @@ describe('mail/mailbox · 核实目录', () => {
     expect(getMailDef('mail_1_0_official_apology_0525').date).toBe('2024-05-24');
   });
 
-  it('6/3 致歉为一封合并附件，非拆分', () => {
+  it('6/3 致歉为一封合并附件，非拆分；另有先约电台档期补偿', () => {
     const def = getMailDef('mail_1_0_official_apology_0603');
     expect(def.rewards).toEqual({ radiant: 10, forging: 5, crystal_solvent: 20 });
-    expect(MAIL_CATALOG.filter(m => m.date === '2024-06-03' && m.category === 'apology')).toHaveLength(1);
+    // 同日另有先约电台档期调整补偿（podcast_exp）
+    expect(MAIL_CATALOG.filter(m => m.date === '2024-06-03' && m.category === 'apology').map(m => m.id).sort())
+      .toEqual(['mail_1_0_official_apology_0603', 'mail_1_0_podcast_duration'].sort());
+  });
+
+  it('5/23 预约里程碑 + 5/24 社媒关注 + 6/3 电台经验可领', () => {
+    const pre = getMailDef('mail_1_0_prereg_milestones');
+    expect(pre.rewards).toEqual({ lustrous: 20, astrite: 200, exp_high: 10, shell_credit: 80000 });
+    expect(getMailDef('mail_1_0_social_follower').rewards).toEqual({ astrite: 60 });
+
+    S.today = date('2024-05-23');
+    S.shellCredit = 0;
+    S.materials.exp_high = 0;
+    deliverDueMails(S.today);
+    const r1 = claimMail('mail_1_0_prereg_milestones');
+    expect(r1.ok).toBe(true);
+    expect(S.lustrous).toBe(20);
+    expect(S.astrite).toBe(200);
+    expect(S.materials.exp_high).toBe(10);
+    expect(S.shellCredit).toBe(80000);
+
+    S.today = date('2024-05-24');
+    deliverDueMails(S.today);
+    const r2 = claimMail('mail_1_0_social_follower');
+    expect(r2.ok).toBe(true);
+    expect(S.astrite).toBe(260);
+
+    S.today = date('2024-06-03');
+    S.podcast = { version: '1.0', exp: 0, level: 0, paid: false, premium: false, claimedFree: [], claimedPaid: [], tasks: { daily: {}, weekly: {}, period: {} }, lastDailyReset: '', lastWeeklyReset: '' };
+    deliverDueMails(S.today);
+    const r3 = claimMail('mail_1_0_podcast_duration');
+    expect(r3.ok).toBe(true);
+    expect(S.podcast.level).toBe(10); // 10000 exp / 1000 per level
+    expect(S.podcast.exp).toBe(0);
   });
 
   it('声骸回收追加补偿贝币 100 万可领', () => {
@@ -127,42 +160,47 @@ describe('mail/mailbox · 核实目录', () => {
     expect(countUnreadMails()).toBeGreaterThan(0);
   });
 
-  it('超过 30 天有效期后不可见且不可领', () => {
+  it('超过默认有效期后该邮件不可见且不可领', () => {
     S.today = date('2024-05-24');
     deliverDueMails(S.today);
     expect(listInbox().some(m => m.id === 'mail_1_0_experience_lustrous')).toBe(true);
-    // 发送日 + 30 天起过期
-    S.today = date('2024-06-23');
+    // 发送日 + MAIL_VALID_DAYS 起过期
+    S.today = date('2024-05-24') + MAIL_VALID_DAYS * DAY;
     expect(listInbox().some(m => m.id === 'mail_1_0_experience_lustrous')).toBe(false);
     expect(claimMail('mail_1_0_experience_lustrous').ok).toBe(false);
     expect(S.lustrous).toBe(0);
   });
 
-  it('有效期内可领，过期后角标不计', () => {
+  it('有效期内可领，默认有效期过后该邮件不计入角标', () => {
     S.today = date('2024-05-24');
     deliverDueMails(S.today);
-    const before = countUnreadMails();
-    expect(before).toBeGreaterThan(0);
-    S.today = date('2024-06-23');
+    expect(countUnreadMails()).toBeGreaterThan(0);
+    // 只校验目标邮件从角标消失（同日其它带 expiresOn 的邮件可能仍可见）
+    S.today = date('2024-05-24') + MAIL_VALID_DAYS * DAY;
     pruneMailbox(S.today);
-    expect(countUnreadMails()).toBe(0);
+    const box = ensureMailbox();
+    expect(box.claimed['mail_1_0_experience_lustrous']).toBeFalsy();
+    expect(listInbox().some(m => m.id === 'mail_1_0_experience_lustrous')).toBe(false);
   });
 
   it('收件箱上限 99：最旧被清', () => {
     S.today = date('2024-05-24');
     const box = ensureMailbox();
-    // 塞 100 封伪造投递（旧 → 新）
+    // 只保留伪造投递，避免目录邮件抬高可见数
+    box.delivered = {};
     for (let i = 0; i < 100; i++) {
       const id = `fake_mail_${i}`;
       box.delivered[id] = {
-        at: date('2024-05-01') + i * DAY,
+        // 全部未过期（i 小时级间隔，均 ≤ today 且在 90 天内）
+        at: date('2024-05-24') - (99 - i) * (DAY / 24),
         deliveredOn: '2024-05-24',
         read: false,
       };
     }
     pruneMailbox(S.today);
-    const visible = Object.values(box.delivered).filter(m => !m.purged).length;
-    expect(visible).toBe(MAIL_INBOX_CAP);
+    // isVisibleMail 口径的可见数应被 cap 到 99
+    const active = Object.entries(box.delivered).filter(([id, m]) => !m.purged).length;
+    expect(active).toBe(MAIL_INBOX_CAP);
     expect(box.delivered.fake_mail_0.purged).toBe(true);
     expect(box.delivered.fake_mail_99.purged).toBeFalsy();
   });

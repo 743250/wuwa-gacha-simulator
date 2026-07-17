@@ -1285,7 +1285,7 @@ export const REGISTRY: Record<string, CharacterChains> = {
     {
       index: 6,
       effect: {"effect":"elemDmg","value":0.6,"element":"湮灭","label":"指挥状态时湮灭伤害 +60%"},
-      text: { name: "深夜，走出安息与终结", desc: "<b class=\"term-heavy\">强化追击·赫卡忒</b>伤害倍率提升 <b class=\"term-num\">24%</b>。施放<b class=\"term-normal\">普攻</b>或<b class=\"term-skill\">共鸣技能</b>时召唤<b class=\"term-resource\">赫卡忒</b>追击 <b class=\"term-num\">1</b> 次（造成弗洛洛最大生命 <b class=\"term-num\">8%</b> 的湮灭伤害），并获得 <b class=\"term-num\">8</b> 层<b class=\"term-resource\">余响</b>。<b class=\"term-state\">指挥状态</b>期间，弗洛洛为登场角色时湮灭伤害加成提升 <b class=\"term-num\">60%</b>；弗洛洛为非登场角色时，目标受到<b class=\"term-resource\">赫卡忒</b>和弗洛洛的伤害提升 <b class=\"term-num\">40%</b>。" },
+      text: { name: "深夜，走出安息与终结", desc: "<b class=\"term-heavy\">强化追击·赫卡忒</b>伤害倍率提升 <b class=\"term-num\">24%</b>。<b class=\"term-state\">指挥状态</b>期间施放<b class=\"term-normal\">普攻</b>或<b class=\"term-skill\">共鸣技能</b>时，赫卡忒追加重世幻象追击 <b class=\"term-num\">1</b> 次（造成弗洛洛攻击 <b class=\"term-num\">216.4%</b> 的湮灭伤害），并获得 <b class=\"term-num\">8</b> 层<b class=\"term-resource\">余响</b>。指挥状态期间，弗洛洛为登场角色时湮灭伤害加成提升 <b class=\"term-num\">60%</b>；弗洛洛为非登场角色时，目标受到<b class=\"term-resource\">赫卡忒</b>和弗洛洛的伤害提升 <b class=\"term-num\">36%</b>。" },
     }
     ],
   },

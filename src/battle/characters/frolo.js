@@ -1,49 +1,55 @@
 // 弗洛洛「乐声 / 谱曲终末 / 定音 / 指挥状态 / 赫卡忒」状态机
 //
-// HP 核 · 三段循环主C:攒乐声+余响 → 谱曲终末核爆 → 定音解锁解放 → 指挥状态赫卡忒共鸣。
+// ATK 核 · 三段循环主C:攒乐声+余响 → 谱曲终末核爆 → 定音解锁解放 → 指挥状态赫卡忒共鸣。
 //
 //   乐声 (0-6):普攻/技能/重击/变奏各+1,战斗开始+4。满6时重击替换为谱曲终末。
-//   余响 (0-24,指挥状态期间上限提升至 36):全动作积累,战斗开始+10。
-//          每层谱曲终末倍率+60%(2链+105%);每层暴伤+2.5%。
-//   谱曲终末:HP×20% AOE,消耗6乐声,基于余响增伤,进入定音。
+//   余响 (0-24):战斗开始+10;赫卡忒每次攻击+1;共鸣链描述额外层数(2链谱曲+14/6链幻象+8)。
+//          谱曲终末结算时消耗全部余响(倍率先按消耗前层数计算);不上场 3 回合后消散。
+//          谱曲终末:基倍 660.16% + 每层余响绝对 +30%(2 链两系数 ×1.75);每层暴伤+2.5%。
+//   谱曲终末:ATK 倍率 AOE,消耗6乐声,进入定音。
 //   定音:谱曲终末后进入,解锁共鸣解放(0AP)。
-//   指挥状态(3回合):解放后进入,暴击伤害+120%,弗洛洛自由行动,赫卡忒协同攻击+挡刀。
-//   赫卡忒:HP=弗洛洛HP,弗洛洛普攻/技能/重击/变奏命中时协同追击 HP×12%(+1乐声+2余响),
-//          每2次后升级为强化追击 HP×24%(+1乐声+3余响)。主人受伤优先由赫卡忒承担,
-//          overflow打主人;HP归零则消失,指挥状态立即结束。
+//   指挥状态(3回合):解放后进入,攻击 +120%,弗洛洛自由行动,赫卡忒协同攻击。
+//   赫卡忒:继承属性的召唤物。弗洛洛普攻/技能/重击/变奏命中时协同追击
+//          ATK×56%(+1乐声+1余响),每2次后升级为强化追击 ATK×340%(+1乐声+1余响;6链 ×1.24)。
+//   承伤(对齐官方口径,非挡刀):
+//          登场指挥时:赫卡忒与弗洛洛共伤——同额伤害同时扣双方(赫卡忒不替挡、不吸收)。
+//          非登场:赫卡忒不受伤(模拟器切人结束指挥,一般不触发)。
+//          指挥结束:3 回合尽 / 切人 / 弗洛洛倒下。
 //
 // 共鸣链:
 //   1链:合并后的亡与死的乐章/永不消逝的梦呓倍率+80%
-//   2链:谱曲终末倍率+75% + 余响增益效果+75%(每层+105%)+ 施放谱曲终末+14余响
+//   2链:谱曲终末倍率+75% + 余响加点效果+75% + 施放谱曲终末+14余响
 //   3链:谱曲终末伤害+80%(heavyDmg) + 强化追击命中目标攻击-20%(2回合)
 //   4链:施放谱曲终末时全队全属性伤害+20%(4回合)
-//   5链:指挥状态期间赫卡忒及弗洛洛受伤-30%(defense buff)
-//   6链:强化追击倍率+24% + 重世追击 HP×8% + 登场湮灭+60% / 非登场受伤+40%
+//   5链:指挥状态期间受伤-30%(弗洛洛与赫卡忒同挂 defense,共伤同额减)
+//   6链:强化追击倍率+24% + 指挥内普攻/技能重世幻象 ATK×216.4%(+8余响) + 登场湮灭+60% / 非登场受伤+36%
 
-import { registerSwitchOutHook } from '../switchHooks.js';
+import { registerSwitchOutHook, registerSwitchHook } from '../switchHooks.js';
 import { spawnSummon, removeSummon, damageSummon } from '../combat.js';
 import { calcDamage, dealDamage } from '../combat.js';
 
 const NOTES_MAX = 6;
 const ECHOES_MAX = 24;
-const ECHOES_MAX_IN_COMMAND = 36;
 const NOTES_START = 4;
 const ECHOES_START = 10;
-const ECHOES_PER_NOTE_BONUS = 0.60;
 const ECHOES_PER_LAYER_CDMG = 0.025;
+const ECHOES_OFF_FIELD_TURNS = 3;
 
-const NORMAL_HP_MULT = 0.04;
-const SKILL_HP_MULT = 0.075;
-const HEAVY_HP_MULT = 0.09;
-const DIRGE_HP_MULT = 0.20;
-const VARIATION_HP_MULT = 0.033;
-const VARIATION_COMMAND_MULT = 0.066;
+// 设计文档 §4 · 全部 ATK%
+const NORMAL_ATK_MULT = 5.05;           // 亡与死的乐章
+const SKILL_ATK_MULT = 4.64;            // 永不消逝的梦呓
+const VARIATION_ATK_MULT = 2.02;        // 致命组歌
+const VARIATION_COMMAND_MULT = 5.96;    // 永生组歌
+const DIRGE_BASE = 6.6016;              // 谱曲终末基倍
+const DIRGE_ECHO_ADD = 0.30;            // 每层余响绝对加点
 const C1_REQUIEM_MULT = 1.80;
+const C2_DIRGE_MULT = 1.75;
 
 const COMMAND_DURATION = 3;
-const COMMAND_CDMG_BONUS = 1.20;
-const HECASTE_AUTO_HP_MULT = 0.12;
-const HECASTE_AUGMENT_HP_MULT = 0.24;
+const COMMAND_ATK_BONUS = 1.20;
+const HECASTE_AUTO_ATK_MULT = 0.56;
+const HECASTE_AUGMENT_ATK_MULT = 3.40;
+const C6_PHANTOM_ATK_MULT = 2.164;
 
 // ── 状态查询 ──
 export function furoloNotes(self) {
@@ -85,6 +91,7 @@ export function furoloBattleStart(self, ctx) {
   self.furoloCommandTurns = 0;
   self.furoloHecateAttacks = 0;
   self.furoloHecateSummonId = null;
+  self.furoloEchoesOffFieldTurns = 0;
   furoloRefreshEchoesCdmgBuff(self, battle);
   if (self.forte) {
     self.forte.current = self.furoloEchoes;
@@ -108,22 +115,46 @@ export function furoloGainNotes(self, n, battle) {
   }
 }
 
-export function furoloGainEchoes(self, n, battle) {
+export function furoloGainEchoes(self, n, battle, reason) {
   if (self.name !== '弗洛洛') return;
-  const cap = furoloInCommand(self) ? ECHOES_MAX_IN_COMMAND : ECHOES_MAX;
   const before = self.furoloEchoes || 0;
-  self.furoloEchoes = Math.min(cap, before + n);
+  self.furoloEchoes = Math.min(ECHOES_MAX, before + n);
   if (self.forte) {
     self.forte.current = self.furoloEchoes;
     self.forte.ready = self.furoloEchoes >= ECHOES_MAX;
   }
   if (self.furoloEchoes !== before && battle) {
+    const gained = self.furoloEchoes - before;
     battle.log.push({
       type: 'mechanic', src: self.name,
-      msg: `余响 +${self.furoloEchoes - before}（${before} → ${self.furoloEchoes}/${cap}）`
+      msg: reason
+        ? `余响 +${gained} · ${reason}（${before} → ${self.furoloEchoes}/${ECHOES_MAX}）`
+        : `余响 +${gained}（${before} → ${self.furoloEchoes}/${ECHOES_MAX}）`
     });
   }
   furoloRefreshEchoesCdmgBuff(self, battle);
+}
+
+function furoloClearEchoes(self, battle, reason) {
+  if (self.name !== '弗洛洛') return;
+  const before = self.furoloEchoes || 0;
+  if (before <= 0) {
+    self.furoloEchoesOffFieldTurns = 0;
+    return;
+  }
+  self.furoloEchoes = 0;
+  self.furoloEchoesOffFieldTurns = 0;
+  if (self.forte) {
+    self.forte.current = 0;
+    self.forte.ready = false;
+  }
+  furoloRefreshEchoesCdmgBuff(self, battle);
+  if (battle) {
+    battle.log.push({
+      type: 'mechanic', src: self.name,
+      msg: `余响消散 · ${reason || '全部清除'}（${before} → 0/${ECHOES_MAX}）`
+    });
+  }
 }
 
 // ── 刷新余响暴伤 buff(每层+2.5%暴伤) ──
@@ -142,55 +173,50 @@ function furoloRefreshEchoesCdmgBuff(self, battle) {
   }
 }
 
-export function furoloHpCore(self, dmgType, opts = {}) {
+// ATK 核倍率 hooks
+export function furoloNormalMult(self) {
   if (self.name !== '弗洛洛') return null;
-  // 模拟器把重世派生合并进普攻/技能按钮。1 链只强化这两个按钮；
-  // explicitHpMult 用于赫卡忒/重世幻象等独立追击，必须排除，避免通用 skillDmg 泄漏。
-  const c1Requiem = self.chain >= 1
-    && !opts.explicitHpMult
-    && (dmgType === 'normal' || dmgType === 'skill')
-    ? C1_REQUIEM_MULT
-    : 1;
-  const mults = {
-    normal: NORMAL_HP_MULT * c1Requiem,
-    skill: SKILL_HP_MULT * c1Requiem,
-    heavy: HEAVY_HP_MULT,
-    burst: 0.16,
-    variation: furoloInCommand(self) ? VARIATION_COMMAND_MULT : VARIATION_HP_MULT
-  };
-  return {
-    baseStat: 'hpMax',
-    hpMultOverride: (opts.explicitHpMult || dmgType === 'burst') ? null : (mults[dmgType] ?? null)
-  };
+  return NORMAL_ATK_MULT * (self.chain >= 1 ? C1_REQUIEM_MULT : 1);
+}
+
+export function furoloSkillMult(self) {
+  if (self.name !== '弗洛洛') return null;
+  return SKILL_ATK_MULT * (self.chain >= 1 ? C1_REQUIEM_MULT : 1);
+}
+
+export function furoloVariationMult(self) {
+  if (self.name !== '弗洛洛') return null;
+  return furoloInCommand(self) ? VARIATION_COMMAND_MULT : VARIATION_ATK_MULT;
 }
 
 export function furoloOnNormalHit(self, battle) {
   if (self.name !== '弗洛洛') return;
   furoloGainNotes(self, 1, battle);
-  furoloGainEchoes(self, 3, battle);
-  if (furoloInCommand(self)) furoloHecateAssist(self, battle, 'normal');
-  if (self.chain >= 6) furoloC6EchoPhantom(self, battle);
+  // 赫卡忒协同 / 6 链重世幻象仅指挥状态(解放后)触发,大招前不出现
+  if (furoloInCommand(self)) {
+    furoloHecateAssist(self, battle, 'normal');
+    if (self.chain >= 6) furoloC6EchoPhantom(self, battle);
+  }
 }
 
 export function furoloOnSkillHit(self, battle) {
   if (self.name !== '弗洛洛') return;
   furoloGainNotes(self, 1, battle);
-  furoloGainEchoes(self, 5, battle);
-  if (furoloInCommand(self)) furoloHecateAssist(self, battle, 'skill');
-  if (self.chain >= 6) furoloC6EchoPhantom(self, battle);
+  if (furoloInCommand(self)) {
+    furoloHecateAssist(self, battle, 'skill');
+    if (self.chain >= 6) furoloC6EchoPhantom(self, battle);
+  }
 }
 
 export function furoloOnHeavyHit(self, battle) {
   if (self.name !== '弗洛洛') return;
   furoloGainNotes(self, 1, battle);
-  furoloGainEchoes(self, 4, battle);
   if (furoloInCommand(self)) furoloHecateAssist(self, battle, 'heavy');
 }
 
 export function furoloOnVariationHit(self, battle) {
   if (self.name !== '弗洛洛') return;
   furoloGainNotes(self, 1, battle);
-  furoloGainEchoes(self, 2, battle);
   if (furoloInCommand(self)) furoloHecateAssist(self, battle, 'skill');
 }
 
@@ -216,17 +242,18 @@ export function furoloOnVariation(self, ctx) {
   furoloOnVariationHit(self, ctx.battle);
 }
 
-// ── 6 链重世幻象追击(普攻第3段/技能后召唤赫卡忒追击 HP×8%) ──
+// ── 6 链重世幻象追击 ATK×216.4%（仅指挥状态,与赫卡忒同窗） ──
 function furoloC6EchoPhantom(self, battle) {
   if (self.chain < 6) return;
+  if (!furoloInCommand(self)) return;
   const target = battle.enemies.find(e => e.alive);
   if (!target) return;
-  const { dmg } = calcDamage(self, target, 0.08, 'skill', { explicitHpMult: true });
+  const { dmg } = calcDamage(self, target, C6_PHANTOM_ATK_MULT, 'skill');
   const real = dealDamage(target, dmg);
-  furoloGainEchoes(self, 8, battle);
+  furoloGainEchoes(self, 8, battle, '6 链 · 重世幻象');
   battle.log.push({
     type: 'mechanic', src: self.name,
-    msg: `6 链 · 重世幻象 · 赫卡忒追击 HP×8%（${real} 伤害）`
+    msg: `6 链 · 重世幻象 · 赫卡忒追击 攻击×216.4%（${real} 伤害）`
   });
 }
 
@@ -242,31 +269,37 @@ export function furoloResolveHeavy(self, battle) {
   };
 }
 
-// 谱曲终末倍率:HP×20% × (1 + 余响层数 × 每层加成),2 链基础 +75% 且每层 +105%
+// 谱曲终末倍率:基倍 + 余响绝对加点;2 链基倍与余响加点均 ×1.75
 export function furoloDirgeMult(self) {
-  let baseMult = DIRGE_HP_MULT;
-  if (self.chain >= 2) baseMult *= 1.75;
-  const perLayer = self.chain >= 2 ? ECHOES_PER_NOTE_BONUS * 1.75 : ECHOES_PER_NOTE_BONUS;
+  const c2 = self.chain >= 2 ? C2_DIRGE_MULT : 1;
   const echoes = self.furoloEchoes || 0;
-  return baseMult * (1 + echoes * perLayer);
+  return (DIRGE_BASE * c2) + echoes * (DIRGE_ECHO_ADD * c2);
 }
 
-// 谱曲终末结算:消耗乐声,进入定音,2 链 +14 余响,4 链全队 +20%
+// 谱曲终末结算:消耗乐声与本击所用余响,进入定音;2 链再 +14 余响;4 链全队 +20%
+// 倍率已在 resolveHeavy 用消耗前余响算完,此处清空层数供下一循环重攒
 export function furoloExecuteDirge(self, battle) {
   if (self.name !== '弗洛洛') return;
-  const consumed = self.furoloNotes || 0;
+  const consumedNotes = self.furoloNotes || 0;
+  const consumedEchoes = self.furoloEchoes || 0;
   self.furoloNotes = 0;
   self.furoloDirge = true;
+  if (consumedEchoes > 0) {
+    furoloClearEchoes(self, battle, `谱曲终末消耗 ${consumedEchoes} 层`);
+  } else {
+    furoloRefreshEchoesCdmgBuff(self, battle);
+  }
   battle.log.push({
     type: 'mechanic', src: self.name,
-    msg: `谱曲终末 · 消耗 ${consumed} 乐声 · 进入定音状态(解锁共鸣解放)`
+    msg: `谱曲终末 · 消耗 ${consumedNotes} 乐声` +
+      (consumedEchoes > 0 ? ` · 消耗 ${consumedEchoes} 层余响` : '') +
+      ' · 进入定音状态(解锁共鸣解放)'
   });
   if (self.chain >= 2) {
-    const capBefore = furoloInCommand(self) ? ECHOES_MAX_IN_COMMAND : ECHOES_MAX;
-    furoloGainEchoes(self, 14, battle);
+    furoloGainEchoes(self, 14, battle, '2 链 · 谱曲终末');
     battle.log.push({
       type: 'mechanic', src: self.name,
-      msg: `2 链 · 谱曲终末额外 +14 余响（${self.furoloEchoes}/${capBefore}）`
+      msg: `2 链 · 谱曲终末额外 +14 余响（${self.furoloEchoes}/${ECHOES_MAX}）`
     });
   }
   // 4 链:全队全属性伤害 +20%(4回合)
@@ -302,8 +335,9 @@ export function furoloOnBurst(self, ctx) {
     removeSummon(battle, self.furoloHecateSummonId);
     self.furoloHecateSummonId = null;
   }
-  self.buffs = (self.buffs || []).filter(b => b.src !== '弗洛洛指挥状态');
-  self.buffs.push({ type: 'cdmgUp', value: COMMAND_CDMG_BONUS, duration: COMMAND_DURATION, src: '弗洛洛指挥状态', scope: 'self' });
+  self.buffs = (self.buffs || []).filter(b => b.src !== '弗洛洛指挥状态' && b.src !== '弗洛洛5链');
+  self.buffs.push({ type: 'atkUp', value: COMMAND_ATK_BONUS, duration: COMMAND_DURATION, src: '弗洛洛指挥状态', scope: 'self' });
+  // 5 链:指挥期间受伤 -30%;双方同挂,共伤后数值一致
   if (self.chain >= 5) {
     self.buffs.push({ type: 'defense', value: 0.30, duration: COMMAND_DURATION, src: '弗洛洛5链', scope: 'self' });
   }
@@ -328,7 +362,8 @@ export function furoloOnBurst(self, ctx) {
   self.furoloHecateSummonId = hecate.id;
   battle.log.push({
     type: 'mechanic', src: self.name,
-    msg: `指挥状态展开 · 持续 ${COMMAND_DURATION} 回合 · 暴击伤害 +120% · 赫卡忒召唤（HP ${hecate.hp}）`
+    msg: `指挥状态展开 · 持续 ${COMMAND_DURATION} 回合 · 攻击 +120% · 赫卡忒共伤协同` +
+      (self.chain >= 5 ? ' · 5 链受伤 -30%' : '')
   });
 }
 
@@ -343,15 +378,15 @@ export function furoloHecateAssist(owner, battle, dmgType) {
   if (!target) return;
   summon._attackCount = (summon._attackCount || 0) + 1;
   const isAugment = summon._attackCount % 2 === 0;
-  const mult = isAugment ? HECASTE_AUGMENT_HP_MULT : HECASTE_AUTO_HP_MULT;
+  const mult = isAugment ? HECASTE_AUGMENT_ATK_MULT : HECASTE_AUTO_ATK_MULT;
   const finalMult = isAugment && owner.chain >= 6 ? mult * 1.24 : mult;
-  const { dmg } = calcDamage(owner, target, finalMult, dmgType, { explicitHpMult: true });
+  const { dmg } = calcDamage(owner, target, finalMult, dmgType);
   const real = dealDamage(target, dmg);
   furoloGainNotes(owner, 1, battle);
-  furoloGainEchoes(owner, isAugment ? 3 : 2, battle);
+  furoloGainEchoes(owner, 1, battle, isAugment ? '赫卡忒强化追击' : '赫卡忒协同追击');
   battle.log.push({
     type: 'mechanic', src: '赫卡忒',
-    msg: `${isAugment ? '强化追击' : '协同追击'} · HP×${(finalMult*100).toFixed(1)}%（${real} 伤害）· 弗洛洛 +1 乐声 +${isAugment ? 3 : 2} 余响`
+    msg: `${isAugment ? '强化追击' : '协同追击'} · 攻击×${(finalMult * 100).toFixed(1)}%（${real} 伤害）· 弗洛洛 +1 乐声 +1 余响`
   });
   if (isAugment && owner.chain >= 3) {
     target.buffs = (target.buffs || []).filter(b => b.src !== '弗洛洛3链');
@@ -363,58 +398,79 @@ export function furoloHecateAssist(owner, battle, dmgType) {
   }
 }
 
-// ── 赫卡忒回合开始 hook(保留挡刀,不再自动攻击) ──
+// ── 赫卡忒回合开始 hook(不再自动攻击;协同由命中触发) ──
 function furoloHecateTurnStart(summon, battle) {
-  // 协同攻击改为由弗洛洛普攻触发(furoloOnNormalHit → furoloHecateAssist)
-  // 此处保留 hook 占位,不做任何攻击动作
+  // 协同攻击由 furoloOnNormalHit / Skill / Heavy / Variation → furoloHecateAssist
 }
 
-// ── 赫卡忒挡刀(主人受伤前拦截) ──
+// 共伤(非挡刀):登场时赫卡忒与弗洛洛同额受伤;返回全额让主人继续走 dealDamage
+// 官方:「赫卡忒受到攻击时弗洛洛会受到伤害」;非登场「赫卡忒不会受到伤害」
 function furoloHecateOnDamaged(summon, incomingDmg, battle) {
   if (!summon.alive) return incomingDmg;
+  const owner = battle?.team?.[summon.ownerIdx];
+  const isActive = !!(owner && battle.team?.[battle.active] === owner);
+  if (!isActive) {
+    // 非登场:赫卡忒不受伤,主人伤害照常(不挡)
+    return incomingDmg;
+  }
+  const hpBefore = summon.hp;
   const taken = damageSummon(summon, incomingDmg);
-  const overflow = incomingDmg - taken;
-  const owner = battle.team[summon.ownerIdx];
-  battle.log.push({
+  battle?.log.push({
     type: 'mechanic', src: '赫卡忒',
-    msg: `替主人挡刀 · 承担 ${taken} 伤害（HP ${summon.hp + taken} → ${summon.hp}）${overflow > 0 ? `· overflow ${overflow} 打主人` : ''}`
+    msg: `共伤 · 赫卡忒与弗洛洛同额承受 ${taken}（赫卡忒 HP ${hpBefore} → ${summon.hp}）`
   });
-  return overflow;
+  // 关键:不吸收,全额回传给主人
+  return incomingDmg;
 }
 
-// 赫卡忒死亡:指挥状态立即结束
+// 赫卡忒消散:清理引用;指挥回合仍可由 duration/切人结束
 function furoloHecateOnDeath(summon, battle) {
-  const owner = battle.team[summon.ownerIdx];
+  const owner = battle?.team?.[summon.ownerIdx];
   if (!owner) return;
-  owner.furoloCommandTurns = 0;
   owner.furoloHecateSummonId = null;
-  owner.buffs = (owner.buffs || []).filter(b => b.src !== '弗洛洛指挥状态' && b.src !== '弗洛洛5链');
   battle.log.push({
     type: 'mechanic', src: owner.name,
-    msg: '赫卡忒消散 · 指挥状态立即结束'
+    msg: '赫卡忒消散'
   });
 }
 
-// 切人退场:指挥状态结束,赫卡忒消失
+function furoloEndCommand(self, battle, reason) {
+  if (self?.name !== '弗洛洛') return;
+  if (self.furoloHecateSummonId) {
+    removeSummon(battle, self.furoloHecateSummonId);
+    self.furoloHecateSummonId = null;
+  }
+  self.furoloCommandTurns = 0;
+  self.buffs = (self.buffs || []).filter(b => b.src !== '弗洛洛指挥状态' && b.src !== '弗洛洛5链');
+  if (battle) {
+    battle.log.push({
+      type: 'mechanic', src: self.name,
+      msg: reason || '指挥状态结束'
+    });
+  }
+}
+
+// 切人退场:指挥状态结束,赫卡忒消失;开始余响 3 回合消散计时
 export function furoloSwitchOut({ from, battle }) {
   if (from?.name !== '弗洛洛') return;
-  if (!(from.furoloCommandTurns || 0)) return;
-  if (from.furoloHecateSummonId) {
-    removeSummon(battle, from.furoloHecateSummonId);
-    from.furoloHecateSummonId = null;
+  if ((from.furoloCommandTurns || 0) > 0) {
+    furoloEndCommand(from, battle, '切人退场 · 指挥状态结束 · 赫卡忒消散');
   }
-  from.furoloCommandTurns = 0;
-  from.buffs = (from.buffs || []).filter(b => b.src !== '弗洛洛指挥状态' && b.src !== '弗洛洛5链');
-  battle.log.push({
-    type: 'mechanic', src: from.name,
-    msg: '切人退场 · 指挥状态结束 · 赫卡忒消失'
-  });
+  if ((from.furoloEchoes || 0) > 0) {
+    from.furoloEchoesOffFieldTurns = ECHOES_OFF_FIELD_TURNS;
+    battle.log.push({
+      type: 'mechanic', src: from.name,
+      msg: `余响将于不上场 ${ECHOES_OFF_FIELD_TURNS} 回合后消散`
+    });
+  }
 }
 registerSwitchOutHook('弗洛洛', furoloSwitchOut);
 
 export function furoloSwitchIn({ to, battle }) {
   if (to?.name !== '弗洛洛') return;
+  to.furoloEchoesOffFieldTurns = 0;
 }
+registerSwitchHook('弗洛洛', furoloSwitchIn);
 
 // 指挥状态 tick:同步主人 commandTurns 与赫卡忒 duration
 export function furoloTick(self, battle) {
@@ -426,19 +482,42 @@ export function furoloTick(self, battle) {
   return null;
 }
 
+// 不上场时余响 3 回合消散;上场则重置计时
 export function furoloTurnCleanup(self, ctx) {
-  return furoloTick(self, ctx.battle);
+  const battle = ctx.battle;
+  furoloTick(self, battle);
+  if (self.name !== '弗洛洛') return null;
+  const isActive = battle.team?.[battle.active] === self;
+  if (isActive) {
+    self.furoloEchoesOffFieldTurns = 0;
+    return null;
+  }
+  if (!(self.furoloEchoes || 0)) {
+    self.furoloEchoesOffFieldTurns = 0;
+    return null;
+  }
+  if (!(self.furoloEchoesOffFieldTurns > 0)) {
+    self.furoloEchoesOffFieldTurns = ECHOES_OFF_FIELD_TURNS;
+  }
+  self.furoloEchoesOffFieldTurns -= 1;
+  if (self.furoloEchoesOffFieldTurns <= 0) {
+    furoloClearEchoes(self, battle, `不上场 ${ECHOES_OFF_FIELD_TURNS} 回合`);
+  } else if (battle) {
+    battle.log.push({
+      type: 'mechanic', src: self.name,
+      msg: `余响消散倒计时 ${self.furoloEchoesOffFieldTurns} 回合（当前 ${self.furoloEchoes}/${ECHOES_MAX}）`
+    });
+  }
+  return null;
 }
 
 // ── 徽章收集(战斗 UI 状态行) ──
-// 返回 badge 对象数组 { key, cls, icon, label, tip }，与 collectUnitBadges 协议一致
 export function furoloCollectBadges(self) {
   if (self.name !== '弗洛洛') return [];
   const out = [];
   const notes = self.furoloNotes || 0;
   const echoes = self.furoloEchoes || 0;
   const inCommand = (self.furoloCommandTurns || 0) > 0;
-  const echoesCap = inCommand ? ECHOES_MAX_IN_COMMAND : ECHOES_MAX;
   out.push({
     key: `frolo-notes-${self.name}`,
     cls: 'field', icon: '🎵',
@@ -448,8 +527,8 @@ export function furoloCollectBadges(self) {
   out.push({
     key: `frolo-echoes-${self.name}`,
     cls: 'crit', icon: '✦',
-    label: `余响 ${echoes}/${echoesCap}`,
-    tip: `<b>余响</b><br>弗洛洛奏回路资源。每层使谱曲终末倍率线性 +60%（2 链 +105%）；每层暴伤 +2.5%。指挥状态期间上限提升至 ${ECHOES_MAX_IN_COMMAND}。`
+    label: `余响 ${echoes}/${ECHOES_MAX}`,
+    tip: `<b>余响</b><br>弗洛洛奏回路资源。战斗开始 +10；赫卡忒每次攻击 +1；共鸣链额外层数。谱曲终末每层绝对 +30% 攻击倍率（2 链 ×1.75），施放后消耗全部余响；每层暴伤 +2.5%。不上场 ${ECHOES_OFF_FIELD_TURNS} 回合后消散。`
   });
   if (self.furoloDirge) {
     out.push({
@@ -464,7 +543,7 @@ export function furoloCollectBadges(self) {
       key: `frolo-cmd-${self.name}`,
       cls: 'atk', icon: '指挥',
       label: `指挥 ${self.furoloCommandTurns}回`, dur: self.furoloCommandTurns,
-      tip: '<b>指挥状态</b><br>共鸣解放后进入，持续 3 回合。弗洛洛暴击伤害 +120%，赫卡忒协同追击并挡刀。'
+      tip: '<b>指挥状态</b><br>共鸣解放后进入，持续 3 回合。弗洛洛攻击提升 120%，赫卡忒协同追击。登场时赫卡忒与弗洛洛共伤（同额，不挡刀）。'
     });
   }
   return out;
@@ -477,7 +556,9 @@ export default {
   echoes: furoloEchoes,
   inDirge: furoloInDirge,
   inCommand: furoloInCommand,
-  hpCore: furoloHpCore,
+  normalMult: furoloNormalMult,
+  skillMult: furoloSkillMult,
+  variationMult: furoloVariationMult,
   canHeavy: furoloCanHeavy,
   canBurst: furoloCanBurstAction,
   battleStart: furoloBattleStart,

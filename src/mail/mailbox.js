@@ -6,6 +6,7 @@ import { S, DAY, date, fmt } from '../state.js';
 import { phases } from '../data/phases.js';
 import { MAIL_CATALOG, MAIL_SENDER_DEFAULT, RECIPROCAL_STANDARD_OPTIONS } from '../data/mails.js';
 import { addRole } from '../gacha/core.js';
+import { addExp as addPodcastExp } from '../podcast/core.js';
 
 /** 邮件默认有效期（天），自发送日起算；约三个月 */
 export const MAIL_VALID_DAYS = 90;
@@ -243,6 +244,10 @@ function applyRewards(rewards) {
     S.materials = S.materials || {};
     S.materials.weapon_book = (S.materials.weapon_book || 0) + rewards.weapon_book;
     lines.push(`武器石 ×${rewards.weapon_book}`);
+  }
+  if (rewards.podcast_exp) {
+    addPodcastExp(rewards.podcast_exp);
+    lines.push(`先约电台经验 ×${rewards.podcast_exp}`);
   }
   return lines;
 }

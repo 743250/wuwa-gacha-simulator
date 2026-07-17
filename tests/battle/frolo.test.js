@@ -1,5 +1,5 @@
 // 弗洛洛状态机逻辑测试
-// 验证：乐声/余响积累 → 谱曲终末 → 定音 → 解放(0AP) → 指挥状态 → 赫卡忒召唤/挡刀/死亡退出
+// 验证：乐声/余响积累 → 谱曲终末 → 定音 → 解放(0AP) → 指挥状态 → 赫卡忒召唤/共伤/协同
 import { describe, it, expect, beforeAll, beforeEach } from 'vitest';
 import { S } from '../../src/state.js';
 import { resetState, quickBattle, firstEnemy } from '../helpers.js';
@@ -58,16 +58,42 @@ describe('battle/characters/frolo — 弗洛洛状态机', () => {
     });
   });
 
-  // ===== 普攻：+1 乐声 +3 余响 =====
+  // ===== 普攻：+1 乐声（不叠余响） =====
   describe('普攻命中', () => {
-    it('普攻后乐声 +1, 余响 +3', () => {
+    it('普攻后乐声 +1, 余响不变', () => {
       const battle = quickBattle();
       const f = getFurolo(battle);
       const notesBefore = f.furoloNotes;
       const echoesBefore = f.furoloEchoes;
       combat.doAttack(battle, firstEnemy(battle));
       expect(f.furoloNotes).toBe(notesBefore + 1);
-      expect(f.furoloEchoes).toBe(echoesBefore + 3);
+      expect(f.furoloEchoes).toBe(echoesBefore);
+    });
+
+    it('C0/C5 普攻日志只有乐声、无余响获得', () => {
+      const battle = quickBattle();
+      const f = getFurolo(battle);
+      f.chain = 5;
+      const beforeLen = battle.log.length;
+      combat.doAttack(battle, firstEnemy(battle));
+      const msgs = battle.log.slice(beforeLen).map(e => e.msg || '').join('\n');
+      expect(msgs).toMatch(/乐声 \+1/);
+      expect(msgs).not.toMatch(/余响 \+/);
+      expect(f.furoloEchoes).toBe(10);
+    });
+
+    it('6 链大招前普攻：不加余响、不触发重世幻象', () => {
+      const battle = quickBattle();
+      const f = getFurolo(battle);
+      f.chain = 6;
+      const echoesBefore = f.furoloEchoes;
+      const beforeLen = battle.log.length;
+      combat.doAttack(battle, firstEnemy(battle));
+      expect(f.furoloEchoes).toBe(echoesBefore);
+      expect(battle.summons?.some(s => s.name === '赫卡忒' && s.alive)).toBeFalsy();
+      const msgs = battle.log.slice(beforeLen).map(e => e.msg || '').join('\n');
+      expect(msgs).not.toMatch(/重世幻象/);
+      expect(msgs).not.toMatch(/余响 \+/);
     });
 
     it('乐声上限 6（不会超过）', () => {
@@ -85,34 +111,100 @@ describe('battle/characters/frolo — 弗洛洛状态机', () => {
   });
 
   describe('1 链 · 亡与死的乐章 / 永不消逝的梦呓', () => {
-    it('只把合并后的普攻与技能 HP 倍率提升到 1.8 倍', () => {
+    it('只把合并后的普攻与技能 ATK 倍率提升到 1.8 倍', () => {
       const battle = quickBattle();
       const f = getFurolo(battle);
       f.chain = 1;
 
-      expect(frolo.furoloHpCore(f, 'normal').hpMultOverride).toBeCloseTo(0.04 * 1.8, 6);
-      expect(frolo.furoloHpCore(f, 'skill').hpMultOverride).toBeCloseTo(0.075 * 1.8, 6);
-      expect(frolo.furoloHpCore(f, 'heavy').hpMultOverride).toBeCloseTo(0.09, 6);
+      expect(frolo.furoloNormalMult(f)).toBeCloseTo(5.05 * 1.8, 6);
+      expect(frolo.furoloSkillMult(f)).toBeCloseTo(4.64 * 1.8, 6);
+      expect(frolo.furoloVariationMult(f)).toBeCloseTo(2.02, 6);
     });
 
-    it('赫卡忒与重世幻象的显式 HP 追击不吃 1 链加成', () => {
+    it('C0 普攻/技能为设计锚点 ATK 倍率', () => {
       const battle = quickBattle();
       const f = getFurolo(battle);
-      f.chain = 1;
-      expect(frolo.furoloHpCore(f, 'skill', { explicitHpMult: true }).hpMultOverride).toBeNull();
+      f.chain = 0;
+      expect(frolo.furoloNormalMult(f)).toBeCloseTo(5.05, 6);
+      expect(frolo.furoloSkillMult(f)).toBeCloseTo(4.64, 6);
     });
   });
 
-  // ===== 技能：+1 乐声 +5 余响 =====
+  describe('谱曲终末倍率（ATK 绝对加点）', () => {
+    it('C0 满 0 余响为 6.6016，每层 +0.30', () => {
+      const battle = quickBattle();
+      const f = getFurolo(battle);
+      f.chain = 0;
+      f.furoloEchoes = 0;
+      expect(frolo.furoloDirgeMult(f)).toBeCloseTo(6.6016, 4);
+      f.furoloEchoes = 10;
+      expect(frolo.furoloDirgeMult(f)).toBeCloseTo(6.6016 + 10 * 0.30, 4);
+    });
+  });
+
+  // ===== 技能：+1 乐声（不叠余响） =====
   describe('技能命中', () => {
-    it('技能后乐声 +1, 余响 +5', () => {
+    it('技能后乐声 +1, 余响不变', () => {
       const battle = quickBattle();
       const f = getFurolo(battle);
       const notesBefore = f.furoloNotes;
       const echoesBefore = f.furoloEchoes;
       combat.doSkill(battle, firstEnemy(battle));
       expect(f.furoloNotes).toBe(notesBefore + 1);
-      expect(f.furoloEchoes).toBe(echoesBefore + 5);
+      expect(f.furoloEchoes).toBe(echoesBefore);
+    });
+
+    it('C0/C5 技能日志只有乐声、无余响获得', () => {
+      const battle = quickBattle();
+      const f = getFurolo(battle);
+      f.chain = 5;
+      const beforeLen = battle.log.length;
+      combat.doSkill(battle, firstEnemy(battle));
+      const msgs = battle.log.slice(beforeLen).map(e => e.msg || '').join('\n');
+      expect(msgs).toMatch(/乐声 \+1/);
+      expect(msgs).not.toMatch(/余响 \+/);
+      expect(f.furoloEchoes).toBe(10);
+    });
+
+    it('6 链大招前技能：不加余响、不触发重世幻象', () => {
+      const battle = quickBattle();
+      const f = getFurolo(battle);
+      f.chain = 6;
+      const echoesBefore = f.furoloEchoes;
+      const beforeLen = battle.log.length;
+      combat.doSkill(battle, firstEnemy(battle));
+      expect(f.furoloEchoes).toBe(echoesBefore);
+      expect(battle.summons?.some(s => s.name === '赫卡忒' && s.alive)).toBeFalsy();
+      const msgs = battle.log.slice(beforeLen).map(e => e.msg || '').join('\n');
+      expect(msgs).not.toMatch(/重世幻象/);
+      expect(msgs).not.toMatch(/余响 \+/);
+    });
+  });
+
+  // ===== 6 链重世幻象仅指挥内 =====
+  describe('6 链 · 重世幻象门控', () => {
+    it('解放进指挥后普攻才触发重世幻象 +8 余响', () => {
+      const battle = quickBattle(null, [{ name: '飞廉之猩', scale: 5 }]);
+      const f = getFurolo(battle);
+      f.chain = 6;
+      combat.doAttack(battle, firstEnemy(battle));
+      combat.doAttack(battle, firstEnemy(battle));
+      combat.doHeavy(battle, firstEnemy(battle));
+      // 6 链含 2 链：谱曲清空后再 +14
+      expect(f.furoloEchoes).toBe(14);
+      combat.doBurst(battle);
+      expect(battle.summons.some(s => s.name === '赫卡忒' && s.alive)).toBe(true);
+      // 前序已耗尽本回合 AP，进入新回合再普攻
+      combat.endTurn(battle);
+      const echoesBefore = f.furoloEchoes;
+      const beforeLen = battle.log.length;
+      const r = combat.doAttack(battle, firstEnemy(battle));
+      expect(r.ok).toBe(true);
+      // 指挥内: 赫卡忒协同 +1 + 重世幻象 +8
+      expect(f.furoloEchoes).toBe(Math.min(24, echoesBefore + 1 + 8));
+      const msgs = battle.log.slice(beforeLen).map(e => e.msg || '').join('\n');
+      expect(msgs).toMatch(/余响 \+\d+ · 6 链 · 重世幻象/);
+      expect(msgs).toMatch(/6 链 · 重世幻象 · 赫卡忒追击/);
     });
   });
 
@@ -124,17 +216,19 @@ describe('battle/characters/frolo — 弗洛洛状态机', () => {
       expect(r.ok).toBe(false);
     });
 
-    it('满 6 乐声时重击变为谱曲终末, 消耗乐声, 进入定音', () => {
+    it('满 6 乐声时重击变为谱曲终末, 消耗乐声与余响, 进入定音', () => {
       const battle = quickBattle();
       const f = getFurolo(battle);
       // 凑 6 乐声: 开局 4 + 2 次普攻 = 6
       combat.doAttack(battle, firstEnemy(battle));
       combat.doAttack(battle, firstEnemy(battle));
       expect(f.furoloNotes).toBe(6);
+      expect(f.furoloEchoes).toBe(10); // 开战余响仍在
       // 重击 = 谱曲终末
       const r = combat.doHeavy(battle, firstEnemy(battle));
       expect(r.ok).toBe(true);
       expect(f.furoloNotes).toBe(0);
+      expect(f.furoloEchoes).toBe(0); // 谱曲终末消耗全部余响
       expect(f.furoloDirge).toBe(true);
     });
 
@@ -200,32 +294,27 @@ describe('battle/characters/frolo — 弗洛洛状态机', () => {
     });
   });
 
-  // ===== 赫卡忒挡刀 =====
-  describe('赫卡忒挡刀', () => {
-    it('弗洛洛受伤时由赫卡忒承担, overflow 才打弗洛洛', () => {
+  // ===== 赫卡忒共伤（非挡刀） =====
+  describe('赫卡忒共伤', () => {
+    it('登场指挥时同额伤害同时扣赫卡忒与弗洛洛', () => {
       const battle = quickBattle(null, [{ name: '飞廉之猩', scale: 1 }]);
       const f = getFurolo(battle);
-      // 进指挥状态
       combat.doAttack(battle, firstEnemy(battle));
       combat.doAttack(battle, firstEnemy(battle));
       combat.doHeavy(battle, firstEnemy(battle));
       combat.doBurst(battle);
       const hecate = battle.summons.find(s => s.name === '赫卡忒');
+      const dmg = 5000;
       const hecateHpBefore = hecate.hp;
       const furoloHpBefore = f.hp;
-      // 模拟敌人攻击弗洛洛: 直接调用 dealDamage
-      // 找一个能造成伤害的数值
-      const dmg = 5000;
       combat.dealDamage(f, dmg);
-      // 赫卡忒承担了伤害
-      expect(hecate.hp).toBeLessThan(hecateHpBefore);
-      // 弗洛洛未受伤（如果赫卡忒吃完了）
-      if (hecate.alive) {
-        expect(f.hp).toBe(furoloHpBefore);
-      }
+      // 共伤:双方都掉血,且掉血量相同(无5链)
+      expect(hecate.hp).toBe(Math.max(0, hecateHpBefore - dmg));
+      expect(f.hp).toBe(Math.max(0, furoloHpBefore - dmg));
+      expect(hecateHpBefore - hecate.hp).toBe(furoloHpBefore - f.hp);
     });
 
-    it('赫卡忒 HP 归零时死亡, 指挥状态立即结束', () => {
+    it('赫卡忒 HP 归零只消散召唤物,指挥不因此立刻结束', () => {
       const battle = quickBattle(null, [{ name: '飞廉之猩', scale: 1 }]);
       const f = getFurolo(battle);
       combat.doAttack(battle, firstEnemy(battle));
@@ -233,13 +322,16 @@ describe('battle/characters/frolo — 弗洛洛状态机', () => {
       combat.doHeavy(battle, firstEnemy(battle));
       combat.doBurst(battle);
       const hecate = battle.summons.find(s => s.name === '赫卡忒');
-      // 用超大伤害打死赫卡忒
-      combat.dealDamage(f, hecate.hp + 10000);
+      // 共伤同额:先单独把赫卡忒压到 1,再共伤 1,只杀赫卡忒
+      hecate.hp = 1;
+      const fBefore = f.hp;
+      combat.dealDamage(f, 1);
       expect(hecate.alive).toBe(false);
-      expect(f.furoloCommandTurns).toBe(0);
-      // 攻击 buff 已清除
+      expect(f.alive).toBe(true);
+      expect(f.hp).toBe(fBefore - 1);
+      expect(f.furoloCommandTurns).toBeGreaterThan(0);
       const atkBuff = (f.buffs || []).find(b => b.src === '弗洛洛指挥状态');
-      expect(atkBuff).toBeFalsy();
+      expect(atkBuff).toBeTruthy();
     });
   });
 
@@ -289,7 +381,7 @@ describe('battle/characters/frolo — 弗洛洛状态机', () => {
       S.roles['弗洛洛'].chain = 5;
     });
 
-    it('指挥状态期间弗洛洛和赫卡忒都获得 defense buff', () => {
+    it('指挥状态期间弗洛洛和赫卡忒都获得 defense buff, 共伤同减 30%', () => {
       // 用 scale:5 把 BOSS 拉厚,避免谱曲终末一击秒杀导致 burst 时已无目标
       const battle = quickBattle(null, [{ name: '飞廉之猩', scale: 5 }]);
       const f = getFurolo(battle);
@@ -304,6 +396,13 @@ describe('battle/characters/frolo — 弗洛洛状态机', () => {
       const hecate = battle.summons.find(s => s.name === '赫卡忒');
       const hDef = (hecate.buffs || []).find(b => b.src === '弗洛洛5链');
       expect(hDef).toBeTruthy();
+      const dmg = 1000;
+      const hBefore = hecate.hp;
+      const fBefore = f.hp;
+      combat.dealDamage(f, dmg);
+      const expected = Math.round(dmg * 0.7);
+      expect(hBefore - hecate.hp).toBe(expected);
+      expect(fBefore - f.hp).toBe(expected);
     });
   });
 
@@ -313,16 +412,15 @@ describe('battle/characters/frolo — 弗洛洛状态机', () => {
       S.roles['弗洛洛'].chain = 2;
     });
 
-    it('施放谱曲终末后 +14 余响', () => {
+    it('施放谱曲终末先清空余响, 再 +14 余响', () => {
       const battle = quickBattle(null, [{ name: '飞廉之猩', scale: 1 }]);
       const f = getFurolo(battle);
       combat.doAttack(battle, firstEnemy(battle));
       combat.doAttack(battle, firstEnemy(battle));
-      const echoesBeforeDirge = f.furoloEchoes;
+      expect(f.furoloEchoes).toBeGreaterThan(0);
       combat.doHeavy(battle, firstEnemy(battle));
-      // 2 链 +14 余响（受 24 上限 clamp）
-      const expected = Math.min(24, echoesBeforeDirge + 14);
-      expect(f.furoloEchoes).toBe(expected);
+      // 消耗全部后 2 链 +14
+      expect(f.furoloEchoes).toBe(14);
     });
   });
 
@@ -341,6 +439,54 @@ describe('battle/characters/frolo — 弗洛洛状态机', () => {
       expect(r.ok).toBe(true);
       expect(f.furoloCommandTurns).toBe(0);
       expect(battle.summons.length).toBe(0);
+    });
+  });
+
+  // ===== 赫卡忒攻击 +1 余响 =====
+  describe('赫卡忒余响', () => {
+    it('协同追击后余响 +1', () => {
+      const battle = quickBattle(null, [{ name: '飞廉之猩', scale: 1 }]);
+      const f = getFurolo(battle);
+      combat.doAttack(battle, firstEnemy(battle));
+      combat.doAttack(battle, firstEnemy(battle));
+      combat.doHeavy(battle, firstEnemy(battle));
+      combat.doBurst(battle);
+      const echoesBefore = f.furoloEchoes;
+      combat.endTurn(battle);
+      combat.doAttack(battle, firstEnemy(battle));
+      expect(f.furoloEchoes).toBe(Math.min(24, echoesBefore + 1));
+    });
+  });
+
+  // ===== 不上场 3 回合余响消散 =====
+  describe('余响不上场消散', () => {
+    it('切人后第 3 个回合结束清零余响', () => {
+      const battle = quickBattle(null, [{ name: '飞廉之猩', scale: 1 }]);
+      const f = getFurolo(battle);
+      expect(f.furoloEchoes).toBe(10);
+      const r = combat.doSwitch(battle, 1);
+      expect(r.ok).toBe(true);
+      expect(f.furoloEchoesOffFieldTurns).toBe(3);
+      combat.endTurn(battle);
+      expect(f.furoloEchoes).toBe(10);
+      expect(f.furoloEchoesOffFieldTurns).toBe(2);
+      combat.endTurn(battle);
+      expect(f.furoloEchoes).toBe(10);
+      expect(f.furoloEchoesOffFieldTurns).toBe(1);
+      combat.endTurn(battle);
+      expect(f.furoloEchoes).toBe(0);
+      expect(f.furoloEchoesOffFieldTurns).toBe(0);
+    });
+
+    it('切回上场会重置消散计时', () => {
+      const battle = quickBattle(null, [{ name: '飞廉之猩', scale: 1 }]);
+      const f = getFurolo(battle);
+      combat.doSwitch(battle, 1);
+      combat.endTurn(battle);
+      expect(f.furoloEchoesOffFieldTurns).toBe(2);
+      combat.doSwitch(battle, 0);
+      expect(f.furoloEchoesOffFieldTurns).toBe(0);
+      expect(f.furoloEchoes).toBe(10);
     });
   });
 
@@ -368,11 +514,12 @@ describe('battle/characters/frolo — 弗洛洛状态机', () => {
 
     it('技能标题使用1链对应招式名并提供 tooltip 术语标签', () => {
       const entry = skillHints.SKILL_HINTS['弗洛洛'];
-      const lines = entry.customLines({ hp: 10000 }, { chain: 1 });
+      const lines = entry.customLines({ atk: 1000, hp: 10000 }, { chain: 1 });
       expect(lines[0].name).toContain('亡与死的乐章');
       expect(lines[0].nameHtml).toContain('term-skill');
       expect(lines[1].name).toContain('永不消逝的梦呓');
       expect(lines[1].nameHtml).toContain('term-skill');
+      expect(lines[0].desc).toMatch(/9090|攻击/);
     });
   });
 });

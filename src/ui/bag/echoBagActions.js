@@ -20,6 +20,8 @@ const _secret = {
   lastCostT: 0,
   // 词条选择器：null | { kind:'main'|'sub'|'secondary', subIdx?, options, currentKey }
   picker: null,
+  // 打开列表后短时忽略选项点击，避免触屏 pointerup→重绘→点穿第一项
+  pickerIgnoreUntil: 0,
 };
 function resetSecretSession() {
   _secret.echoId = null;
@@ -28,6 +30,7 @@ function resetSecretSession() {
   _secret.costClicks = 0;
   _secret.lastCostT = 0;
   _secret.picker = null;
+  _secret.pickerIgnoreUntil = 0;
 }
 function bindSecretEcho(id) {
   const sid = String(id);
@@ -85,48 +88,53 @@ export function registerEchoBagActions({ renderBag }) {
     _secret.picker = null;
   };
 
+  const openStatPicker = (id, picker) => {
+    _secret.picker = picker;
+    // 触屏：松手位置常落在新列表第一项上，短时忽略选项点击
+    _secret.pickerIgnoreUntil = Date.now() + 350;
+    bagEchoDetail(id, _echoDetailFromRole);
+  };
+
   const bagEchoEditMain = (id) => {
     if (!_secret.editing || String(_secret.echoId) !== String(id)) return;
     const listed = listEchoMainStatOptions(id);
     if (!listed.ok) { msg(listed.err); return; }
-    _secret.picker = {
+    openStatPicker(id, {
       kind: 'main',
       title: '选择主词条',
       options: listed.options,
       currentKey: listed.currentKey,
-    };
-    bagEchoDetail(id, _echoDetailFromRole);
+    });
   };
 
   const bagEchoEditSub = (id, idx) => {
     if (!_secret.editing || String(_secret.echoId) !== String(id)) return;
     const listed = listEchoSubStatOptions(id, idx);
     if (!listed.ok) { msg(listed.err); return; }
-    _secret.picker = {
+    openStatPicker(id, {
       kind: 'sub',
       subIdx: idx,
       title: '选择副词条',
       options: listed.options,
       currentKey: listed.currentKey,
-    };
-    bagEchoDetail(id, _echoDetailFromRole);
+    });
   };
 
   const bagEchoEditSecondary = (id) => {
     if (!_secret.editing || String(_secret.echoId) !== String(id)) return;
     const listed = listEchoSecondaryStatOptions(id);
     if (!listed.ok) { msg(listed.err); return; }
-    _secret.picker = {
+    openStatPicker(id, {
       kind: 'secondary',
       title: '选择第二主词条',
       options: listed.options,
       currentKey: listed.currentKey,
-    };
-    bagEchoDetail(id, _echoDetailFromRole);
+    });
   };
 
   const bagEchoPickStat = (id, key) => {
     if (!_secret.editing || String(_secret.echoId) !== String(id) || !_secret.picker) return;
+    if (Date.now() < (_secret.pickerIgnoreUntil || 0)) return;
     const e = S.echos.find(x => x.id === id || String(x.id) === String(id));
     if (!e) return;
     const p = _secret.picker;
@@ -163,6 +171,7 @@ export function registerEchoBagActions({ renderBag }) {
             );
           }
           const tuner = S.materials.echo_tuner || 0;
+          const canRetuneFree = editing;
           const rng = getSubStatRange(s.key, s.value);
           const rangeLine = rng
             ? h('div', { style: 'font-size:9px;color:var(--dim);text-align:right;line-height:1.3' },
@@ -173,7 +182,8 @@ export function registerEchoBagActions({ renderBag }) {
           const nameNode = editing
             ? h('span', {
                 style: editNameStyle,
-                onPointerUp: (ev) => { ev.stopPropagation(); bagEchoEditSub(e.id, idx); },
+                // 用 click 开列表，避免 pointerup 当帧重绘后点穿第一项
+                onClick: (ev) => { ev.stopPropagation(); bagEchoEditSub(e.id, idx); },
               }, s.label)
             : h('span', { style: 'color:var(--muted)' }, s.label);
           return h('div', { style: 'border-bottom:1px dashed var(--line);padding:3px 0' },
@@ -183,10 +193,14 @@ export function registerEchoBagActions({ renderBag }) {
                 h('span', { style: 'color:var(--gold)' }, formatEchoStatValue(s.key, s.value)),
                 h('button', {
                   class: 'mbtn',
-                  style: 'font-size:9px;padding:1px 5px',
-                  disabled: tuner < 1 || undefined,
-                  onClick: () => bagEchoRetune(e.id, idx)
-                }, '调谐')
+                  style: `font-size:9px;padding:1px 5px${canRetuneFree ? ';border-color:var(--gold);color:var(--gold)' : ''}`,
+                  // 必须传 true/false：`|| undefined` 在从禁用切到编辑免耗时可能清不掉 disabled
+                  disabled: !canRetuneFree && tuner < 1,
+                  onClick: (ev) => {
+                    ev.stopPropagation();
+                    bagEchoRetune(e.id, idx);
+                  },
+                }, canRetuneFree ? '调谐·免' : '调谐')
               )
             ),
             rangeLine
@@ -199,7 +213,7 @@ export function registerEchoBagActions({ renderBag }) {
     const mainNameNode = editing
       ? h('span', {
           style: editNameStyle,
-          onPointerUp: (ev) => { ev.stopPropagation(); bagEchoEditMain(e.id); },
+          onClick: (ev) => { ev.stopPropagation(); bagEchoEditMain(e.id); },
         }, e.mainStat?.label || '')
       : h('span', null, e.mainStat?.label || '');
 
@@ -271,7 +285,7 @@ export function registerEchoBagActions({ renderBag }) {
           editing
             ? h('span', {
                 style: editNameStyle,
-                onPointerUp: (ev) => { ev.stopPropagation(); bagEchoEditSecondary(e.id); },
+                onClick: (ev) => { ev.stopPropagation(); bagEchoEditSecondary(e.id); },
               }, e.secondaryStat.label || '')
             : h('span', { style: 'color:var(--dim)' }, e.secondaryStat.label || ''),
           h('span', { style: 'color:var(--gold)' }, formatEchoStatValue(e.secondaryStat.key, e.secondaryStat.value))
@@ -495,12 +509,14 @@ export function registerEchoBagActions({ renderBag }) {
   const bagEchoRetune = (id, idx) => {
     const e = S.echos.find(x => x.id === id);
     if (!e) return;
-    const r = retuneEchoSubStat(id, idx);
+    const free = _secret.editing && String(_secret.echoId) === String(id);
+    const r = retuneEchoSubStat(id, idx, free);
     if (!r.ok) { msg(r.err); return; }
     const key = e.subStats[idx].key;
     const rng = getSubStatRange(key, r.newVal);
     const pctTxt = rng && rng.pct != null ? `（区间 ${rng.minStr}~${rng.maxStr} · ${rng.pct}%）` : '';
-    msg(`${e.name} · ${r.label} 调谐：${formatEchoStatValue(key, r.oldVal)} → ${formatEchoStatValue(key, r.newVal)}${pctTxt}`, false);
+    const freeTag = free ? '（编辑免耗）' : '';
+    msg(`${e.name} · ${r.label} 调谐${freeTag}：${formatEchoStatValue(key, r.oldVal)} → ${formatEchoStatValue(key, r.newVal)}${pctTxt}`, false);
     bagEchoDetail(id, _echoDetailFromRole);
     renderBag();
     rerenderAll();

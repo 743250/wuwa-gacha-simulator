@@ -411,19 +411,20 @@ export function toggleEchoLock(echoId) {
 
 // 调谐：重 roll 单个已解锁副词条的数值（不换词条类型）
 // 官方机制：消耗 1 调谐器，词条类型不变，数值在 min~max 范围内重新随机
-export function retuneEchoSubStat(echoId, subIdx) {
+// free=true：隐藏编辑模式，不耗调谐器
+export function retuneEchoSubStat(echoId, subIdx, free = false) {
   const echo = S.echos.find(e => e.id === echoId);
   if (!echo) return { ok: false, err: '声骸不存在' };
   const sub = echo.subStats?.[subIdx];
   if (!sub) return { ok: false, err: '副词条不存在' };
   if (sub.unlocked === false) return { ok: false, err: '副词条未解锁' };
-  if ((S.materials.echo_tuner || 0) < 1) return { ok: false, err: '调谐器不足' };
+  if (!free && (S.materials.echo_tuner || 0) < 1) return { ok: false, err: '调谐器不足' };
   const def = SUB_STAT_POOL.find(s => s.key === sub.key);
   if (!def) return { ok: false, err: '词条定义缺失' };
-  S.materials.echo_tuner -= 1;
+  if (!free) S.materials.echo_tuner -= 1;
   const oldVal = sub.value;
   sub.value = randomStatValue(def);
-  return { ok: true, oldVal, newVal: sub.value, label: sub.label };
+  return { ok: true, oldVal, newVal: sub.value, label: sub.label, free: !!free };
 }
 
 // 隐藏编辑：可选词条列表（主/副/第二主）

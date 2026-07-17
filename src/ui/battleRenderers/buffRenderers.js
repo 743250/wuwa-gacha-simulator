@@ -260,15 +260,11 @@ export function collectEnemyBadges(e, b) {
     const arr = fn(e, b);
     if (Array.isArray(arr)) out.push(...arr);
   }
-  // 效应 / 历史侵蚀 debuff（敌人身上）
+  // 历史侵蚀 / 失序 debuff（敌人身上）
+  // 注意：type:'effect'（含 wind_erosion 等六种异常）已由 ENEMY_STATUS_EXTRACTORS.cartethyia
+  // 通过 getEffectStacks 统一渲染；此处禁止再扫一遍，否则会出现 🌪+☣ 双徽章。
   (e.debuffs || []).forEach(d => {
-    if (d.type === 'effect' && d.effect === 'wind_erosion' && (d.stacks || 0) > 0) {
-      out.push({
-        key: `we-${e.name}`, cls: 'debuff', icon: '☣',
-        label: `风蚀 ×${d.stacks}`, dur: d.duration,
-        tip: `<b>风蚀效应</b><br>${d.stacks} 层。气动异常，层数参与角色专属结算。`
-      });
-    }
+    if (d.type === 'effect') return;
     if (d.type === 'erosion') {
       out.push({
         key: `er-${e.name}-${d.element}`, cls: 'debuff', icon: '☣',

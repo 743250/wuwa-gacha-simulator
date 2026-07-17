@@ -282,25 +282,39 @@ function hideTip() {
   __tipSrc = null;
 }
 
+const TIP_SEL = '.tip[data-tip], .tip-term[data-tip], .tip-num[data-tip]';
+function isFinePointer() {
+  return !!(window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches);
+}
+function findTipTarget(el: EventTarget | null): HTMLElement | null {
+  const me = el as HTMLElement | null;
+  if (!me || !me.closest) return null;
+  return me.closest(TIP_SEL) as HTMLElement | null;
+}
+
 function bindTooltip() {
+  // 仅真正的鼠标悬停设备走 hover；触屏/混合指针只靠点按，避免“得像长按一样才出”
   document.body.addEventListener('mouseover', (e: Event) => {
-    const me = e.target as HTMLElement;
-    const t = me.closest && me.closest('.tip[data-tip], .tip-term[data-tip]');
+    if (!isFinePointer()) return;
+    const t = findTipTarget(e.target);
     if (!t) return;
-    showTipFrom(t as HTMLElement);
+    showTipFrom(t);
   });
-  // 手机/触摸：无稳定 hover，点一次打开、再点同节点或空白关闭
-  document.body.addEventListener('click', (e: Event) => {
-    const me = e.target as HTMLElement;
-    const t = me.closest && me.closest('.tip[data-tip], .tip-term[data-tip]');
+  // 点按：pointerup 比 click 更跟手（尤其 Android WebView）；同节点再点关闭
+  document.body.addEventListener('pointerup', (e: Event) => {
+    const pe = e as PointerEvent;
+    // 只处理主触点/主键，避免笔/右键干扰
+    if (pe.pointerType === 'mouse' && pe.button !== 0) return;
+    const t = findTipTarget(e.target);
     if (t) {
       if (__tipSrc === t && __tipEl && __tipEl.style.display !== 'none') {
         hideTip();
       } else {
-        showTipFrom(t as HTMLElement);
+        showTipFrom(t);
       }
       return;
     }
+    // 点空白关闭（不拦其它按钮）
     if (__tipSrc) hideTip();
   }, true);
   // 滚动时列表底部节点位移，同步重定位，避免气泡留在旧坐标/跑出视口
@@ -309,17 +323,13 @@ function bindTooltip() {
     else if (__tipEl) hideTip();
   }, true);
   document.body.addEventListener('mouseout', (e: Event) => {
-    const me = e.target as HTMLElement;
-    if (!me.closest) return;
-    const t = me.closest('.tip[data-tip], .tip-term[data-tip]');
+    if (!isFinePointer()) return;
+    const t = findTipTarget(e.target);
     if (!t) return;
     // 移入子节点不算离开
     const rel = (e as MouseEvent).relatedTarget as Node | null;
     if (rel && t.contains(rel)) return;
-    // 触摸设备上 mouseout 会立刻清掉 click 打开的 tip，只在指针设备上跟随离开关闭
-    if (window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
-      hideTip();
-    }
+    hideTip();
   });
   // 源节点被卸载(buff 消失/战斗结束/Preact 重渲染)时 mouseout 不触发,用 MutationObserver 兜底
   const obs = new MutationObserver(() => {
