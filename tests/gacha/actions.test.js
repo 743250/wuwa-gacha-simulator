@@ -9,7 +9,7 @@ vi.mock('../../src/save.js', () => ({ saveState: vi.fn() }));
 
 import { openModal } from '../../src/modal.js';
 import { showResult } from '../../src/ui/gacha/animation.js';
-import { doPullN, toFive } from '../../src/gacha/actions.js';
+import { doPullN, toFive, selectTarget } from '../../src/gacha/actions.js';
 import { activeBanners } from '../../src/gacha/core.js';
 
 // invariant:S.selected 必须为 null 或指向 activeBanners() 中的某个 banner
@@ -51,6 +51,23 @@ describe('gacha/actions', () => {
     expect(S.podcast.tasks.period.p_pull50).toBe(12);
     expect(S.podcast.tasks.period.p_pull200).toBe(12);
     expect(S.podcast.tasks.period.p_five).toBe(true);
+  });
+
+  it('新手池 selectTarget 写入 beginnerTarget,选定后 5★ 必得所选', () => {
+    Object.assign(S, state0());
+    setAnimating(false);
+    selectTarget('beginner', '鉴心');
+    expect(S.beginnerTarget).toBe('鉴心');
+    S.selected = 'beginner';
+    S.pity.beginner = 79;
+    S.astrite = 1_000_000;
+    const before = S.five;
+    doPullN(1, true);
+    expect(S.five).toBe(before + 1);
+    // 抽到的是所选目标(五星出自 target,不再随机 5 选 1)
+    const got = S.log[0];
+    expect(got.r).toBe(5);
+    expect(got.n).toBe('鉴心');
   });
 
   it('抽到下个五星会同步累计唤取与五星任务', () => {

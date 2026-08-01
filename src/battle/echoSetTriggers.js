@@ -7,8 +7,8 @@
 // 这里在动作命中后调用 fireEchoSetTrigger，根据当前角色激活的 5 件条件型套装 cond
 // 关键字匹配触发动作，给角色补足剩余 ×0.5 的元素伤害 buff（持续 3 回合 ≈ 官方 15 秒）。
 //
-// 只覆盖最常见、能稳定触发的 6 套（1.0 套装），其他依赖外部状态（dot/风蚀/光噪/暗涌）
-// 或复杂条件（在场每 1.5 秒/协同/治疗延奏下角色）的套装仍走 stats.js 折半估算。
+// 只覆盖最常见、能稳定触发的 6 套（1.0 元素套），条件对齐 encore-sets / echoes.js bonus5.cond。
+// 其他依赖外部状态（dot/风蚀/光噪/暗涌）或复杂条件的套装仍走 stats.js 折半估算。
 
 const TRIGGER_TURN_DURATION = 3; // 持续 3 回合 ≈ 官方 15 秒
 
@@ -17,14 +17,14 @@ import { getErosionStacks } from './combat/erosion.js';
 // cond 触发关键字 → 战斗事件名 映射
 // cond 文案参考 src/data/echoes.js 各套装 bonus5.cond
 const COND_TRIGGER_MAP = [
-  // 火套 fire 5件：技能命中后 持续15秒
+  // 火套 fire 5件：共鸣技能后 热熔+30% 持续15秒
   { match: /技能命中后.*持续/, event: 'skill_hit', elem: '热熔', stackable: false, setId: 'fire' },
-  // 风套 wind 5件：变奏入场后 持续15秒
+  // 风套 wind 5件：变奏入场后 气动+30% 持续15秒
   { match: /变奏入场后.*持续/, event: 'variation_in', elem: '气动', stackable: false, setId: 'wind' },
-  // 湮灭套 havoc 5件：使用解放后 持续15秒
-  { match: /使用解放后.*持续/, event: 'burst_cast', elem: '湮灭', stackable: false, setId: 'havoc' },
-  // 衍射套 spectro 5件：普攻命中 可叠2层
-  { match: /普攻命中.*可叠2层/, event: 'normal_hit', elem: '衍射', stackable: true, maxStacks: 2, setId: 'spectro' },
+  // 衍射套 spectro 5件：变奏入场后 衍射+30% 持续15秒（官方=浮星祛暗，与风套同触发）
+  { match: /变奏入场后.*持续/, event: 'variation_in', elem: '衍射', stackable: false, setId: 'spectro' },
+  // 湮灭套 havoc 5件：普攻或重击命中 湮灭+7.5% 可叠4层 持续15秒（官方=沉日劫明）
+  { match: /普攻或重击命中.*可叠4层/, event: 'normal_or_heavy_hit', elem: '湮灭', stackable: true, maxStacks: 4, setId: 'havoc' },
   // 冷凝套 frost 5件：普攻或重击命中 可叠3层
   { match: /普攻或重击命中.*可叠3层/, event: 'normal_or_heavy_hit', elem: '冷凝', stackable: true, maxStacks: 3, setId: 'frost' },
   // 雷套 thunder 5件：重击/技能命中 可叠2层 各持续15秒

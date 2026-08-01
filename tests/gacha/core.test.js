@@ -335,6 +335,25 @@ describe('gacha/core', () => {
       expect(result).toBe(null);
       expect(JSON.stringify(state)).toBe(before);
     });
+
+    it('beginner 目标已选(b.char)时必得所选,未选则仍 5 选 1 随机', () => {
+      const mk = (char) => {
+        const s = freshState();
+        s.pity.beginner = 79;
+        s.astrite = 1_000_000;
+        return { s, banner: { id: 'beginner', pool: 'beginner', char, weapon: null, fours: ['alto', 'bezio', 'lingyang'] } };
+      };
+      // 已选目标:5★ 必为所选
+      const { s: s1, banner: b1 } = mk('鉴心');
+      const out1 = core.pullOne(s1, b1, 'beginner', Math.random);
+      expect(out1.r).toBe(5);
+      expect(out1.n).toBe('鉴心');
+      // 未选目标:5★ 仍是 5 人之一(不越界)
+      const { s: s2, banner: b2 } = mk(null);
+      const out2 = core.pullOne(s2, b2, 'beginner', Math.random);
+      expect(out2.r).toBe(5);
+      expect(['维里奈', '卡卡罗', '安可', '凌阳', '鉴心']).toContain(out2.n);
+    });
   });
 
   // ===== Phase 3 步骤 C · 任务书 7.5 抽卡测试覆盖补充 =====

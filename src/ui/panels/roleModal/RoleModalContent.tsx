@@ -19,6 +19,7 @@ import { EchoTab } from './EchoTab';
 import { ChainTab } from './ChainTab';
 import { SkillTab } from './SkillTab';
 import { LevelupTab } from './LevelupTab';
+import { LoreTab } from './LoreTab';
 import { getRoleForModal, computeRoleStatsForModal, calcRoleBPForModal } from '../../../ui/render/rolePreview.js';
 import { getMeta } from '../../../battle/template.js';
 import { expToNext, weaponToNext } from '../../../battle/stats.js';
@@ -223,6 +224,10 @@ function renderTabContent(tabId: string, ctx: TabCtx) {
         materials={S.materials}
       />
     );
+  }
+
+  if (tabId === 'lore') {
+    return <LoreTab roleName={n} />;
   }
 
   return null;

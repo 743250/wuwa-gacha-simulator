@@ -4,6 +4,7 @@ import { msg } from '../../services/toast.ts';
 import { openModal, closeModal } from '../../../modal.js';
 import { levelUpWeapon, levelUpWeaponMax, unequipWeapon, getEquippableWeapons, equipWeapon, refineWeapon } from '../../../equip/actions.js';
 import { bumpStateVersion } from '../../signals';
+import { getWeaponArt } from '../../assets/index.ts';
 
 interface WeaponTabProps {
   roleName: string;
@@ -107,7 +108,12 @@ export function WeaponTab({ roleName, weaponType, wName, wInfo, wObj, preview, w
         <span style={{ fontSize: 9, color: 'var(--muted)', letterSpacing: 2 }}>装 备 武 器</span>
         <span style={{ fontSize: 10, padding: '2px 8px', border: '1px solid var(--line2)', color: 'var(--muted)', borderRadius: 999 }}>{weaponType}</span>
       </div>
-      <div style={{ fontSize: 13, fontWeight: 700, color: wName ? 'var(--gold)' : 'var(--dim)' }}>{wInfo}</div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 6 }}>
+        {wName && getWeaponArt(wName) ? (
+          <img class="weapon-icon-img" src={getWeaponArt(wName)} alt={wName} loading="lazy" />
+        ) : null}
+        <div style={{ fontSize: 13, fontWeight: 700, color: wName ? 'var(--gold)' : 'var(--dim)' }}>{wInfo}</div>
+      </div>
       {wName && !preview && (
         <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 4 }}>
           Lv {level}/90 · 精炼 R{refine}/5

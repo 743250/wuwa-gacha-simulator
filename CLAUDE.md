@@ -108,6 +108,7 @@ src/
     terms.js    ← 术语词典（tooltip 悬停）
     signals.ts  ← Preact signals 中心（stateVersion / tab signals）
     root.tsx    ← Preact 根（mountPreactRoot 挂载所有面板）
+    assets/     ← 美术/音频资源注册表（art.ts 图片映射 + audio.ts 音频管理器，骨架阶段数据为空，全部静默降级）
     panels/     ← Preact 组件目录（Phase 5: 原 ui2/panels/ 合并到此）
       gacha/    ← 唤取面板（GachaBanner / PullPanel / SidePanel 等）
       battle/   ← 战斗面板（BattleView / TeamRow / ActionBar 等）
@@ -263,8 +264,9 @@ src/
 | **encore.moe API** | ✅ 首选 | 完整角色/武器/敌人数据，无认证。`Base URL: https://api-v2.encore.moe/api/zh-Hans`。<br>踩坑：根路径返 Nuxt 空 HTML，必须加 `/api/`；武器键名大写 `Level/Value`、角色键名小写 `level/value`。已抓存档见 `docs/sources/characters/encore-full-data.json`、`docs/sources/weapons/encore-full-data.json` |
 | B站 wiki 渲染页 | ⚠️ 备选 | 单条查证 |
 | B站 wiki API | ⚠️ 限速 | 2-3 次后 HTTP 567 封禁数小时；武器索引页约 20 把类型错误，不可作校准源 |
-| 库街区 API | ❌ | 需认证，2026-06 起 `getEntryDetail`/`getPage` 都拒公开访问 |
+| 库街区 API | ⚠️ 需 token | `api.kurobbs.com/wiki/core/*`，头 `source:h5` + `wiki_type:9`(鸣潮) + `devcode`(32位)。item 内容要 token(localStorage `WIKI_USER_TOKEN`，须在 wiki.kurobbs.com 登录)。匿名渲染只返回空壳 |
 | Fandom wiki | ❌ | 403 |
+| **灰机wiki** | ✅ 无头浏览器 | `wuwa.huijiwiki.com` 角色画廊页（`角色名/画廊`），Cloudflare 挡 curl，需无头 Chromium 过挑战；图片 CDN `huiji-public.huijistatic.com` **直连无防盗链**。卡池大图首选文件名含 `唤取`（官方 3840×2160 横版），避开 同人/演唱会/周年/合影。方法见 [scripts/headless/README.md](scripts/headless/README.md) |
 
 历史抓到的 10 个核心角色的官方共鸣链 HTML 备份在 [docs/sources/chains/chains-extracted.json](docs/sources/chains/chains-extracted.json)；提取脚本 [scripts/extract-chains.cjs](scripts/extract-chains.cjs) 用来解析库街区返回 HTML→染色 JSON。encore.moe 是新数据源首选；库街区脚本仅留作历史参考。
 

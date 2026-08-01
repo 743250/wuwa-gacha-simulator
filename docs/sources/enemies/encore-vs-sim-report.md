@@ -2,11 +2,22 @@
 
 > 生成时间：2026-06-29
 > 数据源：https://api-v2.encore.moe/api/zh-Hans/monster
+>
+> **runtime 对齐（2026-07-25）**（`src/battle/enemies.js`，面板取 `encore-enemies-compact.json`）：
+> - 修正：`鸣式·利维亚坦` 元素→气动；`阿列夫一造物` 面板/class；**`虚诞虫` HP/ATK/class**；无冠者/海之女/荣耀狮像 class→Overlord；伤痕旧名→光暗逆位/异生梦魇面板
+> - 新增：达妮娅系、虚造神型、伤痕·*、芙露德莉斯/芬莱克别名；世界 BOSS/周本入口已挂 `dungeon.js`
+> - 新增：`异相·*` / 梦魇·* / 巨浪 Elite 全量 / 轻波 Common 全量（有 lv90Hp 的 unique 名）+ 零面板异相回落本体
+> - **class 补齐**：轻波级 `class: null` → `Common`（97）；召唤物 `幻象`/`机偶小弟`/`鸣式残响` 无 class（minion）
+> - **内容接线**：`dungeon.js` 经验/武器池扩梦魇·异相；世界 BOSS **31**、周本 **10**；`wastes.js` 5 关递进；`abyss.js` 危险区已挂梦魇/异相
+> - **机制继承**：异相/梦魇变体从本体抄 mechanic；无本体的辛吉勒姆/海维夏/无铭探索者等给 enrage 或 aero_erosion 模板；Overlord/Calamity 无 none
+> - **武器/声骸收口**：`和光回唱` 接光噪条件普攻/重击叠层；6 套官方无 2 件（3/1 件套）`bonus2: null` 已标注
+> - **有意保留**：`梦魇·哀声鸷` API=Elite，sim 仍 Overlord（无音区守关缩放）；`万囮牢·朽躯`/`千傀重楼` API 无同名（模拟器条目）；`流放者`/`夜归队员` 多 ID 同名只收一条代表面板；`限定武器` 占位无 trigger
+> - 复验：compact 有 hp 的 **unique 名 220/220 全覆盖**；`ENEMIES` **252** 键；spawn 全过；内容 ref missing=0；Overlord/Calamity 内容全接线；vitest battle/data/equip/daily **657** 绿
 
 ## 1. 数据规模
 
 - API 抓回敌人总数：**269** 个
-- 模拟器已实装敌人：**43** 个
+- 模拟器已实装敌人：**43** 个（2026-06-29 快照；2026-07-25 后见上）
 
 ## 2. API 稀有度分布
 

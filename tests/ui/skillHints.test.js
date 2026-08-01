@@ -127,9 +127,9 @@ describe('ui/skillHints — chain typeBonus injection', () => {
     const linesCtx = hints.SKILL_HINTS['长离'].customLines({ atk }, ctx);
     const skillBare = linesBare.find(l => l.name.includes('赫羽') || l.name.includes('技能'));
     const skillCtx = linesCtx.find(l => l.name.includes('赫羽') || l.name.includes('技能'));
-    // 基线 1800；注入 skillBonus 0.1 → 1980，且 tip 含技能加成
-    expect(skillBare.desc).toMatch(/1800/);
-    expect(skillCtx.desc).toMatch(/1980/);
+    // 基线 = atk 1000 × skillMult 2.0（长离专属基底）= 2000；注入 skillBonus 0.1 → 2200，且 tip 含技能加成
+    expect(skillBare.desc).toMatch(/2000/);
+    expect(skillCtx.desc).toMatch(/2200/);
     expect(skillCtx.desc).toMatch(/技能加成|10%/);
   });
 });

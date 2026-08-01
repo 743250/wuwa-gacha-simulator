@@ -20,7 +20,6 @@ import { ShopPanel } from './panels/gacha/ShopPanel';
 import { GlobalLayer } from './GlobalLayer';
 import { ViewTabs } from './panels/ViewTabs';
 import { MailEntry } from './panels/mail/MailPanel';
-import { RoverEntry } from './panels/rover/RoverPanel';
 
 const mounted: Record<string, boolean> = {};
 
@@ -67,8 +66,6 @@ export function mountPreactRoot(): void {
 	mountPanel('gres', TopOverview);
 	// 运营邮箱 · 左上角入口
 	mountPanel('mailEntry', MailEntry);
-	// 漂泊者 · 免费主角形态入口
-	mountPanel('roverEntry', RoverEntry);
 	// AppShell 第二小步:顶层视图 tab 改为真 Preact 组件(替代 AppShell 的 .vtab 命令式接管)
 	mountPanel('viewTabs', ViewTabs);
 	// dateNow/dateMeta in .timeline .ti

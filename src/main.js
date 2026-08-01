@@ -13,6 +13,7 @@ import { deliverDueMails } from './mail/mailbox.js';
 import { maybePromptLoginClaims } from './daily/loginClaim.js';
 import { ensureRover } from './rover/ensure.js';
 import { commit } from './state/commit.ts';
+import { unlock } from './ui/assets/audio.ts';
 
 (async () => {
   await loadState();
@@ -27,4 +28,11 @@ import { commit } from './state/commit.ts';
   mountPreactRoot();
   // 上线补给：月卡每日星声 + 特别感恩回馈等（与月卡同节奏弹窗）
   setTimeout(() => { try { maybePromptLoginClaims(); } catch (_) { /* ignore */ } }, 0);
+})();
+
+// 首次用户手势解锁音频(浏览器自动播放策略);只执行一次
+(() => {
+  const unlockOnce = () => { unlock(); window.removeEventListener('pointerdown', unlockOnce); window.removeEventListener('keydown', unlockOnce); };
+  window.addEventListener('pointerdown', unlockOnce);
+  window.addEventListener('keydown', unlockOnce);
 })();

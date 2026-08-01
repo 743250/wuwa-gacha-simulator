@@ -14,6 +14,7 @@ import { commit } from '../state/commit.ts';
 export function selectTarget(pool, target) {
   commit(() => {
     if (pool === 'standardWeapon') S.standardWeaponTarget = target;
+    if (pool === 'beginner') S.beginnerTarget = target;
     if (pool === 'noviceChoice' && !S.noviceStarted) S.noviceTarget = target;
     if (pool === 'noviceWeapon' && !S.noviceStarted) S.noviceWeaponTarget = target;
   });

@@ -6,6 +6,14 @@ single/*
 !single/鸣潮模拟器-单文件版.html
 .vite/
 *.log
+.tmp_*
 .claude/worktrees/
 single/assets/
 single/index.html
+
+# 本地存档导出 / 抓取缓存 / 临时文件（不入库）
+wuwa-save-*.json
+.scrape_tmp/
+docs/sources/characters/wiki-html-cache/
+.git-broken-backup/
+b9e46a1372eb2a72df044a2750426c74a4873991facb8b74a0f882a2bff30e05.jpg

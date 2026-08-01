@@ -265,8 +265,8 @@ export function AbyssPanel() {
               fontSize: 10, color: 'var(--muted)', textAlign: 'center', lineHeight: 1.45,
             }}>
               <div style={{ color: 'var(--gold)', fontWeight: 600, marginBottom: 2 }}>三塔</div>
-              回音 / 残响 / 深境<br />
-              各 4 层 · 共 12 关
+              回音 / 深境 / 残响<br />
+              左 · 中 · 右 · 各 4 层
             </div>
           )}
         </div>

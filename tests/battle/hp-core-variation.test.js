@@ -79,28 +79,31 @@ describe('HP 核变奏路径', () => {
     expect(mid).toBeLessThan(2.4);
   });
 
-  it('弗洛洛：变奏 HP×3.3%，指挥状态 ×6.6%', () => {
+  it('弗洛洛：ATK 核变奏 202% / 指挥态永生组歌 596%（非 HP 核）', () => {
+    // 2026-07-16 起弗洛洛为 ATK 核；变奏倍率走 variationMult hook，非 calcDamage 内 HP% 表
     const battle = quickBattle(['弗洛洛', '守岸人', '安可']);
     setCurrentBattle(battle, queryCharacterHook);
     const self = unit(battle, '弗洛洛');
     const enemy = firstEnemyUnit(battle);
-    const base = calcDamage(self, enemy, ACTION_MULTIPLIER.variation, 'variation').dmg;
+    const baseMult = queryCharacterHook(self, 'variationMult') ?? ACTION_MULTIPLIER.variation;
+    expect(baseMult).toBeCloseTo(2.02, 2);
     self.furoloCommandTurns = 3;
-    const cmd = calcDamage(self, enemy, ACTION_MULTIPLIER.variation, 'variation').dmg;
-    expect(base).toBeGreaterThan(0);
-    expect(cmd).toBeGreaterThan(0);
+    const cmdMult = queryCharacterHook(self, 'variationMult') ?? ACTION_MULTIPLIER.variation;
+    expect(cmdMult).toBeCloseTo(5.96, 2);
+    expect(cmdMult / baseMult).toBeGreaterThan(2.5);
+    expect(cmdMult / baseMult).toBeLessThan(3.5);
     const ratios = [];
     for (let i = 0; i < 20; i++) {
       self.furoloCommandTurns = 0;
-      const a = calcDamage(self, enemy, ACTION_MULTIPLIER.variation, 'variation').dmg;
+      const a = calcDamage(self, enemy, baseMult, 'variation').dmg;
       self.furoloCommandTurns = 3;
-      const b = calcDamage(self, enemy, ACTION_MULTIPLIER.variation, 'variation').dmg;
+      const b = calcDamage(self, enemy, cmdMult, 'variation').dmg;
       if (a > 0) ratios.push(b / a);
     }
     ratios.sort((x, y) => x - y);
     const mid = ratios[Math.floor(ratios.length / 2)];
-    expect(mid).toBeGreaterThan(1.6);
-    expect(mid).toBeLessThan(2.5);
+    expect(mid).toBeGreaterThan(2.5);
+    expect(mid).toBeLessThan(3.5);
   });
 
   it('doSwitch 日志动作仍为变奏，且能结算伤害', () => {

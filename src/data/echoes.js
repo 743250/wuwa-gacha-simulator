@@ -326,7 +326,7 @@ export const ECHO_SETS = [
 
   // ID 23 · 坎特蕾拉专属「命理崩毁之弦」(3件套)
   { id: 'cantarella_void', name: '命理崩毁之弦', element: '湮灭',
-    bonus2: null,
+    bonus2: null /* 官方无 2 件（3/1 件套） */,
     bonus5: { type: 'cantarella_void_cond', value: 0.20, valueAlt: 0.30, elem: '湮灭', cond: '添加虚湮效应时自身攻击+20% / 共鸣解放+30%,持续1回合' },
     tier: 3 },
 
@@ -353,25 +353,25 @@ export const ECHO_SETS = [
   // ======== 2.6 新增套装 (9套) ========
   // ID 19 · 失序彼岸之梦 (3件套)
   { id: 'lost_dream', name: '失序彼岸之梦', element: null,
-    bonus2: null,
+    bonus2: null /* 官方无 2 件（3/1 件套） */,
     bonus5: { type: 'lost_dream_cond', value: 0.20, valueAlt: 0.35, cond: '共鸣能量为0时自身暴击率+20%,声骸技能伤害加成+35%' },
     tier: 3 },
 
   // ID 20 · 荣斗铸锋之冠 (3件套)
   { id: 'glory_forge', name: '荣斗铸锋之冠', element: null,
-    bonus2: null,
+    bonus2: null /* 官方无 2 件（3/1 件套） */,
     bonus5: { type: 'glory_forge_cond', value: 0.06, cdmg: 0.04, stacks: 5, cond: '获得护盾时攻击+6%/暴击伤害+4%,可叠5层,持续1回合,每回合可叠层' },
     tier: 3 },
 
   // ID 21 · 息界同调之律 (3件套)
   { id: 'sync_law', name: '息界同调之律', element: null,
-    bonus2: null,
+    bonus2: null /* 官方无 2 件（3/1 件套） */,
     bonus5: { type: 'sync_law_cond', value: 0.30, valueAlt: 0.04, stacks: 4, cond: '施放声骸技能时重击+30%(1回合) / 全队声骸技能+4%(可叠4层,4回合)' },
     tier: 3 },
 
   // ID 22 · 焚羽猎魔之影 (3件套)
   { id: 'hunt_shadow', name: '焚羽猎魔之影', element: '热熔',
-    bonus2: null,
+    bonus2: null /* 官方无 2 件（3/1 件套） */,
     bonus5: { type: 'hunt_shadow_cond', value: 0.20, valueAlt: 0.16, elem: '热熔', cond: '声骸技能伤害时重击暴击+20%(2回合) / 重击时声骸技能暴击+20%(2回合) / 双效果时热熔+16%' },
     tier: 3 },
 
@@ -397,7 +397,7 @@ export const ECHO_SETS = [
 
   // ID 32 · 碎梦亡鬼之魇 (1件套)
   { id: 'ghost_nightmare', name: '碎梦亡鬼之魇', element: null,
-    bonus2: null,
+    bonus2: null /* 官方无 2 件（3/1 件套） */,
     bonus5: { type: 'ghost_nightmare_cond', value: 0.35, cond: '添加骇破·偏移时自身普攻伤害和重击伤害+35%,持续3回合' },
     tier: 1 },
 ];

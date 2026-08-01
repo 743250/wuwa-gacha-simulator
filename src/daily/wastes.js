@@ -37,31 +37,32 @@ export const WASTES_TOKENS = [
 ];
 
 // ===== 关卡配置（5 关渐进）=====
+// 敌人名取自 ENEMIES 全库（compact 对齐后），按 Common → Elite → Overlord → Calamity 递进
 const STAGES = [
   {
-    id: 'w1', name: '冥歌海墟·浅滩', enemies: ['火鬃狼×3', '惊蛰猎手×1'],
+    id: 'w1', name: '冥歌海墟·浅滩', enemies: ['火鬃狼×2', '雷鬃狼×1', '惊蛰猎手×1'],
     baseScore: 1000, enemyScale: 1.3,
     desc: '残象浅滩 · 入门积分'
   },
   {
-    id: 'w2', name: '冥歌海墟·暗流', enemies: ['幽翎火×2', '幻象×1'],
+    id: 'w2', name: '冥歌海墟·暗流', enemies: ['紫羽鹭', '青羽鹭', '游鳞机枢'],
     baseScore: 1200, enemyScale: 1.5,
-    desc: '幽影涌动 · 需要一定练度'
+    desc: '双鹭机枢 · 需要一定练度'
   },
   {
-    id: 'w3', name: '冥歌海墟·漩涡', enemies: ['燎照之骑', '聚械机偶'],
+    id: 'w3', name: '冥歌海墟·漩涡', enemies: ['梦魇·紫羽鹭', '梦魇·青羽鹭', '巡游骑士'],
     baseScore: 1500, enemyScale: 1.8,
-    desc: '双强敌 · 检验队伍结构'
+    desc: '梦魇双鹭 · 检验队伍结构'
   },
   {
-    id: 'w4', name: '冥歌海墟·深渊', enemies: ['无妄者', '飞廉之猩'],
+    id: 'w4', name: '冥歌海墟·深渊', enemies: ['异相·异构武装', '梦魇·无冠者'],
     baseScore: 1800, enemyScale: 2.1,
-    desc: '高层压制 · 主力队挑战'
+    desc: '异相+梦魇 · 主力队挑战'
   },
   {
-    id: 'w5', name: '冥歌海墟·终渊', enemies: ['赫卡忒', '无冠者'],
+    id: 'w5', name: '冥歌海墟·终渊', enemies: ['梦魇·赫卡忒', '共鸣回响·芙露德莉斯'],
     baseScore: 2200, enemyScale: 2.5,
-    desc: '最强的敌人 · 冲击满分'
+    desc: '海啸级双核 · 冲击满分'
   }
 ];
 

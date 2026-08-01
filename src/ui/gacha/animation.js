@@ -5,9 +5,12 @@
 // 现迁到 UI 域,白名单可删;领域层(src/gacha/**)再无 DOM 访问。
 import { setAnimating } from '../gachaAnimationState.js';
 import { $ } from '../services/toast.ts';
+import { sfx } from '../assets/audio.ts';
+import { getRoleArt } from '../assets/index.ts';
 
 export function showResult(arr) {
   setAnimating(true);
+  sfx('reveal');
   const ov = $('ov'), beam = $('beam'), cards = $('cards'), sparks = $('sparks'), hint = $('skipHint'), title = $('ovTitle');
   const top = arr.reduce((m, x) => Math.max(m, x.r), 3);
   const cls = top === 5 ? 'gold' : top === 4 ? 'purple' : 'blue';
@@ -41,7 +44,9 @@ export function showResult(arr) {
   arr.forEach(x => {
     const c = document.createElement('div');
     c.className = 'gcard r' + x.r + (x.up ? ' up' : '') + (arr.length === 1 ? ' single' : '');
-    c.innerHTML = `<div class="face">
+    const art = getRoleArt(x.n);
+    const bgImg = art?.portrait || art?.bannerBg;
+    c.innerHTML = `<div class="face${bgImg ? ' has-art' : ''}"${bgImg ? ` style="background-image:url('${bgImg}')"` : ''}>
       <div class="stars">${'★'.repeat(x.r)}</div>
       <div>
         <div class="nm">${x.n}</div>
@@ -60,6 +65,7 @@ export function showResult(arr) {
   const onTap = () => {
     if (phase === 0) { cards.querySelectorAll('.gcard').forEach(el => el.classList.add('flipped')); phase = 1; }
     else {
+      sfx('reveal_close');
       ov.classList.remove('on'); hint.classList.remove('show');
       beam.classList.remove('show', 'gold', 'purple', 'blue');
       ov.removeEventListener('click', onTap);

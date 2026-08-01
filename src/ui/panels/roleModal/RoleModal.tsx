@@ -5,6 +5,7 @@
 import { h, render as preactRender } from 'preact';
 import { roleModalOpenSignal, roleModalRenderTick } from './signals';
 import { RoleModalContent } from './RoleModalContent';
+import { stopUrl } from '../../assets/audio.ts';
 
 // Cache the mount node reference
 let mountNode: HTMLDivElement | null = null;
@@ -30,6 +31,7 @@ function renderContent() {
 }
 
 function cleanContent() {
+  stopUrl(); // 关闭角色详情时停掉正在播放的好感语音
   const modal = getModal();
   const box = getBox();
   if (mountNode) {

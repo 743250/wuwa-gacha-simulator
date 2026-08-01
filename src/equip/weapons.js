@@ -1,9 +1,9 @@
 // 武器数据库 + 计算
 // 数据校准（2026-06-26）：全量 encore.moe API 面板校准
-//   - 5★ 44 把：全部 atk90 / 副词条 / 技能名与 encore 对齐
+//   - 5★：atk90 / 副词条 / 技能与 encore 对齐（2026-07-25 补：宙算仪轨/血誓盟约/镭射切变/相位涟漪/脉冲协臂/玻色星仪）
 //   - 4★ 43 把：全部 atk90 / 副词条与 encore 对齐，被动简化映射
 //   - 3★ 10 把：估算值（encore 未收录 3 星）
-// 来源：docs/sources/weapons/encore-full-data.json
+// 来源：docs/sources/weapons/encore-full-data.json · docs/sources/weapons/official-list.md
 //
 // 数据结构：
 //   r: 稀有度 3/4/5
@@ -421,6 +421,100 @@ const W = {
     desc: '攻击+12%；技能后共鸣解放+24%（旧名「星野」兼容）'
   },
 
+  // ---- 2026-07-25：official-list / encore 有、WEAPON_DATA 缺的 6 把 5★ ----
+  // 面板与 R1 被动取自 docs/sources/weapons/encore-full-data.json；
+  // 谐度破坏技 / 集谐·干涉等条件按现有 trigger 模型近似（skill_hit / always）。
+
+  // 宙算仪轨 — 长刃辅助（定解）：低攻高充能
+  // 官方治疗后全队暴伤+20% — 运行时无 team_cdmg，面板与回协奏先落地
+  '宙算仪轨': {
+    r: 5, type: '长刃', atk90: 412,
+    sub: { stat: 'resonance', value90: 0.7704 },
+    passive: [
+      { type: 'def_pct', value: 0.16 }
+    ],
+    triggers: [
+      { on: 'skill_hit', effect: 'concerto_refund', value: 8, maxStacks: 1, duration: 1 }
+    ],
+    passiveName: '定解',
+    desc: '防御+16%；技能回复 8 协奏；治疗后全队暴伤+20%（官方；模拟器 team_cdmg 未接）'
+  },
+
+  // 血誓盟约 — 迅刀（和鸣谐振 / 漂泊者·气动相关）
+  '血誓盟约': {
+    r: 5, type: '迅刀', atk90: 587,
+    sub: { stat: 'resonance', value90: 0.3888 },
+    passive: [],
+    triggers: [
+      { on: 'heal_skill', effect: 'skill_pct', value: 0.10, maxStacks: 1, duration: 3 },
+      // 官方：气动漂泊者释技能后全队气动加深 — 简化为技能后自身气动
+      { on: 'skill_hit', effect: 'elem_dmg', value: 0.10, element: '气动', maxStacks: 1, duration: 7 }
+    ],
+    passiveName: '和鸣谐振',
+    desc: '治疗后技能+10%（6s）；技能后气动+10%（30s 折 7 回合；官方为全队气动加深）'
+  },
+
+  // 镭射切变 — 迅刀（先觉者）
+  '镭射切变': {
+    r: 5, type: '迅刀', atk90: 587,
+    sub: { stat: 'resonance', value90: 0.3888 },
+    passive: [
+      { type: 'atk_pct', value: 0.12 }
+    ],
+    triggers: [
+      // 官方：对【集谐·干涉】目标伤害后技能+24% — 条件未建模，用 skill_hit 近似
+      { on: 'skill_hit', effect: 'skill_pct', value: 0.24, maxStacks: 1, duration: 2 }
+    ],
+    passiveName: '先觉者',
+    desc: '攻击+12%；技能后共鸣技能+24%（3s 折 2 回合；官方限集谐·干涉目标）'
+  },
+
+  // 相位涟漪 — 佩枪（洞见者）
+  '相位涟漪': {
+    r: 5, type: '佩枪', atk90: 587,
+    sub: { stat: 'cdmg', value90: 0.486 },
+    passive: [
+      { type: 'atk_pct', value: 0.12 }
+    ],
+    triggers: [
+      // 官方：【谐度破坏技】后全属性+20% — 无该事件且 trigger 无 elem_all，用 atk_pct 近似
+      { on: 'skill_hit', effect: 'atk_pct', value: 0.20, maxStacks: 1, duration: 7 }
+    ],
+    passiveName: '洞见者',
+    desc: '攻击+12%；技能后攻击+20%（近似全属性；官方为谐度破坏技后全属性+20%·14s）'
+  },
+
+  // 脉冲协臂 — 臂铠（攻关者）
+  '脉冲协臂': {
+    r: 5, type: '臂铠', atk90: 587,
+    sub: { stat: 'crate', value90: 0.243 },
+    passive: [
+      { type: 'atk_pct', value: 0.12 }
+    ],
+    triggers: [
+      // 官方：对集谐·干涉叠普攻+6%×4 — 用 normal_hit 叠层近似
+      { on: 'normal_hit', effect: 'normal_pct', value: 0.06, maxStacks: 4, duration: 2 }
+    ],
+    passiveName: '攻关者',
+    desc: '攻击+12%；普攻后普攻+6%×4 层（3s；官方限集谐·干涉目标）'
+  },
+
+  // 玻色星仪 — 音感仪（观测者）
+  '玻色星仪': {
+    r: 5, type: '音感仪', atk90: 525,
+    sub: { stat: 'resonance', value90: 0.3888 },
+    passive: [
+      { type: 'atk_pct', value: 0.12 }
+    ],
+    triggers: [
+      // 官方：谐度破坏技后攻击+12%、普攻+12% — 用 skill_hit 近似
+      { on: 'skill_hit', effect: 'atk_pct', value: 0.12, maxStacks: 1, duration: 7 },
+      { on: 'skill_hit', effect: 'normal_pct', value: 0.12, maxStacks: 1, duration: 7 }
+    ],
+    passiveName: '观测者',
+    desc: '攻击+12%；技能后攻击+12%、普攻+12%（14s 折 7 回合；官方触发为谐度破坏技）'
+  },
+
   // 爱弥斯专武（迅刀 · encore 永远的启明星）
   '永远的启明星': {
     r: 5, type: '迅刀', atk90: 587,
@@ -548,7 +642,7 @@ const W = {
 
   '碎骨_old': null,
 
-  // 菲比专武（音感仪 + 治疗向）
+  // 菲比专武（音感仪）— encore 衔枝者赞诗：光噪目标叠普攻/重击；延奏光噪加深未接（无对应 effect）
   // ✅ 菲比专武：Luminous Hymn（库街区核验：音感仪 · atk90=500 · crate=36% · V2.1）
   '和光回唱': {
     r: 5, type: '音感仪', atk90: 500,
@@ -556,8 +650,13 @@ const W = {
     passive: [
       { type: 'atk_pct', value: 0.12 }
     ],
-    triggers: [],
-    desc: '攻击+12%；暴击率+36%（菲比 DPS 向专武）'
+    triggers: [
+      { on: 'normal_hit', effect: 'normal_pct', value: 0.14, maxStacks: 3, duration: 2, condition: 'enemy_has_spectro_frazzle' },
+      { on: 'normal_hit', effect: 'heavy_pct', value: 0.14, maxStacks: 3, duration: 2, condition: 'enemy_has_spectro_frazzle' },
+      { on: 'heavy_hit', effect: 'normal_pct', value: 0.14, maxStacks: 3, duration: 2, condition: 'enemy_has_spectro_frazzle' },
+      { on: 'heavy_hit', effect: 'heavy_pct', value: 0.14, maxStacks: 3, duration: 2, condition: 'enemy_has_spectro_frazzle' },
+    ],
+    desc: '攻击+12%；对光噪目标普攻/重击各+14%×3 层（2 回合）'
   },
 
   // 限定占位武器（type: null 表示任意角色可用）

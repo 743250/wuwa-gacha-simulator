@@ -42,7 +42,7 @@ export function activeBanners() {
       fours: fourWeapons.slice(0, 3), banner: (cp ? '武器联动唤取 · ' : '浮声沉兵 · ') + (weapons[c] || '限定武器'), weapon: weapons[c] || '限定武器' });
   }));
   if (!S.beginnerDone) {
-    permanent.push({ id: 'beginner', pool: 'beginner', start: date('2024-05-23'), end: Infinity, version: '新手', banner: '万象新声', char: null, weapon: null, fours: fourAll.slice(0, 3) });
+    permanent.push({ id: 'beginner', pool: 'beginner', start: date('2024-05-23'), end: Infinity, version: '新手', banner: '万象新声', char: S.beginnerTarget, weapon: null, fours: fourAll.slice(0, 3) });
   }
   // ★ 新旅池：拆角色 / 武器；30 天有效期
   if (!noviceExpired()) {
@@ -119,6 +119,7 @@ export function targetOptions(b) {
   if (!b) return null;
   let opts = [];
   if (b.pool === 'standardWeapon') opts = standardWeapons.map(w => ({ label: w.banner, target: w.name, active: w.name === S.standardWeaponTarget }));
+  if (b.pool === 'beginner') opts = standard5.map(c => ({ label: c, target: c, active: c === S.beginnerTarget }));
   if (b.pool === 'noviceChoice') {
     if (S.noviceStarted) return { pool: b.pool, opts: [], locked: S.noviceTarget };
     opts = newJourneyChars.map(c => ({ label: c, target: c, active: c === S.noviceTarget }));
@@ -223,11 +224,13 @@ function five(state, pool, b, rng) {
     coral = charCoral(5, r.pulled);
     if (!up) coral += 30;
   } else if (pool === 'beginner') {
-    name = pickRng(standard5, rng); type = '新手五星角色'; up = false;
+    // 新手池支持 5 选 1 定向(b.char 由 activeBanners 从 S.beginnerTarget 带入);未选则 5 选 1 等概率
+    name = b.char || pickRng(standard5, rng); type = '新手五星角色'; up = false;
     // 50 抽用完才永久关闭（不再因首五星就关池）
     const r = addRoleFor(state, name, 5);
     coral = charCoral(5, r.pulled);
   } else if (pool === 'standardChar') {
+    // 常驻角色池不可定向,5 选 1 等概率
     name = pickRng(standard5, rng); type = '常驻五星角色'; up = false;
     const r = addRoleFor(state, name, 5);
     coral = charCoral(5, r.pulled);

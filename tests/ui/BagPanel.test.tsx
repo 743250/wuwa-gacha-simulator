@@ -53,7 +53,7 @@ describe('BagPanel', () => {
   });
 
   it('shows weapon grid with 3 weapons', () => {
-    resetState();
+    resetState({ team: [] }); // 空队伍,避免默认 3 角色占用 .role 计数
     addWeapon('千古洑流', 5);
     addWeapon('星序协响', 5);
     addWeapon('赫奕流明', 5);

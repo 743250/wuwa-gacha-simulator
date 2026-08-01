@@ -33,6 +33,10 @@
 ### 强度榜
 - [tier-list.md](tier-list.md) — pockettactics 2026-06-18 · 3.0 patch · 0 链评分;模拟器数值天花板的官方依据
 
+### 游戏表精炼 / 外部索引（2026-07-25 入库）
+- [game-tables/](game-tables/) — 从 `.tmp_research` 抽出的声骸/成长等小表（[README](game-tables/README.md) · [INVENTORY](game-tables/INVENTORY.md)）
+- [external-refs.md](external-refs.md) — 外部数据源、可借鉴开源项目、整合原则与缺口
+
 ## 使用规则
 
 - 修改角色/敌人/机制数值前,先查本目录对应条目;没有条目就先补资料,别凭空写。

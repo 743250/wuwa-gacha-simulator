@@ -9,7 +9,7 @@ export const roleModalOpenSignal = signal(false);
 /** The role name displayed in the modal */
 export const roleModalNameSignal = signal(null);
 
-/** Current active tab ID: 'basic'|'weapon'|'echo'|'chain'|'skill'|'levelup' */
+/** Current active tab ID: 'basic'|'weapon'|'echo'|'chain'|'skill'|'levelup'|'lore' */
 export const roleModalTabSignal = signal('basic');
 
 /** Preview mode (show 90/0-chain/no-weapon reference stats) */
@@ -57,4 +57,5 @@ export const TABS = [
   { id: 'chain',  icon: '🔗', label: '共鸣链' },
   { id: 'skill',  icon: '✦', label: '技能介绍' },
   { id: 'levelup',icon: '🎯', label: '突破升级' },
+  { id: 'lore',    icon: '📖', label: '故事语音' },
 ];

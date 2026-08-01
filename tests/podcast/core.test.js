@@ -1,6 +1,8 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { state0, S, date, fmt } from '../../src/state.js';
 import { phases } from '../../src/data/phases.js';
+import { findTask } from '../../src/data/podcast-tasks.js';
+import { PODCAST_EXP_PER_LEVEL } from '../../src/data/podcast-rewards.js';
 import { reconcilePeriodPullTasksFromLog } from '../../src/podcast/core.js';
 
 beforeEach(() => {
@@ -24,8 +26,10 @@ describe('podcast/core 抽卡日志校准', () => {
     expect(reconcilePeriodPullTasksFromLog()).toBe(true);
     expect(S.podcast.tasks.period.p_pull50).toBe(true);
     expect(S.podcast.tasks.period.p_pull200).toBe(60);
-    expect(S.podcast.level).toBe(4);
-    expect(S.podcast.exp).toBe(200);
+    // 补齐只完成 p_pull50（50 抽达标），exp 以任务定义为准；等级由常量推导，不写死数值
+    const exp = findTask('p_pull50').exp;
+    expect(S.podcast.level).toBe(Math.floor(exp / PODCAST_EXP_PER_LEVEL));
+    expect(S.podcast.exp).toBe(exp % PODCAST_EXP_PER_LEVEL);
   });
 
   it('忽略其他版本日志且不会让已有进度倒退', () => {

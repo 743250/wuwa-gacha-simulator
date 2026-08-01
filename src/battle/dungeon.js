@@ -34,7 +34,14 @@ export const DUNGEONS = [
       { enemies: ['碎獠猪×2', '咔嚓嚓×1'], enemyScale: 1.0, weight: 3, tag: '热熔冲锋' },
       { enemies: ['雷鬃狼×2', '呼咻咻×1'], enemyScale: 1.0, weight: 3, tag: '雷风小队' },
       { enemies: ['咕咕河豚×2', '阿嗞嗞×1'], enemyScale: 1.0, weight: 3, tag: '冰光幻象' },
-      { enemies: ['呜咔咔×2'], enemyScale: 1.0, weight: 2, tag: '湮灭发条' }
+      { enemies: ['呜咔咔×2'], enemyScale: 1.0, weight: 2, tag: '湮灭发条' },
+      // 轻波补全（encore compact · 2026-07-25）
+      { enemies: ['先锋幼岩×2', '裂变幼岩×1'], enemyScale: 1.0, weight: 2, tag: '幼岩冲撞' },
+      { enemies: ['鸣泣战士×2', '审判战士×1'], enemyScale: 1.0, weight: 2, tag: '战士残响' },
+      { enemies: ['冷凝棱镜×1', '热熔棱镜×1', '衍射棱镜×1'], enemyScale: 1.0, weight: 2, tag: '三色棱镜' },
+      { enemies: ['游弋蝶×3'], enemyScale: 1.0, weight: 2, tag: '蝶群' },
+      { enemies: ['遁地鼠×2', '晶螯蝎×1'], enemyScale: 1.0, weight: 2, tag: '地行伏击' },
+      { enemies: ['抛石幼猿×2', '啾啾河豚×1'], enemyScale: 1.0, weight: 2, tag: '幼猿河豚' }
     ],
     drops: { exp_high: 5, exp_mid: 5 },                  // 55k exp，~31 次满级（~5.2 天）
     minLevel: 1, desc: '高级×5 中级×5 · 40 波片'
@@ -48,10 +55,28 @@ export const DUNGEONS = [
       { enemies: ['绿熔蜥×3'], enemyScale: 1.0, weight: 4, tag: '焰蜥群' },
       { enemies: ['坚岩斗士', '磐石守卫×2'], enemyScale: 1.0, weight: 3, tag: '巨岩护腕' },
       { enemies: ['奏谕乐师', '巡哨机傀×2'], enemyScale: 1.0, weight: 3, tag: '湮冷双形' },
+      // 巨浪补全
+      { enemies: ['暗鬃狼×2', '雪鬃狼×1'], enemyScale: 1.0, weight: 3, tag: '双色鬃狼' },
+      { enemies: ['戏猿', '嚣风戏猿'], enemyScale: 1.0, weight: 2, tag: '戏猿双演' },
+      { enemies: ['刺玫菇×2', '振铎乐师'], enemyScale: 1.0, weight: 2, tag: '菇乐合奏' },
+      { enemies: ['巡游骑士', '幻昼骑士'], enemyScale: 1.0, weight: 2, tag: '骑士巡礼' },
+      { enemies: ['浮灵偶', '巨布偶'], enemyScale: 1.0, weight: 2, tag: '布偶双形' },
+      { enemies: ['琉璃刀伶', '凝水贵族'], enemyScale: 1.0, weight: 2, tag: '贵族刀伶' },
       // 稀有遭遇：怒涛级 BOSS，scale 0.35 拉到精英量级（Lv90 实际约 28 万，和精英持平）
       { enemies: ['燎照之骑'], enemyScale: 0.35, weight: 1, tag: '热熔骑士·稀遇' },
       { enemies: ['飞廉之猩'], enemyScale: 0.35, weight: 1, tag: '气动强敌·稀遇' },
-      { enemies: ['朔雷之鳞'], enemyScale: 0.35, weight: 1, tag: '导电强敌·稀遇' }
+      { enemies: ['朔雷之鳞'], enemyScale: 0.35, weight: 1, tag: '导电强敌·稀遇' },
+      { enemies: ['梦魇·燎照之骑'], enemyScale: 0.40, weight: 1, tag: '梦魇骑士·稀遇' },
+      { enemies: ['异相·罗蕾莱'], enemyScale: 0.35, weight: 1, tag: '异相罗蕾莱·稀遇' },
+      { enemies: ['异相·燎照之骑'], enemyScale: 0.35, weight: 1, tag: '异相骑士·稀遇' },
+      { enemies: ['异相·飞廉之猩'], enemyScale: 0.35, weight: 1, tag: '异相气动·稀遇' },
+      { enemies: ['梦魇·飞廉之猩'], enemyScale: 0.40, weight: 1, tag: '梦魇气动·稀遇' },
+      { enemies: ['梦魇·云闪之鳞', '梦魇·朔雷之鳞'], enemyScale: 0.40, weight: 1, tag: '梦魇双鳞·稀遇' },
+      { enemies: ['异相·哀声鸷'], enemyScale: 0.35, weight: 1, tag: '异相哀声·稀遇' },
+      { enemies: ['异相·云闪之鳞'], enemyScale: 0.35, weight: 1, tag: '异相云闪·稀遇' },
+      { enemies: ['异相·无常凶鹭'], enemyScale: 0.35, weight: 1, tag: '异相凶鹭·稀遇' },
+      { enemies: ['异相·梦魇·燎照之骑'], enemyScale: 0.40, weight: 1, tag: '异相梦魇骑·稀遇' },
+      { enemies: ['异相·梦魇·哀声鸷'], enemyScale: 0.40, weight: 1, tag: '异相梦魇鸷·稀遇' }
     ],
     drops: { exp_super: 4, exp_high: 4 },                // 112k exp，凝缩双倍档
     minLevel: 40, desc: '特级×4 高级×4 · 80 波片（凝缩）'
@@ -67,7 +92,12 @@ export const DUNGEONS = [
       { enemies: ['巡哨机傀×2', '咔嚓嚓×2'], enemyScale: 1.0, weight: 3, tag: '冰属玩偶' },
       { enemies: ['坚岩斗士', '碎獠猪×2'], enemyScale: 1.0, weight: 3, tag: '巨岩护腕' },
       { enemies: ['紫羽鹭', '雷鬃狼×3'], enemyScale: 1.0, weight: 3, tag: '雷羽群' },
-      { enemies: ['幽翎火×2', '惊蛰猎手×1'], enemyScale: 1.0, weight: 3, tag: '混编残响' }
+      { enemies: ['幽翎火×2', '惊蛰猎手×1'], enemyScale: 1.0, weight: 3, tag: '混编残响' },
+      { enemies: ['游鳞机枢×2', '探隧重机'], enemyScale: 1.0, weight: 2, tag: '机枢重机' },
+      { enemies: ['霜鳞蜃甲', '风鳞蜃甲'], enemyScale: 1.0, weight: 2, tag: '双鳞蜃甲' },
+      { enemies: ['矿岩机麋', '莳植机麋'], enemyScale: 1.0, weight: 2, tag: '机麋双生' },
+      { enemies: ['隐迹铁影', '锯袭铁影'], enemyScale: 1.0, weight: 2, tag: '铁影双影' },
+      { enemies: ['冠顶械隼', '冠顶苍隼'], enemyScale: 1.0, weight: 2, tag: '冠顶双隼' }
     ],
     drops: { weapon_book: 8 },
     minLevel: 20, desc: '武器石×8 · 40 波片'
@@ -79,9 +109,21 @@ export const DUNGEONS = [
     encounterPool: [
       { enemies: ['磐石守卫', '绿熔蜥×2'], enemyScale: 1.0, weight: 4, tag: '光焰混编' },
       { enemies: ['奏谕乐师', '紫羽鹭×2'], enemyScale: 1.0, weight: 4, tag: '湮雷混编' },
+      { enemies: ['冥渊守卫', '暗夜骑士'], enemyScale: 1.0, weight: 3, tag: '冥渊暗骑' },
+      { enemies: ['角鳄', '蚀脊龙'], enemyScale: 1.0, weight: 2, tag: '鳄龙重甲' },
+      { enemies: ['双极·星升辉铳', '双极·渊陨重锋'], enemyScale: 1.0, weight: 2, tag: '双极械兵' },
+      { enemies: ['梦魇·紫羽鹭', '梦魇·青羽鹭'], enemyScale: 1.0, weight: 2, tag: '梦魇双鹭' },
       // 怒涛级 BOSS 影：scale 0.5 拉到精英偏高量级（Lv90 实际约 40-50 万）
       { enemies: ['无归的谬误'], enemyScale: 0.5, weight: 3, tag: '数据封锁·影' },
-      { enemies: ['异构武装'], enemyScale: 0.5, weight: 3, tag: '冷凝护盾·影' }
+      { enemies: ['异构武装'], enemyScale: 0.5, weight: 3, tag: '冷凝护盾·影' },
+      { enemies: ['异相·异构武装'], enemyScale: 0.5, weight: 2, tag: '异相异构·影' },
+      { enemies: ['梦魇·无冠者'], enemyScale: 0.45, weight: 2, tag: '梦魇无冠·影' },
+      { enemies: ['异相·无冠者'], enemyScale: 0.5, weight: 1, tag: '异相无冠·影' },
+      { enemies: ['异相·无归的谬误'], enemyScale: 0.5, weight: 1, tag: '异相谬误·影' },
+      { enemies: ['梦魇·辉萤军势'], enemyScale: 0.45, weight: 1, tag: '梦魇辉萤·影' },
+      { enemies: ['异相·荣耀狮像'], enemyScale: 0.5, weight: 1, tag: '异相狮像·影' },
+      { enemies: ['异相·伪作的神王'], enemyScale: 0.5, weight: 1, tag: '异相神王·影' },
+      { enemies: ['异相·炉芯机骸'], enemyScale: 0.5, weight: 1, tag: '异相炉芯·影' }
     ],
     drops: { weapon_book: 16 },
     minLevel: 40, desc: '武器石×16 · 80 波片（凝缩）'
@@ -420,6 +462,66 @@ export const DUNGEONS = [
     enemies: ['千傀重楼'],
     drops: { exp_super: 1, exp_high: 2, weapon_book: 7, astrite: 20 },
     minLevel: 55, desc: '特级×1 高级×2 · 武器石×7 · 星声+20'
+  },
+  {
+    id: 'world_dania', type: 'worldBoss', name: '达妮娅', cost: 60,
+    enemies: ['达妮娅'],
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 7, astrite: 20 },
+    minLevel: 55, desc: '特级×1 高级×2 · 武器石×7 · 星声+20'
+  },
+  {
+    id: 'world_xuzhao_shenxing', type: 'worldBoss', name: '共鸣回响·鸣式·虚造神型', cost: 60,
+    enemies: ['共鸣回响·鸣式·虚造神型'],
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 7, astrite: 20 },
+    minLevel: 55, desc: '特级×1 高级×2 · 武器石×7 · 星声+20'
+  },
+  {
+    id: 'world_jiao', type: 'worldBoss', name: '角', cost: 60,
+    enemies: ['角'],
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 7, astrite: 20 },
+    minLevel: 55, desc: '特级×1 高级×2 · 武器石×7 · 星声+20'
+  },
+  {
+    id: 'world_fuludelisi', type: 'worldBoss', name: '芙露德莉斯', cost: 60,
+    enemies: ['芙露德莉斯'],
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 7, astrite: 20 },
+    minLevel: 55, desc: '特级×1 高级×2 · 武器石×7 · 星声+20'
+  },
+  {
+    id: 'world_fenlaike_base', type: 'worldBoss', name: '芬莱克', cost: 60,
+    enemies: ['芬莱克'],
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 7, astrite: 20 },
+    minLevel: 55, desc: '特级×1 高级×2 · 武器石×7 · 星声+20'
+  },
+  {
+    id: 'world_shanghen_guangan', type: 'worldBoss', name: '伤痕·光暗逆位', cost: 60,
+    enemies: ['伤痕·光暗逆位'],
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 7, astrite: 20 },
+    minLevel: 55, desc: '特级×1 高级×2 · 武器石×7 · 星声+20'
+  },
+  {
+    id: 'world_shanghen_mengyan', type: 'worldBoss', name: '伤痕·梦魇形态', cost: 60,
+    enemies: ['伤痕·梦魇形态'],
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 7, astrite: 20 },
+    minLevel: 55, desc: '特级×1 高级×2 · 武器石×7 · 星声+20'
+  },
+  {
+    id: 'world_shanghen_yisheng', type: 'worldBoss', name: '伤痕·异生梦魇', cost: 60,
+    enemies: ['伤痕·异生梦魇'],
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 7, astrite: 20 },
+    minLevel: 55, desc: '特级×1 高级×2 · 武器石×7 · 星声+20'
+  },
+  {
+    id: 'world_yixiang_wuwang', type: 'worldBoss', name: '异相·无妄者', cost: 60,
+    enemies: ['异相·无妄者'],
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 7, astrite: 20 },
+    minLevel: 55, desc: '特级×1 高级×2 · 武器石×7 · 星声+20'
+  },
+  {
+    id: 'world_yixiang_xinjilemu', type: 'worldBoss', name: '异相·辛吉勒姆', cost: 60,
+    enemies: ['异相·辛吉勒姆'],
+    drops: { exp_super: 1, exp_high: 2, weapon_book: 7, astrite: 20 },
+    minLevel: 55, desc: '特级×1 高级×2 · 武器石×7 · 星声+20'
   }
 ];
 
@@ -458,7 +560,7 @@ export const WEEKLY_BOSS = [
     id: 'boss_liweihatan', type: 'weekly', name: '战歌重奏·鸣式·利维亚坦', cost: 60, weeklyLimit: true,
     enemies: ['鸣式·利维亚坦'],
     encounterPool: [
-      { enemies: ['鸣式·利维亚坦'], enemyScale: 1.15, weight: 1, tag: '湮灭波纹' }
+      { enemies: ['鸣式·利维亚坦'], enemyScale: 1.15, weight: 1, tag: '气动波纹' }
     ],
     drops: { exp_super: 4, exp_high: 6, weapon_book: 8 },
     minLevel: 60, desc: '特级×4 · 高级×6 · 武器石×8 · 周限 3 次'
@@ -468,6 +570,51 @@ export const WEEKLY_BOSS = [
     enemies: ['共鸣回响·芬莱克'],
     encounterPool: [
       { enemies: ['共鸣回响·芬莱克'], enemyScale: 1.15, weight: 1, tag: '气动回响' }
+    ],
+    drops: { exp_super: 4, exp_high: 6, weapon_book: 8 },
+    minLevel: 60, desc: '特级×4 · 高级×6 · 武器石×8 · 周限 3 次'
+  },
+  {
+    id: 'boss_dania', type: 'weekly', name: '战歌重奏·共鸣回响·达妮娅', cost: 60, weeklyLimit: true,
+    enemies: ['共鸣回响·达妮娅'],
+    encounterPool: [
+      { enemies: ['共鸣回响·达妮娅'], enemyScale: 1.15, weight: 1, tag: '热熔回响' }
+    ],
+    drops: { exp_super: 4, exp_high: 6, weapon_book: 8 },
+    minLevel: 60, desc: '特级×4 · 高级×6 · 武器石×8 · 周限 3 次'
+  },
+  {
+    id: 'boss_xuzhao', type: 'weekly', name: '战歌重奏·共鸣回响·鸣式·虚造神型', cost: 60, weeklyLimit: true,
+    enemies: ['共鸣回响·鸣式·虚造神型'],
+    encounterPool: [
+      { enemies: ['共鸣回响·鸣式·虚造神型'], enemyScale: 1.15, weight: 1, tag: '湮灭虚造' }
+    ],
+    drops: { exp_super: 4, exp_high: 6, weapon_book: 8 },
+    minLevel: 60, desc: '特级×4 · 高级×6 · 武器石×8 · 周限 3 次'
+  },
+  {
+    id: 'boss_jiao', type: 'weekly', name: '战歌重奏·角', cost: 60, weeklyLimit: true,
+    enemies: ['角'],
+    encounterPool: [
+      { enemies: ['角'], enemyScale: 1.15, weight: 1, tag: '衍射海啸' }
+    ],
+    drops: { exp_super: 4, exp_high: 6, weapon_book: 8 },
+    minLevel: 60, desc: '特级×4 · 高级×6 · 武器石×8 · 周限 3 次'
+  },
+  {
+    id: 'boss_fuludelisi', type: 'weekly', name: '战歌重奏·芙露德莉斯', cost: 60, weeklyLimit: true,
+    enemies: ['芙露德莉斯'],
+    encounterPool: [
+      { enemies: ['芙露德莉斯'], enemyScale: 1.15, weight: 1, tag: '气动回响' }
+    ],
+    drops: { exp_super: 4, exp_high: 6, weapon_book: 8 },
+    minLevel: 60, desc: '特级×4 · 高级×6 · 武器石×8 · 周限 3 次'
+  },
+  {
+    id: 'boss_mengyan_hecate', type: 'weekly', name: '战歌重奏·梦魇·赫卡忒', cost: 60, weeklyLimit: true,
+    enemies: ['梦魇·赫卡忒'],
+    encounterPool: [
+      { enemies: ['梦魇·赫卡忒'], enemyScale: 1.15, weight: 1, tag: '梦魇幻象' }
     ],
     drops: { exp_super: 4, exp_high: 6, weapon_book: 8 },
     minLevel: 60, desc: '特级×4 · 高级×6 · 武器石×8 · 周限 3 次'

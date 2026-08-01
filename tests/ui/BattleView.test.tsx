@@ -83,7 +83,7 @@ describe('BattleView', () => {
     expect(el.textContent).toContain('模拟战训·共鸣经验');
     // Turn info
     expect(el.textContent).toContain('回合 1');
-    expect(el.textContent).toContain('AP 4/4');
+    expect(el.textContent).toContain('AP4/4'); // .bf-hud 靠 CSS gap 分隔，DOM 无空格
     // Enemy name
     expect(el.textContent).toContain('残星会刺客');
     // Team name
@@ -122,7 +122,7 @@ describe('BattleView', () => {
     const el = mount(<BattleView />);
     expect(el.textContent).toContain('胜 利');
     expect(el.textContent).toContain('5 回合');
-    const settleBtn = el.querySelector('button');
+    const settleBtn = el.querySelector('.bf-result-btn');
     expect(settleBtn?.textContent).toContain('领 取 奖 励');
   });
 
@@ -134,7 +134,7 @@ describe('BattleView', () => {
 
     const el = mount(<BattleView />);
     expect(el.textContent).toContain('战 斗 失 败');
-    const closeBtn = el.querySelector('button');
+    const closeBtn = el.querySelector('.bf-result-btn');
     expect(closeBtn?.textContent).toContain('关 闭');
   });
 
@@ -164,13 +164,13 @@ describe('BattleView', () => {
     bumpBattleVersion();
 
     const el = mount(<BattleView />);
-    // Enemy row should be clickable and show the target 🎯
-    expect(el.textContent).toContain('🎯');
+    // Enemy row should be clickable and show the target mark（目标 pill）
+    expect(el.textContent).toContain('目标');
     expect(el.textContent).toContain('残星会刺客');
-    // Enemy row receives onClick via Preact's virtual DOM — not serialized as HTML onclick attr
-    // Verify there are clickable enemy divs with the target indicator
-    const clickableEnemyDivs = el.querySelectorAll('[style*="cursor: pointer"]');
-    expect(clickableEnemyDivs.length).toBeGreaterThanOrEqual(1);
+    // Enemy row 现在是 <button class="bf-enemy">，onClick 经 Preact 虚拟 DOM 绑定（不序列化为 onclick 属性）
+    const enemyBtns = el.querySelectorAll('.bf-enemy');
+    expect(enemyBtns.length).toBeGreaterThanOrEqual(1);
+    expect(el.querySelector('.bf-enemy.is-target')).not.toBeNull();
   });
 
   it('responds to battleVersionSignal changes', async () => {
@@ -195,6 +195,6 @@ describe('BattleView', () => {
     // Since Preact reuses the container, we check text content
     const text = el.textContent || '';
     // The component reads battle.turn directly (not a signal), so the text shows the new value
-    expect(text).toContain('回合 3');
+    expect(text).toContain('回合3'); // 头部 hud 无空格；日志 msg 仍是旧『回合 1』
   });
 });

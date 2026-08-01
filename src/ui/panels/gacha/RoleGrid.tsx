@@ -5,6 +5,7 @@
 import { h, Fragment } from 'preact';
 import { useS } from '../../signals';
 import { openRoleModal } from '../../../ui/render/roleModal.js';
+import { getRoleArt } from '../../assets/index.ts';
 
 // 排序:5★ 优先 → 共鸣链高优先 → 等级高优先 → 名字
 function roleSortKey(o: any): [number, number, number, string] {
@@ -40,10 +41,14 @@ export function RoleGrid() {
         const stars = '★'.repeat(o.r);
         const chainCls = o.chain >= 6 ? 'full' : (o.chain > 0 ? 'has' : '');
         const lv = o.level || 1;
+        const ra = getRoleArt(o.n);
+        const art = ra?.portrait || ra?.bannerBg;
         return (
           <div class={`role r${o.r}`}
             onClick={() => openRoleModal(o.n)}
             style={{ cursor: 'pointer' }}>
+            {art && <div class="role-art" style={{ backgroundImage: `url("${art}")` }}></div>}
+            <div class="role-shade"></div>
             <div class={`chain-badge ${chainCls}`}>+{o.chain}/6</div>
             {o.spare > 0 ? <div class="spare-dot">频段 {o.spare}</div> : null}
             <div class="stars">{stars}</div>

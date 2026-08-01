@@ -28,6 +28,8 @@ export const state0 = () => ({
   // 新旅池启用时间戳：开始用第一抽时记录，过 30 天后两个池都隐藏
   noviceStarted: 0,
   standardWeaponTarget: '千古洑流',
+  // 新手池(万象新声)当前定向五星;null=未选,等概率随机
+  beginnerTarget: null,
   astrite: 16000, lunite: 0, radiant: 0, forging: 0, lustrous: 0, dream: 0, mirage: 0,
   shellCredit: 0, // 贝币
   afterglow: 0, oscillated: 0, spent: 0, days: 0,

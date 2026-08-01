@@ -9,6 +9,7 @@ import { DAY } from '../../../state.js';
 import { VERSION_NAMES } from '../../../data/phases.js';
 import { standard5 } from '../../../data/chars.js';
 import { openRolePreview } from '../../../ui/render/roleModal.js';
+import { getBannerArt, getRoleArt, getWeaponBannerArt } from '../../assets/index.ts';
 
 function tabTag(x: any): string {
   if (x.pool === 'beginner') return '新手';
@@ -43,6 +44,18 @@ export function GachaBanner() {
 
   const kind = poolKind(b.pool);
   const pool = b.pool;
+  const art = getBannerArt(b.pool);
+  const roleArt = b.char ? getRoleArt(b.char) : undefined;
+  // 卡池大图 = 官方海报立绘(bannerBg),缺省回落立绘;武器池走 pool 级 art,
+  // pool 级无图时回落本期角色海报(限定武器池有 char,常驻武器池仍走 pool 级 art.bg)。
+  // 整块 banner-art 背景铺这张图(cover),文字浮在上面——不再是右侧小图。
+  // 武器池用武器自身的 732 横版艺术图(bannerBg),不再回落到角色海报;
+  // 角色池用角色官方海报;常驻角色池(char=null)走 pool 级 BANNER_ART 壁纸。
+  const weaponArt = kind === 'weapon' ? getWeaponBannerArt(b.weapon) : undefined;
+  const bgImg = kind === 'weapon'
+    ? (weaponArt || art?.bg)
+    : (roleArt?.bannerBg || roleArt?.portrait || art?.bg);
+  const hasArt = !!bgImg;
 
   const upText = (() => {
     if (pool === 'collabChar') return '100% 本期角色';
@@ -103,8 +116,8 @@ export function GachaBanner() {
     );
   }
 
-  const showStdList = pool === 'standardChar' || pool === 'beginner';
-  const stdTitle = pool === 'beginner' ? '五星池 · 海上共潮生 5 选 1' : '常驻五星 · 5 选 1 等概率';
+  const showStdList = pool === 'standardChar';
+  const stdTitle = pool === 'beginner' ? '新手五星 · 5 选 1 定向' : '常驻五星 · 5 选 1 等概率';
 
   return (
     <Fragment>
@@ -120,19 +133,25 @@ export function GachaBanner() {
           );
         })}
       </div>
-      <div class={'banner-art ' + (kind === 'weapon' ? 'theme-l' : 'theme-r')} id="bnArt">
+      <div class={'banner-art ' + (kind === 'weapon' ? 'theme-l' : 'theme-r') + (bgImg ? ' has-art' : '')} id="bnArt"
+        style={bgImg ? { backgroundImage: `url("${bgImg}")` } : undefined}>
         <div class="ba-main">
-          <div class="ba-sub">{poolTitle(b)} · {b.version} · {VERSION_NAMES[b.version] || ''}</div>
-          <div class={'ba-name' + (headline.length > 5 ? ' small' : '')}>{headline}</div>
-          <div class="ba-banner">「{b.banner}」</div>
-          {poolBadge}
-          <div class="ba-weapon">{sublineParts}</div>
-          <div class="ba-fours"><b>四 星</b> {b.fours.join(' · ')}</div>
-          {showStdList && (
-            <div class="ba-standard-list">
-              <div class="bsl-title">{stdTitle}</div>
-              <div class="bsl-row">{standard5.map(c => <span class="bsl-chip">{c}</span>)}</div>
-            </div>
+          {pool === 'beginner' && poolBadge}
+          {!hasArt && (
+            <>
+              <div class="ba-sub">{poolTitle(b)} · {b.version} · {VERSION_NAMES[b.version] || ''}</div>
+              <div class={'ba-name' + (headline.length > 5 ? ' small' : '')}>{headline}</div>
+              <div class="ba-banner">「{b.banner}」</div>
+              {pool !== 'beginner' && poolBadge}
+              <div class="ba-weapon">{sublineParts}</div>
+              <div class="ba-fours"><b>四 星</b> {b.fours.join(' · ')}</div>
+              {showStdList && (
+                <div class="ba-standard-list">
+                  <div class="bsl-title">{stdTitle}</div>
+                  <div class="bsl-row">{standard5.map(c => <span class="bsl-chip">{c}</span>)}</div>
+                </div>
+              )}
+            </>
           )}
           {(() => {
             const t = targetOptions(b);
@@ -152,38 +171,33 @@ export function GachaBanner() {
               </div>
             );
           })()}
-          <BannerPreviewButtons b={b} kind={kind} />
         </div>
-        <div class="ba-meta">
-          <div class="ba-up">{upText}</div>
-          {extraPeriod ? (
-            <div class="ba-period">{extraPeriod}</div>
-          ) : (
-            <>
-              <div class="ba-period">{periodLine}</div>
-              {remainingLine && <div class="ba-remaining">{remainingLine}</div>}
-            </>
-          )}
-        </div>
+        {!hasArt && (
+          <div class="ba-meta">
+            <div class="ba-up">{upText}</div>
+            {extraPeriod ? (
+              <div class="ba-period">{extraPeriod}</div>
+            ) : (
+              <>
+                <div class="ba-period">{periodLine}</div>
+                {remainingLine && <div class="ba-remaining">{remainingLine}</div>}
+              </>
+            )}
+          </div>
+        )}
+        <BannerPreviewButtons b={b} />
       </div>
     </Fragment>
   );
 }
 
-function BannerPreviewButtons({ b, kind }: any) {
-  if (!b) return null;
-  const buttons: any[] = [];
-  if (b.char) {
-    buttons.push(
+function BannerPreviewButtons({ b }: any) {
+  if (!b || !b.char) return null;
+  return (
+    <div class="ba-preview">
       <button class="mbtn gold" onClick={(e: any) => { e.stopPropagation(); openRolePreview(b.char); }}>
         查看 {b.char}
       </button>
-    );
-  }
-  if (!buttons.length) return null;
-  return (
-    <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '10px' }}>
-      {buttons}
     </div>
   );
 }

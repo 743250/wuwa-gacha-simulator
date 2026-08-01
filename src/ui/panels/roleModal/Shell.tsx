@@ -1,6 +1,7 @@
 import { h } from 'preact';
 import { ELEMENT_COLORS, TABS } from './signals';
 import { switchRoleTab } from '../../../ui/render/roleModal.js';
+import { getRoleArt } from '../../assets/index.ts';
 
 interface ShellProps {
   roleName: string;
@@ -18,11 +19,13 @@ export function Shell({ roleName, rarity, element, type, level, chain, currentTa
   const stars = '★'.repeat(rarity);
   const elemColor = ELEMENT_COLORS[element] || '#fff';
   const visibleTabs = preview ? TABS.filter(t => t.id !== 'levelup') : TABS;
+  const portrait = getRoleArt(roleName)?.portrait;
 
   return (
     <div class="role-modal-wrap">
       <div class="role-sidebar">
         <div class="role-portrait">
+          {portrait && <img class="role-portrait-img" src={portrait} alt={roleName} loading="lazy" />}
           <div style={{ fontSize: '28px', fontWeight: 700, color: rarity === 5 ? 'var(--gold)' : '#dbc6ff', letterSpacing: '1px' }}>
             {roleName}
           </div>
