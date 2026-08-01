@@ -1633,9 +1633,9 @@ export const ENEMIES = {
 
 };
 
-// DEF 表（通用公式 800 + (lv/10)×80）
+// DEF 表（官方公式 792 + 8×等级，Lv90 = 1512）
 function defForLevel(lv) {
-  return 800 + Math.floor(lv / 10) * 80;
+  return 792 + 8 * lv;
 }
 
 // 获取 BOSS 讨伐等级
@@ -1654,38 +1654,33 @@ export function spawnEnemy(name, opts = 1.0) {
   const data = ENEMIES[name];
   if (!data) return null;
 
-  let hpMult, atkMult, defMult;
-  const isWorldBoss = data.class === 'Overlord' || data.class === 'Calamity';
+  let hpMult, atkMult;
   let enemyLv = 90;
 
   if (typeof opts === 'number') {
     // 兼容旧接口：number 参数直接当 scale 用（不再对世界 BOSS 额外压缩）
     hpMult = opts;
     atkMult = opts;
-    defMult = opts;
   } else if (opts && (opts.worldTier || opts.bossLevel)) {
     // 世界 BOSS 讨伐战：等级由三档机制决定（30-120），统一走 GrowthRates 非线性缩放
-    // 允许外层传入 hp/atk/def 倍率（日常阶级压缩）
+    // 允许外层传入 hp/atk 倍率（日常阶级压缩）
     const level = opts.bossLevel || 40;
     enemyLv = level;
     hpMult = typeof opts.hp === 'number' ? opts.hp : 1.0;
     atkMult = typeof opts.atk === 'number' ? opts.atk : 1.0;
-    defMult = typeof opts.def === 'number' ? opts.def : 1.0;
   } else if (opts && typeof opts.hp === 'number') {
     // 细粒度 scale
     hpMult = opts.hp ?? opts.all ?? 1;
     atkMult = opts.atk ?? opts.all ?? 1;
-    defMult = opts.def ?? opts.all ?? 1;
     if (opts.enemyLevel) enemyLv = opts.enemyLevel;
   } else {
     hpMult = 1.0;
     atkMult = 1.0;
-    defMult = 1.0;
   }
 
   const bossLv = (opts && opts.bossLevel) ? opts.bossLevel : 90;
-  // 非世界 BOSS 也支持按 level 缩放 DEF（defForLevel 通用公式）
-  const useDef = isWorldBoss ? defForLevel(bossLv) : Math.round(data.def * defMult);
+  // 所有敌人统一官方公式 DEF = 792 + 8×等级（世界 BOSS 走 bossLevel，其余走 enemyLevel）
+  const useDef = defForLevel(enemyLv);
   // 所有敌人均按官方 GrowthRates 非线性曲线缩放（Lv90 为基准）
   // 公式：实际值 = 基础值 × growthRatioTo90(level)
   // 三档机制下：副本敌人用 enemyLevel，世界 BOSS 用 bossLevel

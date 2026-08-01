@@ -49,8 +49,8 @@ describe('battle/characters/jiyan — 忌炎', () => {
     expect(burstLog).toBeTruthy();
     const primary = (burstLog.results || []).find(r => r.primary) || burstLog.results?.[0];
     expect(primary?.dmg).toBeGreaterThan(0);
-    // 命中前主目标约 12.87×atk，扣抗后仍应明显高于 7×atk
-    expect(primary.dmg).toBeGreaterThan(beforeAtk * 7);
+    // 命中前主目标约 12.87×atk，扣抗 + 官方 DEF(1512, defMult≈0.501) 后约 5.8×atk
+    expect(primary.dmg).toBeGreaterThan(beforeAtk * 5);
     expect(battle.log.some(l => l.type === 'mechanic' && /锐意之势 2/.test(l.msg || ''))).toBe(true);
   });
 

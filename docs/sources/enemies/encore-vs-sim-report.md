@@ -13,6 +13,8 @@
 > - **武器/声骸收口**：`和光回唱` 接光噪条件普攻/重击叠层；6 套官方无 2 件（3/1 件套）`bonus2: null` 已标注
 > - **有意保留**：`梦魇·哀声鸷` API=Elite，sim 仍 Overlord（无音区守关缩放）；`万囮牢·朽躯`/`千傀重楼` API 无同名（模拟器条目）；`流放者`/`夜归队员` 多 ID 同名只收一条代表面板；`限定武器` 占位无 trigger
 > - 复验：compact 有 hp 的 **unique 名 220/220 全覆盖**；`ENEMIES` **252** 键；spawn 全过；内容 ref missing=0；Overlord/Calamity 内容全接线；vitest battle/data/equip/daily **657** 绿
+> - **DEF 对齐官方（2026-08-01）**：`defForLevel` 改为官方统一公式 `792 + 8×等级`（Lv90=1512），替代旧 `800 + (lv/10)×80` 与逐敌人 `data.def`；`spawnEnemy` 所有敌人统一走 `defForLevel(enemyLv)`（世界 BOSS= bossLevel，其余=enemyLevel，缺省 Lv90）。依据 `complete-database.md`「DEF 缩放」表（Lv1=800…Lv90=1512…Lv120=1752，每级 +8）。注意：encore.moe API 的 Lv90 DEF 栏报 800（base 面板），与缩放表 1512 不同，本模拟器取缩放表。**全局减伤率 34.5%→49.9%，玩家伤害 ×0.765**——这是把伤害拉回官方量级的核心杠杆。**星评回合条按 ×1.307 上浮重标**（`STAR_CRITERIA` 20/18/15→26/24/20），保持设计星评难度不变；深塔血量（锚 2.15，3.4 中4 约 1126 万）是官方目标，不动。
+> - **HP/ATK 复核（2026-08-01）**：模拟器 `ENEMIES` base HP/ATK **已是 encore Lv90 官方值**——252 条里 190 个非变体敌人 HP 与 compact `lv90Hp` 完全一致、ATK 191 个一致（`lv90Atk`）；`异相·/梦魇·` 变体按设计继承本体 Lv90 面板；2.5-2.8 自定义 BOSS 与召唤物为模拟器自造（encore 无）。唯一差异 `赫卡忒`（sim 993307）与报告匹配清单 API=993,307 一致，属重名 byName 误取，不改。**base HP 不动**。
 
 ## 1. 数据规模
 

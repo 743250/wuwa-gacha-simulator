@@ -282,10 +282,11 @@ export function endTurn(battle) {
   // 新回合开始:当前出场角色的召唤物自动行动(赫卡忒等)
   if (battle.summons?.length) tickSummons(battle, battle.active);
 
-  // 安全上限
-  if (battle.turn > 25) {
+  // 安全上限：须高于 STAR_CRITERIA.oneStar.turn（26），否则慢通会被硬判负
+  // 2026-08-01 随星评回合条上浮（20/18/15→26/24/20），25→30
+  if (battle.turn > 30) {
     battle.finished = true;
     battle.result = 'lose';
-    battle.log.push({ type: 'system', msg: '战斗超时（>25 回合）。' });
+    battle.log.push({ type: 'system', msg: '战斗超时（>30 回合）。' });
   }
 }

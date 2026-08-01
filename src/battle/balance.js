@@ -35,10 +35,15 @@ export const VIBRATION_DAMAGE = {
   normalSplit: 6
 };
 
+// 星评回合条（深塔/海墟共用）：旧值 20/18/15 是按敌人 DEF 800 标定的；
+// 2026-08-01 敌人 DEF 官方化（792+8×等级，Lv90=1512）后玩家伤害 ×0.765，
+// 清同一血量需 ×1.307 回合。为保持设计星评难度不变，回合条按 ×1.307 上浮：
+// 20→26 / 18→24 / 15→20。HP 门槛不动（血量是官方目标值，见 balance 锚注释）。
+// oneStar.turn 同时是海墟 turnBonus 基准（settleWastes）。
 export const STAR_CRITERIA = {
-  oneStar:   { turn: 20, hp: 0    },
-  twoStar:   { turn: 18, hp: 0.70 },
-  threeStar: { turn: 15, hp: 0.70 }
+  oneStar:   { turn: 26, hp: 0    },
+  twoStar:   { turn: 24, hp: 0.70 },
+  threeStar: { turn: 20, hp: 0.70 }
 };
 
 // 日常副本 HP 按「副本类型」缩放（不按怪物阶级一刀切）。
