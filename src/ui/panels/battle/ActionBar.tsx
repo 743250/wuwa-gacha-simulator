@@ -164,7 +164,7 @@ export function ActionBar({ battle, pendingDungeon }: ActionBarProps) {
             class={`bbtn bf-act ${canHeavyOk ? 'lit heavy' : ''}`}
             onClick={() => bHeavy(enemyIdx)}
             disabled={!canHeavyOk}
-            title="220% 攻击 · 重击伤害类型 · CD 1 回合 · +15 能量 · 削破韧 25"
+            title={`220% 攻击 · 重击伤害类型 · CD ${cur.heavyCd ?? 1} 回合 · +15 能量 · 削破韧 25`}
           >
             <span class="bf-act-main">💢 重击</span>
             <span class="bf-act-sub">2 AP{cur.cd.heavy > 0 ? ` · CD${cur.cd.heavy}` : ''}</span>

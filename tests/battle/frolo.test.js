@@ -130,15 +130,23 @@ describe('battle/characters/frolo — 弗洛洛状态机', () => {
     });
   });
 
-  describe('谱曲终末倍率（ATK 绝对加点）', () => {
-    it('C0 满 0 余响为 6.6016，每层 +0.30', () => {
+  describe('谱曲终末倍率（ATK 绝对加点 · 官方每层 82.55%）', () => {
+    it('C0 满 0 余响为 6.6016，每层 +0.8255', () => {
       const battle = quickBattle();
       const f = getFurolo(battle);
       f.chain = 0;
       f.furoloEchoes = 0;
       expect(frolo.furoloDirgeMult(f)).toBeCloseTo(6.6016, 4);
       f.furoloEchoes = 10;
-      expect(frolo.furoloDirgeMult(f)).toBeCloseTo(6.6016 + 10 * 0.30, 4);
+      expect(frolo.furoloDirgeMult(f)).toBeCloseTo(6.6016 + 10 * 0.8255, 4);
+    });
+
+    it('C2 满层 24 余响：两系数均 ×1.75 → 26.41×1.75', () => {
+      const battle = quickBattle();
+      const f = getFurolo(battle);
+      f.chain = 2;
+      f.furoloEchoes = 24;
+      expect(frolo.furoloDirgeMult(f)).toBeCloseTo((6.6016 + 24 * 0.8255) * 1.75, 3);
     });
   });
 
@@ -232,6 +240,16 @@ describe('battle/characters/frolo — 弗洛洛状态机', () => {
       expect(f.furoloDirge).toBe(true);
     });
 
+    it('谱曲终末后重击冷却 = 3 回合（覆盖引擎默认 1）', () => {
+      const battle = quickBattle();
+      const f = getFurolo(battle);
+      combat.doAttack(battle, firstEnemy(battle));
+      combat.doAttack(battle, firstEnemy(battle));
+      combat.doHeavy(battle, firstEnemy(battle));
+      expect(f.cd.heavy).toBe(3);
+      expect(f.heavyCd).toBe(3); // 供战斗 UI 重击 tooltip 显示
+    });
+
     it('谱曲终末造成伤害（敌人血量下降）', () => {
       const battle = quickBattle(null, [{ name: '飞廉之猩', scale: 1 }]);
       const enemyIdx = firstEnemy(battle);
@@ -291,6 +309,56 @@ describe('battle/characters/frolo — 弗洛洛状态机', () => {
       // 此时定音已退出, 再次解放应失败
       const r = combat.doBurst(battle);
       expect(r.ok).toBe(false);
+    });
+  });
+
+  // ===== 3 链 / 6 链：乘区归属（谱曲不叠，指挥窗吃） =====
+  describe('3 链 / 6 链 · 乘区归属', () => {
+    it('3 链: 谱曲终末不再吃重击加深; 赫卡忒协同追击 ×1.8', () => {
+      const battle = quickBattle(null, [{ name: '飞廉之猩', scale: 1 }]);
+      const f = getFurolo(battle);
+      f.chain = 3;
+      // 满 6 乐声 → 谱曲终末
+      combat.doAttack(battle, firstEnemy(battle));
+      combat.doAttack(battle, firstEnemy(battle));
+      combat.doHeavy(battle, firstEnemy(battle));
+      // 谱曲不吃 3 链重击加深: C3 与 C2 的 dirgeMult 相同（只吃 C2 的 ×1.75）
+      f.furoloEchoes = 10;
+      const c3Mult = frolo.furoloDirgeMult(f);
+      f.chain = 2;
+      expect(c3Mult).toBeCloseTo(frolo.furoloDirgeMult(f), 6);
+      expect(c3Mult).toBeCloseTo((6.6016 + 10 * 0.8255) * 1.75, 4);
+      f.chain = 3;
+      // 进指挥 → 普攻触发赫卡忒协同追击（56% × 1.8 = 100.8%）
+      combat.doBurst(battle);
+      expect(battle.summons.some(s => s.name === '赫卡忒' && s.alive)).toBe(true);
+      combat.endTurn(battle);
+      const beforeLen = battle.log.length;
+      combat.doAttack(battle, firstEnemy(battle));
+      const msgs = battle.log.slice(beforeLen).map(e => e.msg || '').join('\n');
+      expect(msgs).toMatch(/协同追击 · 攻击×100\.8%/);
+    });
+
+    it('6 链: 湮灭 +60% 仅指挥状态内生效', () => {
+      const battle = quickBattle(null, [{ name: '飞廉之猩', scale: 1 }]);
+      const f = getFurolo(battle);
+      f.chain = 6;
+      // 大招前无常驻湮灭 buff
+      expect((f.buffs || []).some(b => b.src === '弗洛洛6链')).toBe(false);
+      combat.doAttack(battle, firstEnemy(battle));
+      combat.doAttack(battle, firstEnemy(battle));
+      combat.doHeavy(battle, firstEnemy(battle));
+      combat.doBurst(battle);
+      const c6Buff = (f.buffs || []).find(b => b.src === '弗洛洛6链');
+      expect(c6Buff).toBeTruthy();
+      expect(c6Buff.type).toBe('echoElemDmg');
+      expect(c6Buff.element).toBe('湮灭');
+      expect(c6Buff.value).toBe(0.60);
+      expect(c6Buff.duration).toBe(3); // 只持续指挥窗口，非常驻
+      // 切人退场 → 指挥结束 → 湮灭 buff 移除
+      frolo.furoloSwitchOut({ from: f, battle });
+      expect(f.furoloCommandTurns).toBe(0);
+      expect((f.buffs || []).some(b => b.src === '弗洛洛6链')).toBe(false);
     });
   });
 

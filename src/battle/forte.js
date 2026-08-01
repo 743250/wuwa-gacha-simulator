@@ -107,7 +107,7 @@ export const FORTE = {
     // 余响由 frolo.js 状机控制（战斗开始+10 / 赫卡忒攻击+1 / 共鸣链额外 / 谱曲终末消耗全部 / 不上场3回合消散）
     gainPerNormal: 0, gainPerSkill: 0, gainPerBurst: 0, gainPerHeavy: 0,
     effectType: 'furoloEchoes',
-    desc: '余响上限 24 层。每层使谱曲终末倍率绝对 +30%（2 链 +52.5%）；每层暴伤 +2.5%（固有·八重）。战斗开始 +10 层；赫卡忒攻击 +1；谱曲终末消耗全部；不上场 3 回合消散。'
+    desc: '余响上限 24 层。每层使谱曲终末倍率绝对 +82.55%（2 链 +144.6%）；每层暴伤 +2.5%（固有·八重）。战斗开始 +10 层；赫卡忒攻击 +1；谱曲终末消耗全部；不上场 3 回合消散。'
   },
   '夏空': {
     kind: 'stacks', resourceName: '音律', max: 3,

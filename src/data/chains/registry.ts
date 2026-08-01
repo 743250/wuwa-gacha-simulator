@@ -1269,12 +1269,12 @@ export const REGISTRY: Record<string, CharacterChains> = {
     },
     {
       index: 3,
-      effect: {"effect":"heavyDmg","value":0.8,"label":"谱曲终末伤害 +80%"},
-      text: { name: "匕首，消弭妄想的力量", desc: "<b class=\"term-heavy\">谱曲终末</b>的伤害加深 <b class=\"term-num\">80%</b>。<b class=\"term-heavy\">强化追击·赫卡忒</b>命中目标时，目标攻击力降低 <b class=\"term-num\">20%</b>，持续 <b class=\"term-num\">2</b> 回合。" },
+      effect: {"effect":"furoloC3HecateBoost","value":0.8,"label":"赫卡忒协同/强化伤害 +80%（指挥窗）"},
+      text: { name: "匕首，消弭妄想的力量", desc: "<b class=\"term-resource\">赫卡忒</b>的协同追击与强化追击伤害提升 <b class=\"term-num\">80%</b>。<b class=\"term-resource\">赫卡忒</b>强化追击命中目标时，目标攻击力降低 <b class=\"term-num\">20%</b>，持续 <b class=\"term-num\">2</b> 回合。" },
     },
     {
       index: 4,
-      effect: {"effect":"teamAllDmg","value":0.2,"label":"谱曲终末时全队全属性伤害 +20%"},
+      effect: {"effect":"furoloC4DirgeTeamBuff","value":0.2,"label":"施放谱曲终末时全队全属性伤害 +20%（4 回合）"},
       text: { name: "火炬，新径启行的引导", desc: "施放<b class=\"term-heavy\">谱曲终末</b>时，队伍中的角色全属性伤害加成提升 <b class=\"term-num\">20%</b>，持续 <b class=\"term-num\">4</b> 回合。" },
     },
     {
@@ -1284,7 +1284,7 @@ export const REGISTRY: Record<string, CharacterChains> = {
     },
     {
       index: 6,
-      effect: {"effect":"elemDmg","value":0.6,"element":"湮灭","label":"指挥状态时湮灭伤害 +60%"},
+      effect: {"effect":"furoloC6CommandElement","value":0.6,"element":"湮灭","label":"指挥状态内湮灭伤害 +60%"},
       text: { name: "深夜，走出安息与终结", desc: "<b class=\"term-heavy\">强化追击·赫卡忒</b>伤害倍率提升 <b class=\"term-num\">24%</b>。<b class=\"term-state\">指挥状态</b>期间施放<b class=\"term-normal\">普攻</b>或<b class=\"term-skill\">共鸣技能</b>时，赫卡忒追加重世幻象追击 <b class=\"term-num\">1</b> 次（造成弗洛洛攻击 <b class=\"term-num\">216.4%</b> 的湮灭伤害），并获得 <b class=\"term-num\">8</b> 层<b class=\"term-resource\">余响</b>。指挥状态期间，弗洛洛为登场角色时湮灭伤害加成提升 <b class=\"term-num\">60%</b>；弗洛洛为非登场角色时，目标受到<b class=\"term-resource\">赫卡忒</b>和弗洛洛的伤害提升 <b class=\"term-num\">36%</b>。" },
     }
     ],

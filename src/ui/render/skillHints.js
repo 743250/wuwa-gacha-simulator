@@ -1290,9 +1290,10 @@ export const SKILL_HINTS = {
       const skillMult  = 4.64 * c1RequiemMult;
       const c2 = chain >= 2 ? 1.75 : 1;
       const dirgeBase = 6.6016 * c2;
-      const echoAdd = 0.30 * c2;
+      const echoAdd = 0.8255 * c2;               // 官方 Lv10 表每层 +82.55%
       const dirgeFullMult = dirgeBase + 24 * echoAdd;
-      const dirgeHeavyBonus = chain >= 3 ? 1.80 : 1;
+      // 3 链 +80% 已移给赫卡忒（指挥窗），谱曲不再吃 3/6 链乘区
+      const c3Hecate = chain >= 3 ? 1.80 : 1;
       const hecastAutoMult = 0.56;
       const hecastAugMult = 3.40 * (chain >= 6 ? 1.24 : 1);
       const c6PhantomMult = 2.164;
@@ -1301,9 +1302,9 @@ export const SKILL_HINTS = {
 
       const normalDmg = Math.round(atk * normalMult);
       const skillDmg  = Math.round(atk * skillMult);
-      const dirgeDmg  = Math.round(atk * dirgeFullMult * dirgeHeavyBonus);
-      const hecastAutoDmg = Math.round(atk * hecastAutoMult);
-      const hecastAugDmg  = Math.round(atk * hecastAugMult);
+      const dirgeDmg  = Math.round(atk * dirgeFullMult);
+      const hecastAutoDmg = Math.round(atk * hecastAutoMult * c3Hecate);
+      const hecastAugDmg  = Math.round(atk * hecastAugMult * c3Hecate);
       const c6PhantomDmg  = Math.round(atk * c6PhantomMult);
       const varDmg    = Math.round(atk * varMult);
       const varCmdDmg = Math.round(atk * varCmdMult);
@@ -1320,16 +1321,15 @@ export const SKILL_HINTS = {
       );
       const dirgeTip = tipAttr(
         `<b style="color:var(--gold)">谱曲终末</b><br>` +
-        `= 攻击 <b>${atk}</b> ×（${dirgeBase.toFixed(4)} + 余响 × ${echoAdd.toFixed(4)}）` +
-        `${chain>=3?` × 1.80（3链）`:''}<br>` +
-        `满 24 层时倍率 ≈ ${(dirgeFullMult * dirgeHeavyBonus).toFixed(2)} = <b style="color:#ff6b9d">${dirgeDmg}</b><br>` +
-        `消耗全部 6 枚乐声与全部余响，进入定音状态`
+        `= 攻击 <b>${atk}</b> ×（${dirgeBase.toFixed(4)} + 余响 × ${echoAdd.toFixed(4)}）<br>` +
+        `满 24 层时倍率 ≈ ${dirgeFullMult.toFixed(2)} = <b style="color:#ff6b9d">${dirgeDmg}</b><br>` +
+        `冷却 3 回合。消耗全部 6 枚乐声与全部余响，进入定音状态`
       );
       const hecastTip = tipAttr(
         `<b style="color:var(--gold)">赫卡忒协同追击</b><br>` +
         `弗洛洛普攻/技能/重击/变奏命中后触发，伤害类型继承本击<br>` +
-        `· 协同追击：攻击 × 56% = ${hecastAutoDmg}（+1 乐声 +1 余响）<br>` +
-        `· 强化追击：攻击 × 340%${chain>=6?` × 1.24（6链）`:''} = ${hecastAugDmg}（+1 乐声 +1 余响）<br>` +
+        `· 协同追击：攻击 × 56%${chain>=3?` × 1.80（3链）`:''} = ${hecastAutoDmg}（+1 乐声 +1 余响）<br>` +
+        `· 强化追击：攻击 × 340%${chain>=6?` × 1.24（6链）`:''}${chain>=3?` × 1.80（3链）`:''} = ${hecastAugDmg}（+1 乐声 +1 余响）<br>` +
         `每第 2 次协同后升级为强化`
       );
       const varTip = tipAttr(
@@ -1353,9 +1353,9 @@ export const SKILL_HINTS = {
           desc: `对主目标造成 <span class="tip" data-tip='${skillTip}'><b style="color:var(--accent)">${skillDmg}</b> 点</span><b class="term-skill">湮灭伤害</b>。命中后获得 1 枚<b class="term-resource">乐声</b>。${chain>=1?'<br><span style="color:var(--gold)">[1 链]</span> 伤害倍率提升 80%。':''}${chain>=6?'<br><span style="color:var(--gold)">[6 链]</span> <b class="term-state">指挥状态</b>期间施放时，赫卡忒追加重世幻象追击。':''}`
         },
         {
-          icon: '🎼', name: '谱曲终末（重击替换）', cost: '2 AP · CD 1 回合 · 需 6 乐声',
+          icon: '🎼', name: '谱曲终末（重击替换）', cost: '2 AP · CD 3 回合 · 需 6 乐声',
           color: '#ff6b9d',
-          desc: `乐声满 6 枚时，重击替换为谱曲终末。对主目标造成 <span class="tip" data-tip='${dirgeTip}'><b style="color:#ff6b9d">${dirgeDmg}</b> 点</span><b class="term-heavy">湮灭范围伤害</b>（满 24 层余响示意）。施放时消耗全部 6 枚乐声与全部余响。倍率 = 660.16% + 每层余响 30%（2 链两系数均 ×1.75）。施放后进入<b class="term-state">定音</b>状态。${chain>=2?'<br><span style="color:var(--gold)">[2 链]</span> 基础倍率与余响加点均提升 75%，施放后获得 14 层余响。':''}${chain>=4?'<br><span style="color:var(--gold)">[4 链]</span> 施放时全队全属性伤害提升 20%，持续 4 回合。':''}`
+          desc: `乐声满 6 枚时，重击替换为谱曲终末。对主目标造成 <span class="tip" data-tip='${dirgeTip}'><b style="color:#ff6b9d">${dirgeDmg}</b> 点</span><b class="term-heavy">湮灭范围伤害</b>（满 24 层余响示意）。施放时消耗全部 6 枚乐声与全部余响。倍率 = 660.16% + 每层余响 82.55%（2 链两系数均 ×1.75）。施放后进入<b class="term-state">定音</b>状态。${chain>=2?'<br><span style="color:var(--gold)">[2 链]</span> 基础倍率与余响加点均提升 75%，施放后获得 14 层余响。':''}${chain>=4?'<br><span style="color:var(--gold)">[4 链]</span> 施放时全队全属性伤害提升 20%，持续 4 回合。':''}`
         },
         {
           icon: '⚡', name: '共鸣解放 · 往日深渊的圆舞曲', cost: '0 AP · 需定音状态',
@@ -1370,7 +1370,7 @@ export const SKILL_HINTS = {
       ];
     },
     forteName: '余响 / 乐声',
-    forteDesc: '<span style="color:var(--gold);font-size:11px">▸ 共鸣回路 · 新世界狂想曲</span><br>· <b class="term-resource">乐声</b>（上限 6 枚）：满 6 枚时重击替换为<b class="term-heavy">谱曲终末</b>。<br>· <b class="term-resource">余响</b>（上限 24 层）：战斗开始 +10；赫卡忒每次攻击 +1；共鸣链额外层数。谱曲终末每层绝对 +30% 攻击倍率（2 链 ×1.75），施放后消耗全部余响；每层暴伤 +2.5%。不上场 3 回合后消散。<br>· <b class="term-state">定音</b>：谱曲终末后进入，解锁共鸣解放。<br>· <b class="term-state">指挥状态</b>（3 回合）：攻击 +120%，召唤<b class="term-resource">赫卡忒</b>协同追击。'
+    forteDesc: '<span style="color:var(--gold);font-size:11px">▸ 共鸣回路 · 新世界狂想曲</span><br>· <b class="term-resource">乐声</b>（上限 6 枚）：满 6 枚时重击替换为<b class="term-heavy">谱曲终末</b>。<br>· <b class="term-resource">余响</b>（上限 24 层）：战斗开始 +10；赫卡忒每次攻击 +1；共鸣链额外层数。谱曲终末每层绝对 +82.55% 攻击倍率（2 链 ×1.75），施放后消耗全部余响；每层暴伤 +2.5%。不上场 3 回合后消散。<br>· <b class="term-state">定音</b>：谱曲终末后进入，解锁共鸣解放。<br>· <b class="term-state">指挥状态</b>（3 回合）：攻击 +120%，召唤<b class="term-resource">赫卡忒</b>协同追击。'
   },
 
   // 2.6 · 奥古斯塔（主C 导电 长刃）— 以众愿为冕 · HP 核

@@ -210,7 +210,8 @@ describe('battle/frolo-dps-sim — C6 + 沉日劫明 + 重击/湮灭', () => {
     });
 
     // 必须打出可观谱曲伤害；具体数值随武器/声骸面板浮动
-    expect(dirge1.dmg).toBeGreaterThan(100_000);
+    // 重设计后谱曲不再吃 3/6 链、敌人 DEF 对齐官方(1512)，首发谱曲 ~92k（设计目标 ~84k）
+    expect(dirge1.dmg).toBeGreaterThan(80_000);
     expect(totalFromEnemy).toBeGreaterThan(dirge1.dmg);
   });
 });

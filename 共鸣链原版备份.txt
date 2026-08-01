@@ -321,7 +321,7 @@
 <b class="term-heavy">谱曲终末</b>伤害倍率提升 <b class="term-num">75%</b>，<b class="term-resource">余响</b>对谱曲终末的倍率增加效果提升 <b class="term-num">75%</b>。施放<b class="term-heavy">谱曲终末</b>时获得 <b class="term-num">14</b> 层<b class="term-resource">余响</b>。
 
 **3 链 · 匕首，消弭妄想的力量**
-<b class="term-heavy">谱曲终末</b>的伤害加深 <b class="term-num">80%</b>。<b class="term-heavy">强化追击·赫卡忒</b>命中目标时，目标攻击力降低 <b class="term-num">20%</b>，持续 <b class="term-num">2</b> 回合。
+<b class="term-resource">赫卡忒</b>的协同追击与强化追击伤害提升 <b class="term-num">80%</b>。<b class="term-resource">赫卡忒</b>强化追击命中目标时，目标攻击力降低 <b class="term-num">20%</b>，持续 <b class="term-num">2</b> 回合。
 
 **4 链 · 火炬，新径启行的引导**
 施放<b class="term-heavy">谱曲终末</b>时，队伍中的角色全属性伤害加成提升 <b class="term-num">20%</b>，持续 <b class="term-num">4</b> 回合。
