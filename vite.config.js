@@ -10,7 +10,7 @@ export default defineConfig({
   build: {
     outDir: SINGLE_FILE ? 'single' : 'dist',
     emptyOutDir: true,
-    rollupOptions: SINGLE_FILE ? {} : {
+    rollupOptions: SINGLE_FILE ? { output: { inlineDynamicImports: true } } : {
       output: {
         manualChunks(id) {
           if (id.includes('node_modules')) {
