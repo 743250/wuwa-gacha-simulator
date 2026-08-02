@@ -563,4 +563,47 @@ describe('gacha/core', () => {
       expect(s.afterglow).toBeGreaterThan(0); // 拿到珊瑚
     });
   });
+
+  describe('7.6 满链后重复角色转珊瑚', () => {
+    const banner = { id: 'eventChar-1.0-忌炎', pool: 'eventChar', char: '忌炎', fours: ['丹瑾','炽霞','莫特斐'] };
+    const mk = () => ({ ...state0(), roles: {}, pity: { ...state0().pity, eventChar: 0 }, p4: { ...state0().p4, eventChar: 0 } });
+
+    it('靠余波兑换满链(chain=6,pulled=1)后再抽到 → 转 40 珊瑚, 不攒 spare', () => {
+      const s = mk();
+      core.addRoleFor(s, '忌炎', 5);
+      s.roles['忌炎'].chain = 6; s.roles['忌炎'].spare = 0; s.afterglow = 0;
+      core.pullOne(s, banner, 'eventChar', () => 0.001, true);
+      expect(s.afterglow).toBe(40);
+      expect(s.roles['忌炎'].spare).toBe(0);
+    });
+
+    it('未满链重复(chain=2) → 15 珊瑚并攒 spare', () => {
+      const s = mk();
+      core.addRoleFor(s, '忌炎', 5);
+      s.roles['忌炎'].chain = 2; s.roles['忌炎'].spare = 1; s.afterglow = 0;
+      core.pullOne(s, banner, 'eventChar', () => 0.001, true);
+      expect(s.afterglow).toBe(15);
+      expect(s.roles['忌炎'].spare).toBe(2);
+    });
+
+    it('pulled 超 7(未升链)再抽到 → 40 珊瑚', () => {
+      const s = mk();
+      for (let i = 0; i < 8; i++) core.addRoleFor(s, '忌炎', 5);
+      s.roles['忌炎'].chain = 3; s.afterglow = 0;
+      core.pullOne(s, banner, 'eventChar', () => 0.001, true);
+      expect(s.afterglow).toBe(40);
+    });
+
+    it('4星满链重复 → 8 珊瑚, 不攒 spare', () => {
+      const s = mk();
+      s.p4.eventChar = 10; // 必出四星
+      core.addRoleFor(s, '丹瑾', 4);
+      s.roles['丹瑾'].chain = 6; s.roles['丹瑾'].spare = 0; s.afterglow = 0;
+      const seq = [0.5, 0.4, 0.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5];
+      let i = 0;
+      core.pullOne(s, banner, 'eventChar', () => seq[i++], true);
+      expect(s.afterglow).toBe(8);
+      expect(s.roles['丹瑾'].spare).toBe(0);
+    });
+  });
 });

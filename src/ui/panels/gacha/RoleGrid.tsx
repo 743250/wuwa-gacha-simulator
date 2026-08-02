@@ -4,7 +4,7 @@
 
 import { h, Fragment } from 'preact';
 import { useS } from '../../signals';
-import { openRoleModal } from '../../../ui/render/roleModal.js';
+import { openRoleModal } from '../roleModal/actions.ts';
 import { getRoleArt } from '../../assets/index.ts';
 
 // 排序:5★ 优先 → 共鸣链高优先 → 等级高优先 → 名字

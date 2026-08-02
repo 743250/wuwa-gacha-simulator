@@ -1,9 +1,9 @@
-import { S } from '../../state.js';
-import { standard5, fourAll, weapons as characterWeapons } from '../../data/chars.js';
-import { computeBattleStats, calcBP } from '../../battle/stats.js';
-import { applyChainBonuses } from '../../battle/chains.js';
-import { initForte } from '../../battle/forte.js';
-import { fireCharacterHook, hasHeavyAttack } from '../../battle/characters/index.js';
+import { S } from '../state.js';
+import { standard5, fourAll, weapons as characterWeapons } from '../data/chars.js';
+import { computeBattleStats, calcBP } from './stats.js';
+import { applyChainBonuses } from './chains.js';
+import { initForte } from './forte.js';
+import { fireCharacterHook, hasHeavyAttack } from './characters/index.js';
 
 function roleRarity(n) {
   return standard5.includes(n) || Object.prototype.hasOwnProperty.call(characterWeapons, n) ? 5 : (fourAll.includes(n) ? 4 : 5);

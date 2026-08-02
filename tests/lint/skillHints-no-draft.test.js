@@ -1,6 +1,6 @@
 // Phase D · skillHints/terms 玩家文案门禁 + 假倍率草稿词
 import { describe, it, expect } from 'vitest';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 const ROOT = resolve(__dirname, '../..');
@@ -14,21 +14,30 @@ function playerLines(src) {
     .join('\n');
 }
 
+// skillHints 已拆为 skillHints/ 目录，扫描全部 PART*.js（跳过 index 聚合与 header）
+function skillHintsSources() {
+  const dir = resolve(ROOT, 'src/ui/panels/roleModal/skillHints');
+  return readdirSync(dir)
+    .filter(f => f.endsWith('.js') && f !== 'index.js')
+    .map(f => readFileSync(resolve(dir, f), 'utf8'))
+    .join('\n');
+}
+
 describe('lint · skillHints/terms 玩家文案无工程草稿词', () => {
-  it('skillHints.js', () => {
-    const src = playerLines(readFileSync(resolve(ROOT, 'src/ui/render/skillHints.js'), 'utf8'));
+  it('skillHints', () => {
+    const src = playerLines(skillHintsSources());
     const m = src.match(BAD);
     expect(m, m ? `found ${m[0]}` : '').toBeNull();
   });
 
   it('terms.js', () => {
-    const src = playerLines(readFileSync(resolve(ROOT, 'src/ui/terms.js'), 'utf8'));
+    const src = playerLines(readFileSync(resolve(ROOT, 'src/ui/panels/roleModal/terms.js'), 'utf8'));
     const m = src.match(BAD);
     expect(m, m ? `found ${m[0]}` : '').toBeNull();
   });
 
   it('skillHints 无假倍率/工程对照草稿词与裸 ×3.0 字面', () => {
-    const src = playerLines(readFileSync(resolve(ROOT, 'src/ui/render/skillHints.js'), 'utf8'));
+    const src = playerLines(skillHintsSources());
     const m = src.match(DRAFT);
     expect(m, m ? `found ${m[0]}` : '').toBeNull();
     // 仅拦源码里的裸字面「× 3.0」；模板 ${fullMult} 不算

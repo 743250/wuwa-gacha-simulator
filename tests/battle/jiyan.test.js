@@ -13,7 +13,7 @@ describe('battle/characters/jiyan — 忌炎', () => {
   beforeAll(async () => {
     combat = await import('../../src/battle/combat.js');
     stacks = await import('../../src/battle/stacks.js');
-    skillHints = await import('../../src/ui/render/skillHints.js');
+    skillHints = await import('../../src/ui/panels/roleModal/skillHints/index.js');
   });
 
   it('C0 无常驻 typeBonus 双算；有重击', () => {

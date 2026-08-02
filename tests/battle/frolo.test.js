@@ -563,7 +563,7 @@ describe('battle/characters/frolo — 弗洛洛状态机', () => {
     let skillHints;
     let charDoD;
     beforeAll(async () => {
-      skillHints = await import('../../src/ui/render/skillHints.js');
+      skillHints = await import('../../src/ui/panels/roleModal/skillHints/index.js');
       charDoD = await import('./helpers/charDoD.js');
     });
 

@@ -8,7 +8,7 @@ describe('Phase3 mult batch2 — 夏空/坎特蕾拉/相里要/洛可可', () =>
 
   beforeAll(async () => {
     idx = await import('../../src/battle/characters/index.js');
-    skillHints = await import('../../src/ui/render/skillHints.js');
+    skillHints = await import('../../src/ui/panels/roleModal/skillHints/index.js');
   });
 
   beforeEach(() => {

@@ -98,7 +98,7 @@ export const ROLE_ART: Record<string, RoleArtRef> = {
   },
   '赞妮': {
     portrait: 'https://api.encore.moe/resource/Data/Game/Aki/UI/UIResources/Common/Image/PixActivity/T_ActivityRoleZanni.webp',
-    bannerBg: 'https://storage.moegirl.org.cn/moegirl/commons/a/ae/赞妮壁纸.jpg',
+    bannerBg: 'https://huiji-public.huijistatic.com/wuwa/uploads/9/97/%E8%B5%9E%E5%A6%AE-%E5%A3%81%E7%BA%B8-%E6%A8%AA.jpg',
   },
   '夏空': {
     portrait: 'https://api.encore.moe/resource/Data/Game/Aki/UI/UIResources/Common/Image/PixActivity/T_ActivityRoleXiakong.webp',
@@ -106,7 +106,7 @@ export const ROLE_ART: Record<string, RoleArtRef> = {
   },
   '卡提希娅': {
     portrait: 'https://api.encore.moe/resource/Data/Game/Aki/UI/UIResources/Common/Image/PixActivity/T_ActivityRoleKatixiya.webp',
-    bannerBg: 'https://storage.moegirl.org.cn/moegirl/commons/1/1e/卡提希娅壁纸.jpg',
+    bannerBg: 'https://huiji-public.huijistatic.com/wuwa/uploads/3/38/%E5%8D%A1%E6%8F%90%E5%B8%8C%E5%A8%85-%E5%A3%81%E7%BA%B8-%E6%A8%AA.jpg',
   },
   '露帕': {
     portrait: 'https://api.encore.moe/resource/Data/Game/Aki/UI/UIResources/Common/Image/PixActivity/T_ActivityRoleLupa.webp',

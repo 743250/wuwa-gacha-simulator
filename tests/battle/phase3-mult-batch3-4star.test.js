@@ -23,7 +23,7 @@ describe('Phase3 mult batch3 — 4★ 工厂', () => {
 
   beforeAll(async () => {
     idx = await import('../../src/battle/characters/index.js');
-    skillHints = await import('../../src/ui/render/skillHints.js');
+    skillHints = await import('../../src/ui/panels/roleModal/skillHints/index.js');
   });
 
   beforeEach(() => {

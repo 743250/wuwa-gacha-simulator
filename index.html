@@ -17,23 +17,8 @@
 </div>
 
 <div class="app">
-  <div class="timeline">
-    <div class="ti">
-      <div class="now" id="dateNow">2024-05-23</div>
-      <div class="meta" id="dateMeta"></div>
-    </div>
-    <div class="t-actions">
-      <button class="tbtn" id="nextDay">＋1 日</button>
-      <button class="tbtn" id="nextPhase">下一期</button>
-      <button class="tbtn" id="todayBtn">今 天</button>
-      <span class="t-sep"></span>
-      <button class="tbtn" id="nextVersion">下版本</button>
-      <button class="tbtn" id="pickVersion">选版本</button>
-      <span class="t-sep"></span>
-      <button class="tbtn" id="saveMgmt">存 档</button>
-      <button class="tbtn danger" id="reset">重 置</button>
-    </div>
-  </div>
+  <!-- 顶部时间线栏 · 由 Preact <TimelineBar/> 接管(Phase 3) -->
+  <div id="timelineBar"></div>
 
   <!-- 顶层视图切换 · 由 Preact <ViewTabs/> 接管(AppShell 第二小步) -->
   <div id="viewTabs"></div>
@@ -127,13 +112,8 @@
   <!-- ====== 视图 2：冒险 ====== -->
   <div class="view" id="viewAdventure" style="display:none">
     <div class="col-wrap">
-      <div class="side-tabs">
-        <div class="a-tab on" data-a="team">编 队</div>
-        <div class="a-tab" data-a="daily">日 常</div>
-        <div class="a-tab" data-a="dungeon">副 本</div>
-        <div class="a-tab" data-a="abyss">深 塔</div>
-        <div class="a-tab" data-a="wastes">海 墟</div>
-      </div>
+      <!-- 子 tab · 由 Preact <ATabBar/> 接管(Phase 3) -->
+      <div id="aTabBar"></div>
       <div class="pane" id="paneTeam"></div>
       <div class="pane" id="paneDaily" style="display:none"></div>
       <div class="pane" id="paneDungeon" style="display:none"></div>
@@ -152,10 +132,8 @@
   <!-- ====== 视图 4：商店 ====== -->
   <div class="view" id="viewStorage" style="display:none">
     <div class="col-wrap">
-      <div class="side-tabs">
-        <div class="b-tab on" data-b="podcast">电 台</div>
-        <div class="b-tab" data-b="shop">商 店</div>
-      </div>
+      <!-- 子 tab · 由 Preact <BTabBar/> 接管(Phase 3) -->
+      <div id="bTabBar"></div>
       <div class="pane" id="panePodcast"></div>
       <!-- #paneShop 内部静态结构由 preact <ShopPanel/> 接管（Stage 6.1b），mount 时清空重建。
            内部 #kSpent/#kLunite/#kDays/#scFeatured/#scRegular/#scTopup/#bannerFeatured 等id

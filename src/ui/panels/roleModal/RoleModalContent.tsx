@@ -20,17 +20,17 @@ import { ChainTab } from './ChainTab';
 import { SkillTab } from './SkillTab';
 import { LevelupTab } from './LevelupTab';
 import { LoreTab } from './LoreTab';
-import { getRoleForModal, computeRoleStatsForModal, calcRoleBPForModal } from '../../../ui/render/rolePreview.js';
+import { getRoleForModal, computeRoleStatsForModal, calcRoleBPForModal } from '../../../battle/rolePreview.js';
 import { getMeta } from '../../../battle/template.js';
 import { expToNext, weaponToNext } from '../../../battle/stats.js';
 import { WEAPON_DATA } from '../../../equip/weapons.js';
-import { renderWeaponDetail } from '../../../ui/render/weaponDetail.js';
+import { renderWeaponDetail } from '../weaponDetail.ts';
 import { totalExp } from '../../../equip/actions.js';
 import { calcTotalCost, ECHO_COST_CAP, echoToNext } from '../../../equip/echoActions.js';
 import { getSetById, formatEchoStatValue, formatSetBonus } from '../../../data/echoes.js';
 import { getChainDef } from '../../../data/chains';
-import { attachTermTips } from '../../../ui/terms.js';
-import { highlightChainTerms } from '../../../ui/render.js';
+import { attachTermTips } from './terms.js';
+import { highlightChainTerms } from './skillText.ts';
 
 export function RoleModalContent() {
   const S = useS();

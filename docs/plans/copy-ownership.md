@@ -10,7 +10,7 @@
 | 共鸣链战斗效果 | `src/data/chains/registry.ts` 的 `effect` | `chains.js` → unit 加成 / 角色 hook |
 | 共鸣链玩家文案 | 同上 `text`（title/desc） | 角色详情 Chain  tab |
 | 招式实际倍率/状态机 | `src/battle/characters/*.js` + `combat/*` | 战斗结算 |
-| 技能 tab 展示与公式 tooltip | `src/ui/render/skillHints.js`（可经 `skillLines.js` 工厂） | RoleModal Skill tab |
+| 技能 tab 展示与公式 tooltip | `src/ui/panels/roleModal/skillHints/index.js`（可经 `skillLines.js` 工厂） | RoleModal Skill tab |
 | 术语解释 | `src/ui/terms.js` `TERM_DICT` | 悬停 |
 | 设计意图与取舍 | `docs/plans/characters/<角色>.md` | 人读；**不直接驱动运行时** |
 | 官方原文 | `docs/sources/**` | 输入参考，不是目标 |

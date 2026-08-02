@@ -8,7 +8,7 @@ describe('battle/characters/gaberina — 嘉贝莉娜', () => {
 
   beforeAll(async () => {
     combat = await import('../../src/battle/combat.js');
-    skillHints = await import('../../src/ui/render/skillHints.js');
+    skillHints = await import('../../src/ui/panels/roleModal/skillHints/index.js');
   });
 
   beforeEach(() => {

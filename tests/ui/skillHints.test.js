@@ -8,7 +8,7 @@ describe('ui/skillHints — data integrity', () => {
   let KNOWN_CHARACTERS;
 
   beforeAll(async () => {
-    hints = await import('../../src/ui/render/skillHints.js');
+    hints = await import('../../src/ui/panels/roleModal/skillHints/index.js');
     KNOWN_CHARACTERS = Object.keys(hints.SKILL_HINTS);
   });
 
@@ -50,11 +50,11 @@ describe('ui/skillHints — data integrity', () => {
   });
 });
 
-describe('ui/render — SKILL_HINTS rendering integration', () => {
+describe('ui/skillHints — SKILL_HINTS rendering integration', () => {
   let hints;
 
   beforeAll(async () => {
-    hints = await import('../../src/ui/render/skillHints.js');
+    hints = await import('../../src/ui/panels/roleModal/skillHints/index.js');
   });
 
   it('customLines returns array for all characters at chain=0', () => {
@@ -93,8 +93,8 @@ describe('ui/skillHints — chain typeBonus injection', () => {
   let hints;
 
   beforeAll(async () => {
-    preview = await import('../../src/ui/render/rolePreview.js');
-    hints = await import('../../src/ui/render/skillHints.js');
+    preview = await import('../../src/battle/rolePreview.js');
+    hints = await import('../../src/ui/panels/roleModal/skillHints/index.js');
   });
 
   beforeEach(() => {

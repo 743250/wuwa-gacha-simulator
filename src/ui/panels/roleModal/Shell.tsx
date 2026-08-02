@@ -1,6 +1,6 @@
 import { h } from 'preact';
 import { ELEMENT_COLORS, TABS } from './signals';
-import { switchRoleTab } from '../../../ui/render/roleModal.js';
+import { switchRoleTab } from './actions.ts';
 import { getRoleArt } from '../../assets/index.ts';
 
 interface ShellProps {

@@ -1,5 +1,5 @@
 import { h } from 'preact';
-import { activateChain } from '../../../ui/render/roleModal.js';
+import { activateChain } from './actions.ts';
 
 interface SeqLine {
   name: string;

@@ -4,7 +4,7 @@
 import { S } from '../../state.js';
 import { msg } from '../services/toast.ts';
 import { usePotion as usePotionCore, useAllPotions as useAllPotionsCore, buyStaminaWithAstrite } from '../../daily/stamina.js';
-import { WEAPON_BOX_OPTIONS } from '../../data/podcast-rewards.js';
+import { WEAPON_BOX_OPTIONS } from '../../data/podcastRewards.js';
 import { openModal } from '../../modal.js';
 import { h } from 'preact';
 import { radioPickWeapon } from '../../podcast/core.js';

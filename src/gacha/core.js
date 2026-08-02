@@ -195,9 +195,10 @@ function payOneFor(state, pool) {
   return false;
 }
 
-function charCoral(r, pulled) {
-  if (r === 5) return pulled === 1 ? 15 : (pulled <= 7 ? 15 : 40);
-  if (r === 4) return pulled === 1 ? 3 : (pulled <= 7 ? 3 : 8);
+function charCoral(r, pulled, chain) {
+  // 与 addRoleFor 攒 spare 的条件完全一致:抽到重复但 spare 已无用(pulled>7 或已满链)时折算 40/8 珊瑚
+  if (r === 5) return pulled === 1 ? 15 : (pulled <= 7 && chain < 6 ? 15 : 40);
+  if (r === 4) return pulled === 1 ? 3 : (pulled <= 7 && chain < 6 ? 3 : 8);
   return 0;
 }
 
@@ -221,30 +222,30 @@ function five(state, pool, b, rng) {
     type = up ? '新旅目标五星角色' : '常驻五星角色';
     state.g[pool] = !up;
     const r = addRoleFor(state, name, 5);
-    coral = charCoral(5, r.pulled);
+    coral = charCoral(5, r.pulled, r.chain);
     if (!up) coral += 30;
   } else if (pool === 'beginner') {
     // 新手池支持 5 选 1 定向(b.char 由 activeBanners 从 S.beginnerTarget 带入);未选则 5 选 1 等概率
     name = b.char || pickRng(standard5, rng); type = '新手五星角色'; up = false;
     // 50 抽用完才永久关闭（不再因首五星就关池）
     const r = addRoleFor(state, name, 5);
-    coral = charCoral(5, r.pulled);
+    coral = charCoral(5, r.pulled, r.chain);
   } else if (pool === 'standardChar') {
     // 常驻角色池不可定向,5 选 1 等概率
     name = pickRng(standard5, rng); type = '常驻五星角色'; up = false;
     const r = addRoleFor(state, name, 5);
-    coral = charCoral(5, r.pulled);
+    coral = charCoral(5, r.pulled, r.chain);
   } else if (pool === 'collabChar') {
     up = true; name = b.char; type = '概率提升联动五星角色';
     const r = addRoleFor(state, name, 5);
-    coral = charCoral(5, r.pulled);
+    coral = charCoral(5, r.pulled, r.chain);
   } else {
     up = state.g[pool] || rng() < .5;
     name = up ? b.char : pickRng(standard5, rng);
     type = up ? '概率提升五星角色' : '常驻五星角色';
     state.g[pool] = !up;
     const r = addRoleFor(state, name, 5);
-    coral = charCoral(5, r.pulled);
+    coral = charCoral(5, r.pulled, r.chain);
     if (!up) coral += 30;
   }
   if (up) { type += ' · 命中提升'; state.upHits++; }
@@ -266,7 +267,7 @@ function four(state, pool, b, rng) {
   if (fourWeapons.includes(name)) {
     addWeaponFor(state, name, 4); coral = 3;
   } else {
-    const r = addRoleFor(state, name, 4); coral = charCoral(4, r.pulled);
+    const r = addRoleFor(state, name, 4); coral = charCoral(4, r.pulled, r.chain);
   }
   state.g4[pool] = !up;
   state.afterglow += coral;
@@ -291,7 +292,7 @@ export function addRoleFor(state, n, r) {
   };
   o.pulled = (o.pulled || 0) + 1;
   if (o.owned === 0) o.owned = 1;
-  else if (o.pulled <= 7) o.spare++;
+  else if (o.pulled <= 7 && o.chain < 6) o.spare++;
   if (o.level === undefined) o.level = 1;
   if (o.skillLevels === undefined) o.skillLevels = { 普攻: 1, 技能: 1, 解放: 1, 回路: 1 };
   if (o.equipWeapon === undefined) o.equipWeapon = null;
@@ -347,4 +348,4 @@ export function canAffordPulls(n) {
 }
 
 // Phase 3 步骤 C:upgrade 已迁到 actions.js(需要 commit 写入)。
-// 旧调用方 src/ui/render/roleModal.js 已改从 actions.js 导入。
+// 旧调用方已改从 src/ui/panels/roleModal/actions.ts 导入。

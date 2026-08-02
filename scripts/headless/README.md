@@ -26,17 +26,17 @@ proot-distro login ubuntu -- bash -lc '.../chrome --headless=new --no-sandbox --
 # 用 Bash 工具的 run_in_background=true 跑，避免 proot login 退出杀进程
 ```
 
-### 2. 抓某页所有图片（cdp_fetch.mjs）
+### 2. 抓某页所有图片（cdp-fetch.mjs）
 
 ```bash
-env -u NODE_OPTIONS node scripts/headless/cdp_fetch.mjs "角色名/画廊" 9333 2>/dev/null > out.json
+env -u NODE_OPTIONS node scripts/headless/cdp-fetch.mjs "角色名/画廊" 9333 2>/dev/null > out.json
 # 输出 JSON 数组:{title,width,height,url,thumb},stdout 只有 JSON(日志走 stderr)
 ```
 
-### 3. 渲染任意 URL 抽 DOM 图片（cdp_dom.mjs，库街区这种 SPA 用）
+### 3. 渲染任意 URL 抽 DOM 图片（cdp-dom.mjs，库街区这种 SPA 用）
 
 ```bash
-env -u NODE_OPTIONS node scripts/headless/cdp_dom.mjs "https://..." 9333
+env -u NODE_OPTIONS node scripts/headless/cdp-dom.mjs "https://..." 9333
 ```
 
 ## 选图标准（角色卡池大图）

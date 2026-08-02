@@ -7,7 +7,7 @@ describe('battle DoD smoke — accepted S roles', () => {
   let combat;
 
   beforeAll(async () => {
-    skillHints = await import('../../src/ui/render/skillHints.js');
+    skillHints = await import('../../src/ui/panels/roleModal/skillHints/index.js');
     combat = await import('../../src/battle/combat.js');
   });
 

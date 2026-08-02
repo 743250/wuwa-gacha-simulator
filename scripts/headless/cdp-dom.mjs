@@ -1,5 +1,5 @@
 // 连上 proot chrome,渲染任意 URL,抽出所有图片 URL + 页面标题
-// 用法: node cdp_dom.mjs <url> [port]
+// 用法: node cdp-dom.mjs <url> [port]
 const url = process.argv[2];
 const PORT = process.argv[3] || '9333';
 const { setTimeout: sleep } = (await import('node:timers/promises'));

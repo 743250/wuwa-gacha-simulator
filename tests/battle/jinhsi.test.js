@@ -11,7 +11,7 @@ describe('battle/characters/jinhsi — 今汐', () => {
 
   beforeAll(async () => {
     combat = await import('../../src/battle/combat.js');
-    skillHints = await import('../../src/ui/render/skillHints.js');
+    skillHints = await import('../../src/ui/panels/roleModal/skillHints/index.js');
   });
 
   it('C0 有重击；无 C3/C4 常驻 typeBonus 双算', () => {

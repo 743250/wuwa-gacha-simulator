@@ -1,6 +1,6 @@
 import { h } from 'preact';
-import { renderSkillsBlock } from '../../../ui/render/skillBlock.js';
-import { getSkillHintRoleContext } from '../../../ui/render/rolePreview.js';
+import { renderSkillsBlock } from './skillBlock.js';
+import { getSkillHintRoleContext } from '../../../battle/rolePreview.js';
 import { encoreBurstModeSignal } from './signals';
 
 interface SkillTabProps {

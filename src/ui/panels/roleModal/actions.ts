@@ -1,11 +1,7 @@
-// roleModal shim — Stage 5.1 Preact migration
-// Preact (RoleModalManager + RoleModalContent) has taken over #modalBox content.
-// switchRoleTab / activateChain / selectEchoSlot / openRoleModal / openRolePreview 已 export 给 src/ui/panels/roleModal/ Preact 组件直接 import。
-// skillBlock.js 已 Preact 化,直接 import toggleEncoreBurstMode,不再需要 window.__ re-export 桥。
-
-import { S } from '../../state.js';
-import { msg } from '../services/toast.ts';
-import { upgrade } from '../../gacha/actions.js';
+// roleModal 入口 action（原 src/ui/render/roleModal.js shim，已迁入 Preact 层）
+import { S } from '../../../state.js';
+import { msg } from '../../services/toast.ts';
+import { upgrade } from '../../../gacha/actions.js';
 import {
   roleModalOpenSignal,
   roleModalNameSignal,
@@ -13,9 +9,7 @@ import {
   roleModalPreviewSignal,
   echoSelectedSlotSignal,
   roleModalRenderTick,
-} from '../../ui/panels/roleModal/signals.js';  // eslint-disable-line
-
-// ---------- Public entry points ----------
+} from './signals.js';
 
 export function openRoleModal(n) {
   roleModalNameSignal.value = n;
@@ -50,8 +44,4 @@ export function activateChain(n) {
 export function selectEchoSlot(roleName, idx) {
   echoSelectedSlotSignal.value = { ...echoSelectedSlotSignal.value, [roleName]: idx };
   roleModalRenderTick.value = roleModalRenderTick.value + 1;
-}
-
-export function initRoleModal({ render }) {
-  void render;
 }

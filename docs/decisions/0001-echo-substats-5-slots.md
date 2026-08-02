@@ -16,6 +16,6 @@
 **影响**：
 - `src/equip/echoActions.js` `generateEcho` 改为 5 槽 + 全锁；`levelUpEcho` 每 5 级解锁下一个 `!unlocked` 槽位。
 - `src/battle/stats.js` `echoContrib` 跳过 `unlocked === false` 的副词条。
-- `src/ui/bag.js` / `src/ui/render.js` 未解锁槽位显示 `??? · 未解锁（LV X）`。
+- `src/ui/bag.js` / `src/ui/root.tsx` 未解锁槽位显示 `??? · 未解锁（LV X）`。
 - **老存档兼容**：旧声骸无 `unlocked` 字段，`echoContrib` 用 `s.unlocked === false` 判定（undefined 不等于 false），默认按已解锁处理——老存档不崩、不缩水。新 `generateEcho` 才会生成 `unlocked: false`。
 - **不能随便改**：5 槽解锁节点（5/10/15/20/25）已写入测试 `tests/equip/echoActions.test.js`，改动需同步测试。

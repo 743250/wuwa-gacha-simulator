@@ -111,8 +111,8 @@ npx vitest run     # 全部测试通过
 | 共鸣链文案 | `src/data/seq.js` → `seqText` |
 | FORTE 回路配置 | `src/battle/forte.js` → `FORTE` |
 | 角色机制文件 | `src/battle/characters/<角色名>.js` |
-| 技能 UI 文案 | `src/ui/render/skillHints.js` → `SKILL_HINTS` |
-| 技能工厂函数 | `src/ui/render/skillLines.js` → `makeSkillLines()` |
+| 技能 UI 文案 | `src/ui/panels/roleModal/skillHints/index.js` → `SKILL_HINTS` |
+| 技能工厂函数 | `src/ui/panels/roleModal/skillLines.js` → `makeSkillLines()` |
 
 ---
 

@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { state0, S, date, fmt } from '../../src/state.js';
 import { phases } from '../../src/data/phases.js';
-import { findTask } from '../../src/data/podcast-tasks.js';
-import { PODCAST_EXP_PER_LEVEL } from '../../src/data/podcast-rewards.js';
+import { findTask } from '../../src/data/podcastTasks.js';
+import { PODCAST_EXP_PER_LEVEL } from '../../src/data/podcastRewards.js';
 import { reconcilePeriodPullTasksFromLog } from '../../src/podcast/core.js';
 
 beforeEach(() => {

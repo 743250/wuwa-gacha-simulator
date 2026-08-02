@@ -3,8 +3,8 @@
 // 现状(2026-07-03):共鸣链数据在 4 处并写
 //   1. src/battle/chainEffects.js  — 战斗 effect(数值版,84 角色 × 6 链)
 //   2. src/data/seq.js             — 玩家文案(模拟器版,84 角色 × 6 链)
-//   3. src/ui/render/skillHints.js — customLines(工厂版技能文案,部分角色)
-//   4. src/ui/terms.js             — 术语高亮(CHAIN_TERM_PATTERNS)
+//   3. src/ui/panels/roleModal/skillHints/ — customLines(工厂版技能文案,部分角色)
+//   4. src/ui/panels/roleModal/terms.js — 术语高亮(CHAIN_TERM_PATTERNS)
 //
 // 问题:加/改一条链要碰 4 处,易失同步(CLAUDE.md 铁律 10 就是这个问题的补丁)。
 //

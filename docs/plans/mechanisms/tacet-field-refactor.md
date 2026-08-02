@@ -13,7 +13,7 @@
 - **决策**：删除 `S.dataBankLevel` 字段、`dataBankCostCap()` 函数及全部 4 处使用点
 - **COST 上限**：固定为 12（满配 4+4+3+1）
 - **金声骸掉率**：固定 100%（模拟器本就是终局向，不做数据坞进度曲线）
-- **影响文件**：`src/equip/echoActions.js` / `src/ui/bag.js` / `src/ui/render.js` / `src/state.js` / `tests/equip/echoActions.test.js` / `tests/battle/stats.test.js`
+- **影响文件**：`src/equip/echoActions.js` / `src/ui/bag.js` / `src/ui/root.tsx` / `src/state.js` / `tests/equip/echoActions.test.js` / `tests/battle/stats.test.js`
 
 ### 2. SOL3 世界等级 → 真正联动副本怪物等级
 
@@ -104,7 +104,7 @@
 |---|---|
 | `src/state.js` | 删 `dataBankLevel` 字段 |
 | `src/equip/echoActions.js` | 删 `dataBankCostCap` + COST 上限改固定 12 |
-| `src/ui/bag.js` / `src/ui/render.js` | 删 `dataBankCostCap` 调用 |
+| `src/ui/bag.js` / `src/ui/root.tsx` | 删 `dataBankCostCap` 调用 |
 | `src/ui/battle.js` | SOL3 联动 enemyLevel |
 | `src/battle/dungeon.js` | SOL3 联动 + 无音区 31 关卡 + 版本解锁 + 删 encounterPool |
 | `src/battle/enemies.js` | 替换 17 自造名 + 接入 GrowthRates |

@@ -11,7 +11,7 @@ describe('battle/characters/changli — 长离', () => {
   beforeAll(async () => {
     combat = await import('../../src/battle/combat.js');
     idx = await import('../../src/battle/characters/index.js');
-    skillHints = await import('../../src/ui/render/skillHints.js');
+    skillHints = await import('../../src/ui/panels/roleModal/skillHints/index.js');
     stacks = await import('../../src/battle/stacks.js');
   });
 

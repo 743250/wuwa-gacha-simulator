@@ -5,6 +5,7 @@
 //
 // 守卫范围:**只查 src/ui/ 新 Preact 组件的字符串字面量**(不查变量名/属性名/注释)。
 // 老代码(src/ui/render/)历史已有用法,不强清,留作后续逐个修。
+// 迁移到 panels/ 的 skillHints/skillLines/terms 属老数据文件,同样豁免。
 // 战斗日志 helpers.ts 的 "A 攻击 → B" 是流式动作描述,行业惯例,豁免。
 
 import { describe, it, expect } from 'vitest';
@@ -13,6 +14,13 @@ import { join, resolve } from 'node:path';
 import { lintWarn } from './helpers.js';
 
 const ROOT = resolve(__dirname, '../../src/ui/panels');
+
+// 从 src/ui/render/ 迁来的老数据文件:文案为历史遗留,不强清(与迁移前 no-shorthand 不扫 render/ 一致)
+const EXEMPT_SUBPATHS = [
+  'roleModal/skillHints/',
+  'roleModal/skillLines.js',
+  'roleModal/terms.js',
+];
 
 function walk(dir) {
   const out = [];
@@ -23,6 +31,11 @@ function walk(dir) {
     else if (/\.(tsx|ts|js)$/.test(name)) out.push(p);
   }
   return out;
+}
+
+function isExempt(file) {
+  const rel = file.replace(ROOT + '/', '');
+  return EXEMPT_SUBPATHS.some(prefix => rel.startsWith(prefix));
 }
 
 const FORBIDDEN_WORDS = ['buff', 'debuff', 'core', '叠层', '爆发解放机'];
@@ -39,7 +52,7 @@ function extractPlayerStrings(content) {
 
 describe('lint · 铁律 8:ui/panels/ 玩家文案禁速记', () => {
   it('提醒:ui/panels/ 玩家文案字符串里不出现 buff/debuff/core/叠层/爆发解放机', () => {
-    const files = walk(ROOT);
+    const files = walk(ROOT).filter(f => !isExempt(f));
     const violations = [];
     for (const f of files) {
       const content = readFileSync(f, 'utf8');
@@ -64,7 +77,7 @@ intro 只写身份(元素 · 武器 · 定位 · 「核心机制名」),不替�
   });
 
   it('提醒:ui/panels/ 玩家文案字符串里不出现 → 箭头(战斗日志 helpers.ts 豁免)', () => {
-    const files = walk(ROOT);
+    const files = walk(ROOT).filter(f => !isExempt(f));
     const violations = [];
     for (const f of files) {
       if (f.endsWith('helpers.ts')) continue;

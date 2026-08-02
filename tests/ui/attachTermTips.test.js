@@ -4,7 +4,7 @@
 // <b> 也包成 <span data-tip='…'>,内层单引号截断外层属性,导致 "'>风蚀效应…"
 // 这段 HTML 漏成可见文本(用户报"露出来了")。
 import { describe, it, expect } from 'vitest';
-import { attachTermTips } from '../../src/ui/terms.js';
+import { attachTermTips } from '../../src/ui/panels/roleModal/terms.js';
 
 describe('attachTermTips — data-tip 属性内不被二次包裹', () => {
   it('普通文本里的 <b class="term-x"> 会被包成 tip-term', () => {

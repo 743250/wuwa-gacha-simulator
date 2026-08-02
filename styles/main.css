@@ -190,9 +190,10 @@ input,select{font:inherit;color:inherit}
   background:
     radial-gradient(ellipse 70% 55% at 68% 48%,rgba(245,207,107,.25),rgba(245,207,107,.05) 55%,transparent 75%),
     linear-gradient(90deg,rgba(6,9,15,.5) 0%,rgba(6,9,15,.22) 35%,rgba(6,9,15,.04) 70%,rgba(6,9,15,.18) 100%)}
-/* 武器卡池大图(IconWeapon732,732×392)构图:武器本体占右半幅、左侧大片留黑,
-   cover 居中会把武器挤到画面右侧显小。放大并贴右缘,让武器铺满横幅 */
-.banner-art.theme-l.has-art{background-size:170% auto;background-position:100% 40%}
+/* 武器卡池大图(IconWeapon732,732×392)构图:武器本体占右半幅且撑满全高、左侧大片留黑。
+   源图比容器(16:9)更宽,任何横向放大都会垂直裁掉武器上下。用 auto 100% 让图高=容器高,
+   垂直零裁切、武器 100% 完整;右对齐保留左侧黑底放文字。实测 170% 武器垂直裁 38%(只剩半截) */
+.banner-art.theme-l.has-art{background-size:auto 100%;background-position:100% 40%}
 .banner-art .ba-main{z-index:1;position:relative;display:flex;flex-direction:column;justify-content:center;flex:1;min-width:0}
 .banner-art .ba-sub{font-size:11px;color:var(--muted);letter-spacing:4px}
 .banner-art .ba-name{font-size:38px;font-weight:700;letter-spacing:3px;margin-top:6px;

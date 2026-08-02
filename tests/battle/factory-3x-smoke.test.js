@@ -15,7 +15,7 @@ describe('battle · 3.x 工厂限定最小 DoD', () => {
 
   beforeAll(async () => {
     combat = await import('../../src/battle/combat.js');
-    skillHints = await import('../../src/ui/render/skillHints.js');
+    skillHints = await import('../../src/ui/panels/roleModal/skillHints/index.js');
   });
 
   for (const name of ROLES_3X) {

@@ -318,8 +318,8 @@
 |---|---|
 | `src/battle/balance.js` | `ACTION_COST` / `ACTION_MULTIPLIER` |
 | `src/battle/combat/actions.js` | 回落模板的实际结算 |
-| `src/ui/render/skillLines.js` | 工厂写死 100/180/220/400 |
-| `src/ui/render/skillHints.js` | 角色 tooltip |
+| `src/ui/panels/roleModal/skillLines.js` | 工厂写死 100/180/220/400 |
+| `src/ui/panels/roleModal/skillHints/index.js` | 角色 tooltip |
 | `src/battle/characters/*.js` | L1/L2 hook |
 | `docs/plans/角色设计指南.md` | 待补 AP/锚规范 |
 | `docs/plans/characters/*.md` | 每角第 4 节 |

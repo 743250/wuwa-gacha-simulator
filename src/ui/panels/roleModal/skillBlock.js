@@ -2,10 +2,10 @@
 // renderSkillsBlock 返回 Preact VNode,SkillTab.tsx 直接渲染(无 dangerouslySetInnerHTML)
 // attachTermTips 仍返回 HTML 字符串,customLines.desc / forteDesc 用 dangerouslySetInnerHTML 兜住(渐进迁移)
 import { h } from 'preact';
-import { getForte } from '../../battle/forte.js';
-import { attachTermTips } from '../terms.js';
-import { SKILL_HINTS } from './skillHints.js';
-import { toggleEncoreBurstMode } from '../../ui/panels/roleModal/signals.js';
+import { getForte } from '../../../battle/forte.js';
+import { attachTermTips } from './terms.js';
+import { SKILL_HINTS } from './skillHints/index.js';
+import { toggleEncoreBurstMode } from './signals.js';
 
 function stripSkillPageNoise(html) {
   return String(html || '')

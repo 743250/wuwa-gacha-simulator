@@ -10,7 +10,7 @@ describe('battle/characters/lupa — 露帕', () => {
   beforeAll(async () => {
     combat = await import('../../src/battle/combat.js');
     idx = await import('../../src/battle/characters/index.js');
-    skillHints = await import('../../src/ui/render/skillHints.js');
+    skillHints = await import('../../src/ui/panels/roleModal/skillHints/index.js');
   });
 
   beforeEach(() => {

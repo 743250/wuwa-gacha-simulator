@@ -14,7 +14,7 @@ describe('battle/characters/cartethyia — 卡提希娅', () => {
   beforeAll(async () => {
     combat = await import('../../src/battle/combat.js');
     stacks = await import('../../src/battle/stacks.js');
-    skillHints = await import('../../src/ui/render/skillHints.js');
+    skillHints = await import('../../src/ui/panels/roleModal/skillHints/index.js');
     erosion = await import('../../src/battle/combat/erosion.js');
   });
 

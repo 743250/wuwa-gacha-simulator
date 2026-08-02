@@ -15,10 +15,12 @@ import { BattleView } from './panels/battle/BattleView';
 import { installModalCloseHandler } from './panels/roleModal/RoleModal';
 import { GachaPanel } from './panels/gacha/GachaPanel';
 import { TopOverview } from './panels/gacha/TopOverview';
-import { DateInfo } from './panels/gacha/DateInfo';
 import { ShopPanel } from './panels/gacha/ShopPanel';
 import { GlobalLayer } from './GlobalLayer';
 import { ViewTabs } from './panels/ViewTabs';
+import { TimelineBar } from './TimelineBar';
+import { ATabBar } from './panels/ATabBar';
+import { BTabBar } from './panels/BTabBar';
 import { MailEntry } from './panels/mail/MailPanel';
 
 const mounted: Record<string, boolean> = {};
@@ -68,10 +70,8 @@ export function mountPreactRoot(): void {
 	mountPanel('mailEntry', MailEntry);
 	// AppShell 第二小步:顶层视图 tab 改为真 Preact 组件(替代 AppShell 的 .vtab 命令式接管)
 	mountPanel('viewTabs', ViewTabs);
-	// dateNow/dateMeta in .timeline .ti
-	const tiEl = document.querySelector('.ti');
-	if (tiEl && !mounted['dateInfo']) {
-		preactRender(h(DateInfo, null), tiEl);
-		mounted['dateInfo'] = true;
-	}
+	// Phase 3:顶部时间线栏 + 子 tab 全部组件化(替代 index.html 静态节点 + AppShell headless 绑定)
+	mountPanel('timelineBar', TimelineBar);
+	mountPanel('aTabBar', ATabBar);
+	mountPanel('bTabBar', BTabBar);
 }

@@ -1,7 +1,7 @@
 // 敌人数据库 · 2026-06-25 世界 BOSS 移植
 //
 // 数值基准：官方 wuthering.wiki Lv90 数据（原始值，未缩放）
-import { growthRatioTo90 } from '../data/enemies-growth.js';
+import { growthRatioTo90 } from '../data/enemiesGrowth.js';
 import { S } from '../state.js';
 // 世界 BOSS 战斗：世界等级 × 讨伐等级 → 直接取官方数值
 //   索拉Ⅰ ×0.30 / 索拉Ⅱ ×0.40 / 索拉Ⅲ ×0.50

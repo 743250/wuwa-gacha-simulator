@@ -8,7 +8,7 @@ import { selectTarget, selectBanner } from '../../../gacha/actions.js';
 import { DAY } from '../../../state.js';
 import { VERSION_NAMES } from '../../../data/phases.js';
 import { standard5 } from '../../../data/chars.js';
-import { openRolePreview } from '../../../ui/render/roleModal.js';
+import { openRolePreview } from '../roleModal/actions.ts';
 import { getBannerArt, getRoleArt, getWeaponBannerArt } from '../../assets/index.ts';
 
 function tabTag(x: any): string {

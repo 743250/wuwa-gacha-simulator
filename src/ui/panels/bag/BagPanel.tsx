@@ -17,9 +17,9 @@ import { bagEchoDetail, bagEchoLevelUp, bagEchoLevelUpMax, bagEchoToggleLock } f
 import { S } from '../../../state.js';
 import { msg } from '../../services/toast.ts';
 import { openModal } from '../../../modal.js';
-import { renderWeaponDetail } from '../../render/weaponDetail.js';
+import { renderWeaponDetail } from '../weaponDetail.ts';
 import { levelUpWeapon, levelUpWeaponMax, unequipWeapon, refineWeapon } from '../../../equip/actions.js';
-import { openRoleModal } from '../../render/roleModal.js';
+import { openRoleModal } from '../roleModal/actions.ts';
 
 function openWeaponModal(name: string) {
   const weapon = S.weapons[name];

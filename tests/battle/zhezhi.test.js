@@ -11,7 +11,7 @@ describe('battle/characters/zhezhi — 折枝', () => {
 
   beforeAll(async () => {
     combat = await import('../../src/battle/combat.js');
-    skillHints = await import('../../src/ui/render/skillHints.js');
+    skillHints = await import('../../src/ui/panels/roleModal/skillHints/index.js');
   });
 
   it('C0 有重击；无 flat typeBonus 双算', () => {

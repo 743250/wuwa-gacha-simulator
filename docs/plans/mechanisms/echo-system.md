@@ -96,7 +96,7 @@ equipEchoes: [null, null, null, null, null],  // 5 个声骸槽，存 echo.id
 
 ### Step 6: UI — 角色面板声骸 Tab
 
-在 `src/ui/render.js` 的 `TABS` 数组追加 `{ id: 'echo', icon: '💠', label: '声骸' }`。
+在 `src/ui/root.tsx` 的 `TABS` 数组追加 `{ id: 'echo', icon: '💠', label: '声骸' }`。
 
 5 格声骸槽布局：每格显示声骸名、COST、主词条、套装名。点击空格→弹声骸选择器，点击已装备→详情+卸下/升级。底部汇总：总 COST / 上限、已激活套装效果。
 
@@ -167,7 +167,7 @@ equipEchoes: [null, null, null, null, null],  // 5 个声骸槽，存 echo.id
 | `src/battle/stats.js` | 追加 `echoContrib()` |
 | `src/battle/combat.js` | calcDamage 集成 echo 加成 |
 | `src/battle/weaponTriggers.js` | 复用 |
-| `src/ui/render.js` | 追加声骸 modal tab |
+| `src/ui/root.tsx` | 追加声骸 modal tab |
 | `src/ui/bag.js` | 追加声骸仓库区 |
 | `src/ui/battle.js` | renderBuffStripe 追加套装提示 |
 | `src/gacha/core.js` | addRole 加 equipEchoes |

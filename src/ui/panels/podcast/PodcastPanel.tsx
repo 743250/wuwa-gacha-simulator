@@ -27,7 +27,7 @@ import {
   PODCAST_EXP_PER_LEVEL,
   PODCAST_BUY_LEVEL_COST,
 } from '../../../podcast/core.js';
-import { PODCAST_TASKS } from '../../../data/podcast-tasks.js';
+import { PODCAST_TASKS } from '../../../data/podcastTasks.js';
 import { phases } from '../../../data/phases.js';
 import { buyShop } from '../../../shop/actions.js';
 import { commit } from '../../../state/commit';

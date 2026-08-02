@@ -11,9 +11,9 @@
 //   skillFollowUp/...: string      — 共鸣链效果（按 "N 链：" 切分，按当前 chain 过滤）
 //   forteHint: string              — forteDesc 中"推荐战斗节奏"前的核心循环说明
 
-import { escTip } from './utils.js';
-import { encoreBurstModeSignal } from '../../ui/panels/roleModal/signals.js';
-import { ACTION_MULTIPLIER } from '../../battle/balance.js';
+import { escTip } from './renderUtils.js';
+import { encoreBurstModeSignal } from './signals.js';
+import { ACTION_MULTIPLIER } from '../../../battle/balance.js';
 
 export function makeSkillLines(cfg) {
   return (stats, role) => {

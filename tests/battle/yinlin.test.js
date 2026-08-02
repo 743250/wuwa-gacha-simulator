@@ -11,7 +11,7 @@ describe('battle/characters/yinlin — 吟霖', () => {
 
   beforeAll(async () => {
     combat = await import('../../src/battle/combat.js');
-    skillHints = await import('../../src/ui/render/skillHints.js');
+    skillHints = await import('../../src/ui/panels/roleModal/skillHints/index.js');
   });
 
   it('C0 无重击、无常驻 typeBonus 双算', () => {

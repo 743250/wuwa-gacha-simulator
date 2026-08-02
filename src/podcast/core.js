@@ -3,14 +3,14 @@ import { S, fmt, date } from '../state.js';
 import { msg } from '../ui/services/toast.ts';
 import { rerenderAll } from '../rerender.js';
 import { commit } from '../state/commit.ts';
-import { PODCAST_TASKS, findTask } from '../data/podcast-tasks.js';
+import { PODCAST_TASKS, findTask } from '../data/podcastTasks.js';
 import {
   PODCAST_REWARDS,
   PODCAST_MAX_LEVEL,
   PODCAST_EXP_PER_LEVEL,
   PODCAST_BUY_LEVEL_COST,
   WEAPON_BOX_OPTIONS
-} from '../data/podcast-rewards.js';
+} from '../data/podcastRewards.js';
 import { activePhase } from '../gacha/core.js';
 import { phases } from '../data/phases.js';
 import { openModal } from '../modal.js';

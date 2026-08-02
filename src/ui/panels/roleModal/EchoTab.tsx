@@ -1,5 +1,5 @@
 import { h } from 'preact';
-import { selectEchoSlot } from '../../../ui/render/roleModal.js';
+import { selectEchoSlot } from './actions.ts';
 import { bagEchoDetail, bagEchoLevelUp, bagEchoUnequip, bagEchoOpenPicker } from '../bag/echoActions';
 
 const ELEM_COLORS: Record<string, string> = {

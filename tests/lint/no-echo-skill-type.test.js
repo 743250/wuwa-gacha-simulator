@@ -64,11 +64,13 @@ describe('lint · 铁律 11:无声骸技能作为独立伤害类型', () => {
     expect(violations.length).toBeGreaterThanOrEqual(0);
   });
 
-  it('提醒:dmgType 字面量只有 normal/skill/heavy/burst 四类', () => {
+  it('提醒:dmgType 字面量只有 normal/skill/heavy/burst/variation 五类', () => {
     const files = GUARD_DIRS.flatMap(d => {
       try { return walk(d); } catch { return []; }
     });
-    const allowed = new Set(['normal', 'skill', 'heavy', 'burst']);
+    // variation 是变奏技能伤害(actions.js:516 calcDamage(..., 'variation'),HP 核角色有专门分支),
+    // 属合法第五类,不是声骸技能;铁律 11 禁的是 echoSkill 独立类型。
+    const allowed = new Set(['normal', 'skill', 'heavy', 'burst', 'variation']);
     const violations = [];
     for (const f of files) {
       const content = readFileSync(f, 'utf8');

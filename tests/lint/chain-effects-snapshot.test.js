@@ -25,7 +25,11 @@ const REGISTRY_PATH = resolve(__dirname, '../../src/data/chains/registry.ts');
 //   3. 跑过 tests/battle/chains.test.js 全绿
 // 2026-07-11 更新:接受 cfb6198「feat: 游戏开局设置 + 经验书选择 + UI 改进」对共鸣链 effect
 // 的合法改动(17 增 15 删)作为新基线,旧快照 3646dcf61a 已与 registry 现状脱钩。
-const SNAPSHOT_MD5 = '4cad4148b321724f3ce4e409d2251a49';
+// 2026-08-02 更新:接受 2026-07-11 后已提交的 8 个合法角色改动(frolo 谱曲终末官方化、
+// 芙洛洛战斗校准、3.0-3.4 限定 5★ 实装、Phase1-3 倍率校准收口、含水共鸣链短名单等,
+// 见 git log --since=2026-07-11 -- src/data/chains/registry.ts)作为新基线,
+// 这些提交未同步更新快照导致脱钩;工作区 registry.ts 与 HEAD 一致。
+const SNAPSHOT_MD5 = '48edef41a0f7183f74d17a1b5d22e026';
 
 function md5(content) {
   return createHash('md5').update(content).digest('hex');

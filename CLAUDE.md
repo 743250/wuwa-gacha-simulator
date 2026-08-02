@@ -94,18 +94,10 @@ src/
   time/         ← 时间推进
     timeline.js ← +1日/下一期/下版本 + 体力补满/委托重置 + 版本/日期跳转
 
-  ui/           ← UI 渲染（Phase 5: ui2/ 已合并到 ui/panels/）
-    render.js   ← 主渲染入口（旧 HTML 字符串渲染，1086 行）
-    render/     ← 渲染子模块
-      skillHints.js  ← 角色技能 tooltip 定义（SKILL_HINTS）
-      skillLines.js  ← 共鸣链文案行渲染 + makeSkillLines 工厂
-      skillBlock.js  ← 技能介绍 block（Phase 1 Preact VNode）
-      roleModal.js   ← roleModal 入口（openRoleModal 等，Phase 1 Preact 化）
-      utils.js       ← 工具函数
-    battleRenderers/
-      buffRenderers.js ← Buff 显示注册表
+  ui/           ← UI 渲染（Phase 5: ui2/ 已合并到 ui/panels/；Phase 3 消灭 render/ 旧渲染层）
+    TimelineBar.tsx ← 顶部时间线栏 + 存档管理/选版本/重置弹窗（Phase 3 组件化）
+    AppShell.tsx ← 应用壳（弹窗外部关闭 + 全局 tooltip 委托，Phase 3 去 headless）
     battle.js   ← 战斗全屏 UI 入口（startDungeonBattle 等，非 shim）
-    terms.js    ← 术语词典（tooltip 悬停）
     signals.ts  ← Preact signals 中心（stateVersion / tab signals）
     root.tsx    ← Preact 根（mountPreactRoot 挂载所有面板）
     assets/     ← 美术/音频资源注册表（art.ts 图片映射 + audio.ts 音频管理器，骨架阶段数据为空，全部静默降级）
@@ -113,6 +105,14 @@ src/
       gacha/    ← 唤取面板（GachaBanner / PullPanel / SidePanel 等）
       battle/   ← 战斗面板（BattleView / TeamRow / ActionBar 等）
       roleModal/ ← 角色详情弹窗（RoleModal / SkillTab / ChainTab + signals）
+        skillHints/ ← 角色技能 tooltip 定义（SKILL_HINTS，按角色拆 PART1-5 + index 聚合）
+        skillLines.js ← 共鸣链文案行渲染 + makeSkillLines 工厂
+        skillBlock.js ← 技能介绍 block（Phase 1 Preact VNode）
+        terms.js  ← 术语词典 TERM_DICT + attachTermTips（tooltip 悬停）
+        actions.ts ← roleModal 入口 action（openRoleModal / switchRoleTab 等）
+        skillText.ts ← 共鸣链术语高亮 CHAIN_TERM_PATTERNS + highlightChainTerms
+      weaponDetail.ts ← 武器详情面板（HTML 字符串 + data-tip tooltip）
+      ATabBar/BTabBar/ViewTabs ← 视图/子 tab 组件
       bag/      ← 仓库面板（BagPanel + echoActions + actions）
       daily/    ← 日常委托面板（DailyPanel + actions）
       dungeon/  ← 副本面板（DungeonPanel + actions，WEEKLY_BOSS 合入副作用）
@@ -226,9 +226,9 @@ src/
 | [src/battle/combat.js](src/battle/combat.js) | AP 回合制引擎，挂钩 doAttack/doSkill/doHeavy/doBurst/doSwitch |
 | [src/battle/forte.js](src/battle/forte.js) `FORTE[角色名]` | FORTE 资源条配置 |
 | [src/data/chains/registry.ts](src/data/chains/registry.ts) `ChainDef[角色名].text` | 共鸣链 6 条文案（模拟器版，Phase 3 从原 seq.js 迁入） |
-| [src/ui/render/skillHints.js](src/ui/render/skillHints.js) `SKILL_HINTS[角色名]` | 技能 tab 文案（工厂版用 `makeSkillLines` 见 [src/ui/render/skillLines.js](src/ui/render/skillLines.js)） |
-| [src/ui/render.js](src/ui/render.js) `CHAIN_TERM_PATTERNS` | 让术语在共鸣链里也能悬停 |
-| [src/ui/terms.js](src/ui/terms.js) `TERM_DICT` | 术语词典（资源/状态/招式名） |
+| [src/ui/panels/roleModal/skillHints/index.js](src/ui/panels/roleModal/skillHints/index.js) `SKILL_HINTS[角色名]` | 技能 tab 文案（工厂版用 `makeSkillLines` 见 [src/ui/panels/roleModal/skillLines.js](src/ui/panels/roleModal/skillLines.js)） |
+| [src/ui/panels/roleModal/skillText.ts](src/ui/panels/roleModal/skillText.ts) `CHAIN_TERM_PATTERNS` | 让术语在共鸣链里也能悬停 |
+| [src/ui/panels/roleModal/terms.js](src/ui/panels/roleModal/terms.js) `TERM_DICT` | 术语词典（资源/状态/招式名） |
 
 ### 移植铁律（违反 = 严重错误）
 

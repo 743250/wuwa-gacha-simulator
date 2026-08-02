@@ -1,5 +1,5 @@
 // 纯 CDP 客户端(Termux node26,原生 WebSocket),连 proot 里跑着的 chrome
-// 用法: node cdp_fetch.mjs "弗洛洛/画廊" [port]
+// 用法: node cdp-fetch.mjs "弗洛洛/画廊" [port]
 const title = process.argv[2] || '弗洛洛/画廊';
 const PORT = process.argv[3] || '9333';
 const { setTimeout: sleep } = (await import('node:timers/promises'));

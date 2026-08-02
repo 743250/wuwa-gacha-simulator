@@ -1,5 +1,5 @@
 // 单角色稳健抓取:WS 连接 + 每次 CDP send + 页面内 fetch 都带超时,保证 60s 内退出
-// 用法: node cdp_one.mjs "角色名" [port]
+// 用法: node cdp-one.mjs "角色名" [port]
 const title = process.argv[2] || '忌炎';
 const PORT = process.argv[3] || '9333';
 const { setTimeout: sleep } = (await import('node:timers/promises'));
