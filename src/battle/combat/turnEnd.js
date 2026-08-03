@@ -163,9 +163,9 @@ export function endTurn(battle) {
     // 浅析星域:healOverTime 持续治疗
     // 冥歌海墟:愈合之印 每回合恢复 HP
     (t.buffs || []).forEach(b => {
-      if ((b.type === 'healOverTime' || b.type === 'wastes_heal') && t.alive && b.value > 0) {
-        const healUp = (t.buffs || []).reduce((a, x) => x.type === 'healUp' ? a + x.value : a, 0);
-        const rawHeal = b.type === 'wastes_heal' ? b.value * t.hpMax : b.value;
+      if ((b.type === 'healOverTime' || b.type === 'wastes_heal') && t.alive && (b.value || 0) > 0) {
+        const healUp = (t.buffs || []).reduce((a, x) => x.type === 'healUp' ? a + (x.value || 0) : a, 0);
+        const rawHeal = b.type === 'wastes_heal' ? (b.value || 0) * t.hpMax : (b.value || 0);
         const realHeal = Math.round(rawHeal * (1 + healUp));
         const healed = Math.min(t.hpMax - t.hp, realHeal);
         t.hp += healed;

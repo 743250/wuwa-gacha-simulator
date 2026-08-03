@@ -344,7 +344,7 @@ export function doBurst(battle) {
     const healAmt = Math.round(self.atk * 1.5 * (1 + (self.healBonus || 0)));
     battle.team.forEach(t => {
       if (t.alive) {
-        const healUp = (t.buffs || []).reduce((a, b) => b.type === 'healUp' ? a + b.value : a, 0);
+        const healUp = (t.buffs || []).reduce((a, b) => b.type === 'healUp' ? a + (b.value || 0) : a, 0);
         const finalHeal = Math.round(healAmt * (1 + healUp));
         const healed = Math.min(t.hpMax - t.hp, finalHeal);
         t.hp += healed;

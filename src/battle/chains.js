@@ -39,83 +39,83 @@ export function applyChainBonuses(unit) {
   effects.forEach(e => {
     switch (e.effect) {
       case 'atk':
-        unit.atk = Math.round(unit.atk * (1 + e.value));
+        unit.atk = Math.round(unit.atk * (1 + (e.value || 0)));
         break;
       case 'def':
-        unit.def = Math.round(unit.def * (1 + e.value));
+        unit.def = Math.round(unit.def * (1 + (e.value || 0)));
         break;
       case 'hp':
-        unit.hp = Math.round(unit.hp * (1 + e.value));
-        unit.hpMax = Math.round(unit.hpMax * (1 + e.value));
+        unit.hp = Math.round(unit.hp * (1 + (e.value || 0)));
+        unit.hpMax = Math.round(unit.hpMax * (1 + (e.value || 0)));
         break;
       case 'crate':
-        unit.crate += e.value;
+        unit.crate += (e.value || 0);
         if (e.cdmg) unit.cdmg += e.cdmg;
         break;
       case 'cdmg':
-        unit.cdmg += e.value;
+        unit.cdmg += (e.value || 0);
         break;
       case 'normalDmg':
-        unit.normalBonus = (unit.normalBonus || 0) + e.value;
+        unit.normalBonus = (unit.normalBonus || 0) + (e.value || 0);
         if (e.defPierce) unit.pierceDef = (unit.pierceDef || 0) + e.defPierce;
         break;
       case 'skillDmg':
-        unit.skillBonus = (unit.skillBonus || 0) + e.value;
+        unit.skillBonus = (unit.skillBonus || 0) + (e.value || 0);
         break;
       case 'burstDmg':
-        unit.burstBonus = (unit.burstBonus || 0) + e.value;
+        unit.burstBonus = (unit.burstBonus || 0) + (e.value || 0);
         if (e.heavyDmg) unit.heavyBonus = (unit.heavyBonus || 0) + e.heavyDmg;
         break;
       case 'heavyDmg':
-        unit.heavyBonus = (unit.heavyBonus || 0) + e.value;
+        unit.heavyBonus = (unit.heavyBonus || 0) + (e.value || 0);
         break;
       case 'allDmg':
-        unit.normalBonus = (unit.normalBonus || 0) + e.value;
-        unit.skillBonus = (unit.skillBonus || 0) + e.value;
-        unit.burstBonus = (unit.burstBonus || 0) + e.value;
-        unit.heavyBonus = (unit.heavyBonus || 0) + e.value;
+        unit.normalBonus = (unit.normalBonus || 0) + (e.value || 0);
+        unit.skillBonus = (unit.skillBonus || 0) + (e.value || 0);
+        unit.burstBonus = (unit.burstBonus || 0) + (e.value || 0);
+        unit.heavyBonus = (unit.heavyBonus || 0) + (e.value || 0);
         break;
       case 'elemDmg':
-        unit.elemBonus[e.element || unit.element] = (unit.elemBonus[e.element || unit.element] || 0) + e.value;
+        unit.elemBonus[e.element || unit.element] = (unit.elemBonus[e.element || unit.element] || 0) + (e.value || 0);
         break;
       case 'heal':
-        unit.healBonus = (unit.healBonus || 0) + e.value;
+        unit.healBonus = (unit.healBonus || 0) + (e.value || 0);
         break;
       case 'defPierce':
-        unit.pierceDef = (unit.pierceDef || 0) + e.value;
+        unit.pierceDef = (unit.pierceDef || 0) + (e.value || 0);
         break;
       case 'dodge':
-        unit.dodge = Math.min(0.6, (unit.dodge || 0) + e.value);
+        unit.dodge = Math.min(0.6, (unit.dodge || 0) + (e.value || 0));
         break;
       case 'skillCdReduce':
-        unit.skillCdReduce = Math.max(unit.skillCdReduce || 0, e.value);
+        unit.skillCdReduce = Math.max(unit.skillCdReduce || 0, (e.value || 0));
         break;
       // ===== 守岸人结构化机制 =====
       case 'normalSplit':
-        unit.normalSplit = Math.max(unit.normalSplit || 1, e.value);
+        unit.normalSplit = Math.max(unit.normalSplit || 1, (e.value || 0));
         break;
       case 'defense':
         unit.buffs = unit.buffs || [];
-        unit.buffs.push({ type: 'defense', value: e.value, duration: 999, src: `${unit.name}链防御` });
+        unit.buffs.push({ type: 'defense', value: (e.value || 0), duration: 999, src: `${unit.name}链防御` });
         break;
       case 'variationDmg':
-        unit.variationBonus = (unit.variationBonus || 0) + e.value;
+        unit.variationBonus = (unit.variationBonus || 0) + (e.value || 0);
         break;
       case 'burstEnergyRefund':
-        unit.burstEnergyRefund = (unit.burstEnergyRefund || 0) + e.value;
+        unit.burstEnergyRefund = (unit.burstEnergyRefund || 0) + (e.value || 0);
         unit.burstEnergyRefundCd = Math.max(unit.burstEnergyRefundCd || 0, e.cooldown || 2);
         break;
       case 'burstHealBuff':
-        unit.burstHealBuffValue = (unit.burstHealBuffValue || 0) + e.value;
+        unit.burstHealBuffValue = (unit.burstHealBuffValue || 0) + (e.value || 0);
         unit.burstHealBuffDur = Math.max(unit.burstHealBuffDur || 0, e.duration || 2);
         break;
       case 'skillTeamAtkBuff':
-        unit.skillTeamAtkBuffValue = (unit.skillTeamAtkBuffValue || 0) + e.value;
+        unit.skillTeamAtkBuffValue = (unit.skillTeamAtkBuffValue || 0) + (e.value || 0);
         unit.skillTeamAtkBuffDur = Math.max(unit.skillTeamAtkBuffDur || 0, e.duration || 2);
         break;
       // ===== 卡提希娅·共鸣链 =====
       case 'cartethyiaBurstHpBonus':
-        unit.cartethyiaBurstHpBonus = (unit.cartethyiaBurstHpBonus || 0) + e.value;
+        unit.cartethyiaBurstHpBonus = (unit.cartethyiaBurstHpBonus || 0) + (e.value || 0);
         break;
       case 'cartethyiaErosionOnBreak':
         unit.cartethyiaErosionOnBreak = true;
@@ -124,11 +124,11 @@ export function applyChainBonuses(unit) {
         unit.cartethyiaErosionOnSwitchIn = true;
         break;
       case 'cartethyiaErosionTeamBuff':
-        unit.cartethyiaErosionTeamBuff = e.value;
+        unit.cartethyiaErosionTeamBuff = (e.value || 0);
         unit.cartethyiaErosionTeamBuffDur = Math.max(unit.cartethyiaErosionTeamBuffDur || 0, e.duration || 2);
         break;
       case 'cartethyiaLethalShield':
-        unit.cartethyiaLethalShield = e.value;
+        unit.cartethyiaLethalShield = (e.value || 0);
         break;
       case 'cartethyiaBurst2DoubleErosion':
         unit.cartethyiaBurst2DoubleErosion = true;
@@ -139,10 +139,10 @@ export function applyChainBonuses(unit) {
         if (e.persistOnSwitch) unit.fieldPersistOnSwitch = true;
         break;
       case 'fieldTeamAtk':
-        unit.fieldExtraAtk = (unit.fieldExtraAtk || 0) + e.value;
+        unit.fieldExtraAtk = (unit.fieldExtraAtk || 0) + (e.value || 0);
         break;
       case 'shorekeeperHeal4':
-        unit.healBuff4Chain = (unit.healBuff4Chain || 0) + e.value;
+        unit.healBuff4Chain = (unit.healBuff4Chain || 0) + (e.value || 0);
         break;
       // ===== 忌炎「锐意之势」=====
       case 'jiyanSkillChargeFaster':
@@ -159,7 +159,7 @@ export function applyChainBonuses(unit) {
         unit.jiyanGuanShi = { crate: e.crate || 0.16, cdmg: e.cdmg || 0.32, dur: e.dur || 2 };
         break;
       case 'jiyanQiZheng':
-        unit.jiyanQiZheng = { value: e.value || 0.25, dur: e.dur || 2 };
+        unit.jiyanQiZheng = { value: (e.value || 0) || 0.25, dur: e.dur || 2 };
         break;
       case 'jiyanMingDuan':
         unit.jiyanMingDuan = {
@@ -167,7 +167,7 @@ export function applyChainBonuses(unit) {
           cap: e.cap || 15,
           dur: e.dur || 2,
           // 兼容旧 value=0.45 满层写法
-          value: e.value,
+          value: (e.value || 0),
         };
         break;
       case 'jiyanRuiyiUpgrade':
@@ -176,26 +176,26 @@ export function applyChainBonuses(unit) {
         break;
       // ===== 吟霖「审判印记」=====
       case 'yinlinMarkSkillBonus':
-        unit.yinlinMarkSkillBonus = (unit.yinlinMarkSkillBonus || 0) + e.value;
+        unit.yinlinMarkSkillBonus = (unit.yinlinMarkSkillBonus || 0) + (e.value || 0);
         break;
       case 'yinlinMarkRefund':
         unit.yinlinMarkRefund = { verdict: e.verdict || 5, energy: e.energy || 5 };
         break;
       case 'yinlinMarkVuln':
         // 旧易伤链已废止；保留字段兼容旧存档
-        unit.yinlinMarkVulnPerStack = (unit.yinlinMarkVulnPerStack || 0) + e.value;
+        unit.yinlinMarkVulnPerStack = (unit.yinlinMarkVulnPerStack || 0) + (e.value || 0);
         break;
       case 'yinlinJudgmentBoost':
         unit.yinlinJudgmentBoost = (unit.yinlinJudgmentBoost || 0) + (e.value || 0.55);
         break;
       case 'yinlinJudgmentTeamAtk':
-        unit.yinlinJudgmentTeamAtk = { value: e.value || 0.20, dur: e.dur || 2 };
+        unit.yinlinJudgmentTeamAtk = { value: (e.value || 0) || 0.20, dur: e.dur || 2 };
         break;
       case 'yinlinMarkBurstBonus':
-        unit.yinlinMarkBurstBonus = (unit.yinlinMarkBurstBonus || 0) + e.value;
+        unit.yinlinMarkBurstBonus = (unit.yinlinMarkBurstBonus || 0) + (e.value || 0);
         break;
       case 'yinlinJiTing':
-        unit.yinlinJiTing = { value: e.value || 1.0, dur: e.dur || 2 };
+        unit.yinlinJiTing = { value: (e.value || 0) || 1.0, dur: e.dur || 2 };
         break;
       // ===== 今汐「韶光 / 谪仙」=====
       case 'jinhsiZheXian':
@@ -265,13 +265,13 @@ export function applyChainBonuses(unit) {
         break;
       case 'sanhuaC6':
         unit.sanhuaC6 = {
-          value: e.value != null ? e.value : 0.1,
+          value: (e.value || 0) != null ? e.value : 0.1,
           cap: e.cap != null ? e.cap : 2,
           dur: e.dur != null ? e.dur : 3,
         };
         break;
       case 'younuoC4Shield':
-        unit.younuoC4Shield = { value: e.value || 1.6, duration: e.duration || 3 };
+        unit.younuoC4Shield = { value: (e.value || 0) || 1.6, duration: e.duration || 3 };
         break;
     }
   });
@@ -288,38 +288,38 @@ export function applyTeamAuras(team) {
     effects.forEach(e => {
       switch (e.effect) {
         case 'teamAtk':
-          team.forEach(t => { t.atk = Math.round(t.atk * (1 + e.value)); });
+          team.forEach(t => { t.atk = Math.round(t.atk * (1 + (e.value || 0))); });
           break;
         case 'teamDef':
-          team.forEach(t => { t.def = Math.round(t.def * (1 + e.value)); });
+          team.forEach(t => { t.def = Math.round(t.def * (1 + (e.value || 0))); });
           break;
         case 'teamAllDmg':
           team.forEach(t => {
-            t.normalBonus = (t.normalBonus || 0) + e.value;
-            t.skillBonus = (t.skillBonus || 0) + e.value;
-            t.burstBonus = (t.burstBonus || 0) + e.value;
-            t.heavyBonus = (t.heavyBonus || 0) + e.value;
+            t.normalBonus = (t.normalBonus || 0) + (e.value || 0);
+            t.skillBonus = (t.skillBonus || 0) + (e.value || 0);
+            t.burstBonus = (t.burstBonus || 0) + (e.value || 0);
+            t.heavyBonus = (t.heavyBonus || 0) + (e.value || 0);
           });
           break;
         case 'teamElemDmg':
           team.forEach(t => {
-            t.elemBonus[e.element] = (t.elemBonus[e.element] || 0) + e.value;
+            t.elemBonus[e.element] = (t.elemBonus[e.element] || 0) + (e.value || 0);
           });
           break;
         case 'teamNormalDmg':
-          team.forEach(t => { t.normalBonus = (t.normalBonus || 0) + e.value; });
+          team.forEach(t => { t.normalBonus = (t.normalBonus || 0) + (e.value || 0); });
           break;
         case 'teamSkillDmg':
-          team.forEach(t => { t.skillBonus = (t.skillBonus || 0) + e.value; });
+          team.forEach(t => { t.skillBonus = (t.skillBonus || 0) + (e.value || 0); });
           break;
         case 'teamBurstDmg':
-          team.forEach(t => { t.burstBonus = (t.burstBonus || 0) + e.value; });
+          team.forEach(t => { t.burstBonus = (t.burstBonus || 0) + (e.value || 0); });
           break;
         case 'teamHeavyDmg':
-          team.forEach(t => { t.heavyBonus = (t.heavyBonus || 0) + e.value; });
+          team.forEach(t => { t.heavyBonus = (t.heavyBonus || 0) + (e.value || 0); });
           break;
         case 'teamHeal':
-          team.forEach(t => { t.healBonus = (t.healBonus || 0) + e.value; });
+          team.forEach(t => { t.healBonus = (t.healBonus || 0) + (e.value || 0); });
           break;
       }
     });
@@ -333,5 +333,5 @@ export function applyTeamAuras(team) {
 export function getEnergyRefund(unit) {
   return getChainEffects(unit.name, unit.chain)
     .filter(e => e.effect === 'energyRefund')
-    .reduce((sum, e) => sum + e.value, 0);
+    .reduce((sum, e) => sum + (e.value || 0), 0);
 }

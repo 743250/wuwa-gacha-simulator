@@ -3,13 +3,15 @@
 // ATK 核 · 三段循环主C:攒乐声+余响 → 谱曲终末核爆 → 定音解锁解放 → 指挥状态赫卡忒共鸣。
 //
 //   乐声 (0-6):普攻/技能/重击/变奏各+1,战斗开始+4。满6时重击替换为谱曲终末。
-//   余响 (0-24):战斗开始+10;赫卡忒每次攻击+1;共鸣链描述额外层数(2链谱曲+14/6链幻象+8)。
+//   余响 (0-24):战斗开始+10;赫卡忒每次攻击+1;共鸣链描述额外层数(2链谱曲+14)。
 //          谱曲终末结算时消耗全部余响(倍率先按消耗前层数计算);不上场 3 回合后消散。
 //          谱曲终末:基倍 660.16% + 每层余响绝对 +82.55%(官方 Lv10 表,2 链两系数 ×1.75);CD 3 回合;每层暴伤+2.5%。
 //   谱曲终末:ATK 倍率 AOE,消耗6乐声,进入定音。
 //   定音:谱曲终末后进入,解锁共鸣解放(0AP)。
 //   指挥状态(3回合):解放后进入,攻击 +120%,弗洛洛自由行动,赫卡忒协同攻击。
-//   赫卡忒:继承属性的召唤物。弗洛洛普攻/技能/重击/变奏命中时协同追击
+//   赫卡忒:继承属性的召唤物。指挥内触发源(2026-08-02 模型):
+//          · 每回合结束 / 弗洛洛重击:赫卡忒攻击 1 次(全链)
+//          · 6 链:普攻/技能命中时立刻攻击
 //          ATK×56%(+1乐声+1余响),每2次后升级为强化追击 ATK×340%(+1乐声+1余响;6链 ×1.24)。
 //   承伤(对齐官方口径,非挡刀):
 //          登场指挥时:赫卡忒与弗洛洛共伤——同额伤害同时扣双方(赫卡忒不替挡、不吸收)。
@@ -22,7 +24,7 @@
 //   3链:赫卡忒协同/强化伤害+80%(指挥窗,不再压谱曲) + 强化追击命中目标攻击-20%(2回合)
 //   4链:施放谱曲终末时全队全属性伤害+20%(4回合,单实例无常驻双算)
 //   5链:指挥状态期间受伤-30%(弗洛洛与赫卡忒同挂 defense,共伤同额减)
-//   6链:强化追击倍率+24% + 指挥内普攻/技能重世幻象 ATK×216.4%(+8余响) + 指挥状态内湮灭+60% / 非登场受伤+36%(未实装)
+//   6链:强化追击倍率+24% + 指挥内普攻/技能立刻协同攻击(替代旧重世幻象,2026-08-02) + 指挥状态内湮灭+60% / 非登场受伤+36%(未实装)
 
 import { registerSwitchOutHook, registerSwitchHook } from '../switchHooks.js';
 import { spawnSummon, removeSummon, damageSummon } from '../combat.js';
@@ -51,7 +53,6 @@ const COMMAND_DURATION = 3;
 const COMMAND_ATK_BONUS = 1.20;
 const HECASTE_AUTO_ATK_MULT = 0.56;
 const HECASTE_AUGMENT_ATK_MULT = 3.40;
-const C6_PHANTOM_ATK_MULT = 2.164;
 
 // ── 状态查询 ──
 export function furoloNotes(self) {
@@ -195,32 +196,32 @@ export function furoloVariationMult(self) {
 export function furoloOnNormalHit(self, battle) {
   if (self.name !== '弗洛洛') return;
   furoloGainNotes(self, 1, battle);
-  // 赫卡忒协同 / 6 链重世幻象仅指挥状态(解放后)触发,大招前不出现
-  if (furoloInCommand(self)) {
+  // 2026-08-02 触发模型:普攻立刻协同移到 6 链(指挥内);0-5 链普攻不触发赫卡忒
+  if (furoloInCommand(self) && self.chain >= 6) {
     furoloHecateAssist(self, battle, 'normal');
-    if (self.chain >= 6) furoloC6EchoPhantom(self, battle);
   }
 }
 
 export function furoloOnSkillHit(self, battle) {
   if (self.name !== '弗洛洛') return;
   furoloGainNotes(self, 1, battle);
-  if (furoloInCommand(self)) {
+  // 2026-08-02 触发模型:技能立刻协同移到 6 链(指挥内);0-5 链技能不触发赫卡忒
+  if (furoloInCommand(self) && self.chain >= 6) {
     furoloHecateAssist(self, battle, 'skill');
-    if (self.chain >= 6) furoloC6EchoPhantom(self, battle);
   }
 }
 
 export function furoloOnHeavyHit(self, battle) {
   if (self.name !== '弗洛洛') return;
   furoloGainNotes(self, 1, battle);
-  if (furoloInCommand(self)) furoloHecateAssist(self, battle, 'heavy');
+  // 2026-08-02 触发模型:普通重击(非谱曲终末)不触发赫卡忒;
+  // 谱曲终末的重击触发在 furoloExecuteDirge 内处理
 }
 
 export function furoloOnVariationHit(self, battle) {
   if (self.name !== '弗洛洛') return;
   furoloGainNotes(self, 1, battle);
-  if (furoloInCommand(self)) furoloHecateAssist(self, battle, 'skill');
+  // 2026-08-02 触发模型:变奏不触发赫卡忒
 }
 
 export function furoloOnAttack(self, ctx) {
@@ -243,21 +244,6 @@ export function furoloOnHeavy(self, ctx) {
 export function furoloOnVariation(self, ctx) {
   if (!ctx.variationTarget) return;
   furoloOnVariationHit(self, ctx.battle);
-}
-
-// ── 6 链重世幻象追击 ATK×216.4%（仅指挥状态,与赫卡忒同窗） ──
-function furoloC6EchoPhantom(self, battle) {
-  if (self.chain < 6) return;
-  if (!furoloInCommand(self)) return;
-  const target = battle.enemies.find(e => e.alive);
-  if (!target) return;
-  const { dmg } = calcDamage(self, target, C6_PHANTOM_ATK_MULT, 'skill');
-  const real = dealDamage(target, dmg);
-  furoloGainEchoes(self, 8, battle, '6 链 · 重世幻象');
-  battle.log.push({
-    type: 'mechanic', src: self.name,
-    msg: `6 链 · 重世幻象 · 赫卡忒追击 攻击×216.4%（${real} 伤害）`
-  });
 }
 
 // 重击替换为谱曲终末:满 6 乐声时由 doHeavy 调用,返回替换招式
@@ -318,6 +304,10 @@ export function furoloExecuteDirge(self, battle) {
       type: 'mechanic', src: self.name,
       msg: '4 链 · 火炬引导 · 全队全属性伤害 +20%（4 回合）'
     });
+  }
+  // 2026-08-02 触发模型:指挥内重击(谱曲终末)触发赫卡忒攻击 1 次(余响已清空,赫卡忒攻击再 +1)
+  if (furoloInCommand(self)) {
+    furoloHecateAssist(self, battle, 'heavy');
   }
 }
 
@@ -503,6 +493,10 @@ export function furoloTurnCleanup(self, ctx) {
   const isActive = battle.team?.[battle.active] === self;
   if (isActive) {
     self.furoloEchoesOffFieldTurns = 0;
+    // 2026-08-02 触发模型:指挥内每回合结束,赫卡忒攻击 1 次
+    if (furoloInCommand(self)) {
+      furoloHecateAssist(self, battle, 'heavy');
+    }
     return null;
   }
   if (!(self.furoloEchoes || 0)) {

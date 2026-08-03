@@ -82,7 +82,7 @@ describe('battle/characters/frolo — 弗洛洛状态机', () => {
       expect(f.furoloEchoes).toBe(10);
     });
 
-    it('6 链大招前普攻：不加余响、不触发重世幻象', () => {
+    it('6 链大招前普攻：不加余响、不触发立刻协同', () => {
       const battle = quickBattle();
       const f = getFurolo(battle);
       f.chain = 6;
@@ -174,7 +174,7 @@ describe('battle/characters/frolo — 弗洛洛状态机', () => {
       expect(f.furoloEchoes).toBe(10);
     });
 
-    it('6 链大招前技能：不加余响、不触发重世幻象', () => {
+    it('6 链大招前技能：不加余响、不触发立刻协同', () => {
       const battle = quickBattle();
       const f = getFurolo(battle);
       f.chain = 6;
@@ -189,10 +189,10 @@ describe('battle/characters/frolo — 弗洛洛状态机', () => {
     });
   });
 
-  // ===== 6 链重世幻象仅指挥内 =====
-  describe('6 链 · 重世幻象门控', () => {
-    it('解放进指挥后普攻才触发重世幻象 +8 余响', () => {
-      const battle = quickBattle(null, [{ name: '飞廉之猩', scale: 5 }]);
+  // ===== 6 链立刻协同仅指挥内 =====
+  describe('6 链 · 普攻/技能立刻协同门控', () => {
+    it('解放进指挥后普攻才触发赫卡忒立刻协同', () => {
+      const battle = quickBattle(null, [{ name: '飞廉之猩', scale: 0.1 }]);
       const f = getFurolo(battle);
       f.chain = 6;
       combat.doAttack(battle, firstEnemy(battle));
@@ -204,15 +204,39 @@ describe('battle/characters/frolo — 弗洛洛状态机', () => {
       expect(battle.summons.some(s => s.name === '赫卡忒' && s.alive)).toBe(true);
       // 前序已耗尽本回合 AP，进入新回合再普攻
       combat.endTurn(battle);
+      const hecate = battle.summons.find(s => s.name === '赫卡忒');
+      const countAfterTurn = hecate._attackCount || 0; // 回合末已触发 1 次
       const echoesBefore = f.furoloEchoes;
       const beforeLen = battle.log.length;
       const r = combat.doAttack(battle, firstEnemy(battle));
       expect(r.ok).toBe(true);
-      // 指挥内: 赫卡忒协同 +1 + 重世幻象 +8
-      expect(f.furoloEchoes).toBe(Math.min(24, echoesBefore + 1 + 8));
+      // 指挥内 6 链: 普攻立刻触发赫卡忒攻击（+1 余响）
+      expect(f.furoloEchoes).toBe(Math.min(24, echoesBefore + 1));
+      expect(hecate._attackCount).toBe(countAfterTurn + 1);
       const msgs = battle.log.slice(beforeLen).map(e => e.msg || '').join('\n');
-      expect(msgs).toMatch(/余响 \+\d+ · 6 链 · 重世幻象/);
-      expect(msgs).toMatch(/6 链 · 重世幻象 · 赫卡忒追击/);
+      expect(msgs).toMatch(/追击 · 攻击/);
+    });
+
+    it('0-5 链指挥内普攻不触发赫卡忒立刻协同', () => {
+      const battle = quickBattle(null, [{ name: '飞廉之猩', scale: 0.1 }]);
+      const f = getFurolo(battle);
+      f.chain = 0;
+      combat.doAttack(battle, firstEnemy(battle));
+      combat.doAttack(battle, firstEnemy(battle));
+      combat.doHeavy(battle, firstEnemy(battle));
+      combat.doBurst(battle);
+      const hecate = battle.summons.find(s => s.name === '赫卡忒');
+      expect(hecate).toBeTruthy();
+      combat.endTurn(battle);
+      const countAfterTurn = hecate._attackCount || 0; // 回合末触发 1 次
+      const echoesBefore = f.furoloEchoes;
+      const beforeLen = battle.log.length;
+      combat.doAttack(battle, firstEnemy(battle));
+      // 普攻本身不叠余响, 0-5 链也不触发立刻协同（回合末之外无新增）
+      expect(f.furoloEchoes).toBe(echoesBefore);
+      expect(hecate._attackCount).toBe(countAfterTurn);
+      const msgs = battle.log.slice(beforeLen).map(e => e.msg || '').join('\n');
+      expect(msgs).not.toMatch(/追击 · 攻击/);
     });
   });
 
@@ -314,8 +338,8 @@ describe('battle/characters/frolo — 弗洛洛状态机', () => {
 
   // ===== 3 链 / 6 链：乘区归属（谱曲不叠，指挥窗吃） =====
   describe('3 链 / 6 链 · 乘区归属', () => {
-    it('3 链: 谱曲终末不再吃重击加深; 赫卡忒协同追击 ×1.8', () => {
-      const battle = quickBattle(null, [{ name: '飞廉之猩', scale: 1 }]);
+    it('3 链: 谱曲终末不再吃重击加深; 赫卡忒攻击 ×1.8', () => {
+      const battle = quickBattle(null, [{ name: '飞廉之猩', scale: 0.1 }]);
       const f = getFurolo(battle);
       f.chain = 3;
       // 满 6 乐声 → 谱曲终末
@@ -329,14 +353,16 @@ describe('battle/characters/frolo — 弗洛洛状态机', () => {
       expect(c3Mult).toBeCloseTo(frolo.furoloDirgeMult(f), 6);
       expect(c3Mult).toBeCloseTo((6.6016 + 10 * 0.8255) * 1.75, 4);
       f.chain = 3;
-      // 进指挥 → 普攻触发赫卡忒协同追击（56% × 1.8 = 100.8%）
+      // 进指挥；0-5 链普攻不触发赫卡忒，回合末攻击才触发（56% × 1.8 = 100.8%）
       combat.doBurst(battle);
       expect(battle.summons.some(s => s.name === '赫卡忒' && s.alive)).toBe(true);
-      combat.endTurn(battle);
       const beforeLen = battle.log.length;
       combat.doAttack(battle, firstEnemy(battle));
+      const msgsAfterAttack = battle.log.slice(beforeLen).map(e => e.msg || '').join('\n');
+      expect(msgsAfterAttack).not.toMatch(/追击 · 攻击/);
+      combat.endTurn(battle);
       const msgs = battle.log.slice(beforeLen).map(e => e.msg || '').join('\n');
-      expect(msgs).toMatch(/协同追击 · 攻击×100\.8%/);
+      expect(msgs).toMatch(/追击 · 攻击×100\.8%/);
     });
 
     it('6 链: 湮灭 +60% 仅指挥状态内生效', () => {
@@ -403,9 +429,9 @@ describe('battle/characters/frolo — 弗洛洛状态机', () => {
     });
   });
 
-  // ===== 赫卡忒协同攻击（弗洛洛普攻触发） =====
+  // ===== 赫卡忒协同攻击（回合末 / 重击触发） =====
   describe('赫卡忒协同攻击', () => {
-    it('指挥状态期间弗洛洛普攻触发赫卡忒协同攻击', () => {
+    it('指挥状态期间每回合结束触发赫卡忒协同攻击', () => {
       const battle = quickBattle(null, [{ name: '飞廉之猩', scale: 1 }]);
       const f = getFurolo(battle);
       // 进指挥状态: 2 普攻 + 重击(谱曲终末) + 解放
@@ -417,11 +443,28 @@ describe('battle/characters/frolo — 弗洛洛状态机', () => {
       expect(hecate._attackCount || 0).toBe(0);
       const enemy = battle.enemies[firstEnemy(battle)];
       const enemyHpBefore = enemy.hp;
-      // 新回合有 AP, 普攻触发赫卡忒协同
+      // 回合结束触发赫卡忒攻击
       combat.endTurn(battle);
-      combat.doAttack(battle, firstEnemy(battle));
       expect(hecate._attackCount).toBe(1);
       expect(enemy.hp).toBeLessThan(enemyHpBefore);
+    });
+
+    it('指挥状态期间弗洛洛重击（谱曲终末）触发赫卡忒协同攻击', () => {
+      const battle = quickBattle(null, [{ name: '飞廉之猩', scale: 0.1 }]);
+      const f = getFurolo(battle);
+      // 进指挥: 2 普攻 + 重击 + 解放
+      combat.doAttack(battle, firstEnemy(battle));
+      combat.doAttack(battle, firstEnemy(battle));
+      combat.doHeavy(battle, firstEnemy(battle));
+      combat.doBurst(battle);
+      const hecate = battle.summons.find(s => s.name === '赫卡忒');
+      combat.endTurn(battle);
+      const before = hecate._attackCount || 0; // 回合末已触发 1 次
+      // 新回合攒满 6 乐声 → 重击替换为谱曲终末（指挥内）触发赫卡忒；清 CD
+      f.furoloNotes = 6;
+      f.cd.heavy = 0;
+      combat.doHeavy(battle, firstEnemy(battle));
+      expect(hecate._attackCount).toBeGreaterThan(before);
     });
 
     it('每 2 次协同后替换为强化攻击·赫卡忒', () => {
@@ -432,13 +475,11 @@ describe('battle/characters/frolo — 弗洛洛状态机', () => {
       combat.doHeavy(battle, firstEnemy(battle));
       combat.doBurst(battle);
       const hecate = battle.summons.find(s => s.name === '赫卡忒');
-      // 第 1 次（普通协同）
+      // 第 1 次（回合末普通协同）
       combat.endTurn(battle);
-      combat.doAttack(battle, firstEnemy(battle));
       expect(hecate._attackCount).toBe(1);
-      // 第 2 次 → 强化攻击
+      // 第 2 次（回合末）→ 强化攻击
       combat.endTurn(battle);
-      combat.doAttack(battle, firstEnemy(battle));
       expect(hecate._attackCount).toBe(2);
     });
   });

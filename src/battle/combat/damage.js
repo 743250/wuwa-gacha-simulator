@@ -49,7 +49,7 @@ export function calcDamage(attacker, defender, multiplier, dmgType, opts = {}) {
   // 武器触发器实时加成
   const wb = collectWeaponBonus(attacker, dmgType, { target: defender });
   // buff 中的 atkUp（守岸人 2 链等）
-  const buffAtkUp = (attacker.buffs || []).reduce((a, b) => b.type === 'atkUp' ? a + b.value : a, 0);
+  const buffAtkUp = (attacker.buffs || []).reduce((a, b) => b.type === 'atkUp' ? a + (b.value || 0) : a, 0);
   const hpCore = queryHook(attacker, 'hpCore', dmgType, opts);
   let baseStat;
   let hpMultOverride = null;
@@ -75,30 +75,30 @@ export function calcDamage(attacker, defender, multiplier, dmgType, opts = {}) {
   else if (dmgType === 'heavy') typeBonus += (attacker.heavyBonus || 0) + wb.heavyBonus;
   // variation：协奏/链加成已在 doSwitch 的 multiplier 上，不再吃 normalBonus
   // 临时 buff（如忌炎 4 链 奇正：全队重击 +25% / 椿 4 链 全队普攻）
-  const heavyDmgBuff = (attacker.buffs || []).reduce((a, b) => b.type === 'heavyDmgUp' ? a + b.value : a, 0);
+  const heavyDmgBuff = (attacker.buffs || []).reduce((a, b) => b.type === 'heavyDmgUp' ? a + (b.value || 0) : a, 0);
   if (dmgType === 'heavy') typeBonus += heavyDmgBuff;
-  const normalDmgBuff = (attacker.buffs || []).reduce((a, b) => b.type === 'normalDmgUp' ? a + b.value : a, 0);
+  const normalDmgBuff = (attacker.buffs || []).reduce((a, b) => b.type === 'normalDmgUp' ? a + (b.value || 0) : a, 0);
   if (dmgType === 'normal') typeBonus += normalDmgBuff;
   // 全伤害加深（尤诺 2/3 链等 allDmgUp buff）
-  const allDmgUpBuff = (attacker.buffs || []).reduce((a, b) => b.type === 'allDmgUp' ? a + b.value : a, 0);
+  const allDmgUpBuff = (attacker.buffs || []).reduce((a, b) => b.type === 'allDmgUp' ? a + (b.value || 0) : a, 0);
   if (allDmgUpBuff && dmgType !== 'variation') typeBonus += allDmgUpBuff;
   // 角色专属声骸套装 5 件运行时触发：技能伤害 / 解放伤害加成
-  const skillDmgBuff = (attacker.buffs || []).reduce((a, b) => b.type === 'skillDmgUp' ? a + b.value : a, 0);
+  const skillDmgBuff = (attacker.buffs || []).reduce((a, b) => b.type === 'skillDmgUp' ? a + (b.value || 0) : a, 0);
   if (dmgType === 'skill') typeBonus += skillDmgBuff;
-  const burstDmgBuff = (attacker.buffs || []).reduce((a, b) => b.type === 'burstDmgUp' ? a + b.value : a, 0);
+  const burstDmgBuff = (attacker.buffs || []).reduce((a, b) => b.type === 'burstDmgUp' ? a + (b.value || 0) : a, 0);
   if (dmgType === 'burst') typeBonus += burstDmgBuff;
   // 元素加成
   const elemBase = (attacker.elemBonus?.[attacker.element] || 0) + (attacker.elemAllBonus || 0);
   const elemAdd = wb.elemBonus?.[attacker.element] || 0;
-  const elemAllUpBuff = (attacker.buffs || []).reduce((a, b) => b.type === 'elemAllUp' ? a + b.value : a, 0);
+  const elemAllUpBuff = (attacker.buffs || []).reduce((a, b) => b.type === 'elemAllUp' ? a + (b.value || 0) : a, 0);
   const echoElemBuff = (attacker.buffs || []).reduce((a, b) =>
-    b.type === 'echoElemDmg' && b.element === attacker.element ? a + b.value : a, 0);
+    b.type === 'echoElemDmg' && b.element === attacker.element ? a + (b.value || 0) : a, 0);
   // 元素专属加深（夏空 elemAeroUp / 露帕追猎 elemFusionUp 等）
   const elemAeroUpBuff = attacker.element === '气动'
-    ? (attacker.buffs || []).reduce((a, b) => b.type === 'elemAeroUp' ? a + b.value : a, 0)
+    ? (attacker.buffs || []).reduce((a, b) => b.type === 'elemAeroUp' ? a + (b.value || 0) : a, 0)
     : 0;
   const elemFusionUpBuff = attacker.element === '热熔'
-    ? (attacker.buffs || []).reduce((a, b) => b.type === 'elemFusionUp' ? a + b.value : a, 0)
+    ? (attacker.buffs || []).reduce((a, b) => b.type === 'elemFusionUp' ? a + (b.value || 0) : a, 0)
     : 0;
   const elemBonus = 1 + elemBase + elemAdd + elemAllUpBuff + echoElemBuff + elemAeroUpBuff + elemFusionUpBuff;
   // 强化窗口:卡卡罗 burstWindow、安可黑咩形态等
@@ -119,7 +119,7 @@ export function calcDamage(attacker, defender, multiplier, dmgType, opts = {}) {
   const markDmgMult = queryHook(attacker, 'getMarkDamageBonus', defender);
   if (markDmgMult != null && markDmgMult !== 1) debuffBonus *= markDmgMult;
   // 防御穿透(含焰羽等临时 pierceUp buff)
-  const pierceBuff = (attacker.buffs || []).reduce((a, b) => b.type === 'pierceUp' ? a + b.value : a, 0);
+  const pierceBuff = (attacker.buffs || []).reduce((a, b) => b.type === 'pierceUp' ? a + (b.value || 0) : a, 0);
   const hookPierce = queryHook(attacker, 'extraPierce', dmgType) || 0;
   const totalPierce = (attacker.pierceDef || 0) + wb.defPierce + pierceBuff + hookPierce;
   // 虚湮效应：每层 -2% 防御
@@ -136,8 +136,8 @@ export function calcDamage(attacker, defender, multiplier, dmgType, opts = {}) {
   const resistMult = Math.min(2, resistMultiplier(attacker.element, defender) + resistIgnore);
   const vibrMult = vibrationMultiplier(defender);
   // 暴击
-  const crateBuff = (attacker.buffs || []).reduce((a, b) => b.type === 'crateUp' ? a + b.value : a, 0);
-  const cdmgBuff = (attacker.buffs || []).reduce((a, b) => b.type === 'cdmgUp' ? a + b.value : a, 0);
+  const crateBuff = (attacker.buffs || []).reduce((a, b) => b.type === 'crateUp' ? a + (b.value || 0) : a, 0);
+  const cdmgBuff = (attacker.buffs || []).reduce((a, b) => b.type === 'cdmgUp' ? a + (b.value || 0) : a, 0);
   const hookCrate = queryHook(attacker, 'crateBonus', defender) || 0;
   const totalCrate = attacker.crate + (wb.crateBonus || 0) + crateBuff + hookCrate;
   const hookCdmg = queryHook(attacker, 'cdmgBonus', defender, dmgType) || 0;
@@ -167,6 +167,9 @@ export function getCurrentResolveHook() { return _currentResolveHook; }
 
 // 扣血(处理护盾、防御 buff、敌方特殊减伤、召唤物挡刀)
 export function dealDamage(target, dmg) {
+  // NaN/负值守卫:异常数值直接忽略,防止血量被污染成 NaN
+  if (typeof dmg !== 'number' || Number.isNaN(dmg) || !Number.isFinite(dmg)) return 0;
+  if (dmg < 0) dmg = 0;
   // 召唤物挡刀:target 是玩家单位且有存活挡刀召唤物时,优先打召唤物
   if (target._isPlayerUnit && _currentBattle && _currentBattle.summons?.length) {
     const ownerIdx = _currentBattle.team.indexOf(target);
@@ -181,9 +184,9 @@ export function dealDamage(target, dmg) {
   }
   // 防御 buff
   const defBuff = target.buffs?.find(b => b.type === 'defense');
-  if (defBuff) dmg = Math.round(dmg * (1 - defBuff.value));
+  if (defBuff) dmg = Math.round(dmg * (1 - (defBuff.value || 0)));
   // 全伤害减免（夏空 5 链 allDmgDown 等）
-  const allDown = (target.buffs || []).reduce((a, b) => b.type === 'allDmgDown' ? a + b.value : a, 0);
+  const allDown = (target.buffs || []).reduce((a, b) => b.type === 'allDmgDown' ? a + (b.value || 0) : a, 0);
   if (allDown > 0) dmg = Math.round(dmg * (1 - Math.min(0.9, allDown)));
   // 敌方特殊减伤/无敌/易伤
   dmg = applyEnemyDefendHook(target, dmg);
@@ -205,8 +208,9 @@ export function dealDamage(target, dmg) {
 
 // 召唤物受伤(独立路径,不走主人 defense/护盾,但走自身 defense buff)
 export function damageSummon(summon, dmg) {
+  if (typeof dmg !== 'number' || Number.isNaN(dmg) || !Number.isFinite(dmg)) return 0;
   const defBuff = summon.buffs?.find(b => b.type === 'defense');
-  if (defBuff) dmg = Math.round(dmg * (1 - defBuff.value));
+  if (defBuff) dmg = Math.round(dmg * (1 - (defBuff.value || 0)));
   summon.hp = Math.max(0, summon.hp - dmg);
   if (summon.hp <= 0 && summon.alive) {
     summon.alive = false;

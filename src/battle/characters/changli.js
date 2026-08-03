@@ -185,9 +185,25 @@ export function changliOnBurst(self, ctx) {
 function collectBadges(self) {
   if (!self.forte) return [];
   const cur = getStack(self, 'changli_lihuo');
-  const badges = [`离火 ${cur}/${LIHUO_CAP}`];
-  if (self.forte.mindEye) badges.push('心眼');
-  if ((self.buffs || []).some(b => b.src === '焰羽')) badges.push('焰羽');
+  const badges = [{
+    key: `lihuo-${self.name}`, cls: 'field', icon: '🔥',
+    label: `离火 ${cur}/${LIHUO_CAP}`,
+    tip: `<b>离火</b><br>普攻/技能/重击各 +1 层、解放 +3。每层热熔伤害 +5%（满 ${LIHUO_CAP} 层 +30%）。满层进入心眼模式。`
+  }];
+  if (self.forte.mindEye) {
+    badges.push({
+      key: `mindeye-${self.name}`, cls: 'atk', icon: '🧠',
+      label: '心眼',
+      tip: '<b>心眼模式</b><br>普攻/技能/重击变身（征/劫/冲），打出共鸣技能伤害；离火抵 AP，<2 层退出。'
+    });
+  }
+  if ((self.buffs || []).some(b => b.src === '焰羽')) {
+    badges.push({
+      key: `yanyu-${self.name}`, cls: 'crit', icon: '🕊',
+      label: '焰羽',
+      tip: '<b>焰羽</b><br>攻击 +50%、无视 40% 防御，持续 2 回合。'
+    });
+  }
   return badges;
 }
 

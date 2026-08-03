@@ -54,14 +54,18 @@ describe('getCharacterLore 数据加载', () => {
 });
 
 describe('LoreTab 渲染', () => {
-  it('先加载态,后显示角色故事 + 语音播放按钮', async () => {
+  it('先加载态,后显示角色故事 + 语音折叠行 + 播放按钮', async () => {
     const el = mount(<LoreTab roleName="忌炎" />);
     expect(el.textContent).toContain('载入角色资料');
     expect(await waitFor(() => el.textContent.includes('角色故事'))).toBe(true);
-    expect(el.querySelectorAll('.lore-story').length).toBeGreaterThanOrEqual(1);
-    expect(el.querySelectorAll('.lore-word').length).toBeGreaterThanOrEqual(1);
+    // 折叠行:标题可见,内容默认折叠
+    expect(el.querySelectorAll('.lore-row').length).toBeGreaterThanOrEqual(1);
+    expect(el.querySelectorAll('.lore-row-body').length).toBe(0); // 默认全折叠
     expect(el.querySelectorAll('.lore-play').length).toBeGreaterThanOrEqual(1);
-    expect(el.querySelectorAll('.lore-story-hint').length).toBeGreaterThanOrEqual(1);
+    // 点击第一个故事标题展开内容
+    const firstHead = el.querySelector('.lore-row-head') as HTMLElement;
+    firstHead.click();
+    expect(await waitFor(() => el.querySelectorAll('.lore-row-body').length >= 1)).toBe(true);
   });
 
   it('未知角色显示空态', async () => {

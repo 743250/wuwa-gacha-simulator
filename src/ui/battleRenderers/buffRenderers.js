@@ -11,7 +11,7 @@ import { collectCharacterBadges } from '../../battle/characters/index.js';
 import { getErosionStacks } from '../../battle/combat/erosion.js';
 import { getEffectStacks, getEffectDef } from '../../battle/combat/effects.js';
 
-function pct(v) { return `${(v * 100).toFixed(0)}%`; }
+function pct(v) { return `${((Number(v) || 0) * 100).toFixed(0)}%`; }
 
 // 可能被展开到全队的 buff 类型（需配合 resolveBuffScope 使用，类型本身不等于全队）
 export const TEAM_BUFF_TYPES = new Set(['critUp', 'crateUp', 'cdmgUp', 'atkUp', 'heavyDmgUp', 'healOverTime', 'elemAllUp']);
@@ -94,7 +94,7 @@ export const BUFF_RENDERERS = {
   },
   healOverTime: {
     cls: 'heal', icon: '💚',
-    label(buf) { return `${buf.src || '领域'} 每回合回血 ${buf.value.toFixed(0)}`; },
+    label(buf) { return `${buf.src || '领域'} 每回合回血 ${(Number(buf.value) || 0).toFixed(0)}`; },
     tip: '<b>持续治疗</b><br>回合结束时回血。'
   },
   heavyDmgUp: {
@@ -340,7 +340,7 @@ export function collectUnitBadges(unit, battle, opts = {}) {
     if (d.type === 'defDown' && d.stacks > 0) {
       out.push({
         key: `df-${unit.name}`, cls: 'debuff', icon: '🔻',
-        label: `防御 ↓${(d.stacks * d.value * 100).toFixed(0)}%`,
+        label: `防御 ↓${((d.stacks || 0) * (Number(d.value) || 0) * 100).toFixed(0)}%`,
         tip: '<b>防御下降</b><br>受到的伤害增加。'
       });
     }
@@ -400,7 +400,15 @@ export function collectUnitBadges(unit, battle, opts = {}) {
 
   // 角色专属资源（忌炎锐意、卡提希娅决意/形态、折枝墨鹤等）
   const charBadges = collectCharacterBadges(unit);
-  if (Array.isArray(charBadges)) out.push(...charBadges);
+  if (Array.isArray(charBadges)) {
+    for (const b of charBadges) {
+      if (typeof b === 'string') {
+        out.push({ key: `ch-${b}`, cls: 'field', icon: '', label: b });
+      } else if (b && b.label) {
+        out.push(b);
+      }
+    }
+  }
 
   // 声骸套装效果
   if (unit.echoStats?.setBonuses?.length) {

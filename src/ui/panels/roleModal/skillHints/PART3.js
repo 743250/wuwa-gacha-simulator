@@ -364,7 +364,6 @@ export const PART3 = {
       const c3Hecate = chain >= 3 ? 1.80 : 1;
       const hecastAutoMult = 0.56;
       const hecastAugMult = 3.40 * (chain >= 6 ? 1.24 : 1);
-      const c6PhantomMult = 2.164;
       const varMult = 2.02;
       const varCmdMult = 5.96;
 
@@ -373,7 +372,6 @@ export const PART3 = {
       const dirgeDmg  = Math.round(atk * dirgeFullMult);
       const hecastAutoDmg = Math.round(atk * hecastAutoMult * c3Hecate);
       const hecastAugDmg  = Math.round(atk * hecastAugMult * c3Hecate);
-      const c6PhantomDmg  = Math.round(atk * c6PhantomMult);
       const varDmg    = Math.round(atk * varMult);
       const varCmdDmg = Math.round(atk * varCmdMult);
 
@@ -395,7 +393,7 @@ export const PART3 = {
       );
       const hecastTip = tipAttr(
         `<b style="color:var(--gold)">赫卡忒协同追击</b><br>` +
-        `弗洛洛普攻/技能/重击/变奏命中后触发，伤害类型继承本击<br>` +
+        `指挥状态内触发：每回合结束、弗洛洛重击时各攻击 1 次；6 链时普攻/技能命中立刻攻击<br>` +
         `· 协同追击：攻击 × 56%${chain>=3?` × 1.80（3链）`:''} = ${hecastAutoDmg}（+1 乐声 +1 余响）<br>` +
         `· 强化追击：攻击 × 340%${chain>=6?` × 1.24（6链）`:''}${chain>=3?` × 1.80（3链）`:''} = ${hecastAugDmg}（+1 乐声 +1 余响）<br>` +
         `每第 2 次协同后升级为强化`
@@ -412,13 +410,13 @@ export const PART3 = {
           icon: '⚔', name: '普攻 · 亡与死的乐章',
           nameHtml: '普攻 · <b class="term-skill">亡与死的乐章</b>', cost: '1 AP',
           color: 'var(--text)',
-          desc: `对主目标造成 <span class="tip" data-tip='${normalTip}'><b style="color:var(--text)">${normalDmg}</b> 点</span><b class="term-normal">湮灭伤害</b>。命中后获得 1 枚<b class="term-resource">乐声</b>。${chain>=1?'<br><span style="color:var(--gold)">[1 链]</span> 伤害倍率提升 80%。':''}${chain>=6?'<br><span style="color:var(--gold)">[6 链]</span> <b class="term-state">指挥状态</b>期间施放时，赫卡忒追加重世幻象追击，造成攻击 <b>216.4%</b>（<b>'+c6PhantomDmg+'</b>）的湮灭伤害，并获得 8 层余响。':''}`
+          desc: `对主目标造成 <span class="tip" data-tip='${normalTip}'><b style="color:var(--text)">${normalDmg}</b> 点</span><b class="term-normal">湮灭伤害</b>。命中后获得 1 枚<b class="term-resource">乐声</b>。${chain>=1?'<br><span style="color:var(--gold)">[1 链]</span> 伤害倍率提升 80%。':''}${chain>=6?'<br><span style="color:var(--gold)">[6 链]</span> <b class="term-state">指挥状态</b>期间施放时，赫卡忒立刻协同追击。':''}`
         },
         {
           icon: '✦', name: '共鸣技能 · 永不消逝的梦呓',
           nameHtml: '共鸣技能 · <b class="term-skill">永不消逝的梦呓</b>', cost: '1 AP · CD 3 回合',
           color: 'var(--accent)',
-          desc: `对主目标造成 <span class="tip" data-tip='${skillTip}'><b style="color:var(--accent)">${skillDmg}</b> 点</span><b class="term-skill">湮灭伤害</b>。命中后获得 1 枚<b class="term-resource">乐声</b>。${chain>=1?'<br><span style="color:var(--gold)">[1 链]</span> 伤害倍率提升 80%。':''}${chain>=6?'<br><span style="color:var(--gold)">[6 链]</span> <b class="term-state">指挥状态</b>期间施放时，赫卡忒追加重世幻象追击。':''}`
+          desc: `对主目标造成 <span class="tip" data-tip='${skillTip}'><b style="color:var(--accent)">${skillDmg}</b> 点</span><b class="term-skill">湮灭伤害</b>。命中后获得 1 枚<b class="term-resource">乐声</b>。${chain>=1?'<br><span style="color:var(--gold)">[1 链]</span> 伤害倍率提升 80%。':''}${chain>=6?'<br><span style="color:var(--gold)">[6 链]</span> <b class="term-state">指挥状态</b>期间施放时，赫卡忒立刻协同追击。':''}`
         },
         {
           icon: '🎼', name: '谱曲终末（重击替换）', cost: '2 AP · CD 3 回合 · 需 6 乐声',
@@ -428,7 +426,7 @@ export const PART3 = {
         {
           icon: '⚡', name: '共鸣解放 · 往日深渊的圆舞曲', cost: '0 AP · 需定音状态',
           color: 'var(--gold)',
-          desc: `弗洛洛处于<b class="term-state">定音</b>状态时可施放，不消耗 AP。进入<b class="term-state">指挥状态</b>，持续 3 回合，期间弗洛洛攻击提升 120% 并召唤<b class="term-resource">赫卡忒</b><span class="tip" data-tip='${hecastTip}'>协同追击</span>。登场时赫卡忒与弗洛洛共伤（同额，不替挡）。大招前不会召唤赫卡忒。${chain>=5?'<span style="color:var(--gold)">[5 链]</span> 指挥状态期间受到的伤害降低 30%。':''}${chain>=6?'<span style="color:var(--gold)">[6 链]</span> 指挥期间普攻/技能额外触发重世幻象（攻击 <b>216.4%</b> +8 余响）；登场湮灭伤害加成提升 60%；非登场时目标受到赫卡忒与弗洛洛的伤害提升 36%。':''}`
+          desc: `弗洛洛处于<b class="term-state">定音</b>状态时可施放，不消耗 AP。进入<b class="term-state">指挥状态</b>，持续 3 回合，期间弗洛洛攻击提升 120% 并召唤<b class="term-resource">赫卡忒</b><span class="tip" data-tip='${hecastTip}'>协同追击</span>。指挥内每回合结束与弗洛洛重击时，赫卡忒各攻击 1 次。登场时赫卡忒与弗洛洛共伤（同额，不替挡）。大招前不会召唤赫卡忒。${chain>=5?'<span style="color:var(--gold)">[5 链]</span> 指挥状态期间受到的伤害降低 30%。':''}${chain>=6?'<span style="color:var(--gold)">[6 链]</span> 指挥期间普攻/技能命中时赫卡忒立刻协同追击；登场湮灭伤害加成提升 60%；非登场时目标受到赫卡忒与弗洛洛的伤害提升 36%。':''}`
         },
         {
           icon: '🎵', name: '变奏入场 · 致命组歌', cost: '切换上场时触发',
