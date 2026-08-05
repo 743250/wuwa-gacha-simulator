@@ -9,6 +9,8 @@
     "preview": "vite preview",
     "build:single": "SINGLE_FILE=1 vite build && node scripts/build-single-html.mjs",
     "smoke": "node --experimental-strip-types scripts/smoke-combat.mjs",
+    "e2e": "bash scripts/e2e.sh",
+    "e2e:no-server": "bash scripts/e2e.sh --no-server",
     "check:balance": "node scripts/check-balance.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
