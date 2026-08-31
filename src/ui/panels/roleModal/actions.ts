@@ -1,4 +1,4 @@
-// roleModal 入口 action（原 src/ui/render/roleModal.js shim，已迁入 Preact 层）
+// roleModal 入口 action（Preact 层）
 import { S } from '../../../state.js';
 import { msg } from '../../services/toast.ts';
 import { upgrade } from '../../../gacha/actions.js';

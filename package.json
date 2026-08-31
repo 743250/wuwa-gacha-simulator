@@ -18,7 +18,7 @@
     "lint:strict": "node scripts/run-lint-strict.mjs",
     "typecheck": "tsc --noEmit",
     "push": "node scripts/push.mjs",
-    "preview:char": "node scripts/preview-char.mjs"
+    "preview:char": "node --experimental-strip-types scripts/preview-char.mjs"
   },
   "devDependencies": {
     "@preact/preset-vite": "^2.10.5",

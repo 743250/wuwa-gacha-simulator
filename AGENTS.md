@@ -32,10 +32,12 @@
 
 ## 项目防坑（重要）
 
-1. **git 对象库易碎**：`.git/objects` 的 packfile/loose object 是指向 `.l2s` 临时目录的符号链接，该目录被清空则 `git log/diff` 报 "Could not read"。**`git fetch` 修不了**。修复法：`git clone --no-checkout` 到临时目录 → 备份坏 `.git` → 拷新 `.git` → `git reset --mixed HEAD`。
-2. **NODE_OPTIONS 是坏的**：跑 npm 前 `env -u NODE_OPTIONS`。
-3. **banner 武器图构图**：用 `background-size:auto 100%; background-position:100% 40%`，别用宽度放大（会垂直裁武器）。
-4. **改角色数值要谨慎**：工作纪律要求数值改动需按设计文档走，不随手调。
+1. **git 对象库脆弱（历史事故）**：`.git/objects` 下部分 loose object 是指向 proot `.l2s` 目录的符号链接，该目录被清空则 `git log/diff` 报 "Could not read"，且 **`git fetch` 修不了**。修复法：`git clone --no-checkout` 到临时目录 → 备份坏 `.git` → 拷新 `.git` → `git reset --mixed HEAD`。2026-08-31 复核：链接全部有效，`git cat-file` 可读，仓库健康。
+2. **proot 下 git 全量操作很慢**：`git diff --stat`（不带路径）可能超过 60 秒，单文件 diff 只需 0.1 秒。这是 I/O 开销，不是仓库损坏，按文件范围操作即可。
+3. **NODE_OPTIONS 是坏的**：跑 npm 前 `env -u NODE_OPTIONS`。
+4. **原生二进制按运行层安装**：`node_modules` 若在 Termux 装出来，proot Ubuntu 内需要 linux-arm64 版本的 rollup / esbuild / rolldown 绑定，否则 build 与 vitest 直接启动失败。
+5. **banner 武器图构图**：用 `background-size:auto 100%; background-position:100% 40%`，别用宽度放大（会垂直裁武器）。
+6. **改角色数值要谨慎**：工作纪律要求数值改动需按设计文档走，不随手调。
 
 ## 快速命令
 
@@ -48,7 +50,8 @@ npm run build      # 构建
 ## 核心文件
 
 - `src/main.js` 入口 · `src/state.js` 全局状态 · `src/save.js` 存档
-- `docs/status.md` 验收标准
+- `docs/plans/characters/status.md` 角色实装状态与验收标准
+- `docs/README.md` 文档总索引
 - 数据采集用灰机 wiki / 库街区（`scripts/headless/README.md`）
 
 ## 文档分层（重要 · 不要混用事实来源）
@@ -128,7 +131,7 @@ npm run build      # 构建
 8. **玩家空间文案 ≠ 工作笔记**：禁用 `→` `+` `buff` `debuff` `core` 等速记。
 9. **HP 核倍率校准**：HP 核角色普攻/技能/重击倍率必须按 HP/ATK 倍数比下调
    （基线 HP/ATK ≈ 8.7×）。
-10. **共鸣链文案对着 chainEffects.js 实际效果逐字核对**，不编造不存在的机制。
+10. **共鸣链文案对着 `registry.ts` 的 effect 逐字核对**，不编造不存在的机制。
 11. **模拟器无声骸技能作为独立伤害类型**：`dmgType` 只有
     `normal/skill/heavy/burst` 四类；禁止出现"声骸技能伤害"表述。
 
@@ -160,7 +163,3 @@ npm run build      # 构建
 
 - `v0.1-pure-gacha` — 纯抽卡版（git tag + zip 备在 `backups/`）
 - `v0.2` — 当前版（含养成+战斗）
-
-- **自己做**：角色设计、机制取舍、数值平衡、文案措辞
-- **派出去**：跨文件搜证、批量改文案、跑 build/test 汇总
-- 子代理回来必须核验（读 diff、跑 build），不盲信"已完成"

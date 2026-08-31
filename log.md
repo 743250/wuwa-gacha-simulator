@@ -3,6 +3,40 @@
 > git 管「改了什么」，这份记录「为什么这么改、当时怎么取舍」。按日期倒序。
 > 只记有意义的决策与判断，不记流水账（流水账进 git commit）。
 
+## 2026-08-31 · 技术债清理第一批：死代码与文档失真
+
+**背景**：proot Ubuntu 内 build 与 vitest 全部启动失败，根因是 `node_modules`
+在 Termux 层装的，原生绑定是 android-arm64。补装 linux-arm64 的
+rollup / esbuild / rolldown 绑定后 build 5.7 秒通过、`tsc --noEmit` 干净。
+`node_modules` 不入库，换运行层需重做这一步。
+
+**git 对象库复核（推翻旧结论）**：历史记录说对象库损坏、`git fetch` 修不了。
+本次实测 89 个符号链接对象全部有效、`git cat-file -t` 可读、断链 0，pack 是普通文件。
+**慢的真实原因是 proot 文件 I/O**：全量 `git diff --stat` 超 60 秒，单文件 0.12 秒。
+重新 clone 不会变快，因此不做修复，只把这条写进防坑清单避免下次误判。
+
+**清掉的死代码**：
+- `CLAUDE.md.bak` —— 与正本只差 1 行标题，且已被 git 追踪，属误入库备份。
+- 空目录 `src/ui/render/` —— 旧渲染层早已迁走，只剩空壳。
+- `scripts/preview-char.mjs` 引用三个**已不存在**的模块
+  （`src/ui/render/skillHints.js`、`src/ui/terms.js`、`src/data/seq.js`），
+  脚本实际跑不起来；且内部复制了一份 `attachTermTips` / `highlightChainTerms`
+  / `CHAIN_TERM_PATTERNS` 副本，与前端实现双份维护。
+  **决定**：改为直接 import 前端真实实现 + `REGISTRY`（`preview:char`
+  加 `--experimental-strip-types` 以导入 `.ts`），预览结果与页面同源。
+  已实跑忌炎 0~6 链，产物含 6 条链名，无「无共鸣链文案」兜底。
+
+**文档失真校正**（CLAUDE.md / AGENTS.md 属工程向导，本身不是事实来源，
+但过时描述会误导后续判断）：卡池表 1.0–3.4→3.6、registry 50→55 角色、
+`combat.js` 标 731 行实为 26 行 re-export 门面（实现已拆到 `combat/`）、
+`weapons.js` 678→1107 行、`main.js` 218→36 行、`index.html` 222→204 行、
+`main.css` 51KB→80KB、`chainEffects.js` 现况只剩 `FORTE_BOOST`、
+铁律 10 指向已不存在的 `chainEffects.js` 文案源 → 改指 `registry.ts`、
+AGENTS.md 引用的 `docs/status.md` 不存在 → 改指实际路径，并删末尾重复的子代理分工段。
+
+**未做**：全量 vitest 在本环境跑不完（rolldown 绑定 18MB，启动即重），
+本批只有 build + tsc 双绿，测试待能跑完的环境补。
+
 ## 2026-08-14 · 环境入口迁移与项目管理补齐
 
 - 将 E2E 脚本和 headless 文档中的旧 `ubuntu` 容器名统一为 `ubuntu26`。

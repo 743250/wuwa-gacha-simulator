@@ -50,20 +50,20 @@ npm run dev
 ## 架构
 
 ```
-index.html     ← HTML 骨架（~222 行）
+index.html     ← HTML 骨架（~204 行）
 styles/
-  main.css     ← 全部样式（暗色鸣潮主题，~51KB）
+  main.css     ← 全部样式（暗色鸣潮主题，~80KB / 1317 行）
 
 src/
-  main.js      ← 入口，事件绑定，所有面板联动（218 行）
+  main.js      ← 入口，启动引导（36 行；面板联动已下沉到 ui/ 各 actions）
   state.js     ← 全局状态 S() + 工具函数（$ / msg / fmt / date / pick）
   save.js      ← localStorage 存档 + 导出/导入 JSON
   modal.js     ← 通用弹窗
 
   data/         ← 纯数据（无逻辑）
     chars.js    ← 角色/武器名、卡池名称
-    phases.js   ← 卡池时间表 1.0–3.4
-    chains/     ← 共鸣链 ChainDef（Phase 3：registry.ts 50 角色 × 6 链 + types.ts，原 seq.js + chainEffects CHAIN_BATTLE_EFFECTS 已合并到此）
+    phases.js   ← 卡池时间表 1.0–3.6
+    chains/     ← 共鸣链 ChainDef（registry.ts 55 角色 × 6 链 + types.ts，战斗 effect 与玩家文案单结构）
 
   gacha/        ← 抽卡核心
     core.js     ← 概率曲线、保底、卡池/波纹解析、角色/武器初始化
@@ -75,13 +75,14 @@ src/
     stats.js    ← 面板计算（攻击/暴击/元素/生命）
     template.js ← 角色定位模板（4 类）+ 元素映射
     elements.js ← 六元素抗性 + 震动伤害
-    chains.js   ← 共鸣链→战斗效果（applyChainBonuses 等，Phase 3 走 ChainDef 路径）
-    chainEffects.js ← FALLBACK_CHAIN + FORTE_BOOST（Phase 3: CHAIN_BATTLE_EFFECTS 已迁到 data/chains/registry.ts）
+    chains.js   ← 共鸣链→战斗效果（applyChainBonuses 等，走 ChainDef 路径）
+    chainEffects.js ← FORTE_BOOST（6 链 forte 倍率加成；CHAIN_BATTLE_EFFECTS / FALLBACK_CHAIN 已退役）
     forte.js    ← 奏回路（角色专属资源条）
     weaponTriggers.js ← 武器被动触发
     enemies.js  ← 敌人数据库（含 BOSS 机制）
     enemyMechanics.js ← 敌人机制注册表（周期/阈值触发）
-    combat.js   ← AP 回合制战斗引擎（731 行）
+    combat.js   ← 战斗引擎 re-export 门面（实现在 combat/ 子模块）
+    combat/     ← 引擎实现：setup / damage / helpers / enemyAI / actions / turnEnd / results / effects / erosion
     dungeon.js  ← 副本配置
     battleSignals.js ← 战斗 UI signals（Phase 2 从 ui/panels/battle/ 移来打破循环）
     characters/ ← 角色专属机制文件（S 级专属，1 对 1 文件）
@@ -89,7 +90,7 @@ src/
     resources/  ← ResourceDef 适配器（Phase 4：types.ts + index.ts，把 forte/stacks/forms 注册到 RESOURCE_REGISTRY）
 
   equip/        ← 装备养成
-    weapons.js  ← 武器数据库（所有 3/4/5 星武器，678 行）
+    weapons.js  ← 武器数据库（所有 3/4/5 星武器，1107 行）
     actions.js  ← 升级/装备/卸下武器
 
   daily/        ← 日常系统
@@ -238,11 +239,11 @@ src/
 |---|---|
 | [src/battle/characters/](src/battle/characters/) `<角色名>.js` | S 级专属机制（状态机/双形态）；A 级工厂一般不需要这个文件 |
 | [src/battle/characters/index.js](src/battle/characters/index.js) `getCharacterMechanic` / `HAS_HEAVY_ROLES` | 注册表 / 重击开关 |
-| [src/data/chains/registry.ts](src/data/chains/registry.ts) `ChainDef[角色名]` | 6 链的战斗 effect + 玩家文案（Phase 3 单结构，原 chainEffects CHAIN_BATTLE_EFFECTS + seq.js seqText 已合并到此） |
-| [src/battle/chains.js](src/battle/chains.js) `applyChainBonuses` | 按 effect 类型分发到 unit；所有角色走 ChainDef 路径，FALLBACK_CHAIN 兜底未迁角色 |
-| [src/battle/combat.js](src/battle/combat.js) | AP 回合制引擎，挂钩 doAttack/doSkill/doHeavy/doBurst/doSwitch |
+| [src/data/chains/registry.ts](src/data/chains/registry.ts) `ChainDef[角色名]` | 6 链的战斗 effect + 玩家文案（单结构，effect 与文案同一处维护） |
+| [src/battle/chains.js](src/battle/chains.js) `applyChainBonuses` | 按 effect 类型分发到 unit；所有角色走 ChainDef 路径 |
+| [src/battle/combat.js](src/battle/combat.js) | 引擎门面，实现在 `combat/`；挂钩 doAttack/doSkill/doHeavy/doBurst/doSwitch |
 | [src/battle/forte.js](src/battle/forte.js) `FORTE[角色名]` | FORTE 资源条配置 |
-| [src/data/chains/registry.ts](src/data/chains/registry.ts) `ChainDef[角色名].text` | 共鸣链 6 条文案（模拟器版，Phase 3 从原 seq.js 迁入） |
+| [src/data/chains/registry.ts](src/data/chains/registry.ts) `ChainDef[角色名].text` | 共鸣链 6 条文案（模拟器版） |
 | [src/ui/panels/roleModal/skillHints/index.js](src/ui/panels/roleModal/skillHints/index.js) `SKILL_HINTS[角色名]` | 技能 tab 文案（工厂版用 `makeSkillLines` 见 [src/ui/panels/roleModal/skillLines.js](src/ui/panels/roleModal/skillLines.js)） |
 | [src/ui/panels/roleModal/skillText.ts](src/ui/panels/roleModal/skillText.ts) `CHAIN_TERM_PATTERNS` | 让术语在共鸣链里也能悬停 |
 | [src/ui/panels/roleModal/terms.js](src/ui/panels/roleModal/terms.js) `TERM_DICT` | 术语词典（资源/状态/招式名） |
@@ -260,7 +261,7 @@ src/
 7. **重击 opt-in**：缺省无重击，需要才加 `hasHeavy: true`，战斗 UI 按 `cur.hasHeavy` 动态布局。
 8. **玩家空间文案 ≠ 工作笔记**：禁用 `→` `+` `buff` `debuff` `core` `叠层` `爆发解放机` 等速记。intro 只写身份（`元素 · 武器 · 定位 · 「核心机制名」`），不替玩家分析强度。通用机制（如风蚀效应）不标角色专属。
 9. **HP 核倍率校准**（卡提希娅范式）：HP 核角色的普攻/技能/重击倍率必须按 HP/ATK 倍数比下调（基线 HP/ATK ≈ 8.7×），否则”普攻反超大招”。详见角色设计指南第 3 层。
-10. **共鸣链文案对着 chainEffects.js 实际效果逐字核对**，不编造代码中不存在的机制。
+10. **共鸣链文案对着 `registry.ts` 的 effect 逐字核对**，不编造代码中不存在的机制。
 11. **模拟器无声骸技能作为独立伤害类型**（铁律）：`dmgType` 只有 `normal/skill/heavy/burst` 四类，没有 `echoSkill`。官方"视为声骸技能伤害"的招式归到四类之一（按动作类型）；"施放声骸技能时触发 X"的共鸣链把触发条件换成模拟器实际存在的招式（如"施放谱曲终末时"/"共鸣解放时"）。**禁止**在文档/文案/代码里出现"声骸技能伤害""视为声骸技能伤害""声骸技能时..."等表述。声骸套装 5 件效果是装备系统的一部分，保留，不算声骸技能。详见 [docs/plans/角色设计指南.md](docs/plans/角色设计指南.md) 第 4b 节。
 
 ### 分级实装深度

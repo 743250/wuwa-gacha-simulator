@@ -3,9 +3,8 @@
 // 禁词场景:`→` `buff` `debuff` `core` `叠层` `爆发解放机` 出现在给玩家看的字符串字面量里
 // 这些是工作笔记速记,不应出现在玩家文案里(应用"增益"/"减益"/中文连接符等)。
 //
-// 守卫范围:**只查 src/ui/ 新 Preact 组件的字符串字面量**(不查变量名/属性名/注释)。
-// 老代码(src/ui/render/)历史已有用法,不强清,留作后续逐个修。
-// 迁移到 panels/ 的 skillHints/skillLines/terms 属老数据文件,同样豁免。
+// 守卫范围:**只查 src/ui/panels/ 的字符串字面量**(不查变量名/属性名/注释)。
+// skillHints/skillLines/terms 是历史文案数据文件,存量用法不强清,留作后续逐个修。
 // 战斗日志 helpers.ts 的 "A 攻击 → B" 是流式动作描述,行业惯例,豁免。
 
 import { describe, it, expect } from 'vitest';
@@ -15,7 +14,7 @@ import { lintWarn } from './helpers.js';
 
 const ROOT = resolve(__dirname, '../../src/ui/panels');
 
-// 从 src/ui/render/ 迁来的老数据文件:文案为历史遗留,不强清(与迁移前 no-shorthand 不扫 render/ 一致)
+// 历史文案数据文件:存量速记不强清(维持既有豁免范围)
 const EXEMPT_SUBPATHS = [
   'roleModal/skillHints/',
   'roleModal/skillLines.js',

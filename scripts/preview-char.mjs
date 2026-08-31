@@ -1,7 +1,10 @@
 #!/usr/bin/env node
 // 角色技能面板可视化预览 —— 生成独立 HTML，浏览器直接打开即可审查
-// 用法: node scripts/preview-char.mjs [角色名]
+// 用法: node --experimental-strip-types scripts/preview-char.mjs [角色名]
 // 默认角色: 卡提希娅
+//
+// 本脚本直接复用前端真实实现（attachTermTips / highlightChainTerms / REGISTRY），
+// 不再复制粘贴一份副本 —— 预览结果与页面渲染保持同源。
 
 import fs from 'node:fs';
 import path from 'node:path';
@@ -10,12 +13,15 @@ import { pathToFileURL } from 'node:url';
 const root = process.cwd();
 const charName = process.argv[2] || '卡提希娅';
 
-// 动态 import ES modules
-const [{ SKILL_HINTS }, { TERM_DICT }, { seqText }] = await Promise.all([
-  import(pathToFileURL(path.join(root, 'src/ui/render/skillHints.js')).href),
-  import(pathToFileURL(path.join(root, 'src/ui/terms.js')).href),
-  import(pathToFileURL(path.join(root, 'src/data/seq.js')).href),
-]);
+const imp = (rel) => import(pathToFileURL(path.join(root, rel)).href);
+
+const [{ SKILL_HINTS }, { TERM_DICT, attachTermTips }, { highlightChainTerms }, { REGISTRY }] =
+  await Promise.all([
+    imp('src/ui/panels/roleModal/skillHints/index.js'),
+    imp('src/ui/panels/roleModal/terms.js'),
+    imp('src/ui/panels/roleModal/skillText.ts'),
+    imp('src/data/chains/registry.ts'),
+  ]);
 
 const s = SKILL_HINTS[charName];
 if (!s) {
@@ -35,35 +41,6 @@ function genRole(chain) {
     weapon: '五星专武', weaponLevel: 90, weaponRank: 1, level: 90 };
 }
 
-// ---- HTML 工具函数（从 terms.js 复制）----
-function escAttr(s) { return String(s).replace(/&/g, '&amp;').replace(/'/g, '&#39;'); }
-function attachTermTips(html) {
-  if (!html) return '';
-  // 保护 data-tip 内容
-  const tipContents = [];
-  let tipIdx = 0;
-  let safe = String(html).replace(/ data-tip='([^']*)'/g, (full, content) => {
-    const idx = tipIdx++;
-    tipContents.push(content);
-    return ` data-tip='__TPROT_${idx}__'`;
-  });
-  safe = safe.replace(/ data-tip="([^"]*)"/g, (full, content) => {
-    const idx = tipIdx++;
-    tipContents.push(content);
-    return ` data-tip="__TPROT_${idx}__"`;
-  });
-  const TERM_KEYS_SORTED = Object.keys(TERM_DICT).sort((a, b) => b.length - a.length);
-  const processed = safe.replace(/<b\s+class="(term-[\w-]+)"\s*>([^<]+)<\/b>/g, (full, cls, inner) => {
-    const text = inner.trim();
-    if (TERM_DICT[text]) return `<span class="tip-term" data-tip='${escAttr(TERM_DICT[text])}'>${full}</span>`;
-    for (const key of TERM_KEYS_SORTED) {
-      if (text.includes(key)) return `<span class="tip-term" data-tip='${escAttr(TERM_DICT[key])}'>${full}</span>`;
-    }
-    return full;
-  });
-  return processed.replace(/__TPROT_(\d+)__/g, (full, idx) => tipContents[parseInt(idx)] || '');
-}
-
 // ---- 生成技能行 HTML ----
 function genSkillLines(chain) {
   const role = genRole(chain);
@@ -79,35 +56,19 @@ function genSkillLines(chain) {
     </div>`).join('');
 }
 
-// ---- 生成共鸣链 HTML ----
-const CHAIN_TERM_PATTERNS = [
-  { re: /(\d+(?:\.\d+)?%)/g, cls: 'term-num' },
-  { re: /(\d+(?:\.\d+)?\s*(?:秒|回合|层|点|次))/g, cls: 'term-num' },
-  { re: /(看潮怒风哮之刃|听骑士从心祈愿)/g, cls: 'term-burst' },
-  { re: /(共鸣解放[··][一-龥]{2,8}|共鸣解放|终末回环)/g, cls: 'term-burst' },
-  { re: /(共鸣技能[··][一-龥]{2,6}|共鸣技能)/g, cls: 'term-skill' },
-  { re: /(共鸣回路|延奏技能|变奏技能|变奏|延奏|协奏)/g, cls: 'term-resource' },
-  { re: /(重击|空中攻击)/g, cls: 'term-heavy' },
-  { re: /(普攻)/g, cls: 'term-normal' },
-  { re: /(星蝶|星域|破阵值|破阵|离火|韶光|晶体|红椿|杀意|猎杀阈值|决意|气动侵蚀|衍射失序|心眼)/g, cls: 'term-resource' },
-  { re: /(风蚀效应|芙露德莉斯)/g, cls: 'term-resource' },
-  { re: /(人权|神权|异权)/g, cls: 'term-resource' },
-];
-function highlightChainTerms(text) {
-  if (!text) return '';
-  if (/<b\s+class="term-/.test(text)) return text;
-  let out = String(text);
-  CHAIN_TERM_PATTERNS.forEach(p => { out = out.replace(p.re, m => `<b class="${p.cls}">${m}</b>`); });
-  return out;
-}
+// ---- 生成共鸣链 HTML（数据源：REGISTRY ChainDef）----
 function genChainLines(chain) {
-  const entries = seqText[charName];
-  if (!entries) return '<div style="color:var(--dim)">无共鸣链文案</div>';
-  return entries.map((s, i) => {
+  const def = REGISTRY[charName];
+  if (!def || !def.chains || !def.chains.length) {
+    return '<div style="color:var(--dim)">无共鸣链文案</div>';
+  }
+  return def.chains.map((c, i) => {
     const owned = i < chain;
-    return `<div class="seq-line" style="margin-bottom:10px;padding:10px;border-radius:8px;background:${owned?'rgba(245,207,107,.06)':'rgba(255,255,255,.02)'};border:1px solid ${owned?'var(--gold)':'var(--line)'}">
-      <b style="color:${owned?'var(--gold)':'var(--muted)'};font-size:13px">${i + 1}链 · ${s[0]}</b>
-      <div style="font-size:12px;color:var(--dim);margin-top:4px;line-height:1.6">${attachTermTips(highlightChainTerms(s[1]))}</div>
+    const name = c.text?.name || `${c.index ?? i + 1} 链`;
+    const desc = c.text?.desc || '';
+    return `<div class="seq-line" style="margin-bottom:10px;padding:10px;border-radius:8px;background:${owned ? 'rgba(245,207,107,.06)' : 'rgba(255,255,255,.02)'};border:1px solid ${owned ? 'var(--gold)' : 'var(--line)'}">
+      <b style="color:${owned ? 'var(--gold)' : 'var(--muted)'};font-size:13px">${i + 1}链 · ${name}</b>
+      <div style="font-size:12px;color:var(--dim);margin-top:4px;line-height:1.6">${attachTermTips(highlightChainTerms(desc))}</div>
     </div>`;
   }).join('');
 }
@@ -149,7 +110,7 @@ h2:first-child { margin-top: 0; }
 <div class="chain-nav">
   <span style="font-size:11px;color:var(--muted);line-height:28px;margin-right:8px">共鸣链:</span>
   <button onclick="setChain(0)" id="chain0">0 链</button>
-  ${[1,2,3,4,5,6].map(i => `<button onclick="setChain(${i})" id="chain${i}">${i} 链</button>`).join('')}
+  ${[1, 2, 3, 4, 5, 6].map(i => `<button onclick="setChain(${i})" id="chain${i}">${i} 链</button>`).join('')}
 </div>
 
 <h2>⚔ 技能</h2>
@@ -166,10 +127,10 @@ ${s.forteName ? `
 <script>
 // 共鸣链切换
 const skillData = {
-${[0,1,2,3,4,5,6].map(i => `  ${i}: \`${genSkillLines(i).replace(/`/g,'\\`').replace(/\$/g,'\\$')}\``).join(',\n')}
+${[0, 1, 2, 3, 4, 5, 6].map(i => `  ${i}: \`${genSkillLines(i).replace(/`/g, '\\`').replace(/\$/g, '\\$')}\``).join(',\n')}
 };
 const chainData = {
-${[0,1,2,3,4,5,6].map(i => `  ${i}: \`${genChainLines(i).replace(/`/g,'\\`').replace(/\$/g,'\\$')}\``).join(',\n')}
+${[0, 1, 2, 3, 4, 5, 6].map(i => `  ${i}: \`${genChainLines(i).replace(/`/g, '\\`').replace(/\$/g, '\\$')}\``).join(',\n')}
 };
 function setChain(n) {
   document.getElementById('skillPanel').innerHTML = skillData[n];
