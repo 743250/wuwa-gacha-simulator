@@ -50,10 +50,6 @@ function resolvePotionId(id) {
   return ID_ALIASES[id] || id;
 }
 
-export function tickStamina() {
-  // 不用真实时钟，日期推进时结算溢出 → 单质
-}
-
 export function spendStamina(cost) {
   if (S.stamina < cost) return false;
   S.stamina -= cost;

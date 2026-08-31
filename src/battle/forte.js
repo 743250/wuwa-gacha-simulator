@@ -391,6 +391,26 @@ export const FORTE = {
     effectType: 'enhancedSkill',
     effectMult: 1.8,
     desc: '<b class="term-resource">印象</b>上限 100。施放共鸣技能·幻象定帧积累<b class="term-resource">【照片】</b>（上限 3 张）。普攻·溯念留形第 3 段消耗 1 张照片施放<b class="term-resource">遗忘</b>（atk×180% 湮灭）。消耗全部 3 张施放<b class="term-resource">断舍离</b>（atk×320% 湮灭 AOE，每张额外印象倍率+30%）。共鸣解放进入追忆状态，强化断舍离。'
+  },
+
+  // ── 3.5 限定 ──
+  '秧秧·玄翎': {
+    // 苍翎：技能/解放各 +1（通用 gainForte），变奏入场 +1（characters/index.js onVariation），
+    // 满 2 层强化重击，命中后由 onHeavy 消耗。
+    kind: 'stacks', resourceName: '苍翎', max: 2,
+    gainPerNormal: 0, gainPerSkill: 1, gainPerBurst: 1, gainPerHeavy: 0,
+    effectType: 'enhancedHeavy',
+    effectMult: 2.0,
+    desc: '<b class="term-resource">苍翎</b>上限 2 层。变奏入场 / <b class="term-skill">剑式流转</b> / <b class="term-burst">裁羽寂万音</b>各 +1 层；满 2 层时<b class="term-heavy">重击·苍剑式</b>强化为×2.0（atk×800% 湮灭），命中后消耗全部苍翎。'
+  },
+  '穗穗': {
+    // 山河水境由 characters/index.js LIGHTWEIGHT onBurst 钩子展开（立即回血 + HOT + 全队全伤害），
+    // 通用 gainForte 仅驱动 UI 条。
+    kind: 'gauge', resourceName: '水云息', max: 120,
+    gainPerNormal: 8, gainPerSkill: 20, gainPerBurst: 40,
+    effectType: 'suisuiField',
+    effectMult: 1.0,
+    desc: '<b class="term-resource">水云息</b>上限 120。满时<b class="term-skill">醒春潮</b>强化为治疗全队。共鸣解放<b class="term-burst">康衢之谣</b>展开<b class="term-resource">山河水境</b> 4 回合：立即治疗全队，之后每回合治疗，且全队全伤害加深 25%。'
   }
 };
 

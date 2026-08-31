@@ -961,6 +961,56 @@ const W = {
     desc: '攻击+8%' },
 
   // ============================================================
+  // 3.5 新五星专武（encore.moe 2026-08 校准）
+  // ============================================================
+  // 秧秧·玄翎专武：全属性+12%；重击后重击伤害+36% 且无视 12% 防御（8 秒≈4 回合）
+  '天之苍苍': {
+    r: 5, type: '迅刀', atk90: 587,
+    sub: { stat: 'crate', value90: 0.243 },
+    passive: [
+      { type: 'elem_all', value: 0.12 }
+    ],
+    triggers: [
+      { on: 'heavy_hit', effect: 'heavy_pct', value: 0.36, maxStacks: 1, duration: 4 },
+      { on: 'heavy_hit', effect: 'def_pierce', value: 0.12, maxStacks: 1, duration: 4 }
+    ],
+    desc: '全属性+12%；重击后重击伤害+36%且无视12%防御（4回合）'
+  },
+  // 穗穗专武：生命+12%；解放回 8 协奏；治疗技能后全队攻击+20%（6 秒≈3 回合）
+  '栖霞饮露': {
+    r: 5, type: '音感仪', atk90: 412,
+    sub: { stat: 'hp', value90: 0.7223 },
+    passive: [
+      { type: 'hp', value: 0.12 }
+    ],
+    triggers: [
+      { on: 'burst_cast', effect: 'concerto_refund', value: 8, maxStacks: 1, duration: 1 },
+      { on: 'heal_skill', effect: 'team_atk', value: 0.20, maxStacks: 1, duration: 3 }
+    ],
+    desc: '生命+12%；解放回 8 协奏；治疗技能后全队攻击+20%（3回合）'
+  },
+
+  // ============================================================
+  // 3.6 新五星专武（C 级占位：可抽取可装备，官方数据待补）
+  // ============================================================
+  '云琅': {
+    r: 5, type: '迅刀', atk90: 500,
+    sub: { stat: 'crate', value90: 0.36 },
+    passive: [
+      { type: 'atk_pct', value: 0.12 }
+    ],
+    triggers: [],
+    desc: '攻击+12%（3.6 清宵专武 · 占位数据）'
+  },
+  '千般渡': {
+    r: 5, type: '长刃', atk90: 587,
+    sub: { stat: 'crate', value90: 0.243 },
+    passive: [],
+    triggers: [],
+    desc: '3.6 景燃专武 · 官方数据待补'
+  },
+
+  // ============================================================
   // 3★ 武器（atk90 = 246，sub ~6-8%）
   // ============================================================
   '训练迅刀':   { r: 3, type: '迅刀',   atk90: 246, sub: { stat: 'atk_pct', value90: 0.06 }, passive: [], triggers: [], desc: '攻击+6%' },

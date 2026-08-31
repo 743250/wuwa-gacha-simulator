@@ -383,4 +383,187 @@ export const PART5 = {
     forteDesc: '漂泊者·气动以技能循环为主：<br>· <b class="term-skill">缥缈无相</b>主输出<br>· <b class="term-burst">万象归墟</b>收束<br>· 链提升气动与技能倍率<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>普攻/技能循环，共鸣解放·万象归墟收束。',
   },
 
+  // 3.5 · 秧秧·玄翎（SP 主C 湮灭 迅刀）— 苍翎满 2 层强化重击
+  '秧秧·玄翎': {
+    intro: '湮灭 · 迅刀 · 主C · 「苍翎」',
+    hasHeavy: true,
+    customLines: (stats, role) => {
+      const tipAttr = s => s.replace(/&/g, '&amp;').replace(/'/g, '&#39;');
+      const chain = role.chain || 0;
+      const atk = stats.atk || 425;
+      const skillBonus = role.skillBonus || 0;
+      const heavyBonus = role.heavyBonus || 0;
+      const burstBonus = role.burstBonus || 0;
+      const normalDmg = Math.round(atk * 1.2);
+      const skillDmg = Math.round(atk * 1.8 * (1 + skillBonus));
+      const heavyBase = Math.round(atk * 4.0 * (1 + heavyBonus));
+      const heavyEnh = Math.round(atk * 8.0 * (1 + heavyBonus));
+      const burstMain = Math.round(atk * 7.0 * (1 + burstBonus));
+      const burstSide = Math.round(atk * 3.5 * (1 + burstBonus));
+      const varDmg = Math.round(atk * 1.2);
+      const varConcerto = Math.round(atk * 2.4);
+
+      const normalTip = tipAttr(
+        `<b style="color:var(--gold)">普攻伤害公式</b><br>` +
+        `= 攻击 <b>${atk}</b> × 120% = <b style="color:var(--text)">${normalDmg}</b>`
+      );
+      const skillTip = tipAttr(
+        `<b style="color:var(--gold)">共鸣技能伤害公式</b><br>` +
+        `= 攻击 <b>${atk}</b> × 180%` +
+        (skillBonus ? ` × (1 + 技能加成 ${(skillBonus*100).toFixed(0)}%)` : '') +
+        ` = <b style="color:var(--accent)">${skillDmg}</b>`
+      );
+      const heavyTip = tipAttr(
+        `<b style="color:var(--gold)">重击伤害公式</b><br>` +
+        `· 苍翎未满：攻击 <b>${atk}</b> × 400%` +
+        (heavyBonus ? ` × (1 + 重击加成 ${(heavyBonus*100).toFixed(0)}%)` : '') +
+        ` = <b style="color:#ff8c5e">${heavyBase}</b><br>` +
+        `· 苍翎满：攻击 <b>${atk}</b> × 800%` +
+        (heavyBonus ? ` × (1 + 重击加成 ${(heavyBonus*100).toFixed(0)}%)` : '') +
+        ` = <b style="color:#ff8c5e">${heavyEnh}</b>`
+      );
+      const burstTip = tipAttr(
+        `<b style="color:var(--gold)">解放伤害公式</b><br>` +
+        `· 主目标：攻击 <b>${atk}</b> × 700%` +
+        (burstBonus ? ` × (1 + 解放加成 ${(burstBonus*100).toFixed(0)}%)` : '') +
+        ` = <b style="color:#ff8c5e">${burstMain}</b><br>` +
+        `· 副目标：攻击 <b>${atk}</b> × 350%` +
+        (burstBonus ? ` × (1 + 解放加成 ${(burstBonus*100).toFixed(0)}%)` : '') +
+        ` = <b style="color:#ff8c5e">${burstSide}</b>`
+      );
+      const varTip = tipAttr(
+        `<b style="color:var(--gold)">变奏伤害公式</b><br>` +
+        `· 普通：攻击 <b>${atk}</b> × 120% = ${varDmg}<br>` +
+        `· 协奏满：攻击 <b>${atk}</b> × 240% = <b style="color:var(--accent)">${varConcerto}</b>`
+      );
+
+      const chainHints = [];
+      if (chain >= 1) chainHints.push('<span style="color:var(--gold)">[1链]</span> 剑式流转后玄翎之影追击，共鸣技能伤害 +30%');
+      if (chain >= 2) chainHints.push('<span style="color:var(--gold)">[2链]</span> 重击伤害 +100%');
+      if (chain >= 3) chainHints.push('<span style="color:var(--gold)">[3链]</span> 解放伤害 +100%');
+      if (chain >= 4) chainHints.push('<span style="color:var(--gold)">[4链]</span> 全队攻击 +20%');
+      if (chain >= 5) chainHints.push('<span style="color:var(--gold)">[5链]</span> 防御 +20%');
+      if (chain >= 6) chainHints.push('<span style="color:var(--gold)">[6链]</span> 重击伤害 +40%');
+      const chainHintsHtml = chainHints.length
+        ? '<br><span style="color:var(--muted);font-size:10px">·</span> ' + chainHints.join('<br><span style="color:var(--muted);font-size:10px">·</span> ')
+        : '';
+
+      return [
+        {
+          icon: '⚔', name: '普攻 · 苍剑式 / 羽剑式', cost: '1 AP',
+          color: 'var(--text)',
+          desc: `对目标造成 <span class="tip" data-tip='${normalTip}'><b style="color:var(--text)">${normalDmg}</b> 点</span><b class="term-normal">湮灭伤害</b>，命中后回复 12 共鸣能量、积累 8 协奏值。`
+        },
+        {
+          icon: '✦', name: '共鸣技能 · 剑式流转·苍 / 剑式流转·羽', cost: '1 AP · 冷却 3 回合',
+          color: 'var(--accent)',
+          desc: `对目标造成 <span class="tip" data-tip='${skillTip}'><b style="color:var(--accent)">${skillDmg}</b> 点</span><b class="term-skill">湮灭伤害</b>，命中后回复 22 能量，<b class="term-resource">苍翎</b> +1。${chainHintsHtml}`
+        },
+        {
+          icon: '💢', name: '重击 · 苍剑式', cost: '2 AP · 冷却 1 回合',
+          color: '#ff8c5e',
+          desc: `对目标造成 <span class="tip" data-tip='${heavyTip}'><b style="color:#ff8c5e">${heavyBase}</b> 点</span>（<b class="term-resource">苍翎</b>满时 <span class="tip" data-tip='${heavyTip}'><b style="color:#ff8c5e">${heavyEnh}</b> 点</span>）<b class="term-heavy">湮灭伤害</b>。苍翎满时命中后消耗全部苍翎。`
+        },
+        {
+          icon: '⚡', name: '共鸣解放 · 裁羽寂万音', cost: '3 AP · 需共鸣能量满 125',
+          color: 'var(--gold)',
+          desc: `对主目标造成 <span class="tip" data-tip='${burstTip}'><b style="color:#ff8c5e">${burstMain}</b> 点</span>、副目标 <span class="tip" data-tip='${burstTip}'><b style="color:#ff8c5e">${burstSide}</b> 点</span><b class="term-burst">湮灭伤害</b>，<b class="term-resource">苍翎</b> +1。`
+        },
+        {
+          icon: '🎵', name: '变奏技能 · 羽挟苍空', cost: '切换上场时触发',
+          color: '#c39bff',
+          desc: `切换上场时，对当前主目标造成 <span class="tip" data-tip='${varTip}'><b style="color:var(--accent)">${varDmg}</b>（协奏满 <b>${varConcerto}</b>）点</span><b class="term-variation">湮灭伤害</b>，<b class="term-resource">苍翎</b> +1。`
+        }
+      ];
+    },
+    forteName: '苍翎',
+    forteDesc: '<span style="color:var(--gold);font-size:11px">▸ 共鸣回路 · 万声浮道</span><br>· <b class="term-resource">苍翎</b>上限 2 层：<b class="term-skill">剑式流转</b> +1、<b class="term-burst">裁羽寂万音</b> +1、<b class="term-variation">变奏入场</b> +1<br>· 苍翎满 2 层时，<b class="term-heavy">重击·苍剑式</b>倍率由 atk×400% 强化为 atk×800%，命中后消耗全部苍翎<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>变奏入场攒苍翎，剑式流转接解放叠满苍翎，重击·苍剑式爆发清翎。'
+  },
+
+  // 3.5 · 穗穗（辅助 冷凝 音感仪）— 山河水境治疗领域
+  '穗穗': {
+    intro: '冷凝 · 音感仪 · 辅助 · 「山河水境」',
+    hasHeavy: false,
+    customLines: (stats, role) => {
+      const tipAttr = s => s.replace(/&/g, '&amp;').replace(/'/g, '&#39;');
+      const chain = role.chain || 0;
+      const atk = stats.atk || 288;
+      const hp = stats.hp || 16713;
+      const healBonus = role.healBonus || 0;
+      const skillBonus = role.skillBonus || 0;
+      const normalBonus = role.normalBonus || 0;
+      const variationBonus = role.variationBonus || 0;
+      const normalDmg = Math.round(atk * 1.0 * (1 + normalBonus));
+      const skillDmg = Math.round(atk * 0.6 * (1 + skillBonus));
+      const varDmg = Math.round(atk * 1.0 * (1 + variationBonus));
+      const varConcerto = Math.round(atk * 2.0 * (1 + variationBonus));
+      const skillHeal = Math.round(hp * 0.05 * (1 + healBonus));
+      const fieldHot = Math.round((hp * 0.05 + atk * 0.5) * (1 + healBonus));
+
+      const normalTip = tipAttr(
+        `<b style="color:var(--gold)">普攻伤害公式</b><br>` +
+        `= 攻击 <b>${atk}</b> × 100%` +
+        (normalBonus ? ` × (1 + 普攻加成 ${(normalBonus*100).toFixed(0)}%)` : '') +
+        ` = <b style="color:var(--text)">${normalDmg}</b>`
+      );
+      const skillTip = tipAttr(
+        `<b style="color:var(--gold)">共鸣技能伤害公式</b><br>` +
+        `= 攻击 <b>${atk}</b> × 60%` +
+        (skillBonus ? ` × (1 + 技能加成 ${(skillBonus*100).toFixed(0)}%)` : '') +
+        ` = <b style="color:var(--accent)">${skillDmg}</b>`
+      );
+      const skillHealTip = tipAttr(
+        `<b style="color:var(--gold)">醒春潮治疗公式</b><br>` +
+        `= 生命 <b>${hp}</b> × 5% × (1 + 治疗加成 ${(healBonus*100).toFixed(0)}%)` +
+        ` = <b style="color:var(--green)">${skillHeal}</b>`
+      );
+      const fieldHotTip = tipAttr(
+        `<b style="color:var(--gold)">山河水境每跳治疗公式</b><br>` +
+        `= (生命 <b>${hp}</b> × 5% + 攻击 <b>${atk}</b> × 50%)` +
+        ` × (1 + 治疗加成 ${(healBonus*100).toFixed(0)}%)` +
+        ` = <b style="color:var(--green)">${fieldHot}</b>`
+      );
+      const fieldTip = tipAttr(
+        `<b style="color:var(--gold)">山河水境总览</b>（持续 4 回合）<br>` +
+        `· 展开立即回复：<b style="color:var(--green)">${fieldHot}</b><br>` +
+        `· 之后每回合回复：<b style="color:var(--green)">${fieldHot}</b><br>` +
+        `· 全队全伤害加深 <b>25%</b>`
+      );
+      const varTip = tipAttr(
+        `<b style="color:var(--gold)">变奏伤害公式</b><br>` +
+        `· 普通：攻击 <b>${atk}</b> × 100%` +
+        (variationBonus ? ` × (1 + 变奏加成 ${(variationBonus*100).toFixed(0)}%)` : '') +
+        ` = ${varDmg}<br>` +
+        `· 协奏满：攻击 <b>${atk}</b> × 200%` +
+        (variationBonus ? ` × (1 + 变奏加成 ${(variationBonus*100).toFixed(0)}%)` : '') +
+        ` = <b style="color:var(--accent)">${varConcerto}</b>`
+      );
+
+      return [
+        {
+          icon: '⚔', name: '普攻 · 浣尘时', cost: '1 AP',
+          color: 'var(--text)',
+          desc: `对目标造成 <span class="tip" data-tip='${normalTip}'><b style="color:var(--text)">${normalDmg}</b> 点</span><b class="term-normal">冷凝伤害</b>，命中后回复 12 共鸣能量、积累 8 协奏值。`
+        },
+        {
+          icon: '✦', name: '共鸣技能 · 醒春潮', cost: '1 AP · 冷却 3 回合',
+          color: 'var(--accent)',
+          desc: `对目标造成 <span class="tip" data-tip='${skillTip}'><b style="color:var(--accent)">${skillDmg}</b> 点</span><b class="term-skill">冷凝伤害</b>，并为全队回复 <span class="tip" data-tip='${skillHealTip}'><b style="color:var(--green)">${skillHeal}</b> 点</span>生命。`
+        },
+        {
+          icon: '⚡', name: '共鸣解放 · 康衢之谣', cost: '3 AP · 需共鸣能量满 130',
+          color: 'var(--gold)',
+          desc: `<span class="tip" data-tip='${fieldTip}'>展开<b class="term-resource">山河水境</b></span> 4 回合：展开立即治疗全队，之后每回合治疗，全队全伤害加深 25%。`
+        },
+        {
+          icon: '🎵', name: '变奏技能 · 泠泠漱玉声', cost: '切换上场时触发',
+          color: '#c39bff',
+          desc: `切换上场时，对当前主目标造成 <span class="tip" data-tip='${varTip}'><b style="color:var(--accent)">${varDmg}</b>（协奏满 <b>${varConcerto}</b>）点</span><b class="term-variation">冷凝伤害</b>。`
+        }
+      ];
+    },
+    forteName: '水云息 / 山河水境',
+    forteDesc: '<span style="color:var(--gold);font-size:11px">▸ 共鸣回路 · 穗摇金</span><br>· <b class="term-resource">水云息</b>上限 120：普攻 +8 / 技能 +20 / 解放 +40<br>· 满时<b class="term-skill">醒春潮</b>强化为治疗全队<br>· <b class="term-burst">共鸣解放·康衢之谣</b>展开<b class="term-resource">山河水境</b> 4 回合：立即治疗全队 + 每回合治疗 + 全队全伤害加深 25%<br><br><span style="color:var(--gold);font-size:10px">▸ 推荐战斗节奏</span><br>普攻/技能攒水云息，水云息满接醒春潮治疗全队，能量满开山河水境，切主C享受全伤害加深与持续回复。'
+  },
+
 };

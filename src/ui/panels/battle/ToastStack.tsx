@@ -13,8 +13,9 @@ export function ToastStack() {
     mountedRef.current = true;
     const unsub = battleToastSignal.subscribe((newArr: string[]) => {
       if (!mountedRef.current || !newArr?.length) return;
-      // Only react to the last new toast
+      // Only react to the last new toast, then clear to bound array growth
       const latest = newArr[newArr.length - 1];
+      if (battleToastSignal.value.length) battleToastSignal.value = [];
       const id = ++idRef.current;
       setToasts(prev => [...prev, { id, text: latest, fading: false }]);
       // Start fade after 1.8s

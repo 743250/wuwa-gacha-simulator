@@ -4,6 +4,12 @@ import { getStats } from './template.js';
 import { weaponContrib } from '../equip/weapons.js';
 import { getSetById } from '../data/echoes.js';
 
+// 声骸词条 key → 元素名
+const ELEM_KEY_MAP = {
+  elem_dmg_fire: '热熔', elem_dmg_thunder: '导电', elem_dmg_frost: '冷凝',
+  elem_dmg_wind: '气动', elem_dmg_spectro: '衍射', elem_dmg_havoc: '湮灭'
+};
+
 // 计算角色当前完整战斗属性（已含武器、共鸣链）
 // 不含战斗中的临时 buff
 export function computeBattleStats(roleName) {
@@ -86,7 +92,7 @@ export function computeBattleStats(roleName) {
 }
 
 // 声骸贡献：聚合 5 格声骸的主词条 + 第二主词条 + 副词条 + 套装效果
-// 返回 { atkFlat, bonuses, setBonuses, mainStats, subStats }
+// 返回 { bonuses, setBonuses, mainStats, subStats }
 // 套装只激活 2 件/5 件 → bonuses 中；条件类（_cond / _stack / _next）先按静态值折半计入面板
 export function echoContrib(roleName) {
   const r = S.roles[roleName];
@@ -99,7 +105,6 @@ export function echoContrib(roleName) {
   const bonuses = [];
   const mainStats = [];
   const subStats = [];
-  let atkFlat = 0;
 
   // 主词条 + 第二主词条（固有固定攻/固生）
   for (const e of equipped) {
@@ -113,7 +118,6 @@ export function echoContrib(roleName) {
     if (sec) {
       mainStats.push({ name: e.name, secondary: true, ...sec });
       if (sec.key === 'atk_flat') {
-        atkFlat += sec.value || 0;
         bonuses.push({ type: 'atk_flat', value: sec.value, source: '声骸固有' });
       } else if (sec.key === 'hp_flat') {
         bonuses.push({ type: 'hp_flat', value: sec.value, source: '声骸固有' });
@@ -158,7 +162,7 @@ export function echoContrib(roleName) {
     else bonuses.push(b);
   }
 
-  return { atkFlat, bonuses, setBonuses, mainStats, subStats };
+  return { bonuses, setBonuses, mainStats, subStats };
 }
 
 // 主词条（COST4 暴击/暴伤/攻击%/生命%/防御%/治疗；COST3 元素伤/攻击%等；COST1 攻击%/生命%/防御%）
@@ -172,11 +176,7 @@ function mainStatToBonus(m) {
     heal_bonus: { type: 'heal' },
     resonance_efficiency: { type: 'resonance_efficiency', key: 'resonance_efficiency' },
   };
-  const elemMap = {
-    elem_dmg_fire: '热熔', elem_dmg_thunder: '导电', elem_dmg_frost: '冷凝',
-    elem_dmg_wind: '气动', elem_dmg_spectro: '衍射', elem_dmg_havoc: '湮灭'
-  };
-  if (elemMap[m.key]) return { type: 'elem_dmg', element: elemMap[m.key], value: m.value, source: '声骸主词条' };
+  if (ELEM_KEY_MAP[m.key]) return { type: 'elem_dmg', element: ELEM_KEY_MAP[m.key], value: m.value, source: '声骸主词条' };
   const def = map[m.key];
   if (!def) return null;
   return { ...def, value: m.value, source: '声骸主词条' };
@@ -184,10 +184,6 @@ function mainStatToBonus(m) {
 
 // 副词条 → bonus（固定值累加到 atk/hp/def_flat，百分比走 applyBonus）
 function subStatToBonus(s) {
-  const elemMap = {
-    elem_dmg_fire: '热熔', elem_dmg_thunder: '导电', elem_dmg_frost: '冷凝',
-    elem_dmg_wind: '气动', elem_dmg_spectro: '衍射', elem_dmg_havoc: '湮灭'
-  };
   if (s.key === 'atk_flat') return { type: 'atk_flat', value: s.value, source: '声骸副词条' };
   if (s.key === 'hp_flat') return { type: 'hp_flat', value: s.value, source: '声骸副词条' };
   if (s.key === 'def_flat') return { type: 'def_flat', value: s.value, source: '声骸副词条' };
@@ -201,7 +197,7 @@ function subStatToBonus(s) {
   if (s.key === 'skill_dmg') return { type: 'skill_pct', value: s.value, source: '声骸副词条' };
   if (s.key === 'burst_dmg') return { type: 'burst_pct', value: s.value, source: '声骸副词条' };
   if (s.key === 'heavy_dmg') return { type: 'heavy_pct', value: s.value, source: '声骸副词条' };
-  if (elemMap[s.key]) return { type: 'elem_dmg', element: elemMap[s.key], value: s.value, source: '声骸副词条' };
+  if (ELEM_KEY_MAP[s.key]) return { type: 'elem_dmg', element: ELEM_KEY_MAP[s.key], value: s.value, source: '声骸副词条' };
   return null;
 }
 

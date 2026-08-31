@@ -9,8 +9,9 @@
 - Playwright 在 Android 上直接拒绝（`Unsupported platform: android`），不可用。
 - 方案：**Chromium 跑在 proot Ubuntu 里（glibc），CDP 客户端跑在 Termux（node 26 原生 WebSocket）**，
   两者共享 127.0.0.1，经 CDP 驱动。
-- proot Ubuntu 真实 rootfs：`/data/data/com.termux/files/usr/var/lib/proot-distro/containers/ubuntu/rootfs/`（不是 installed-rootfs/）。
-- Chromium 二进制：`containers/ubuntu/rootfs/root/pwscrape/chrome/chrome-linux/chrome`（构建 1234，Chrome for Testing 151，aarch64）。
+- proot Ubuntu 真实 rootfs：`/data/data/com.termux/files/usr/var/lib/proot-distro/containers/ubuntu26/rootfs/`（不是 installed-rootfs/）。
+- 当前环境不常驻 Playwright/Chromium；需要浏览器验证时按需在 Ubuntu 26 内安装，
+  不把浏览器缓存当作项目资产提交。
   需要 proot 里 apt 装：`libatk1.0-0 libatk-bridge2.0-0 libxkbcommon0 libpango-1.0-0 libxdamage1 libatspi2.0-0`。
 - 所有 node/npx 命令需 `env -u NODE_OPTIONS`（本会话 NODE_OPTIONS 指向缺失的 retry-patch.js，会崩）。
 
@@ -19,7 +20,7 @@
 ### 1. 启动 chrome（proot，后台任务保活，每个实例一个端口）
 
 ```bash
-proot-distro login ubuntu -- bash -lc '.../chrome --headless=new --no-sandbox --disable-gpu \
+proot-distro login ubuntu26 -- bash -lc '.../chrome --headless=new --no-sandbox --disable-gpu \
   --disable-blink-features=AutomationControlled --no-first-run --no-default-browser-check \
   --remote-debugging-port=9333 --user-data-dir=/root/pwscrape/profile \
   "https://wuwa.huijiwiki.com/index.php?title=夏空/画廊" 2>&1'

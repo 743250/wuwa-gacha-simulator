@@ -11,6 +11,7 @@
 
 import { fireTrigger } from '../weaponTriggers.js';
 import { queryCharacterHook, getCharacterMechanic } from '../characters/index.js';
+import { pick } from '../../shared/random.js';
 
 export function resolveActionCost(self, actionType, baseApCost) {
   const cost = queryCharacterHook(self, 'resolveCost', actionType, baseApCost);
@@ -90,7 +91,7 @@ export function pickTeamTarget(battle, preferActive = true) {
     if (active?.alive) return active;
   }
   const alives = battle.team.filter(t => t.alive);
-  return alives.length ? alives[Math.floor(Math.random() * alives.length)] : null;
+  return alives.length ? pick(alives) : null;
 }
 
 export function inflictFreeze(unit, turns = 1) {

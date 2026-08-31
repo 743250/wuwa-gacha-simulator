@@ -35,12 +35,6 @@ export function removeTempStat(unit, source) {
   }
 }
 
-// 按 stat 一次性清除（用于设置成新值）
-export function clearTempStat(unit, stat) {
-  if (!unit._tempStats) return;
-  delete unit._tempStats[stat];
-}
-
 // 读取某 stat 的当前所有实例（只读视图）
 export function getTempStatInstances(unit, stat) {
   if (!unit._tempStats?.[stat]) return [];

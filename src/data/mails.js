@@ -8,6 +8,8 @@
 // 4) 模拟器侧：按游戏日历投递后即可领取；资格/时限文案照实写入
 // 5) category:'notice' 可为无附件提醒（rewards 空对象）；不把活动本体奖励塞进邮件
 //
+import { standard5 } from './chars.js';
+
 // 触发：version + sendDayOffset 或 date:'YYYY-MM-DD'
 
 /** @typedef {{
@@ -402,4 +404,4 @@ export const MAIL_CATALOG = [
 export const MAIL_SENDER_DEFAULT = '《鸣潮》项目组';
 
 /** 潮声答谢券可选常驻五星（与 standard5 对齐） */
-export const RECIPROCAL_STANDARD_OPTIONS = ['维里奈', '卡卡罗', '安可', '凌阳', '鉴心'];
+export const RECIPROCAL_STANDARD_OPTIONS = standard5;

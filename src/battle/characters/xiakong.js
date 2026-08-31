@@ -6,8 +6,7 @@
 //   音律独奏：全队气动 +24%（演绎下 +48%），挂 elemAeroUp 进伤害管线。
 //   链 1/2/4/6 状态机落地；registry 对应项占位防双算。
 
-import { registerSwitchHook } from '../switchHooks.js';
-import { addErosion, getErosionStacks } from '../combat/erosion.js';
+import { addErosion } from '../combat/erosion.js';
 
 const NOTES_MAX = 3;
 const PERFORM_DURATION = 2;
@@ -42,11 +41,6 @@ export function xiakongSoloActive(self) {
 
 export function xiakongPerforming(self) {
   return !!(self && self.name === '夏空' && (self.xiakongPerformTurns || 0) > 0);
-}
-
-export function xiakongGetErosion(target) {
-  if (!target) return { stacks: 0, duration: 0 };
-  return { stacks: getErosionStacks(target), duration: 0 };
 }
 
 export function xiakongCanHeavy(self) {
@@ -307,12 +301,6 @@ export function xiakongTurnCleanup(self, ctx) {
   return xiakongTick(self, ctx.battle);
 }
 
-export function xiakongSwitchIn({ to }) {
-  if (to?.name !== '夏空') return;
-}
-
-registerSwitchHook('夏空', xiakongSwitchIn);
-
 export function xiakongFinishQuad(self, battle, target) {
   if (self.name !== '夏空') return;
   xiakongConsumeNotes(self, battle);
@@ -366,7 +354,6 @@ export default {
   notes: xiakongNotes,
   soloActive: xiakongSoloActive,
   performing: xiakongPerforming,
-  getErosion: xiakongGetErosion,
   canHeavy: xiakongCanHeavy,
   resolveNormal: xiakongResolveNormal,
   resolveHeavy: xiakongResolveHeavy,
@@ -381,7 +368,6 @@ export default {
   onHeavy: xiakongOnHeavy,
   tick: xiakongTick,
   turnCleanup: xiakongTurnCleanup,
-  switchIn: xiakongSwitchIn,
   collectBadges: xiakongCollectBadges,
   finishQuad: xiakongFinishQuad,
   consumeNotes: xiakongConsumeNotes,

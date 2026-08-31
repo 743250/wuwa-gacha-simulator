@@ -1,5 +1,6 @@
 // 先约电台核心：经验/任务/领奖/版本重置
 import { S, fmt, date } from '../state.js';
+import { thisMondayKey } from '../shared/date.js';
 import { msg } from '../ui/services/toast.ts';
 import { rerenderAll } from '../rerender.js';
 import { commit } from '../state/commit.ts';
@@ -149,11 +150,7 @@ export function resetPodcastDailyIfNeeded() {
 // 每周重置（周一）
 export function resetPodcastWeeklyIfNeeded() {
   ensurePodcast();
-  const d = new Date(S.today);
-  const dayOfWeek = d.getUTCDay();
-  const daysFromMon = (dayOfWeek + 6) % 7;
-  const mondayMs = d.getTime() - daysFromMon * 86400000;
-  const mondayKey = new Date(mondayMs).toISOString().slice(0, 10);
+  const mondayKey = thisMondayKey(S.today);
   if (S.podcast.lastWeeklyReset !== mondayKey) {
     S.podcast.tasks.weekly = {};
     S.podcast.lastWeeklyReset = mondayKey;

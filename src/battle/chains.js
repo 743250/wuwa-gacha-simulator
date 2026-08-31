@@ -265,7 +265,7 @@ export function applyChainBonuses(unit) {
         break;
       case 'sanhuaC6':
         unit.sanhuaC6 = {
-          value: (e.value || 0) != null ? e.value : 0.1,
+          value: e.value != null ? e.value : 0.1,
           cap: e.cap != null ? e.cap : 2,
           dur: e.dur != null ? e.dur : 3,
         };

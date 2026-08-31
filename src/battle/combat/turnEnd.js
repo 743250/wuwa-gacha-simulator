@@ -239,8 +239,6 @@ export function endTurn(battle) {
     if (e._spinTired) e._spinTired = false;
     // 反击姿态衰减
     if (e._deflectActive) e._deflectActive = false;
-    // 残骸过期
-    if (e._debrisReady && battle.turn % 5 === 0 && !e._debrisReady) { /* debris stays 1 turn */ }
     // TempStat 统一衰减(过渡减伤 / 风壁 / 飞空无敌 等)
     tickTempStats(e);
     // 绿泡回合末治疗(若未被击破)

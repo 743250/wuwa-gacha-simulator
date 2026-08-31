@@ -8,6 +8,8 @@ import { openModal } from '../modal.js';
 import { h } from 'preact';
 import { usePotion, buyStamina } from '../ui/bag/bagMaterialActions.js';
 import { commit } from '../state/commit.ts';
+import { POTION_CAP } from '../daily/stamina.js';
+import { ASTRITE_PER_PULL } from '../gacha/rateConfig.js';
 
 export function openExchangeModal(tideKeyArg, tideNameArg, coralType) {
   const coralName = coralType === 'afterglow' ? '余波珊瑚' : '残振珊瑚';
@@ -143,9 +145,9 @@ ${c.lackingChains >= 2 ? '差 2 及以上链 → 本次最多可换 <b>2</b> 个
 }
 
 const RES_META = {
-  radiant: { n: '浮金波纹', from: '星声', rate: 160, desc: '1 个 = 160 星声' },
-  forging: { n: '铸潮波纹', from: '星声', rate: 160, desc: '1 个 = 160 星声' },
-  lustrous: { n: '唤声涡纹', from: '星声', rate: 160, desc: '1 个 = 160 星声' },
+  radiant: { n: '浮金波纹', from: '星声', rate: ASTRITE_PER_PULL, desc: `1 个 = ${ASTRITE_PER_PULL} 星声` },
+  forging: { n: '铸潮波纹', from: '星声', rate: ASTRITE_PER_PULL, desc: `1 个 = ${ASTRITE_PER_PULL} 星声` },
+  lustrous: { n: '唤声涡纹', from: '星声', rate: ASTRITE_PER_PULL, desc: `1 个 = ${ASTRITE_PER_PULL} 星声` },
   astrite: { n: '星声', from: '月相', rate: 1, desc: '1 月相 = 1 星声' },
   lunite: { n: '月相', from: '充值', rate: 0, desc: '仅可通过商店充值获得' }
 };
@@ -194,12 +196,12 @@ export function openTopup(key) {
   }
   // 三色波纹
   const haveAst = S.astrite, haveLun = S.lunite;
-  const maxByAst = Math.floor(haveAst / 160);
-  const maxByAll = Math.floor((haveAst + haveLun) / 160);
+  const maxByAst = Math.floor(haveAst / ASTRITE_PER_PULL);
+  const maxByAll = Math.floor((haveAst + haveLun) / ASTRITE_PER_PULL);
   if (maxByAll <= 0) {
     openModal({
       title: `兑换 ${m.n}`,
-      body: `需要 <b class="g">160</b> 星声兑换 1 个 ${m.n}。<br>当前星声 <b class="a">${haveAst.toLocaleString()}</b>、月相 <b class="g">${haveLun}</b>，资源不足。<br><br>可前往商店补充月相。`,
+      body: `需要 <b class="g">${ASTRITE_PER_PULL}</b> 星声兑换 1 个 ${m.n}。<br>当前星声 <b class="a">${haveAst.toLocaleString()}</b>、月相 <b class="g">${haveLun}</b>，资源不足。<br><br>可前往商店补充月相。`,
       actions: [
         { label: '取消', cls: '', fn: () => {} },
         { label: '打开商店', cls: 'primary', fn: () => { const t = document.querySelector('.s-tab[data-s="shop"]'); if (t) t.click(); } }
@@ -209,14 +211,14 @@ export function openTopup(key) {
   }
   openModal({
     title: `兑换 ${m.n}`,
-    body: `<b>160</b> 星声 → <b>1</b> 个 ${m.n}<br>
+    body: `<b>${ASTRITE_PER_PULL}</b> 星声 → <b>1</b> 个 ${m.n}<br>
 当前 <b class="a">${haveAst.toLocaleString()}</b> 星声、<b class="g">${haveLun}</b> 月相<br>
 仅星声最多换 <b>${maxByAst}</b> 个，含月相补足最多 <b>${maxByAll}</b> 个`,
     qty: { min: 1, max: maxByAll, init: Math.min(1, maxByAll), presets: [1, 10, Math.min(80, maxByAll), maxByAll].filter((v, i, a) => v > 0 && a.indexOf(v) === i) },
     actions: [
       { label: '取消', cls: '', fn: () => {} },
       { label: '确认兑换', cls: 'primary', fn: (n) => {
-          const cost = n * 160;
+          const cost = n * ASTRITE_PER_PULL;
           if (haveAst + haveLun < cost) return msg('资源不足');
           commit(() => {
             let pay = cost;
@@ -236,7 +238,6 @@ export function openStaminaModal() {
   const have = (id) => S.materials[id] || 0;
   const hasCrystal = have('waveplate_crystal');
   const hasSolv = have('crystal_solvent');
-  const POTION_CAP = 480;
   const roomToMax = Math.max(0, S.staminaMax - S.stamina);
   const canRedeemCrystal = hasCrystal > 0 && roomToMax > 0;
   const canUseSolvent = hasSolv > 0 && S.stamina < POTION_CAP;

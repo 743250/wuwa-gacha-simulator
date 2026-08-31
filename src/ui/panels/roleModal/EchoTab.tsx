@@ -1,11 +1,7 @@
 import { h } from 'preact';
 import { selectEchoSlot } from './actions.ts';
 import { bagEchoDetail, bagEchoLevelUp, bagEchoUnequip, bagEchoOpenPicker } from '../bag/echoActions';
-
-const ELEM_COLORS: Record<string, string> = {
-  '热熔': '#ff8c5e', '冷凝': '#7bd6ff', '导电': '#b58cff',
-  '气动': '#8de6a6', '衍射': '#fff0b0', '湮灭': '#c39bff',
-};
+import { ELEMENT_COLOR as ELEM_COLORS } from '../../../battle/elements.js';
 
 interface EchoTabProps {
   roleName: string;

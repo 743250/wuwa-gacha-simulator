@@ -309,13 +309,10 @@ export function younuoOnHeavy(self, ctx) {
 export function younuoTick(self, battle) {
   if (self.name !== '尤诺') return null;
 
-  let changed = false;
-
   if ((self.younuoFullMoonTurns || 0) > 0) {
     self.younuoFullMoonTurns--;
     if (self.younuoFullMoonTurns <= 0) {
       self.younuoFullMoonTurns = 0;
-      changed = true;
       battle?.log.push({
         type: 'mechanic', src: self.name,
         msg: '满月领域消散'
@@ -333,11 +330,10 @@ export function younuoTick(self, battle) {
         type: 'mechanic', src: self.name,
         msg: '月相流转结束'
       });
-      changed = true;
     }
   }
 
-  return changed ? null : null;
+  return null;
 }
 
 export function younuoTurnCleanup(self, ctx) {

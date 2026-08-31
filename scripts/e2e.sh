@@ -42,7 +42,7 @@ stop_server() {
 }
 
 run_in_proot() {
-  proot-distro login ubuntu -- bash -c "
+  proot-distro login ubuntu26 -- bash -c "
     export NODE_PATH='${PW_NODE_PATH}'
     cd '${ROOT}'
     E2E_URL='${E2E_URL}' node scripts/e2e-browser.cjs

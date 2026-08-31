@@ -11,3 +11,5 @@ export const MID_SLOPE = .08;         // 71-75 每抽 +8%
 export const HIGH_SLOPE = .10;        // 76-79 每抽 +10%
 export const SOFT_SPAN = MID_PITY_KNOT - SOFT_PITY_KNOT;   // 5 抽
 export const MID_SPAN = HIGH_PITY_KNOT - MID_PITY_KNOT;    // 5 抽
+
+export const ASTRITE_PER_PULL = 160;   // 1 抽 = 160 星声（星声兑换波纹基准）

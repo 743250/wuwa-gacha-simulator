@@ -32,13 +32,6 @@ export const THRESHOLDS = {
     dafei: 76,     // ≤76 大非
     // >76 绝非
   },
-  rate: {
-    ouhuang: 0.0160,
-    xiaoou: 0.0133,
-    pingwen: 0.0105,
-    xiaofei: 0.0086,
-    dafei: 0.0070,
-  },
   loss: {
     ou: 0.30,          // <30% 极不歪
     mildOu: 0.40,      // <40% 偏不歪
@@ -105,16 +98,13 @@ function pityTierIndex(avgPity) {
 }
 
 // 辅轴只允许 ±1 档，避免「均抽平稳 + 不歪」直接跳欧皇
-function adjustDelta(lossRate, lossReliable, recentRate, recentSize) {
+// 近况只进 flavor，不改主档
+function adjustDelta(lossRate, lossReliable) {
   let d = 0;
   if (lossReliable && lossRate != null) {
     const t = THRESHOLDS.loss;
     if (lossRate < t.ou) d -= 1;          // 不歪 → 更欧一档（idx 更小）
     else if (lossRate > t.hardFei) d += 1; // 狂歪 → 更非一档
-  }
-  if (recentSize >= 50) {
-    if (recentRate > THRESHOLDS.recent.hot) d -= 0; // 近况只进 flavor，不再改主档
-    else if (recentRate < THRESHOLDS.recent.cold) d += 0;
   }
   const cap = THRESHOLDS.adjustCap;
   return Math.max(-cap, Math.min(cap, d));
@@ -146,7 +136,7 @@ function judgeTitle(avgPity, lossRate, lossReliable, recentRate, recentSize, luc
   }
 
   let idx = pityTierIndex(avgPity);
-  const delta = adjustDelta(lossRate, lossReliable, recentRate, recentSize);
+  const delta = adjustDelta(lossRate, lossReliable);
   idx = Math.max(0, Math.min(TITLES.length - 1, idx + delta));
 
   const base = TITLES[idx];

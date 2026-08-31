@@ -1,4 +1,4 @@
-import { registerStack, gainStack, consumeStack, getStack, getStackCap, renderStacks } from '../stacks.js';
+import { registerStack, gainStack, consumeStack, getStack, getStackCap } from '../stacks.js';
 import { registerForm, enterForm, exitForm, hasForm } from '../forms.js';
 import { registerSwitchHook } from '../switchHooks.js';
 import { fireEchoSetOnErosion } from '../echoSetTriggers.js';
@@ -434,8 +434,6 @@ export default {
   resolveBurstDamage: cartethyiaResolveBurstDamage,
   burstErosion: cartethyiaBurstErosion,
   erosionOnBreak: cartethyiaErosionOnBreak,
-  erosionOnSwitchIn: cartethyiaErosionOnSwitchIn,
-  lethalShield: cartethyiaLethalShield,
   onLethal: cartethyiaLethalShield,
   erosionTick: cartethyiaErosionTick,
   turnCleanup: cartethyiaTurnCleanup

@@ -4,6 +4,7 @@
 // 对外提供统一的 getCharacterMechanic / fireCharacterHook / hasHeavyAttack / renderCharacterBattleStatus。
 
 import jiyan from './jiyan.js';
+import { pushTeamBuffs } from '../pushBuff.js';
 import shorekeeper from './shorekeeper.js';
 import yinlin from './yinlin.js';
 import encore from './encore.js';
@@ -295,6 +296,74 @@ const LIGHTWEIGHT = {
     skillMult: () => 1.6,
     variationMult: () => 0.8,
     resolveBurstMult: () => ({ baseMain: 0, baseSide: 0 }),
+  },
+  // 3.5 · 秧秧·玄翎（SP 主C 湮灭 迅刀）— 苍翎满 2 层强化重击
+  '秧秧·玄翎': {
+    hasHeavy: true,
+    normalMult: () => 1.2,
+    skillMult: () => 1.8,
+    // 苍翎满时重击 ×2.0（atk×800%），命中后由 onHeavy 消耗苍翎
+    heavyMult: (self) => (self.forte?.ready ? 8.0 : 4.0),
+    variationMult: () => 1.2,
+    resolveBurstMult: () => ({ baseMain: 7.0, baseSide: 3.5 }),
+    // 变奏入场 +1 苍翎（官方羽挟苍空回复 1 点苍翎）
+    onVariation: (self) => {
+      if (!self.forte) return;
+      self.forte.current = Math.min(self.forte.max, self.forte.current + 1);
+      if (self.forte.current >= self.forte.max) self.forte.ready = true;
+    },
+    // 强化重击命中后消耗全部苍翎
+    onHeavy: (self) => {
+      if (self.forte?.ready) {
+        self.forte.current = 0;
+        self.forte.ready = false;
+      }
+    },
+  },
+  // 3.5 · 穗穗（辅助 冷凝 音感仪）— 山河水境：解放展开治疗领域 + 全队全伤害加深
+  '穗穗': {
+    hasHeavy: false,
+    normalMult: () => 1.0,
+    skillMult: () => 0.6,
+    variationMult: () => 1.0,
+    resolveBurstMult: () => ({ baseMain: 0, baseSide: 0 }),
+    skipGenericBurstHeal: () => true,
+    // 共鸣技能·醒春潮：全队治疗（润物/春生简化）
+    onSkill: (self, ctx) => {
+      const battle = ctx?.battle;
+      if (!battle) return;
+      const healUp = 1 + (self.healBonus || 0);
+      const baseHeal = Math.round((self.hpMax || self.hp) * 0.05 * healUp);
+      battle.team.forEach(t => {
+        if (!t.alive) return;
+        const healUpT = (t.buffs || []).reduce((a, b) => b.type === 'healUp' ? a + (b.value || 0) : a, 0);
+        const finalHeal = Math.round(baseHeal * (1 + healUpT));
+        const healed = Math.min(t.hpMax - t.hp, finalHeal);
+        t.hp += healed;
+        if (healed > 0) battle.log.push({ type: 'heal', src: self.name, tgt: t.name, dmg: healed, msg: '醒春潮治疗' });
+      });
+    },
+    // 共鸣解放·康衢之谣：展开山河水境 4 回合（立即回血 + 每回合回血 + 全队全伤害加深 25%）
+    onBurst: (self, ctx) => {
+      const battle = ctx?.battle;
+      if (!battle) return;
+      const healUp = 1 + (self.healBonus || 0);
+      const hot = Math.round(((self.hpMax || self.hp) * 0.05 + self.atk * 0.5) * healUp);
+      // 展开立即回一跳
+      battle.team.forEach(t => {
+        if (!t.alive) return;
+        const healUpT = (t.buffs || []).reduce((a, b) => b.type === 'healUp' ? a + (b.value || 0) : a, 0);
+        const finalHeal = Math.round(hot * (1 + healUpT));
+        const healed = Math.min(t.hpMax - t.hp, finalHeal);
+        t.hp += healed;
+        if (healed > 0) battle.log.push({ type: 'heal', src: self.name, tgt: t.name, dmg: healed, msg: '山河水境展开回复' });
+      });
+      pushTeamBuffs(self, battle, [
+        { type: 'healOverTime', value: hot, duration: 4, src: '山河水境', scope: 'team' },
+        { type: 'allDmgUp', value: 0.25, duration: 4, src: '山河水境·渌水盈盈', scope: 'team' },
+      ]);
+      battle.log.push({ type: 'mechanic', src: self.name, msg: '山河水境展开：全队每回合治疗 + 全伤害加深 25%（4 回合）' });
+    },
   },
 };
 

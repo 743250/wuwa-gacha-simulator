@@ -45,6 +45,10 @@ export const ROLE_META = {
   '露西':      { type: '主C',  element: '衍射', weaponType: '佩枪' },
   '丽贝卡':    { type: '副C',  element: '导电', weaponType: '佩枪' },
   '洛瑟菈':    { type: '副C',  element: '冷凝', weaponType: '音感仪' },
+  '秧秧·玄翎': { type: '主C',  element: '湮灭', weaponType: '迅刀' },
+  '穗穗':      { type: '辅助', element: '冷凝', weaponType: '音感仪' },
+  '清宵':      { type: '主C',  element: '气动', weaponType: '迅刀' },
+  '景燃':      { type: '主C',  element: '热熔', weaponType: '长刃' },
 
   // 常驻 5 星
   '维里奈':    { type: '治疗', element: '衍射', weaponType: '音感仪' },
@@ -217,6 +221,23 @@ export const OVERRIDE_STATS = {
   },
   '洛瑟菈': {
     stats: { hp: 12238, atk: 375, def: 1198, crate: 0.1, cdmg: 1.4, energy: 130, dodge: 0.14 }
+  },
+
+  // ─── 3.5 限定 ───
+  '秧秧·玄翎': {
+    stats: { hp: 11025, atk: 425, def: 1149, crate: 0.05, cdmg: 1.5, energy: 125, dodge: 0.18 }
+  },
+  '穗穗': {
+    stats: { hp: 16713, atk: 288, def: 1100, crate: 0.05, cdmg: 1.5, energy: 130, dodge: 0.10 },
+    bonuses: { healBonus: 0.12 }
+  },
+
+  // ─── 3.6 限定（C 级占位：可抽取，机制暂用通用模板）───
+  '清宵': {
+    stats: { hp: 11025, atk: 425, def: 1149, crate: 0.05, cdmg: 1.5, energy: 125, dodge: 0.18 }
+  },
+  '景燃': {
+    stats: { hp: 12238, atk: 375, def: 1198, crate: 0.05, cdmg: 1.5, energy: 125, dodge: 0.18 }
   },
 
   // ─── 常驻 5★ ───

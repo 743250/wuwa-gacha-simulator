@@ -1,6 +1,7 @@
 // 冥歌海墟面板 · Preact · Stage 3.4
 
 import { h } from 'preact';
+import { useEffect } from 'preact/hooks';
 import { useS } from '../../signals';
 import {
   WASTES_STAGES, WASTES_TOKENS, SCORE_TIERS,
@@ -63,7 +64,7 @@ function TokenLabel({ picked, stageId }: { picked: string[]; stageId: string }) 
 
 export function WastesPanel() {
   const S = useS() as any;
-  resetWastesIfNeeded();
+  useEffect(() => { resetWastesIfNeeded(); }, []);
 
   const teamCount = getCombatTeamNames().length;
   const scores: Record<string, number> = getWastesStars();

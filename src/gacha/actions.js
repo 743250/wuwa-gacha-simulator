@@ -4,6 +4,7 @@ import { animating } from '../ui/gachaAnimationState.js';
 import { msg } from '../ui/services/toast.ts';
 import { rerenderAll } from '../rerender.js';
 import { cur, getPool, tideKey, tideName, canAffordPulls, payBeginnerTen, pull, ensureSelectedBanner } from './core.js';
+import { ASTRITE_PER_PULL } from './rateConfig.js';
 import { openModal } from '../modal.js';
 import { showResult } from '../ui/gacha/animation.js';
 import { progressTask } from '../podcast/core.js';
@@ -109,7 +110,7 @@ export function toFive() {
   if (animating) return;
   if (!cur()) return msg('当前日期无可用卡池');
   const k = getPool(), tide = S[tideKey(k)];
-  const maxN = tide + Math.floor((S.astrite + S.lunite) / 160);
+  const maxN = tide + Math.floor((S.astrite + S.lunite) / ASTRITE_PER_PULL);
   const hard = k === 'beginner' ? 50 : 80;
   const need = hard - S.pity[k];
   if (maxN <= 0) return msg('资源不足以再抽一次');
@@ -127,8 +128,8 @@ export function toFive() {
             for (let i = 0; i < planned; i++) {
               const pool = getPool();
               const key = tideKey(pool);
-              if (S[key] <= 0 && S.astrite < 160) {
-                const missing = 160 - S.astrite;
+              if (S[key] <= 0 && S.astrite < ASTRITE_PER_PULL) {
+                const missing = ASTRITE_PER_PULL - S.astrite;
                 if (S.lunite < missing) break;
                 S.lunite -= missing;
                 S.astrite += missing;

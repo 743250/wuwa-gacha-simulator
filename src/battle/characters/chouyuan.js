@@ -30,9 +30,7 @@ const CALM_CONCERTO_GAIN = 30;     // 且从容 忠烈死节+30协奏
 const HESUOCHULIN_MULT = 5.0;      // 荷蓑出林 ATK×500%
 const HESUOCHULIN_CONCERTO_COST = 60;
 const C6_EXIT_AOE_MULT = 6.0;      // 链6退出600% AOE
-const DECAY_ACTIVE = 10;           // 当前角色衰减（实际不衰减）
 const DECAY_BENCH = 5;             // 非当前角色-5/回合
-const DECAY_OFFBATTLE = 10;        // 非战斗-10/回合
 
 // ── 状态查询 ──
 export function chouyuanInDrunk(self) {
@@ -467,8 +465,6 @@ export default {
   resolveOutro: chouyuanResolveOutro,
   tick: chouyuanTick,
   turnCleanup: chouyuanTurnCleanup,
-  switchIn: chouyuanSwitchIn,
-  switchOut: chouyuanSwitchOut,
   battleStart: chouyuanBattleStart,
   collectBadges: chouyuanCollectBadges
 };

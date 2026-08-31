@@ -304,6 +304,19 @@ export const TERM_DICT = {
   '黑咩·狂热': '<b style="color:#a78bff">黑咩·狂热</b>（安可黑咩窗口共鸣技能）<br><b style="color:var(--burst)">黑咩大暴走</b>期间，共鸣技能·热力羊咩替换为黑咩·狂热。技能伤害 ×<b>1.5</b>，命中额外 +<b>10</b> 失序值。',
   '白咩失控之炎': '<b style="color:#ff8c5e">白咩·失控之炎</b>（安可失序满 · 常态特殊重击）<br>常态下<b class="term-resource">失序值</b>满 <b>100</b> 时施放重击触发，消耗全部失序值，造成热熔伤害（视为<b class="term-burst">共鸣解放伤害</b>）。<br>· 3 链：白咩/黑咩特殊重击伤害倍率 +<b>40%</b>',
   '黑咩暴走之炎': '<b style="color:#a78bff">黑咩·暴走之炎</b>（安可失序满 · 黑咩形态特殊重击）<br><b class="term-burst">黑咩大暴走</b>期间，失序值满 <b>100</b> 时施放重击触发，消耗全部失序值，造成更高热熔伤害（视为<b class="term-burst">共鸣解放伤害</b>）。<br>· 3 链：白咩/黑咩特殊重击伤害倍率 +<b>40%</b><br>· 4 链：施放黑咩·暴走之炎时全队热熔伤害加成 +<b>20%</b>',
+
+  // ===== 3.5 秧秧·玄翎 =====
+  '苍翎': '<b style="color:#a78bff">苍翎</b>（秧秧·玄翎资源 · 上限 2 层）<br><b class="term-skill">剑式流转</b>、<b class="term-burst">裁羽寂万音</b>、<b class="term-variation">变奏入场</b>各 +1 层。<br>满 2 层时<b class="term-heavy">重击·苍剑式</b>倍率由 atk×400% 强化为 atk×800%，命中后消耗全部苍翎。',
+  '流响': '<b style="color:#a78bff">流响</b>（秧秧·玄翎剑式流转资源）<br>普攻与空中攻击消耗流响；<b class="term-skill">剑式流转</b>回复流响。',
+  '玄翎之影': '<b style="color:#a78bff">玄翎之影</b>（秧秧·玄翎 1 链追击）<br>施放<b class="term-skill">剑式流转</b>后召唤玄翎之影追击目标，使共鸣技能伤害提升。',
+  '万声皆流': '<b style="color:#a78bff">万声皆流</b>（秧秧·玄翎 6 链状态）<br>6 链激活后，重击伤害提升 40%。',
+
+  // ===== 3.5 穗穗 =====
+  '山河水境': '<b style="color:#7bd6ff">山河水境</b>（穗穗共鸣解放领域 · 持续 4 回合）<br><b class="term-burst">共鸣解放·康衢之谣</b>展开。展开立即治疗全队，之后每回合治疗；领域内全队全伤害加深 <b>25%</b>。',
+  '水云息': '<b style="color:#7bd6ff">水云息</b>（穗穗资源 · 0-120）<br>普攻 +8 / 技能 +20 / 解放 +40。满时<b class="term-skill">醒春潮</b>强化为治疗全队。',
+  '醒春潮': '<b style="color:var(--accent)">醒春潮</b>（穗穗共鸣技能强化形态）<br><b class="term-resource">水云息</b>满时由共鸣技能替换。对目标造成冷凝伤害并治疗全队。',
+  '润物': '<b style="color:var(--green)">润物</b>（穗穗治疗印记）<br>施放<b class="term-skill">醒春潮</b>或<b class="term-variation">变奏技能</b>时使全队获得。角色登场时消耗并为该角色回复生命。',
+  '春生': '<b style="color:var(--green)">春生</b>（穗穗持续治疗 · 上限 10 层）<br><b class="term-resource">润物</b>被消耗时获得。持有角色生命未满时逐层消耗并回复生命。',
 };
 
 // 把 dict 的 key 按长度从长到短排序，避免短词先匹配（"变奏"先于"变奏技能"）

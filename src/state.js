@@ -14,8 +14,10 @@ import { pick } from './shared/random.js';
 export { DAY, fmt, date } from './shared/date.js';
 export { pick, pickRng } from './shared/random.js';
 
+export const GAME_LAUNCH = '2024-05-23';   // 开服日（模拟器时间线起点）
+
 export const state0 = () => ({
-  today: date('2024-05-23'), selected: null,
+  today: date(GAME_LAUNCH), selected: null,
   total: 0, five: 0, four: 0, upHits: 0, astriteSpent: 0,
   pity: { eventChar: 0, eventWeapon: 0, collabChar: 0, collabWeapon: 0, standardChar: 0, standardWeapon: 0, beginner: 0, noviceChoice: 0, noviceWeapon: 0 },
   p4: { eventChar: 0, eventWeapon: 0, collabChar: 0, collabWeapon: 0, standardChar: 0, standardWeapon: 0, beginner: 0, noviceChoice: 0, noviceWeapon: 0 },

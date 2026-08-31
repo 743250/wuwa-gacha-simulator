@@ -10,6 +10,7 @@ import { getEchoesBySet } from '../../data/echoes.js';
 import { settleAbyss } from '../../daily/abyss.js';
 import { settleWastes } from '../../daily/wastes.js';
 import { progressTask } from '../../podcast/core.js';
+import { pick } from '../../shared/random.js';
 import { consumeWeeklyBoss } from '../../battle/dungeon.js';
 import { commit } from '../../state/commit.ts';
 
@@ -110,8 +111,8 @@ export function bSettle() {
           const n = drops.echo_count || 1;
           const rolled = [];
           for (let i = 0; i < n; i++) {
-            const pick = pool[Math.floor(Math.random() * pool.length)];
-            const e = generateEcho(pick.echo.id, pick.setId);
+            const picked = pick(pool);
+            const e = generateEcho(picked.echo.id, picked.setId);
             if (e) rolled.push(e.name);
           }
           if (rolled.length) rewardText.push(`声骸 ×${rolled.length}: ${rolled.join(' · ')}`);

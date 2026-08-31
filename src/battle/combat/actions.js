@@ -20,6 +20,26 @@ import {
   reduceVibration, finishIfBattleEnded,
 } from './helpers.js';
 
+// 攻击绿泡(罗蕾莱)：击破时全队回血，普攻/重击共用
+function breakBubble(target, real, battle, self) {
+  if (target._bubbleHp <= 0) return;
+  target._bubbleHp -= real;
+  if (target._bubbleHp > 0) return;
+  const healAmt = target._bubbleHealAmt || 0;
+  if (healAmt > 0) {
+    battle.team.forEach(t => {
+      if (t.alive) {
+        const healed = Math.min(t.hpMax - t.hp, healAmt);
+        t.hp += healed;
+        if (healed > 0) battle.log.push({ type: 'heal', src: self.name, tgt: t.name, dmg: healed, msg: '抢到绿泡治疗！' });
+      }
+    });
+  }
+  target._bubbleHp = 0;
+  target._bubbleHealAmt = 0;
+  battle.log.push({ type: 'mechanic', src: self.name, msg: '击破绿泡！全队获得治疗' });
+}
+
 // 统一前置判定:UI 和 doXxx 共用,避免两处不同步导致"按钮亮但点不了"
 // 返回 { ok: bool, err?: string },err 用于 UI 提示和 doXxx 早退
 
@@ -90,11 +110,10 @@ export function canBurst(self, battle) {
 // 守岸人 5 链:normalSplit = 2,会额外打一个相邻敌人
 export function doAttack(battle, targetIdx) {
   setCurrentBattle(battle, queryCharacterHook);
-  const self0 = battle.team[battle.active];
-  const check = canAttack(self0, battle, targetIdx);
+  const self = battle.team[battle.active];
+  const check = canAttack(self, battle, targetIdx);
   if (!check.ok) return check;
-  const self = self0;
-  const cost = resolveActionCost(self0, 'normal', ACTION_COST.normal);
+  const cost = resolveActionCost(self, 'normal', ACTION_COST.normal);
   const target = battle.enemies[targetIdx];
   // 长离心眼·征:普攻变身为 180% 共鸣技能伤害
   const meForm = queryCharacterHook(self, 'mindEyeForm', 'normal');
@@ -116,24 +135,7 @@ export function doAttack(battle, targetIdx) {
   reduceVibration(target, VIBRATION_DAMAGE.normal + (fEnh ? VIBRATION_DAMAGE.normalForteBonus : 0), battle, self);
   applyReflect(battle, self, target, real);
   // 攻击绿泡(罗蕾莱)
-  if (target._bubbleHp > 0) {
-    target._bubbleHp -= real;
-    if (target._bubbleHp <= 0) {
-      const healAmt = target._bubbleHealAmt || 0;
-      if (healAmt > 0) {
-        battle.team.forEach(t => {
-          if (t.alive) {
-            const healed = Math.min(t.hpMax - t.hp, healAmt);
-            t.hp += healed;
-            if (healed > 0) battle.log.push({ type: 'heal', src: self.name, tgt: t.name, dmg: healed, msg: '抢到绿泡治疗！' });
-          }
-        });
-      }
-      target._bubbleHp = 0;
-      target._bubbleHealAmt = 0;
-      battle.log.push({ type: 'mechanic', src: self.name, msg: '击破绿泡！全队获得治疗' });
-    }
-  }
+  breakBubble(target, real, battle, self);
   battle.log.push({
     type: 'attack', src: self.name, tgt: target.name, dmg: real, crit,
     action: meForm ? meForm.label : (zyForm ? zyForm.label : (fEnh ? `${fEnh.resourceName}强化普攻` : '普攻'))
@@ -178,12 +180,11 @@ export function doAttack(battle, targetIdx) {
 // 共鸣技能:1 AP,CD 3 回合,单体 180% atk
 export function doSkill(battle, targetIdx) {
   setCurrentBattle(battle, queryCharacterHook);
-  const self0 = battle.team[battle.active];
-  const check = canSkill(self0, battle, targetIdx);
+  const self = battle.team[battle.active];
+  const check = canSkill(self, battle, targetIdx);
   if (!check.ok) return check;
-  const self = self0;
-  const cost = resolveActionCost(self0, 'skill', ACTION_COST.skill);
-  const inMindEye = !!queryCharacterHook(self0, 'inMindEye');
+  const cost = resolveActionCost(self, 'skill', ACTION_COST.skill);
+  const inMindEye = !!queryCharacterHook(self, 'inMindEye');
   const target = battle.enemies[targetIdx];
   const meForm = queryCharacterHook(self, 'mindEyeForm', 'skill');
   const chunForm = queryCharacterHook(self, 'resolveSkill', battle);
@@ -359,12 +360,11 @@ export function doBurst(battle) {
 // 重击:2 AP,CD 1,220% atk · 重击伤害类型 · 削破韧 25
 export function doHeavy(battle, targetIdx) {
   setCurrentBattle(battle, queryCharacterHook);
-  const self0 = battle.team[battle.active];
-  const check = canHeavy(self0, battle, targetIdx);
+  const self = battle.team[battle.active];
+  const check = canHeavy(self, battle, targetIdx);
   if (!check.ok) return check;
-  const self = self0;
-  const cost = resolveActionCost(self0, 'heavy', ACTION_COST.heavy);
-  const inMindEye = !!queryCharacterHook(self0, 'inMindEye');
+  const cost = resolveActionCost(self, 'heavy', ACTION_COST.heavy);
+  const inMindEye = !!queryCharacterHook(self, 'inMindEye');
 
   // 折枝重击「点睛」:消耗半数墨鹤转全队护盾,不造成伤害、不触发墨鹤追击
   const inkShieldHandled = queryCharacterHook(self, 'inkShield', battle);
@@ -424,24 +424,7 @@ export function doHeavy(battle, targetIdx) {
   battle.log.push({ type: 'heavy', src: self.name, tgt: target.name, dmg: real, crit, action: heavyAction });
   fireCharacterHook(self, 'onHeavy', { battle, target, form: formHeavy || resolveHeavy, cost });
   // 重击也能击破绿泡
-  if (target._bubbleHp > 0) {
-    target._bubbleHp -= real;
-    if (target._bubbleHp <= 0) {
-      const healAmt = target._bubbleHealAmt || 0;
-      if (healAmt > 0) {
-        battle.team.forEach(t => {
-          if (t.alive) {
-            const healed = Math.min(t.hpMax - t.hp, healAmt);
-            t.hp += healed;
-            if (healed > 0) battle.log.push({ type: 'heal', src: self.name, tgt: t.name, dmg: healed, msg: '抢到绿泡治疗！' });
-          }
-        });
-      }
-      target._bubbleHp = 0;
-      target._bubbleHealAmt = 0;
-      battle.log.push({ type: 'mechanic', src: self.name, msg: '击破绿泡！全队获得治疗' });
-    }
-  }
+  breakBubble(target, real, battle, self);
   finishIfBattleEnded(battle, 'win');
   return { ok: true };
 }

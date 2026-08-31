@@ -211,6 +211,8 @@ export const ROLE_ART: Record<string, RoleArtRef> = {
   '漂泊者·衍射': { portrait: 'https://api.encore.moe/resource/Data/Game/Aki/UI/UIResources/Common/Image/PixActivity/T_ActivityRoleNvzhu.webp' },
   '漂泊者·湮灭': { portrait: 'https://api.encore.moe/resource/Data/Game/Aki/UI/UIResources/Common/Image/PixActivity/T_ActivityRoleNanzhu.webp' },
   '漂泊者·气动': { portrait: 'https://api.encore.moe/resource/Data/Game/Aki/UI/UIResources/Common/Image/PixActivity/T_ActivityRoleNvzhu.webp' },
+  '秧秧·玄翎': { portrait: 'https://api.encore.moe/resource/Data/Game/Aki/UI/UIResources/Common/Image/PixActivity/T_ActivityRoleXuanling.webp' },
+  '穗穗': { portrait: 'https://api.encore.moe/resource/Data/Game/Aki/UI/UIResources/Common/Image/PixActivity/T_ActivityRoleSuisui.webp' },
 };
 
 export const VERSION_ART: Record<string, VersionArtRef> = {

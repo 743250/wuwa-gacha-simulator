@@ -299,7 +299,7 @@ export function registerEchoBagActions({ renderBag }) {
             h('div', null, h('b', null, '5 件'), `：${formatSetBonus(set.bonus5) || '—'}`)
           )
         ) : null,
-        h('div', { style: 'font-size:10px;color:var(--dim);margin-top:8px' }, `累计经验 ${totalExp(e)} · ${e.equippedBy ? `装备于 ${e.equippedBy}` : '未装备'}`)
+        h('div', { style: 'font-size:10px;color:var(--dim);margin-top:8px' }, `累计经验 ${(e.exp ?? 0).toLocaleString()} · ${e.equippedBy ? `装备于 ${e.equippedBy}` : '未装备'}`)
       ),
       actions: [
         ...(canLevel ? [
@@ -370,7 +370,7 @@ export function registerEchoBagActions({ renderBag }) {
     const lines = preview.returns.map(r => `<div style="margin:2px 0">· ${r.label} ×${r.n}</div>`).join('');
     openModal({
       title: `分解 ${e.name}`,
-      body: `<div style="font-size:11px;color:var(--dim)">LV ${e.level} · COST ${e.cost} · 累计经验 ${totalExp(e)}</div>
+      body: `<div style="font-size:11px;color:var(--dim)">LV ${e.level} · COST ${e.cost} · 累计经验 ${(e.exp ?? 0).toLocaleString()}</div>
         <div style="margin-top:8px;font-size:12px">将返还：</div>
         <div style="font-size:12px;color:var(--gold)">${lines}</div>`,
       actions: [

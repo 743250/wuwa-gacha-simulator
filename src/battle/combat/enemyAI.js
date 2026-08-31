@@ -13,6 +13,7 @@
 import { resistMultiplier } from '../elements.js';
 import { applyTempStat, removeTempStat, computeStat } from '../tempStats.js';
 import { dealDamage, defenseMultiplier } from './damage.js';
+import { pick } from '../../shared/random.js';
 
 export function enemyAttack(battle, enemy, target, opts = {}) {
   if (!enemy?.alive || !target?.alive) return 0;
@@ -98,7 +99,7 @@ export function tickSaws(battle, enemy, helpers) {
 
 export function randomTeamTarget2(battle) {
   const alives = battle.team.filter(t => t.alive);
-  return alives.length ? alives[Math.floor(Math.random() * alives.length)] : null;
+  return alives.length ? pick(alives) : null;
 }
 
 // 无归的谬误:延迟爆破

@@ -3,6 +3,7 @@
 // 模拟器实现：在每日委托面板下方挂一栏，每周一服务器重置时清空"已领"状态
 import { S } from '../state.js';
 import { commit } from '../state/commit.ts';
+import { thisMondayKey } from '../shared/date.js';
 
 export const WEEKLY_TOUR_REWARD = {
   astrite: 160,
@@ -10,14 +11,6 @@ export const WEEKLY_TOUR_REWARD = {
   weapon_book: 6,
   lustrous: 1
 };
-
-function thisMondayKey(today) {
-  const d = new Date(today);
-  const dayOfWeek = d.getUTCDay();
-  const daysFromMon = (dayOfWeek + 6) % 7;
-  const mondayMs = d.getTime() - daysFromMon * 86400000;
-  return new Date(mondayMs).toISOString().slice(0, 10);
-}
 
 export function isWeeklyTourClaimed() {
   if (!S.weeklyTour) return false;
@@ -37,8 +30,3 @@ export function claimWeeklyTour() {
   });
 }
 
-export function resetWeeklyTourIfNeeded(today) {
-  // 用 thisMondayKey 自动判定，无需主动清理
-  // claimWeeklyTour() 会在新周写入新 key
-  return;
-}

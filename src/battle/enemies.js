@@ -3,6 +3,7 @@
 // 数值基准：官方 wuthering.wiki Lv90 数据（原始值，未缩放）
 import { growthRatioTo90 } from '../data/enemiesGrowth.js';
 import { S } from '../state.js';
+import { ELEMENTS } from './elements.js';
 // 世界 BOSS 战斗：世界等级 × 讨伐等级 → 直接取官方数值
 //   索拉Ⅰ ×0.30 / 索拉Ⅱ ×0.40 / 索拉Ⅲ ×0.50
 //   讨伐等级：初始 Lv40 → 击败 +10（封顶 90）→ 失败 -20（下限 40）
@@ -57,7 +58,7 @@ export function formatEnemyMechanic(mechanic, opts = {}) {
 
 function res(selfElement) {
   const out = {};
-  ['热熔', '湮灭', '气动', '冷凝', '衍射', '导电'].forEach(e => {
+  ELEMENTS.forEach(e => {
     out[e] = e === selfElement ? 0.40 : 0.10;
   });
   return out;
@@ -85,7 +86,7 @@ export const ENEMIES = {
   // ===== 普通级 Common（encore.moe 官方 Lv90 数值，副本池专用）=====
   '碎獠猪': { // ID: 310000190 · 轻波级 · 物理
     hp: 60300, atk: 3417, def: 800, element: '物理', class: 'Common',
-    resist: { 物理: 0.40, 热熔: 0.10, 湮灭: 0.10, 气动: 0.10, 冷凝: 0.10, 衍射: 0.10, 导电: 0.10 },
+    resist: { 物理: 0.40, ...res('物理') },
     mechanic: { type: 'none' },
     description: '碎獠猪,轻波级物理残象,獠牙猛兽近战冲锋'
   },
@@ -123,7 +124,7 @@ export const ENEMIES = {
   // ===== 精英级 Elite（encore.moe 官方 Lv90 数值，副本池专用）=====
   '坚岩斗士': { // ID: 320000010 · 巨浪级 · 物理
     hp: 206140, atk: 4490, def: 800, element: '物理', class: 'Elite',
-    resist: { 物理: 0.40, 热熔: 0.10, 湮灭: 0.10, 气动: 0.10, 冷凝: 0.10, 衍射: 0.10, 导电: 0.10 },
+    resist: { 物理: 0.40, ...res('物理') },
     mechanic: { type: 'none' },
     description: '坚岩斗士,巨浪级物理残象,高防岩石战士'
   },
@@ -440,7 +441,7 @@ export const ENEMIES = {
   // 17 梦魇亚当·重锤 · 溅射 + 降防 + 狂暴
   '梦魇亚当·重锤': { // encore.moe ID: 340000290 (Lv90)
     hp: 1040986, atk: 5026, def: 800, element: '物理', class: 'Overlord',
-    resist: { 物理: 0.40, 热熔: 0.10, 湮灭: 0.10, 气动: 0.10, 冷凝: 0.10, 衍射: 0.10, 导电: 0.10 },
+    resist: { 物理: 0.40, ...res('物理') },
     mechanic: {
       type: 'enrage',
       threshold: 0.4,
@@ -853,7 +854,7 @@ export const ENEMIES = {
   },
   '箭簇熊': { // ID: 320000120 · compact Lv90
     hp: 295889, atk: 5026, def: 800, element: '物理', class: 'Elite',
-    resist: { 物理: 0.40, 热熔: 0.10, 湮灭: 0.10, 气动: 0.10, 冷凝: 0.10, 衍射: 0.10, 导电: 0.10 }, mechanic: { type: 'none' },
+    resist: { 物理: 0.40, ...res('物理') }, mechanic: { type: 'none' },
     description: '箭簇熊。巨浪级·物理'
   },
   '车刃镰': { // ID: 320000130 · compact Lv90
@@ -923,7 +924,7 @@ export const ENEMIES = {
   },
   '巨布偶': { // ID: 320000300 · compact Lv90
     hp: 223436, atk: 5026, def: 800, element: '物理', class: 'Elite',
-    resist: { 物理: 0.40, 热熔: 0.10, 湮灭: 0.10, 气动: 0.10, 冷凝: 0.10, 衍射: 0.10, 导电: 0.10 }, mechanic: { type: 'none' },
+    resist: { 物理: 0.40, ...res('物理') }, mechanic: { type: 'none' },
     description: '巨布偶。巨浪级·物理'
   },
   '梦魇·飞廉之猩': { // ID: 330000140 · compact Lv90
@@ -973,7 +974,7 @@ export const ENEMIES = {
   },
   '角鳄': { // ID: 320000340 · compact Lv90
     hp: 668437, atk: 4020, def: 800, element: '物理', class: 'Elite',
-    resist: { 物理: 0.40, 热熔: 0.10, 湮灭: 0.10, 气动: 0.10, 冷凝: 0.10, 衍射: 0.10, 导电: 0.10 }, mechanic: { type: 'none' },
+    resist: { 物理: 0.40, ...res('物理') }, mechanic: { type: 'none' },
     description: '角鳄。巨浪级·物理'
   },
   '传道者的遗形': { // ID: 320000350 · compact Lv90
@@ -1150,12 +1151,12 @@ export const ENEMIES = {
   // ===== 轻波级 Common 补全（encore-enemies-compact Lv90 · 2026-07-25）=====
   '先锋幼岩': { // ID: 310000010 · compact Lv90
     hp: 60300, atk: 3417, def: 800, element: '物理', class: 'Common',
-    resist: { 物理: 0.40, 热熔: 0.10, 湮灭: 0.10, 气动: 0.10, 冷凝: 0.10, 衍射: 0.10, 导电: 0.10 }, mechanic: { type: 'none' },
+    resist: { 物理: 0.40, ...res('物理') }, mechanic: { type: 'none' },
     description: '先锋幼岩。轻波级·物理'
   },
   '裂变幼岩': { // ID: 310000020 · compact Lv90
     hp: 60300, atk: 3417, def: 800, element: '物理', class: 'Common',
-    resist: { 物理: 0.40, 热熔: 0.10, 湮灭: 0.10, 气动: 0.10, 冷凝: 0.10, 衍射: 0.10, 导电: 0.10 }, mechanic: { type: 'none' },
+    resist: { 物理: 0.40, ...res('物理') }, mechanic: { type: 'none' },
     description: '裂变幼岩。轻波级·物理'
   },
   '破霜猎手': { // ID: 310000040 · compact Lv90
@@ -1225,7 +1226,7 @@ export const ENEMIES = {
   },
   '流放者': { // ID: 310000230 · compact Lv90
     hp: 106576, atk: 3417, def: 800, element: '物理', class: 'Common',
-    resist: { 物理: 0.40, 热熔: 0.10, 湮灭: 0.10, 气动: 0.10, 冷凝: 0.10, 衍射: 0.10, 导电: 0.10 }, mechanic: { type: 'none' },
+    resist: { 物理: 0.40, ...res('物理') }, mechanic: { type: 'none' },
     description: '流放者。轻波级·物理'
   },
   '抛石幼猿': { // ID: 310000250 · compact Lv90
@@ -1235,7 +1236,7 @@ export const ENEMIES = {
   },
   '晶螯蝎': { // ID: 310000260 · compact Lv90
     hp: 106576, atk: 3417, def: 800, element: '物理', class: 'Common',
-    resist: { 物理: 0.40, 热熔: 0.10, 湮灭: 0.10, 气动: 0.10, 冷凝: 0.10, 衍射: 0.10, 导电: 0.10 }, mechanic: { type: 'none' },
+    resist: { 物理: 0.40, ...res('物理') }, mechanic: { type: 'none' },
     description: '晶螯蝎。轻波级·物理'
   },
   '寒霜陆龟': { // ID: 310000270 · compact Lv90
@@ -1245,7 +1246,7 @@ export const ENEMIES = {
   },
   '残星·重锤造匠': { // ID: 310000290 · compact Lv90
     hp: 106576, atk: 3417, def: 800, element: '物理', class: 'Common',
-    resist: { 物理: 0.40, 热熔: 0.10, 湮灭: 0.10, 气动: 0.10, 冷凝: 0.10, 衍射: 0.10, 导电: 0.10 }, mechanic: { type: 'none' },
+    resist: { 物理: 0.40, ...res('物理') }, mechanic: { type: 'none' },
     description: '残星·重锤造匠。轻波级·物理'
   },
   '锐爪幼猿': { // ID: 310000300 · compact Lv90
@@ -1255,12 +1256,12 @@ export const ENEMIES = {
   },
   '残星·枭面造匠': { // ID: 310000310 · compact Lv90
     hp: 106576, atk: 3417, def: 800, element: '物理', class: 'Common',
-    resist: { 物理: 0.40, 热熔: 0.10, 湮灭: 0.10, 气动: 0.10, 冷凝: 0.10, 衍射: 0.10, 导电: 0.10 }, mechanic: { type: 'none' },
+    resist: { 物理: 0.40, ...res('物理') }, mechanic: { type: 'none' },
     description: '残星·枭面造匠。轻波级·物理'
   },
   '残星·枪肢造匠': { // ID: 310000320 · compact Lv90
     hp: 106576, atk: 3417, def: 800, element: '物理', class: 'Common',
-    resist: { 物理: 0.40, 热熔: 0.10, 湮灭: 0.10, 气动: 0.10, 冷凝: 0.10, 衍射: 0.10, 导电: 0.10 }, mechanic: { type: 'none' },
+    resist: { 物理: 0.40, ...res('物理') }, mechanic: { type: 'none' },
     description: '残星·枪肢造匠。轻波级·物理'
   },
   '通行灯偶': { // ID: 310000330 · compact Lv90
@@ -1290,7 +1291,7 @@ export const ENEMIES = {
   },
   '侏侏鸵': { // ID: 310000360 · compact Lv90
     hp: 60300, atk: 3417, def: 800, element: '物理', class: 'Common',
-    resist: { 物理: 0.40, 热熔: 0.10, 湮灭: 0.10, 气动: 0.10, 冷凝: 0.10, 衍射: 0.10, 导电: 0.10 }, mechanic: { type: 'none' },
+    resist: { 物理: 0.40, ...res('物理') }, mechanic: { type: 'none' },
     description: '侏侏鸵。轻波级·物理'
   },
   '异相·叮咚咚': { // ID: 350000070 · compact Lv90
@@ -1345,7 +1346,7 @@ export const ENEMIES = {
   },
   '工头布偶': { // ID: 310000470 · compact Lv90
     hp: 130883, atk: 3417, def: 800, element: '物理', class: 'Common',
-    resist: { 物理: 0.40, 热熔: 0.10, 湮灭: 0.10, 气动: 0.10, 冷凝: 0.10, 衍射: 0.10, 导电: 0.10 }, mechanic: { type: 'none' },
+    resist: { 物理: 0.40, ...res('物理') }, mechanic: { type: 'none' },
     description: '工头布偶。轻波级·物理'
   },
   '欺诈奇藏': { // ID: 310000480 · compact Lv90
@@ -1375,7 +1376,7 @@ export const ENEMIES = {
   },
   '卫冕节使': { // ID: 310000520 · compact Lv90
     hp: 106576, atk: 3417, def: 800, element: '物理', class: 'Common',
-    resist: { 物理: 0.40, 热熔: 0.10, 湮灭: 0.10, 气动: 0.10, 冷凝: 0.10, 衍射: 0.10, 导电: 0.10 }, mechanic: { type: 'none' },
+    resist: { 物理: 0.40, ...res('物理') }, mechanic: { type: 'none' },
     description: '卫冕节使。轻波级·物理'
   },
   '赦罪节使': { // ID: 310000530 · compact Lv90
@@ -1460,12 +1461,12 @@ export const ENEMIES = {
   },
   '夜归队员': { // ID: 310000690 · compact Lv90
     hp: 106576, atk: 3417, def: 800, element: '物理', class: 'Common',
-    resist: { 物理: 0.40, 热熔: 0.10, 湮灭: 0.10, 气动: 0.10, 冷凝: 0.10, 衍射: 0.10, 导电: 0.10 }, mechanic: { type: 'none' },
+    resist: { 物理: 0.40, ...res('物理') }, mechanic: { type: 'none' },
     description: '夜归队员。轻波级·物理'
   },
   '帮派打手': { // ID: 310000710 · compact Lv90
     hp: 106576, atk: 3417, def: 800, element: '物理', class: 'Common',
-    resist: { 物理: 0.40, 热熔: 0.10, 湮灭: 0.10, 气动: 0.10, 冷凝: 0.10, 衍射: 0.10, 导电: 0.10 }, mechanic: { type: 'none' },
+    resist: { 物理: 0.40, ...res('物理') }, mechanic: { type: 'none' },
     description: '帮派打手。轻波级·物理'
   },
   '梦魇·绿熔蜥（稚形）': { // ID: 310000720 · compact Lv90
@@ -1485,7 +1486,7 @@ export const ENEMIES = {
   },
   '梦魇·侏侏鸵': { // ID: 310000760 · compact Lv90
     hp: 60300, atk: 3417, def: 800, element: '物理', class: 'Common',
-    resist: { 物理: 0.40, 热熔: 0.10, 湮灭: 0.10, 气动: 0.10, 冷凝: 0.10, 衍射: 0.10, 导电: 0.10 }, mechanic: { type: 'none' },
+    resist: { 物理: 0.40, ...res('物理') }, mechanic: { type: 'none' },
     description: '梦魇·侏侏鸵。轻波级·物理'
   },
   '颤栗战士': { // ID: 310000740 · compact Lv90
@@ -1515,12 +1516,12 @@ export const ENEMIES = {
   },
   '执刃流民': { // ID: 310000800 · compact Lv90
     hp: 100499, atk: 3417, def: 800, element: '物理', class: 'Common',
-    resist: { 物理: 0.40, 热熔: 0.10, 湮灭: 0.10, 气动: 0.10, 冷凝: 0.10, 衍射: 0.10, 导电: 0.10 }, mechanic: { type: 'none' },
+    resist: { 物理: 0.40, ...res('物理') }, mechanic: { type: 'none' },
     description: '执刃流民。轻波级·物理'
   },
   '雷杖流民': { // ID: 310000810 · compact Lv90
     hp: 71051, atk: 3417, def: 800, element: '物理', class: 'Common',
-    resist: { 物理: 0.40, 热熔: 0.10, 湮灭: 0.10, 气动: 0.10, 冷凝: 0.10, 衍射: 0.10, 导电: 0.10 }, mechanic: { type: 'none' },
+    resist: { 物理: 0.40, ...res('物理') }, mechanic: { type: 'none' },
     description: '雷杖流民。轻波级·物理'
   },
   '冰盈舞者': { // ID: 310000830 · compact Lv90
@@ -1535,27 +1536,27 @@ export const ENEMIES = {
   },
   '残星·扼拊爪匠': { // ID: 310000850 · compact Lv90
     hp: 100499, atk: 3417, def: 800, element: '物理', class: 'Common',
-    resist: { 物理: 0.40, 热熔: 0.10, 湮灭: 0.10, 气动: 0.10, 冷凝: 0.10, 衍射: 0.10, 导电: 0.10 }, mechanic: { type: 'none' },
+    resist: { 物理: 0.40, ...res('物理') }, mechanic: { type: 'none' },
     description: '残星·扼拊爪匠。轻波级·物理'
   },
   '残星·餮餍袖匠': { // ID: 310000860 · compact Lv90
     hp: 71051, atk: 3417, def: 800, element: '物理', class: 'Common',
-    resist: { 物理: 0.40, 热熔: 0.10, 湮灭: 0.10, 气动: 0.10, 冷凝: 0.10, 衍射: 0.10, 导电: 0.10 }, mechanic: { type: 'none' },
+    resist: { 物理: 0.40, ...res('物理') }, mechanic: { type: 'none' },
     description: '残星·餮餍袖匠。轻波级·物理'
   },
   '梦魇·武装公司狗': { // ID: 310000870 · compact Lv90
     hp: 71051, atk: 3417, def: 800, element: '物理', class: 'Common',
-    resist: { 物理: 0.40, 热熔: 0.10, 湮灭: 0.10, 气动: 0.10, 冷凝: 0.10, 衍射: 0.10, 导电: 0.10 }, mechanic: { type: 'none' },
+    resist: { 物理: 0.40, ...res('物理') }, mechanic: { type: 'none' },
     description: '梦魇·武装公司狗。轻波级·物理'
   },
   '梦魇·安保公司狗': { // ID: 310000880 · compact Lv90
     hp: 71051, atk: 3417, def: 800, element: '物理', class: 'Common',
-    resist: { 物理: 0.40, 热熔: 0.10, 湮灭: 0.10, 气动: 0.10, 冷凝: 0.10, 衍射: 0.10, 导电: 0.10 }, mechanic: { type: 'none' },
+    resist: { 物理: 0.40, ...res('物理') }, mechanic: { type: 'none' },
     description: '梦魇·安保公司狗。轻波级·物理'
   },
   '梦魇·突击公司狗': { // ID: 310000890 · compact Lv90
     hp: 71051, atk: 3417, def: 800, element: '物理', class: 'Common',
-    resist: { 物理: 0.40, 热熔: 0.10, 湮灭: 0.10, 气动: 0.10, 冷凝: 0.10, 衍射: 0.10, 导电: 0.10 }, mechanic: { type: 'none' },
+    resist: { 物理: 0.40, ...res('物理') }, mechanic: { type: 'none' },
     description: '梦魇·突击公司狗。轻波级·物理'
   },
 
@@ -1587,12 +1588,12 @@ export const ENEMIES = {
   },
   '异相·巨布偶': { // 回落 巨布偶 · compact
     hp: 223436, atk: 5026, def: 800, element: '物理', class: 'Elite',
-    resist: { 物理: 0.40, 热熔: 0.10, 湮灭: 0.10, 气动: 0.10, 冷凝: 0.10, 衍射: 0.10, 导电: 0.10 }, mechanic: { type: 'none' },
+    resist: { 物理: 0.40, ...res('物理') }, mechanic: { type: 'none' },
     description: '异相·巨布偶。回落巨布偶面板'
   },
   '异相·角鳄': { // 回落 角鳄 · compact
     hp: 668437, atk: 4020, def: 800, element: '物理', class: 'Elite',
-    resist: { 物理: 0.40, 热熔: 0.10, 湮灭: 0.10, 气动: 0.10, 冷凝: 0.10, 衍射: 0.10, 导电: 0.10 }, mechanic: { type: 'none' },
+    resist: { 物理: 0.40, ...res('物理') }, mechanic: { type: 'none' },
     description: '异相·角鳄。回落角鳄面板'
   },
   '异相·双极·星升辉铳': { // 回落 双极·星升辉铳 · compact
@@ -1638,13 +1639,6 @@ function defForLevel(lv) {
   return 792 + 8 * lv;
 }
 
-// 获取 BOSS 讨伐等级
-export function getBossLevel(bossName) {
-  // S 来自 state.js 单例,无循环依赖(state.js 不 import enemies.js)
-  const levels = (S && S.bossLevels) || {};
-  return levels[bossName] || 40;
-}
-
 // 按敌人名生成战斗实例
 // 支持三种模式：
 //   1. levelScale (旧版兼容，直接乘)
@@ -1686,9 +1680,6 @@ export function spawnEnemy(name, opts = 1.0) {
   // 三档机制下：副本敌人用 enemyLevel，世界 BOSS 用 bossLevel
   let finalHp = data.hp * hpMult;
   let finalAtk = data.atk * atkMult;
-  const lvForScale = (opts && typeof opts === 'object')
-    ? (opts.enemyLevel || (opts.bossLevel ? undefined : undefined))
-    : undefined;
   if (opts && typeof opts === 'object' && (opts.enemyLevel || opts.bossLevel)) {
     const lv = opts.enemyLevel || opts.bossLevel;
     const ratio = growthRatioTo90(lv);

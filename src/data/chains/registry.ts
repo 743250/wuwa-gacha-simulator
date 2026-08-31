@@ -1898,4 +1898,74 @@ export const REGISTRY: Record<string, CharacterChains> = {
     }
     ],
   },
+  "秧秧·玄翎": {
+    character: "秧秧·玄翎",
+    chains: [
+    {
+      index: 1,
+      effect: {"effect":"skillDmg","value":0.3,"label":"剑式流转后玄翎之影追击（共鸣技能伤害 +30%）"},
+      text: { name: "禾雀随风初绽", desc: "施放<b class=\"term-skill\">剑式流转·苍</b>或<b class=\"term-skill\">剑式流转·羽</b>后召唤<b class=\"term-resource\">玄翎之影</b>追击，使<b class=\"term-skill\">共鸣技能</b>伤害提升 <b class=\"term-num\">30%</b>。" },
+    },
+    {
+      index: 2,
+      effect: {"effect":"heavyDmg","value":1.0,"label":"重击伤害 +100%"},
+      text: { name: "戛剑棹歌而远", desc: "<b class=\"term-heavy\">重击·苍剑式</b>与<b class=\"term-heavy\">重击·羽剑式</b>造成的伤害提升 <b class=\"term-num\">100%</b>。" },
+    },
+    {
+      index: 3,
+      effect: {"effect":"burstDmg","value":1.0,"label":"共鸣解放伤害 +100%"},
+      text: { name: "追念暨云陵", desc: "<b class=\"term-burst\">共鸣解放·裁羽寂万音</b>造成的伤害提升 <b class=\"term-num\">100%</b>。" },
+    },
+    {
+      index: 4,
+      effect: {"effect":"teamAtk","value":0.2,"label":"全队攻击 +20%"},
+      text: { name: "一纸信笺遥眷", desc: "施放<b class=\"term-variation\">变奏技能·羽挟苍空</b>或<b class=\"term-skill\">剑式流转</b>后，全队攻击提升 <b class=\"term-num\">20%</b>。" },
+    },
+    {
+      index: 5,
+      effect: {"effect":"defense","value":0.2,"label":"防御 +20%"},
+      text: { name: "羽展。羽展", desc: "秧秧·玄翎防御提升 <b class=\"term-num\">20%</b>。" },
+    },
+    {
+      index: 6,
+      effect: {"effect":"heavyDmg","value":0.4,"label":"重击伤害 +40%"},
+      text: { name: "所愿苍琅长睆", desc: "<b class=\"term-resource\">万声皆流</b>持续期间，<b class=\"term-heavy\">重击</b>伤害提升 <b class=\"term-num\">40%</b>。" },
+    }
+    ],
+  },
+  "穗穗": {
+    character: "穗穗",
+    chains: [
+    {
+      index: 1,
+      effect: {"effect":"teamAtk","value":0.1,"label":"全队攻击 +10%"},
+      text: { name: "雨洗千山皆入画", desc: "全队攻击提升 <b class=\"term-num\">10%</b>。" },
+    },
+    {
+      index: 2,
+      effect: {"effect":"teamAllDmg","value":0.12,"label":"全队全伤害 +12%"},
+      text: { name: "霞铺万顷欲流金", desc: "全队全属性伤害提升 <b class=\"term-num\">12%</b>。" },
+    },
+    {
+      index: 3,
+      effect: {"effect":"skillDmg","value":0.3,"label":"共鸣技能伤害 +30%"},
+      text: { name: "半卷疏帘邀晚照", desc: "<b class=\"term-skill\">共鸣技能·濯雨时</b>伤害提升 <b class=\"term-num\">30%</b>。" },
+    },
+    {
+      index: 4,
+      effect: {"effect":"heal","value":0.5,"label":"治疗效果 +50%"},
+      text: { name: "一桁秋山共我吟", desc: "<b class=\"term-resource\">润物</b>与<b class=\"term-resource\">春生</b>的治疗量提升 <b class=\"term-num\">50%</b>。" },
+    },
+    {
+      index: 5,
+      effect: {"effect":"normalDmg","value":1.0,"label":"普攻伤害 +100%"},
+      text: { name: "愿乘东风千万里", desc: "<b class=\"term-normal\">普攻·濯雨时</b>伤害倍率提升 <b class=\"term-num\">100%</b>。" },
+    },
+    {
+      index: 6,
+      effect: {"effect":"variationDmg","value":0.6,"label":"变奏伤害 +60%"},
+      text: { name: "不负江山锦绣心", desc: "<b class=\"term-variation\">变奏技能·泠泠漱玉声</b>伤害提升 <b class=\"term-num\">60%</b>。" },
+    }
+    ],
+  },
 };

@@ -15,11 +15,12 @@
 
 import { calcDamage, dealDamage } from '../combat/damage.js';
 import { registerSwitchHook, registerSwitchOutHook } from '../switchHooks.js';
+import { ACTION_COST } from '../balance.js';
 
 // ── 常量 ──
 const WEISHE_MAX = 2;
 const BURST_WINDOW_TURNS = 2;
-const ACTION_COST_BURST = 3;
+const ACTION_COST_BURST = ACTION_COST.burst;
 
 const NORMAL_HP_MULT = 0.045;
 const SKILL_HP_MULT = 0.081;
@@ -378,8 +379,6 @@ export default {
   onSkill: aogusitaOnSkill,
   onHeavy: aogusitaOnHeavy,
   battleStart: aogusitaBattleStart,
-  switchIn: aogusitaSwitchIn,
-  switchOut: aogusitaSwitchOut,
   tick: aogusitaTick,
   turnCleanup: aogusitaTurnCleanup,
   collectBadges: aogusitaCollectBadges

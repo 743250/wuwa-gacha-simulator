@@ -2,12 +2,12 @@
 // Phase 3 步骤 B:不再 import rerenderAll/msg —— core 是纯领域层,UI 副作用由调用方承担。
 // commit() 已自带 bumpStateVersion,Preact 信号自动响应;
 // 旧字符串 UI(若调用方仍依赖)由调用方主动调 rerenderAll。
-import { S, DAY, date, fmt, pickRng } from '../state.js';
+import { S, DAY, date, fmt, pickRng, GAME_LAUNCH } from '../state.js';
 import { phases } from '../data/phases.js';
 import { standard5, fourAll, threeWeapons, fourWeapons, weapons, bannerNames, standardWeapons, newJourneyChars } from '../data/chars.js';
 import {
   BASE_RATE, HARD_PITY, SOFT_PITY_KNOT, MID_PITY_KNOT, HIGH_PITY_KNOT,
-  SOFT_SLOPE, MID_SLOPE, HIGH_SLOPE, SOFT_SPAN, MID_SPAN
+  SOFT_SLOPE, MID_SLOPE, HIGH_SLOPE, SOFT_SPAN, MID_SPAN, ASTRITE_PER_PULL
 } from './rateConfig.js';
 
 export function activePhase() { return phases.filter(p => S.today >= p.start && S.today < p.end); }
@@ -42,16 +42,16 @@ export function activeBanners() {
       fours: fourWeapons.slice(0, 3), banner: (cp ? '武器联动唤取 · ' : '浮声沉兵 · ') + (weapons[c] || '限定武器'), weapon: weapons[c] || '限定武器' });
   }));
   if (!S.beginnerDone) {
-    permanent.push({ id: 'beginner', pool: 'beginner', start: date('2024-05-23'), end: Infinity, version: '新手', banner: '万象新声', char: S.beginnerTarget, weapon: null, fours: fourAll.slice(0, 3) });
+    permanent.push({ id: 'beginner', pool: 'beginner', start: date(GAME_LAUNCH), end: Infinity, version: '新手', banner: '万象新声', char: S.beginnerTarget, weapon: null, fours: fourAll.slice(0, 3) });
   }
   // ★ 新旅池：拆角色 / 武器；30 天有效期
   if (!noviceExpired()) {
-    permanent.push({ id: 'novice-choice', pool: 'noviceChoice', start: date('2024-05-23'), end: Infinity, version: '新旅', banner: '新旅如约 · 角色', char: S.noviceTarget, weapon: null, fours: fourAll.slice(0, 3) });
-    permanent.push({ id: 'novice-weapon', pool: 'noviceWeapon', start: date('2024-05-23'), end: Infinity, version: '新旅', banner: '新旅如约 · 武器', char: null, weapon: S.noviceWeaponTarget, fours: fourWeapons.slice(0, 3) });
+    permanent.push({ id: 'novice-choice', pool: 'noviceChoice', start: date(GAME_LAUNCH), end: Infinity, version: '新旅', banner: '新旅如约 · 角色', char: S.noviceTarget, weapon: null, fours: fourAll.slice(0, 3) });
+    permanent.push({ id: 'novice-weapon', pool: 'noviceWeapon', start: date(GAME_LAUNCH), end: Infinity, version: '新旅', banner: '新旅如约 · 武器', char: null, weapon: S.noviceWeaponTarget, fours: fourWeapons.slice(0, 3) });
   }
-  permanent.push({ id: 'standard-char', pool: 'standardChar', start: date('2024-05-23'), end: Infinity, version: '常驻', banner: '海上共潮生', char: null, weapon: null, fours: fourAll.slice(0, 3) });
+  permanent.push({ id: 'standard-char', pool: 'standardChar', start: date(GAME_LAUNCH), end: Infinity, version: '常驻', banner: '海上共潮生', char: null, weapon: null, fours: fourAll.slice(0, 3) });
   const stdWeapon = standardWeapons.find(w => w.name === S.standardWeaponTarget) || standardWeapons[0];
-  permanent.push({ id: 'standard-weapon', pool: 'standardWeapon', start: date('2024-05-23'), end: Infinity, version: '常驻', banner: '武器常驻唤取', char: null, weapon: stdWeapon.name, weaponBanner: stdWeapon.banner, fours: fourWeapons.slice(0, 3) });
+  permanent.push({ id: 'standard-weapon', pool: 'standardWeapon', start: date(GAME_LAUNCH), end: Infinity, version: '常驻', banner: '武器常驻唤取', char: null, weapon: stdWeapon.name, weaponBanner: stdWeapon.banner, fours: fourWeapons.slice(0, 3) });
   return [...eventChars, ...eventWeapons, ...permanent];
 }
 
@@ -138,12 +138,6 @@ export function targetOptions(b) {
 // core.js 是纯领域函数层,不再 import commit。
 
 // 支付
-function payOne(pool) {
-  const key = tideKey(pool);
-  if (S[key] > 0) { S[key]--; return true; }
-  if (S.astrite >= 160) { S.astrite -= 160; S.astriteSpent = (S.astriteSpent || 0) + 160; return true; }
-  return false;
-}
 export function payBeginnerTen() {
   const key = tideKey('beginner');
   let need = 8;
@@ -191,7 +185,7 @@ export function pull(pool, free = false) {
 function payOneFor(state, pool) {
   const key = tideKey(pool);
   if (state[key] > 0) { state[key]--; return true; }
-  if (state.astrite >= 160) { state.astrite -= 160; state.astriteSpent = (state.astriteSpent || 0) + 160; return true; }
+  if (state.astrite >= ASTRITE_PER_PULL) { state.astrite -= ASTRITE_PER_PULL; state.astriteSpent = (state.astriteSpent || 0) + ASTRITE_PER_PULL; return true; }
   return false;
 }
 
@@ -258,7 +252,7 @@ function four(state, pool, b, rng) {
   const up = state.g4[pool] || rng() < .5;
   let name, type, coral = 3;
   if (up) {
-    name = poolKind(pool) === 'weapon' ? pickRng(b.fours, rng) : pickRng(b.fours, rng);
+    name = pickRng(b.fours, rng);
     type = poolKind(pool) === 'weapon' ? '概率提升四星武器' : '概率提升四星角色';
   } else {
     name = poolKind(pool) === 'weapon' || rng() < .5 ? pickRng(fourWeapons, rng) : pickRng(fourAll, rng);
@@ -328,13 +322,13 @@ export function canAffordPulls(n) {
   const k = getPool(), tide = S[tideKey(k)];
   if (k === 'beginner' && n === 10) {
     const fromTide = Math.min(8, tide);
-    const cost = (8 - fromTide) * 160;
+    const cost = (8 - fromTide) * ASTRITE_PER_PULL;
     const missing = Math.max(0, cost - S.astrite);
     return { ok: S.astrite >= cost, okWithLunite: S.astrite + S.lunite >= cost, tide: fromTide, astrite: cost, missing, total: n, possible: S.beginnerPulls >= 50 ? 0 : 10 };
   }
   const fromTide = Math.min(n, tide);
   const remain = n - fromTide;
-  const cost = remain * 160;
+  const cost = remain * ASTRITE_PER_PULL;
   const missing = Math.max(0, cost - S.astrite);
   return {
     ok: S.astrite >= cost,
@@ -343,7 +337,7 @@ export function canAffordPulls(n) {
     astrite: cost,
     missing,
     total: n,
-    possible: tide + Math.floor((S.astrite + S.lunite) / 160)
+    possible: tide + Math.floor((S.astrite + S.lunite) / ASTRITE_PER_PULL)
   };
 }
 

@@ -20,6 +20,7 @@ import { openModal } from '../../../modal.js';
 import { renderWeaponDetail } from '../weaponDetail.ts';
 import { levelUpWeapon, levelUpWeaponMax, unequipWeapon, refineWeapon } from '../../../equip/actions.js';
 import { openRoleModal } from '../roleModal/actions.ts';
+import { ELEMENT_COLOR } from '../../../battle/elements.js';
 
 function openWeaponModal(name: string) {
   const weapon = S.weapons[name];
@@ -73,10 +74,7 @@ function openWeaponModal(name: string) {
   });
 }
 
-const ELEMENT_COLORS: Record<string, string> = {
-  '热熔': '#ff8c5e', '冷凝': '#7bd6ff', '导电': '#b58cff',
-  '气动': '#8de6a6', '衍射': '#fff0b0', '湮灭': '#c39bff',
-};
+const ELEMENT_COLORS: Record<string, string> = ELEMENT_COLOR;
 
 function hexToRgba(hex: string, alpha: number): string {
   const h = hex.replace('#', '');

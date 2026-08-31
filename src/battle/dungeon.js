@@ -17,6 +17,8 @@ import { S } from '../state.js';
 import { phases } from '../data/phases.js';
 import { ENEMIES } from './enemies.js';
 import { commit } from '../state/commit.ts';
+import { thisMondayKey } from '../shared/date.js';
+import { versionOrder } from './balance.js';
 // 注：副本敌人强度不随版本变化（官方设计如此）
 // 注：副本敌人等级由 SOL3 三档世界等级（getDungeonEnemyLevel）决定，副本对象不再带 enemyLevel 字段
 //     （旧 enemyLevel 字段从不被战斗读取，已于 2026-07 清理）
@@ -709,23 +711,10 @@ export function currentVersion(today = S.today) {
   return p?.v || '1.0';
 }
 
-// 版本比较：a >= b（如 '2.4' >= '2.0'）
-function versionGte(a, b) {
-  const pa = String(a).split('.').map(Number);
-  const pb = String(b).split('.').map(Number);
-  for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
-    const ai = pa[i] || 0;
-    const bi = pb[i] || 0;
-    if (ai > bi) return true;
-    if (ai < bi) return false;
-  }
-  return true;
-}
-
-// 判断关卡是否在当前版本已解锁
+// 判断关卡是否在当前版本已解锁（版本比较复用 balance.js 的 versionOrder）
 export function isDungeonUnlocked(d, today = S.today) {
   if (!d.version) return true;
-  return versionGte(currentVersion(today), d.version);
+  return versionOrder(currentVersion(today)) >= versionOrder(d.version);
 }
 
 export function getDungeonEncounter(d, today = S.today) {
@@ -767,11 +756,7 @@ export function consumeWeeklyBoss() {
 }
 export function resetWeeklyBossIfNeeded(today) {
   if (!S.weeklyBoss) S.weeklyBoss = { used: {}, lastReset: '' };
-  const d = new Date(today);
-  const dayOfWeek = d.getUTCDay();
-  const daysFromMon = (dayOfWeek + 6) % 7;
-  const mondayMs = d.getTime() - daysFromMon * 86400000;
-  const mondayKey = new Date(mondayMs).toISOString().slice(0, 10);
+  const mondayKey = thisMondayKey(today);
   if (S.weeklyBoss.lastReset !== mondayKey) {
     S.weeklyBoss.used = {};
     S.weeklyBoss.lastReset = mondayKey;
@@ -842,10 +827,4 @@ export function getWorldBossSpawnOpts(bossName) {
   const d = DUNGEONS.find(x => x.enemies?.[0] === bossName);
   const level = d ? getDungeonEnemyLevel(d) : SOL3_LEVELS[tier].levelMin;
   return { worldTier: tier, bossLevel: level };
-}
-
-// 旧接口保留兼容（increaseBossLevel/decreaseBossLevel/getBossLevel 已废弃，但暂留避免 import 报错）
-export function getBossLevel(bossName) {
-  const d = DUNGEONS.find(x => x.enemies?.[0] === bossName);
-  return d ? getDungeonEnemyLevel(d) : SOL3_LEVELS[getSol3Level()].levelMin;
 }

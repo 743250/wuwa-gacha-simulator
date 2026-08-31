@@ -11,8 +11,9 @@
 //   applyEnemyDefendHook(enemy, dmg)，由 dealDamage 调用。临时倍率挂 tempStats.js
 //   的 applyTempStat / removeTempStat / computeStat / tickTempStats。
 
-import { applyTempStat, removeTempStat, clearTempStat, computeStat, hasTempStat, tickTempStats } from './tempStats.js';
+import { applyTempStat, removeTempStat, computeStat, hasTempStat, tickTempStats } from './tempStats.js';
 import { addErosion } from './combat/erosion.js';
+import { pick } from '../shared/random.js';
 
 function isMechanicTurn(m, turn) {
   return !!(m?.cycle && turn % m.cycle === 0);
@@ -33,7 +34,7 @@ function pickAliveTeam(battle) {
 
 function randomTeamTarget(battle) {
   const alives = pickAliveTeam(battle);
-  return alives.length ? alives[Math.floor(Math.random() * alives.length)] : null;
+  return alives.length ? pick(alives) : null;
 }
 
 // ===== 原有机制（保留） =====
@@ -84,7 +85,7 @@ const LEGACY_MECHANICS = {
       if (!isMechanicTurn(m, battle.turn)) return;
       const alives = pickAliveTeam(battle);
       if (!alives.length) return;
-      const tgt = alives[Math.floor(Math.random() * alives.length)];
+      const tgt = pick(alives);
       helpers.inflictFreeze(tgt, 1);
       battle.log.push({ type: 'freeze', src: enemy.name, tgt: tgt.name });
     }
@@ -171,7 +172,7 @@ const LEGACY_MECHANICS = {
       if (!isMechanicTurn(m, battle.turn)) return;
       const alives = pickAliveTeam(battle);
       if (!alives.length) return;
-      const tgt = alives[Math.floor(Math.random() * alives.length)];
+      const tgt = pick(alives);
       helpers.lockSkill(tgt, 1);
       battle.log.push({ type: 'mechanic', src: enemy.name, msg: `数据封锁 ${tgt.name} 的技能` });
     }

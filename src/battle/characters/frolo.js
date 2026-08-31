@@ -569,10 +569,6 @@ export default {
   canHeavy: furoloCanHeavy,
   canBurst: furoloCanBurstAction,
   battleStart: furoloBattleStart,
-  onNormalHit: furoloOnNormalHit,
-  onSkillHit: furoloOnSkillHit,
-  onHeavyHit: furoloOnHeavyHit,
-  onVariationHit: furoloOnVariationHit,
   onAttack: furoloOnAttack,
   onSkill: furoloOnSkill,
   onHeavy: furoloOnHeavy,
@@ -582,7 +578,6 @@ export default {
   dirgeMult: furoloDirgeMult,
   resolveBurst: furoloResolveBurst,
   onBurst: furoloOnBurst,
-  switchIn: furoloSwitchIn,
   tick: furoloTick,
   turnCleanup: furoloTurnCleanup,
   collectBadges: furoloCollectBadges
