@@ -41,7 +41,7 @@
 ## 技术债务（已知，排期处理）
 
 - `styles/main.css` 已拆成 `styles/modules/` 16 个模块，入口只做 `@import` 编排（2026-08-31）
-- 部分 Preact 面板仍用 `innerHTML` 命令式写 DOM（8 处），渐进迁到 VNode
+- 弹窗已统一 Preact；翻牌动画已改 `createElement`。残留 `innerHTML` 仅用于 tooltip / 技能文案（含 `<b>` 公式）和容器清空
 - JS/TS 混用，允许但新代码优先 TS（battle 层仍几乎全 JS）
 - 单文件构建（`build:single`）与图片/音频内联的体积权衡
 - 主 chunk 超 600 kB（`index` 836 kB / `character-lore` 594 kB），待代码分割

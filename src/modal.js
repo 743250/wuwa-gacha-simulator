@@ -1,10 +1,10 @@
-// 通用弹窗 · Stage 6.2 dual-mode
-//   · body 为 string → 走 innerHTML（兼容老调用方）
-//   · body 为 VNode → 走 Preact render（新调用方，闭包 onclick，无 window 桥）
+// 通用弹窗
+// 标题 / 数量选择 / 按钮一律 Preact 渲染（闭包 onclick，无 window 桥）。
+// body 仍允许 HTML 字符串（海市/抽卡补足等调用方带 <b>/<br>），只在 .desc 内注入。
 import { h, render as preactRender } from 'preact';
 import { $ } from './ui/services/toast.ts';
 
-let preactRoot = null; // Preact 挂载点（VNode 模式）
+let preactRoot = null;
 
 function clearBox(box) {
   if (preactRoot) {
@@ -15,70 +15,33 @@ function clearBox(box) {
   box.innerHTML = '';
 }
 
+function isVNode(body) {
+  return !!(body && typeof body === 'object' && 'props' in body);
+}
+
 export function openModal({ title, body, qty = null, actions, className = '', keepScroll = false }) {
   const box = $('modalBox');
   const savedScroll = keepScroll ? box.scrollTop : 0;
   box.className = `modal-box ${className}`.trim();
   clearBox(box);
 
-  const isVNode = body && typeof body === 'object' && 'props' in body;
-
-  if (isVNode) {
-    // Preact 渲染：title + body + qty + actions 全部 JSX
-    preactRoot = document.createElement('div');
-    preactRoot.id = 'modalPreactRoot';
-    box.appendChild(preactRoot);
-    preactRender(h(ModalContent, { title, body, qty, actions }), preactRoot);
-  } else {
-    // 老 HTML 字符串模式
-    let html = `<h3>${title}</h3><div class="desc">${body}</div>`;
-    if (qty) {
-      html += `<div class="qty-row">
-        <button class="qbtn" data-act="dec">−</button>
-        <input class="qty-input" id="qtyInput" type="number" min="${qty.min}" max="${qty.max}" value="${qty.init}">
-        <button class="qbtn" data-act="inc">＋</button>
-      </div>
-      <div class="qty-presets">
-        ${qty.presets.map(v => `<button data-preset="${v}">${v}</button>`).join('')}
-        <button data-preset="${qty.max}">最大</button>
-      </div>`;
-    }
-    html += `<div class="modal-acts">${actions.map((a, i) => `<button class="${a.cls}" data-i="${i}">${a.label}</button>`).join('')}</div>`;
-    box.innerHTML = html;
-    box.querySelectorAll('.modal-acts button').forEach((b, i) => {
-      b.onclick = () => {
-        const v = qty ? Math.max(qty.min, Math.min(qty.max, +($('qtyInput').value) || qty.min)) : null;
-        $('modal').classList.remove('on');
-        actions[i].fn(v);
-      };
-    });
-    if (qty) {
-      const inp = $('qtyInput');
-      inp.oninput = () => { const n = +inp.value; if (n > qty.max) inp.value = qty.max; if (n < qty.min) inp.value = qty.min; };
-      box.querySelectorAll('.qbtn[data-act]').forEach(b => {
-        b.onclick = () => {
-          const d = b.dataset.act === 'inc' ? 1 : -1;
-          inp.value = Math.max(+inp.min, Math.min(+inp.max, (+inp.value || 0) + d));
-        };
-      });
-      box.querySelectorAll('.qty-presets button[data-preset]').forEach(b => {
-        b.onclick = () => {
-          inp.value = Math.max(+inp.min, Math.min(+inp.max, +b.dataset.preset));
-        };
-      });
-    }
-  }
+  preactRoot = document.createElement('div');
+  preactRoot.id = 'modalPreactRoot';
+  box.appendChild(preactRoot);
+  preactRender(h(ModalContent, { title, body, qty, actions }), preactRoot);
 
   $('modal').classList.add('on');
   if (keepScroll) box.scrollTop = savedScroll;
 }
 
-// Preact 模式的 modal 内容组件
 function ModalContent({ title, body, qty, actions }) {
   const qtyVal = qty ? qty.init : null;
+  const bodyNode = isVNode(body)
+    ? body
+    : h('div', { dangerouslySetInnerHTML: { __html: body || '' } });
   return h('div', null,
     h('h3', null, title),
-    h('div', { class: 'desc' }, body),
+    h('div', { class: 'desc' }, bodyNode),
     qty && h(QtyRow, { qty, value: qtyVal }),
     h('div', { class: 'modal-acts' },
       actions.map((a, i) => h('button', {

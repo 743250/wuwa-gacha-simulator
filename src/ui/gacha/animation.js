@@ -19,20 +19,55 @@ export function showResult(arr) {
   const c3 = arr.filter(x => x.r === 3).length;
   const upCnt = arr.filter(x => x.up && x.r === 5).length;
 
-  beam.className = 'beam'; sparks.innerHTML = ''; cards.innerHTML = '';
+  beam.className = 'beam';
+  sparks.replaceChildren();
+  cards.replaceChildren();
   cards.className = 'cards-wrap' + (arr.length === 1 ? ' single' : '');
+  title.replaceChildren();
 
   if (arr.length === 1) {
     const x = arr[0];
-    title.innerHTML = `<div class="lvl ${cls}">${'★'.repeat(x.r)} ${x.r === 5 ? '五 星 降 临' : x.r === 4 ? '四 星 出 货' : '三 星'}</div>
-      <div class="summary">${x.n}${x.up ? ' <span class="g">· 概率提升</span>' : ''}</div>`;
+    const lvl = document.createElement('div');
+    lvl.className = 'lvl ' + cls;
+    lvl.textContent = `${'★'.repeat(x.r)} ${x.r === 5 ? '五 星 降 临' : x.r === 4 ? '四 星 出 货' : '三 星'}`;
+    const summary = document.createElement('div');
+    summary.className = 'summary';
+    summary.append(x.n);
+    if (x.up) {
+      const g = document.createElement('span');
+      g.className = 'g';
+      g.textContent = ' · 概率提升';
+      summary.append(g);
+    }
+    title.append(lvl, summary);
   } else {
-    title.innerHTML = `<div class="lvl ${cls}">${arr.length} 连 唤 取</div>
-      <div class="summary">
-        ${c5 ? `<span class="g">五星 × ${c5}${upCnt ? `（命中提升 ${upCnt}）` : ''}</span> · ` : ''}
-        ${c4 ? `<span class="p">四星 × ${c4}</span> · ` : ''}
-        <span class="b">三星 × ${c3}</span>
-      </div>`;
+    const lvl = document.createElement('div');
+    lvl.className = 'lvl ' + cls;
+    lvl.textContent = `${arr.length} 连 唤 取`;
+    const summary = document.createElement('div');
+    summary.className = 'summary';
+    const parts = [];
+    if (c5) {
+      const g = document.createElement('span');
+      g.className = 'g';
+      g.textContent = `五星 × ${c5}${upCnt ? `（命中提升 ${upCnt}）` : ''}`;
+      parts.push(g);
+    }
+    if (c4) {
+      const p = document.createElement('span');
+      p.className = 'p';
+      p.textContent = `四星 × ${c4}`;
+      parts.push(p);
+    }
+    const b = document.createElement('span');
+    b.className = 'b';
+    b.textContent = `三星 × ${c3}`;
+    parts.push(b);
+    parts.forEach((el, i) => {
+      if (i) summary.append(' · ');
+      summary.append(el);
+    });
+    title.append(lvl, summary);
   }
 
   ov.classList.add('on');
@@ -46,13 +81,22 @@ export function showResult(arr) {
     c.className = 'gcard r' + x.r + (x.up ? ' up' : '') + (arr.length === 1 ? ' single' : '');
     const art = getRoleArt(x.n);
     const bgImg = art?.portrait || art?.bannerBg;
-    c.innerHTML = `<div class="face${bgImg ? ' has-art' : ''}"${bgImg ? ` style="background-image:url('${bgImg}')"` : ''}>
-      <div class="stars">${'★'.repeat(x.r)}</div>
-      <div>
-        <div class="nm">${x.n}</div>
-        <div class="tg">${x.t}</div>
-      </div>
-    </div>`;
+    const face = document.createElement('div');
+    face.className = 'face' + (bgImg ? ' has-art' : '');
+    if (bgImg) face.style.backgroundImage = `url('${bgImg}')`;
+    const stars = document.createElement('div');
+    stars.className = 'stars';
+    stars.textContent = '★'.repeat(x.r);
+    const info = document.createElement('div');
+    const nm = document.createElement('div');
+    nm.className = 'nm';
+    nm.textContent = x.n;
+    const tg = document.createElement('div');
+    tg.className = 'tg';
+    tg.textContent = x.t;
+    info.append(nm, tg);
+    face.append(stars, info);
+    c.append(face);
     cards.appendChild(c);
   });
   setTimeout(() => cards.classList.add('show'), 550);
@@ -88,5 +132,5 @@ function spawnSparks(n, cls) {
     s.style.animationDelay = (Math.random() * .3) + 's';
     sp.appendChild(s);
   }
-  setTimeout(() => sp.innerHTML = '', 1800);
+  setTimeout(() => sp.replaceChildren(), 1800);
 }

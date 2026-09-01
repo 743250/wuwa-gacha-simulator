@@ -3,6 +3,27 @@
 > git 管「改了什么」，这份记录「为什么这么改、当时怎么取舍」。按日期倒序。
 > 只记有意义的决策与判断，不记流水账（流水账进 git commit）。
 
+## 2026-08-31 · 技术债清理第三批：弹窗双模式合并 + 翻牌动画去 innerHTML
+
+**起因**：SPEC 写「旧 HTML 字符串渲染与 Preact 并存」。实地核对后，
+8 个文件命中 `innerHTML` 多数是注释或 `box.innerHTML = ''` 清空容器。
+真正还在拼 HTML 再绑事件的只有两处：`src/modal.js` 字符串模式、
+`src/ui/gacha/animation.js` 翻牌标题/卡面。
+
+**决定**：
+- `openModal` 不再分双路径。标题 / 数量 / 按钮一律 Preact。
+  字符串 `body`（海市、抽卡补足等带 `<b>/<br>`）只作为 `.desc` 的
+  `dangerouslySetInnerHTML`，调用方 30 处零改动。
+- 翻牌动画改 `createElement` + `textContent`。角色名不再进 HTML 字符串，
+  顺手消掉名字含特殊字符时的注入面。火花清理改 `replaceChildren`。
+
+**刻意保留**：AppShell tooltip、技能 tab、战斗日志的 `innerHTML` /
+`dangerouslySetInnerHTML`——公式和术语本身就是带 `<b>` 的 HTML 字符串，
+迁 VNode 等于重写 `attachTermTips`，不在本批范围。
+
+**验证**：新增 `tests/ui/modal.test.js`、`tests/ui/gacha-animation.test.js`
+锁 DOM 契约（字符串 body 注入 `.desc`、按钮无 `data-i`、单抽/十连卡面文本节点）。
+
 ## 2026-08-31 · 技术债清理第二批：CSS 单文件拆模块
 
 **起因**：`styles/main.css` 1317 行 / 80KB 单文件，SPEC 里记了「后续拆模块」，
