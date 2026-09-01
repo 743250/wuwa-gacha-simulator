@@ -42,6 +42,7 @@
 
 - `styles/main.css` 已拆成 `styles/modules/` 16 个模块，入口只做 `@import` 编排（2026-08-31）
 - 弹窗已统一 Preact；翻牌动画已改 `createElement`。残留 `innerHTML` 仅用于 tooltip / 技能文案（含 `<b>` 公式）和容器清空
-- JS/TS 混用，允许但新代码优先 TS（battle 层仍几乎全 JS）
+- JS/TS 混用：允许，新代码优先 TS。battle 层 54 个 js / 2 个 ts，**不批量改名**（会误伤角色数值路径）
 - 单文件构建（`build:single`）与图片/音频内联的体积权衡
-- 主 chunk 超 600 kB（`index` 836 kB / `character-lore` 594 kB），待代码分割
+- 主 chunk 836 kB：`vite.config.js` 已写明 src 交叉依赖，硬拆会引入 circular chunk。`character-lore` 已动态 import。等 AppShell / init 边界再收口后再评估
+- `docs/sources/enemies/encore-enemies.json` 6.1MB 是官方原文快照（269 条），运行时走 `src/battle/enemies.js`（84KB）。属资料层，保留入库
