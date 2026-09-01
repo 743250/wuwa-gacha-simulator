@@ -1,0 +1,17 @@
+/* 记录 */
+.log{max-height:680px;overflow-y:auto;display:flex;flex-direction:column;gap:4px;padding-right:3px}
+.log::-webkit-scrollbar{width:4px} .log::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:2px}
+.logrow{display:grid;grid-template-columns:32px 1fr auto;gap:6px;
+  border-left:3px solid var(--line);padding:6px 10px;background:rgba(255,255,255,.02);
+  border-radius:0 6px 6px 0;font-size:12px;align-items:center}
+.logrow.r5{border-left-color:var(--gold);background:rgba(245,207,107,.06)}
+.logrow.r4{border-left-color:var(--purple);background:rgba(195,155,255,.04)}
+.logrow.r3{border-left-color:var(--blue)}
+.logrow .dt{color:var(--dim);font-size:9px;text-align:right;letter-spacing:.5px;line-height:1.4}
+
+/* 统计 */
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.stat{border:1px solid var(--line);border-radius:10px;padding:11px;background:rgba(255,255,255,.02);text-align:center}
+.stat b{display:block;font-size:20px;font-weight:700}
+.stat span{display:block;font-size:10px;color:var(--muted);letter-spacing:1px;margin-top:3px}
+

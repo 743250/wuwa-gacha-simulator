@@ -1,0 +1,42 @@
+/* ===== 顶层视图切换（唤取/冒险/仓库） ===== */
+.view-tabs{display:flex;gap:10px;margin-bottom:14px}
+.vtab{flex:1;padding:14px 16px;border:1px solid var(--line);border-radius:14px;
+  background:var(--panel);text-align:center;transition:.2s;
+  display:flex;flex-direction:column;align-items:center;gap:4px}
+.vtab:hover{border-color:var(--line2);background:rgba(255,255,255,.04)}
+.vtab.on{border-color:var(--accent);background:linear-gradient(135deg,rgba(123,214,255,.12),rgba(123,214,255,.04));
+  box-shadow:0 0 0 1px rgba(123,214,255,.4) inset}
+.vtab .vt-zh{font-size:16px;font-weight:700;letter-spacing:6px;color:var(--text)}
+.vtab.on .vt-zh{background:linear-gradient(135deg,#fff,var(--accent));-webkit-background-clip:text;background-clip:text;color:transparent}
+.vtab .vt-sub{font-size:10px;color:var(--muted);letter-spacing:1.5px}
+@media(max-width:680px){
+  .vtab{padding:10px 8px}
+  .vtab .vt-zh{font-size:13px;letter-spacing:3px}
+  .vtab .vt-sub{display:none}
+}
+
+/* 海市资源 */
+.coral-bar{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.coral{border:1px solid var(--line);border-radius:12px;padding:12px 14px;
+  background:linear-gradient(135deg,rgba(123,214,255,.06),rgba(123,214,255,.01))}
+.coral .l{font-size:10px;color:var(--muted);letter-spacing:2px}
+.coral .v{font-size:28px;font-weight:700;color:var(--accent);margin-top:3px;line-height:1}
+.coral .h{font-size:10px;color:var(--accent);margin-top:6px;letter-spacing:.5px;opacity:.7}
+.coral.osc{background:linear-gradient(135deg,rgba(195,155,255,.06),rgba(195,155,255,.01))}
+.coral.osc .v,.coral.osc .h{color:var(--purple)}
+
+.exch-list{display:flex;flex-direction:column;gap:8px}
+.exch{border:1px solid var(--line);border-radius:10px;padding:11px 13px;background:rgba(255,255,255,.02)}
+.exch .n{font-weight:600;font-size:13px;display:flex;justify-content:space-between;align-items:center}
+.exch .own{font-size:11px;color:var(--muted);font-weight:400}
+.exch .own b{color:var(--text);margin:0 3px}
+.exch .btns{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.mbtn{font-size:11px;padding:7px 12px;border-radius:7px;
+  border:1px solid var(--line);background:rgba(255,255,255,.04);
+  letter-spacing:1px;transition:.2s}
+.mbtn:hover{border-color:var(--accent);color:var(--accent)}
+.mbtn.gold{border-color:rgba(245,207,107,.4);color:var(--gold)}
+.mbtn.gold:hover{border-color:var(--gold);background:rgba(245,207,107,.1)}
+.mbtn:disabled{opacity:.35;cursor:not-allowed;color:var(--dim);border-color:var(--line)}
+.mbtn:disabled:hover{background:rgba(255,255,255,.04);color:var(--dim)}
+

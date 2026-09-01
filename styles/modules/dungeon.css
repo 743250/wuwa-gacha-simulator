@@ -1,0 +1,46 @@
+/* 副本面板：功能分类 + 每日敌情网格 */
+.dng-top{display:grid;grid-template-columns:minmax(240px,1fr) minmax(190px,.45fr) auto;gap:12px;align-items:center;
+  border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:12px;
+  background:linear-gradient(135deg,rgba(141,230,166,.06),rgba(123,214,255,.03))}
+.dng-stamina-label{font-size:11px;color:var(--muted);letter-spacing:2px}
+.dng-stamina-value{font-size:18px;font-weight:800;color:var(--green);margin-top:2px;letter-spacing:1px}
+.dng-stamina-bar{height:6px;background:rgba(255,255,255,.06);border-radius:4px;margin-top:7px;overflow:hidden}
+.dng-stamina-bar i{display:block;height:100%;background:linear-gradient(90deg,var(--green),#cff7d6)}
+.dng-stamina-note{font-size:10px;color:var(--muted);margin-top:6px;letter-spacing:.5px}
+.dng-version{border-left:1px solid var(--line);padding-left:12px}
+.dng-version-value{font-size:17px;font-weight:800;color:var(--accent);margin-top:3px;letter-spacing:1px}
+.dng-version-note{font-size:10px;color:var(--muted);margin-top:5px;line-height:1.45;letter-spacing:.4px}
+.dng-actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.dng-alert{color:var(--gold);text-align:center;padding:9px 10px;font-size:12px;border:1px dashed rgba(245,207,107,.55);border-radius:8px;margin-bottom:12px;background:rgba(245,207,107,.05)}
+.dng-alert.red{color:var(--red);border-color:var(--red);background:rgba(255,133,133,.05)}
+.dng-sections{display:flex;flex-direction:column;gap:14px}
+.dng-section{border:1px solid var(--line);border-radius:12px;padding:12px;background:rgba(255,255,255,.015)}
+.dng-section.weekly{border-color:rgba(245,207,107,.28);background:rgba(245,207,107,.025)}
+.dng-section-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:10px}
+.dng-section-head h2{margin:0;font-size:14px;letter-spacing:3px;color:var(--text)}
+.dng-section.weekly .dng-section-head h2{color:var(--gold)}
+.dng-section-head p{margin:4px 0 0;font-size:11px;color:var(--muted);letter-spacing:.7px;line-height:1.5}
+.dng-section-head>span{flex:0 0 auto;font-size:10px;color:var(--dim);border:1px solid var(--line);border-radius:999px;padding:3px 8px}
+.dng-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px}
+.dng-card{display:flex;flex-direction:column;gap:10px;min-height:178px;border:1px solid var(--line);border-radius:10px;
+  padding:12px;background:rgba(255,255,255,.025);border-bottom:2px solid var(--line);transition:.18s}
+.dng-card:hover{border-color:var(--line2);background:rgba(255,255,255,.04)}
+.dng-card.weekly{border-color:rgba(245,207,107,.35);background:rgba(245,207,107,.04)}
+.dng-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.dng-card-name{font-size:14px;font-weight:800;letter-spacing:.8px;line-height:1.35;color:var(--text)}
+.dng-card.weekly .dng-card-name{color:var(--gold)}
+.dng-card-meta{margin-top:5px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-size:11px;color:var(--muted);letter-spacing:.6px}
+.dng-card-meta b{color:var(--green);font-size:13px}
+.dng-card-meta span{color:var(--dim)}
+.dng-label{font-size:10px;color:var(--dim);letter-spacing:2px;margin-bottom:4px}
+.dng-encounter,.dng-drops{border-top:1px dashed var(--line);padding-top:8px}
+.dng-enemies{font-size:12px;line-height:1.55;letter-spacing:.4px}
+.dng-mechanics{font-size:10px;color:var(--accent);line-height:1.45;margin-top:5px;padding:5px 7px;border:1px solid rgba(123,214,255,.22);border-radius:7px;background:rgba(123,214,255,.04)}
+.dng-pool{font-size:10px;color:var(--muted);margin-top:5px;letter-spacing:.4px;line-height:1.4}
+.dng-drops{font-size:11px;color:var(--muted);line-height:1.55;margin-top:auto}
+@media(max-width:680px){
+  .dng-top{grid-template-columns:1fr}
+  .dng-actions{justify-content:flex-start}
+  .dng-grid{grid-template-columns:1fr}
+}
+

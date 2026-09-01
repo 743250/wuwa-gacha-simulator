@@ -1,0 +1,45 @@
+/* ===== 通用弹窗 ===== */
+.modal{position:fixed;inset:0;z-index:90;background:rgba(0,0,0,.78);
+  display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)}
+.modal.on{display:flex}
+.modal-box{background:linear-gradient(180deg,#1a2436,#0e1626);
+  border:1px solid var(--line2);border-radius:14px;padding:22px;max-width:620px;width:100%;
+  max-height:90vh;overflow-y:auto;box-shadow:0 24px 60px rgba(0,0,0,.6)}
+.modal-box h3{margin:0 0 12px;font-size:16px;letter-spacing:2px}
+.modal-box .desc{color:var(--muted);font-size:13px;line-height:1.7;margin-bottom:14px;letter-spacing:.5px}
+.modal-box .desc b{color:var(--text)}
+.modal-box .desc .g{color:var(--gold)}
+.modal-box .desc .a{color:var(--accent)}
+.modal-box .desc .r{color:var(--red)}
+.qty-row{display:flex;gap:8px;align-items:center;margin-bottom:14px}
+.qty-row label{font-size:11px;color:var(--muted);letter-spacing:1px}
+.qty-input{flex:1;padding:10px 12px;border:1px solid var(--line2);border-radius:8px;
+  background:rgba(0,0,0,.3);color:var(--text);font-size:16px;text-align:center;letter-spacing:1px}
+.qty-row .qbtn{padding:9px 12px;border:1px solid var(--line);border-radius:6px;
+  background:rgba(255,255,255,.04);font-size:11px;letter-spacing:1px;min-width:48px}
+.qty-row .qbtn:hover{border-color:var(--accent);color:var(--accent)}
+.qty-presets{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.qty-presets button{flex:1;min-width:60px;padding:7px;border:1px solid var(--line);
+  border-radius:6px;background:rgba(255,255,255,.04);font-size:11px;letter-spacing:1px}
+.qty-presets button:hover{border-color:var(--accent);color:var(--accent)}
+.modal-acts{display:flex;gap:8px;margin-top:6px}
+.modal-acts button{flex:1;padding:11px;border:1px solid var(--line);
+  background:rgba(255,255,255,.03);border-radius:8px;font-size:13px;letter-spacing:1px}
+.modal-acts button:hover{border-color:var(--line2)}
+.modal-acts button.primary{border-color:var(--gold);color:var(--gold);
+  background:linear-gradient(180deg,rgba(245,207,107,.16),rgba(245,207,107,.04));font-weight:600}
+.modal-acts button.primary:hover{background:linear-gradient(180deg,rgba(245,207,107,.26),rgba(245,207,107,.08));
+  box-shadow:0 0 18px rgba(245,207,107,.25)}
+.modal-acts button.warn{border-color:var(--red);color:var(--red)}
+
+/* 战斗页按钮 */
+.bbtn{flex:1;padding:10px 8px;background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:8px;color:var(--text);font-size:12px;letter-spacing:1px;cursor:pointer;transition:.15s;min-width:60px}
+.bbtn:hover{border-color:var(--accent);color:var(--accent)}
+.bbtn:disabled{opacity:.32;cursor:not-allowed;color:var(--dim)!important;border-color:var(--line)!important;background:rgba(255,255,255,.02)!important;filter:saturate(.3)}
+.bbtn:disabled:hover{border-color:var(--line)!important;color:var(--dim)!important}
+
+/* 战斗中武器叠层 / buff 小标签 */
+.wstack{display:inline-block;font-size:8px;padding:1px 5px;border-radius:4px;
+  background:rgba(245,207,107,.12);border:1px solid rgba(245,207,107,.3);
+  color:var(--gold2);letter-spacing:.3px;line-height:1.4;white-space:nowrap}
+

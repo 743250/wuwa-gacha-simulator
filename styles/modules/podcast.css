@@ -1,0 +1,83 @@
+/* ============ 先约电台 BP 面板 ============ */
+.pc-head { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:12px; flex-wrap:wrap; }
+.pc-title { font-size:18px; font-weight:600; letter-spacing:2px; color:var(--text); }
+.pc-expire { display:inline-block; margin-left:10px; font-size:11px; letter-spacing:.5px; color:var(--muted); font-weight:400; padding:2px 8px; border:1px solid var(--line); border-radius:4px; background:rgba(255,255,255,.02); }
+.pc-expire b { color:var(--gold); font-weight:600; }
+.pc-purchase { display:flex; gap:6px; align-items:center; }
+.pc-purchase .tag-on { background:rgba(245,207,107,.15); color:var(--gold); padding:4px 10px; border-radius:6px; border:1px solid rgba(245,207,107,.4); font-size:11px; letter-spacing:1px; }
+
+.pc-progress { background:var(--panel2); border:1px solid var(--line); border-radius:10px; padding:12px 16px; margin-bottom:14px; }
+.pc-lv-big { font-size:14px; color:var(--muted); letter-spacing:1px; }
+.pc-lv-big b { font-size:24px; color:var(--gold); margin:0 4px; }
+.pc-exp-bar { background:rgba(0,0,0,.4); border-radius:4px; height:8px; margin:6px 0 4px; overflow:hidden; border:1px solid var(--line); }
+.pc-exp-fill { background:linear-gradient(90deg, var(--gold), var(--gold2)); height:100%; transition:width .3s; }
+.pc-exp-num { font-size:11px; color:var(--dim); text-align:right; letter-spacing:1px; }
+.pc-actions { margin-top:10px; display:flex; gap:6px; flex-wrap:wrap; }
+
+.pc-track-label { display:flex; justify-content:space-between; align-items:center; margin:4px 0; font-size:11px; color:var(--muted); letter-spacing:2px; padding:0 4px; }
+.pc-label-free { color:var(--accent); }
+.pc-label-paid { color:var(--gold); }
+
+.pc-track-scroll { overflow-x:auto; overflow-y:hidden; border:1px solid var(--line); border-radius:10px; background:var(--bg2); padding:10px 6px; }
+.pc-track-scroll::-webkit-scrollbar { height:8px; }
+.pc-track-scroll::-webkit-scrollbar-thumb { background:var(--line2); border-radius:4px; }
+.pc-track-inner { display:flex; gap:4px; align-items:center; }
+
+.pc-col { display:flex; flex-direction:column; align-items:stretch; min-width:64px; max-width:64px; }
+.pc-col.pc-cur .pc-lv { background:var(--gold); color:#000; font-weight:700; }
+.pc-col.pc-reached .pc-lv { color:var(--gold); }
+.pc-lv { text-align:center; font-size:11px; color:var(--dim); padding:3px 0; letter-spacing:1px; background:rgba(0,0,0,.3); border-radius:3px; margin:3px 0; }
+
+.pc-cell-free, .pc-cell-paid {
+  position:relative;
+  background:var(--panel2);
+  border:1px solid var(--line);
+  border-radius:6px;
+  padding:4px 3px;
+  min-height:48px;
+  font-size:10px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition: all .15s;
+}
+.pc-cell-free { border-top:2px solid rgba(123,214,255,.3); }
+.pc-cell-paid { border-bottom:2px solid rgba(245,207,107,.3); }
+.pc-cell-free.canclaim, .pc-cell-paid.canclaim {
+  background:rgba(245,207,107,.18);
+  border-color:var(--gold);
+  cursor:pointer;
+  box-shadow:0 0 8px rgba(245,207,107,.4);
+  animation: pc-glow 1.5s ease-in-out infinite alternate;
+}
+@keyframes pc-glow { from { box-shadow:0 0 4px rgba(245,207,107,.3); } to { box-shadow:0 0 12px rgba(245,207,107,.7); } }
+.pc-cell-free.canclaim:hover, .pc-cell-paid.canclaim:hover { transform:translateY(-1px); }
+.pc-cell-free.claimed, .pc-cell-paid.claimed { opacity:.4; background:rgba(0,0,0,.3); }
+.pc-cell-free.claimed::after, .pc-cell-paid.claimed::after { content:'✓'; position:absolute; right:3px; top:1px; color:var(--green); font-weight:bold; font-size:11px; }
+.pc-cell-paid.locked { opacity:.45; background:rgba(20,12,8,.5); }
+.lock-icon { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-size:14px; opacity:.7; }
+.rw { display:flex; flex-wrap:wrap; gap:2px; justify-content:center; align-content:center; line-height:1.2; }
+.rc { display:inline-block; background:rgba(255,255,255,.05); border-radius:3px; padding:1px 4px; font-size:10px; color:var(--text); white-space:nowrap; }
+.rc-astrite { color:var(--accent); }
+.rc-lunite { color:var(--purple); }
+.rc-radiant { color:var(--r-radiant); }
+.rc-forging { color:var(--r-forging); }
+.rc-lustrous { color:var(--r-lustrous); }
+.rc-super { color:var(--gold); }
+.rc-box { color:var(--gold); background:rgba(245,207,107,.18); border:1px solid rgba(245,207,107,.4); font-weight:bold; }
+.rc-cos { color:var(--purple); background:rgba(195,155,255,.12); }
+.dim { color:var(--dim); }
+
+/* 任务区 */
+.pc-tasks { margin-top:18px; display:flex; flex-direction:column; gap:14px; }
+.pct-bucket { background:var(--panel2); border:1px solid var(--line); border-radius:10px; padding:10px 14px; }
+.pct-bucket-head { font-size:13px; color:var(--gold); letter-spacing:1px; margin-bottom:8px; font-weight:600; }
+.pct-list { display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:8px; }
+.pct { background:rgba(0,0,0,.25); border:1px solid var(--line); border-radius:6px; padding:6px 10px; }
+.pct.pct-done { background:rgba(141,230,166,.08); border-color:rgba(141,230,166,.3); }
+.pct-name { font-size:12px; color:var(--text); margin-bottom:4px; }
+.pct-bar { background:rgba(0,0,0,.4); height:5px; border-radius:3px; overflow:hidden; margin-bottom:3px; }
+.pct-fill { background:linear-gradient(90deg, var(--accent), var(--gold)); height:100%; transition:width .3s; }
+.pct-info { font-size:10px; color:var(--dim); letter-spacing:.5px; }
+.pct.pct-done .pct-info { color:var(--green); }
+

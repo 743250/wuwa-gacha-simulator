@@ -52,7 +52,8 @@ npm run dev
 ```
 index.html     ← HTML 骨架（~204 行）
 styles/
-  main.css     ← 全部样式（暗色鸣潮主题，~80KB / 1317 行）
+  main.css     ← 样式入口（只做 @import 编排，不写规则）
+  modules/     ← 16 个模块：base / mail / timeline / gacha-* / views / dungeon / shop / role / records / modal / battle / podcast / analysis / setup
 
 src/
   main.js      ← 入口，启动引导（36 行；面板联动已下沉到 ui/ 各 actions）

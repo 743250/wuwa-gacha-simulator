@@ -74,7 +74,18 @@ function genChainLines(chain) {
 }
 
 // ---- 生成完整 HTML ----
-const css = fs.readFileSync(path.join(root, 'styles/main.css'), 'utf8');
+// main.css 只做 @import 编排，预览页是独立 HTML（无打包器解析 @import），
+// 所以按入口里的引入顺序把模块内容拼平。
+function loadStyles() {
+  const entry = fs.readFileSync(path.join(root, 'styles/main.css'), 'utf8');
+  const order = [...entry.matchAll(/@import\s+['"]\.\/(.+?)['"]/g)].map(m => m[1]);
+  if (!order.length) return entry;
+  return order
+    .map(rel => fs.readFileSync(path.join(root, 'styles', rel), 'utf8'))
+    .join('\n');
+}
+
+const css = loadStyles();
 
 const html = `<!doctype html>
 <html lang="zh-CN">

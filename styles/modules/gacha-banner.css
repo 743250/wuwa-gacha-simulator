@@ -1,0 +1,85 @@
+/* ===== 卡池 左 tab + 右内容 ===== */
+.banner-wrap{border:1px solid var(--line);border-radius:14px;background:var(--panel);overflow:hidden;margin-bottom:14px;display:grid;grid-template-columns:200px 1fr;min-height:240px}
+.banner-tabs{display:flex;flex-direction:column;gap:0;border-right:1px solid var(--line);overflow-y:auto;background:rgba(0,0,0,.18)}
+.banner-tabs::-webkit-scrollbar{width:4px} .banner-tabs::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12)}
+.btab{padding:12px 14px;font-size:12px;color:var(--muted);
+  letter-spacing:1px;border-left:3px solid transparent;cursor:pointer;
+  transition:.18s;line-height:1.45;text-align:left}
+.btab:hover{background:rgba(255,255,255,.04);color:var(--text)}
+.btab .bt-kind{display:block;font-size:9px;letter-spacing:2px;opacity:.55;margin-bottom:2px}
+.btab .bt-name{font-weight:500}
+.btab.on{color:var(--text);background:rgba(123,214,255,.06);border-left-color:var(--accent)}
+.btab.on.r{border-left-color:var(--r-radiant);background:rgba(245,207,107,.06);color:var(--gold2)}
+.btab.on.w{border-left-color:var(--r-lustrous);background:rgba(123,214,255,.08);color:#cfeaff}
+@media(max-width:680px){
+  .banner-wrap{grid-template-columns:1fr;grid-template-rows:auto 1fr}
+  .banner-tabs{flex-direction:row;overflow-x:auto;border-right:none;border-bottom:1px solid var(--line)}
+  .btab{flex:0 0 auto;border-left:none;border-bottom:3px solid transparent;white-space:nowrap;padding:10px 14px}
+  .btab.on{border-left-color:transparent}
+  .btab.on,.btab.on.r,.btab.on.w{border-bottom-color:var(--accent)}
+  .btab.on.r{border-bottom-color:var(--r-radiant)}
+  .btab.on.w{border-bottom-color:var(--r-lustrous)}
+  .btab .bt-kind{display:inline;margin-right:4px}
+}
+
+/* 卡池详情 banner art */
+.banner-art{position:relative;padding:32px 28px;min-height:300px;
+  background:linear-gradient(135deg,#1b2a40 0%,#0a1220 100%);overflow:hidden;
+  display:flex;justify-content:space-between;gap:20px}
+.banner-art.theme-r{background:linear-gradient(135deg,#3a2a14 0%,#1a1208 60%,#0a0604 100%)}
+.banner-art.theme-l{background:linear-gradient(135deg,#16344a 0%,#0a1a26 60%,#040a10 100%)}
+.banner-art::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(circle at 100% -10%,rgba(255,255,255,.16),transparent 50%)}
+.banner-art.has-art{background-size:cover;background-position:center 15%;aspect-ratio:16/9}
+.banner-art.has-art::after{background:none}
+/* 卡池大图背景上的暗色蒙层:左侧文字区压暗、右侧角色区透出。
+   调淡(原 .92/.6/.05/.28)让卡池图更清楚,左侧仍留暗部保证文字可读 */
+.banner-art.has-art::before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:linear-gradient(90deg,rgba(6,9,15,.68) 0%,rgba(6,9,15,.34) 36%,rgba(6,9,15,.02) 74%,rgba(6,9,15,.12) 100%)}
+/* 武器卡池大图是深色武器展示图(实测平均亮度~16/255),减轻左侧压暗、
+   加金色径向辉光烘托武器本体,避免整块纯黑(常驻武器池反馈) */
+.banner-art.theme-l.has-art::before{
+  background:
+    radial-gradient(ellipse 70% 55% at 68% 48%,rgba(245,207,107,.25),rgba(245,207,107,.05) 55%,transparent 75%),
+    linear-gradient(90deg,rgba(6,9,15,.5) 0%,rgba(6,9,15,.22) 35%,rgba(6,9,15,.04) 70%,rgba(6,9,15,.18) 100%)}
+/* 武器卡池大图(IconWeapon732,732×392)构图:武器本体占右半幅且撑满全高、左侧大片留黑。
+   源图比容器(16:9)更宽,任何横向放大都会垂直裁掉武器上下。用 auto 100% 让图高=容器高,
+   垂直零裁切、武器 100% 完整;右对齐保留左侧黑底放文字。实测 170% 武器垂直裁 38%(只剩半截) */
+.banner-art.theme-l.has-art{background-size:auto 100%;background-position:100% 40%}
+.banner-art .ba-main{z-index:1;position:relative;display:flex;flex-direction:column;justify-content:center;flex:1;min-width:0}
+.banner-art .ba-sub{font-size:11px;color:var(--muted);letter-spacing:4px}
+.banner-art .ba-name{font-size:38px;font-weight:700;letter-spacing:3px;margin-top:6px;
+  text-shadow:0 4px 28px rgba(0,0,0,.7)}
+.banner-art .ba-name.small{font-size:28px}
+.banner-art .ba-banner{font-size:14px;color:var(--gold);margin-top:10px;letter-spacing:1px;font-weight:500}
+.banner-art .ba-fours{margin-top:10px;font-size:12px;color:var(--muted);letter-spacing:.5px}
+.banner-art .ba-fours b{color:var(--text);font-weight:400;margin-right:2px}
+.pool-badge{display:inline-block;align-self:flex-start;font-size:11px;letter-spacing:1.5px;padding:3px 10px;border-radius:999px;margin-top:8px;border:1px solid;background:rgba(0,0,0,.25)}
+.pool-badge.novice{border-color:rgba(141,230,166,.55);color:#8de6a6;background:rgba(141,230,166,.08)}
+.pool-badge.perm{border-color:rgba(245,207,107,.55);color:var(--gold);background:rgba(245,207,107,.08)}
+.pool-badge.collab{border-color:rgba(255,140,94,.55);color:#ff8c5e;background:rgba(255,140,94,.08)}
+.pool-badge.event{border-color:rgba(195,155,255,.55);color:#c39bff;background:rgba(195,155,255,.08)}
+.ba-standard-list{margin-top:9px;padding:7px 9px;border:1px dashed rgba(255,255,255,.12);border-radius:8px;background:rgba(255,255,255,.02)}
+.ba-standard-list .bsl-title{font-size:10px;color:var(--muted);letter-spacing:2px;margin-bottom:4px}
+.ba-standard-list .bsl-row{display:flex;gap:5px;flex-wrap:wrap}
+.ba-standard-list .bsl-chip{font-size:11px;color:var(--gold);background:rgba(245,207,107,.06);border:1px solid rgba(245,207,107,.3);padding:2px 7px;border-radius:4px;letter-spacing:.5px;flex:0 0 auto;white-space:nowrap}
+.banner-art .ba-meta{z-index:1;position:relative;display:flex;flex-direction:column;align-items:flex-end;justify-content:center;text-align:right;flex-shrink:0}
+.banner-art .ba-up{font-size:11px;letter-spacing:3px;padding:6px 14px;border-radius:999px;
+  background:var(--gold);color:#1a1208;font-weight:700;}
+.banner-art .ba-period{font-size:12px;color:var(--dim);margin-top:16px;letter-spacing:1px}
+.banner-art .ba-remaining{font-size:13px;color:var(--muted);margin-top:6px;letter-spacing:1px}
+.banner-art .ba-weapon{font-size:13px;color:var(--dim);margin-top:14px;letter-spacing:.5px}
+.banner-art .ba-weapon b{color:#fff;font-weight:500}
+/* 「查看角色」按钮:悬浮在卡池大图右上角,小号,不遮背景 */
+.banner-art .ba-preview{position:absolute;top:16px;right:18px;z-index:2;display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.banner-art .ba-preview .mbtn{font-size:11px;padding:4px 10px}
+@media(max-width:680px){
+  .banner-art{flex-direction:column;padding:22px 18px;min-height:0;gap:14px}
+  .banner-art .mbtn{font-size:10px;padding:4px 9px}
+  .banner-art .ba-meta{align-items:flex-start;text-align:left}
+  .banner-art .ba-name{font-size:30px;letter-spacing:2px}
+  .banner-art .ba-name.small{font-size:24px}
+  .banner-art.has-art::before{background:linear-gradient(180deg,rgba(6,9,15,.62) 0%,rgba(6,9,15,.32) 48%,rgba(6,9,15,.2) 100%)}
+  .banner-art .ba-preview{top:12px;right:12px}
+}
+

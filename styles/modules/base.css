@@ -1,0 +1,32 @@
+:root{
+  color-scheme:dark;
+  --bg:#060912;--bg2:#0d1422;
+  --panel:rgba(18,26,42,.85);--panel2:rgba(28,40,58,.6);
+  --line:rgba(140,180,220,.14);--line2:rgba(140,180,220,.28);
+  --text:#eef3f8;--muted:#8a99a8;--dim:#5a6a78;
+  --gold:#f5cf6b;--gold2:#fff0b0;--purple:#c39bff;--blue:#69b8ff;
+  --accent:#7bd6ff;--red:#ff8585;--green:#8de6a6;
+  --r-radiant:#f5cf6b;--r-forging:#ff9a6b;--r-lustrous:#7bd6ff;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+  overflow-x:hidden;min-height:100vh}
+body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(1200px 700px at 80% -5%,rgba(123,214,255,.10),transparent 55%),
+    radial-gradient(900px 600px at -5% 30%,rgba(245,207,107,.07),transparent 55%),
+    radial-gradient(700px 700px at 50% 110%,rgba(195,155,255,.10),transparent 55%)}
+button{font:inherit;cursor:pointer;color:inherit}
+input,select{font:inherit;color:inherit}
+
+/* ===== 顶部资源条 ===== */
+.topbar{position:sticky;top:0;z-index:20;backdrop-filter:blur(14px);
+  background:linear-gradient(180deg,rgba(6,9,18,.96),rgba(6,9,18,.78));
+  border-bottom:1px solid var(--line)}
+.topbar-in{max-width:1320px;margin:0 auto;padding:10px 18px;
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.brand{font-weight:600;letter-spacing:8px;font-size:16px;
+  background:linear-gradient(135deg,#fff,#a8c8e0);-webkit-background-clip:text;background-clip:text;color:transparent}
+.gres{display:flex;gap:7px;flex-wrap:wrap;flex:1;justify-content:flex-end}
+

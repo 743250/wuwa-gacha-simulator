@@ -1,0 +1,106 @@
+/* ===== 抽卡动画（加宽 + 加文字） ===== */
+.overlay{position:fixed;inset:0;z-index:80;background:rgba(0,0,0,0);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .35s,background .35s;padding:20px}
+.overlay.on{opacity:1;pointer-events:auto;background:rgba(0,0,0,.95)}
+
+/* 顶部大字 */
+.ov-title{position:relative;z-index:3;text-align:center;margin-bottom:18px;opacity:0;transition:opacity .5s .3s}
+.overlay.on .ov-title{opacity:1}
+.ov-title .lvl{font-size:14px;letter-spacing:8px;color:var(--muted);text-transform:uppercase}
+.ov-title .lvl.gold{color:var(--gold);text-shadow:0 0 12px rgba(245,207,107,.6)}
+.ov-title .lvl.purple{color:var(--purple)}
+.ov-title .lvl.blue{color:var(--blue)}
+.ov-title .summary{font-size:13px;color:var(--text);margin-top:8px;letter-spacing:2px;opacity:.85}
+.ov-title .summary .g{color:var(--gold)}
+.ov-title .summary .p{color:var(--purple)}
+.ov-title .summary .b{color:var(--blue)}
+
+.beam{position:absolute;top:50%;left:50%;width:6px;height:0;transform:translate(-50%,-50%);
+  filter:blur(2px);opacity:0;transition:height .5s ease-out,opacity .4s;
+  background:linear-gradient(180deg,transparent,#fff,transparent);z-index:1}
+.beam.show{height:140vh;opacity:1}
+.beam.gold{background:linear-gradient(180deg,transparent,#fff7c0 30%,#f5cf6b 50%,#fff7c0 70%,transparent);
+  box-shadow:0 0 100px 16px rgba(245,207,107,.6)}
+.beam.purple{background:linear-gradient(180deg,transparent,#e6d4ff 30%,#c39bff 50%,#e6d4ff 70%,transparent);
+  box-shadow:0 0 70px 10px rgba(195,155,255,.55)}
+.beam.blue{background:linear-gradient(180deg,transparent,#cfeaff 30%,#69b8ff 50%,#cfeaff 70%,transparent);
+  box-shadow:0 0 50px 8px rgba(105,184,255,.45)}
+
+.sparks{position:absolute;top:50%;left:50%;width:0;height:0;pointer-events:none;z-index:2}
+.sparks i{position:absolute;width:4px;height:4px;border-radius:50%;background:#fff;
+  box-shadow:0 0 10px #fff;opacity:0}
+@keyframes spark{
+  0%{opacity:1;transform:translate(0,0) scale(1)}
+  100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(0)}}
+
+.cards-wrap{position:relative;z-index:3;display:grid;grid-template-columns:repeat(5,1fr);gap:14px;
+  width:min(96vw,1100px);padding:0 8px;opacity:0;transform:scale(.95);
+  transition:opacity .3s .3s,transform .3s .3s}
+.cards-wrap.show{opacity:1;transform:scale(1)}
+.cards-wrap.single{grid-template-columns:1fr;width:min(86vw,300px)}
+
+.gcard{aspect-ratio:3/5;border-radius:12px;border:1px solid var(--line);
+  position:relative;overflow:hidden;cursor:pointer;
+  transform:rotateY(180deg);transition:transform .6s ease;transform-style:preserve-3d}
+.gcard.flipped{transform:rotateY(0deg)}
+/* 卡背：水墨海浪纹 */
+.gcard::before{content:"";position:absolute;inset:0;backface-visibility:hidden;
+  transform:rotateY(180deg);border-radius:12px;
+  background:
+    radial-gradient(ellipse at 50% 40%,rgba(123,214,255,.25),transparent 50%),
+    radial-gradient(ellipse at 50% 90%,rgba(245,207,107,.12),transparent 60%),
+    linear-gradient(135deg,#0e1a2a,#04080f)}
+.gcard::after{content:"潮";position:absolute;inset:0;backface-visibility:hidden;
+  transform:rotateY(180deg);display:flex;align-items:center;justify-content:center;
+  font-size:42px;font-weight:700;color:rgba(255,255,255,.06);letter-spacing:5px;
+  text-shadow:0 0 30px rgba(123,214,255,.3)}
+.gcard .face{position:absolute;inset:0;backface-visibility:hidden;
+  display:flex;flex-direction:column;justify-content:space-between;padding:12px;
+  border-radius:12px;border:1px solid var(--line)}
+.gcard.r5 .face{border-color:var(--gold);
+  background:radial-gradient(circle at 50% 30%,rgba(245,207,107,.4),transparent 60%),
+    linear-gradient(180deg,#3a2a10,#1a1208 70%,#0a0604);
+  box-shadow:0 0 36px rgba(245,207,107,.5) inset,0 0 32px rgba(245,207,107,.55)}
+.gcard.r4 .face{border-color:var(--purple);
+  background:radial-gradient(circle at 50% 30%,rgba(195,155,255,.35),transparent 60%),
+    linear-gradient(180deg,#251a3a,#120c20 70%,#080510);
+  box-shadow:0 0 28px rgba(195,155,255,.4) inset,0 0 20px rgba(195,155,255,.4)}
+.gcard.r3 .face{border-color:var(--blue);
+  background:radial-gradient(circle at 50% 30%,rgba(105,184,255,.2),transparent 60%),
+    linear-gradient(180deg,#0e2030,#081420 70%,#040810)}
+.gcard .stars{font-size:15px;letter-spacing:3px;text-align:center;margin-top:8px}
+.gcard.r5 .stars{color:var(--gold);text-shadow:0 0 8px rgba(245,207,107,.8)}
+.gcard.r4 .stars{color:var(--purple)}
+.gcard.r3 .stars{color:var(--blue)}
+.gcard .nm{font-weight:700;font-size:14px;text-align:center;line-height:1.3;
+  text-shadow:0 2px 10px rgba(0,0,0,.8);padding:0 2px}
+.gcard.single .nm{font-size:18px;letter-spacing:1px}
+.gcard .tg{font-size:10px;color:rgba(255,255,255,.65);text-align:center;letter-spacing:.5px;margin-top:3px}
+.gcard.up .face{box-shadow:0 0 36px rgba(245,207,107,.5) inset,0 0 56px rgba(245,207,107,.65)}
+.gcard.r5.up .face{
+  background:radial-gradient(circle at 50% 25%,rgba(255,240,170,.6),transparent 65%),
+    linear-gradient(180deg,#4a3614,#221608 70%,#0a0604);
+  border-color:var(--gold2);
+  box-shadow:0 0 44px rgba(245,207,107,.7) inset,0 0 72px rgba(255,240,170,.8)}
+.gcard.r4.up .face{
+  background:radial-gradient(circle at 50% 25%,rgba(220,190,255,.5),transparent 65%),
+    linear-gradient(180deg,#33235a,#160c28 70%,#080510);
+  border-color:#d9beff;
+  box-shadow:0 0 32px rgba(195,155,255,.6) inset,0 0 48px rgba(220,190,255,.7)}
+/* 翻牌卡面立绘:cover 铺立绘 + 底部蒙层保证名字/星级可读 */
+.gcard .face.has-art{background-size:cover;background-position:center 18%;background-repeat:no-repeat}
+.gcard .face.has-art::before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:linear-gradient(180deg,rgba(6,9,15,.06) 0%,rgba(6,9,15,.26) 45%,rgba(6,9,15,.84) 100%)}
+.gcard .face.has-art > *{position:relative;z-index:1}
+
+.skip-hint{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:81;
+  color:var(--muted);font-size:11px;letter-spacing:3px;opacity:0;transition:opacity .4s}
+.skip-hint.show{opacity:1}
+
+@media(max-width:760px){.cards-wrap{grid-template-columns:repeat(5,1fr);gap:8px}
+  .gcard .nm{font-size:11px} .gcard .tg{font-size:9px}}
+@media(max-width:480px){.cards-wrap{grid-template-columns:repeat(5,1fr);gap:5px;padding:0 4px}
+  .gcard .stars{font-size:11px;margin-top:4px} .gcard .nm{font-size:10px}
+  .gcard .face{padding:6px}}
+
