@@ -3,6 +3,10 @@
 > git 管「改了什么」，这份记录「为什么这么改、当时怎么取舍」。按日期倒序。
 > 只记有意义的决策与判断，不记流水账（流水账进 git commit）。
 
+## 2026-04-10 · README 补回纪律和代码地图
+
+删 AGENTS.md / CLAUDE.md 时，防坑、改文件清单、数值铁律没迁过去，README 只剩空目录说明。按用户指出补回：怎么跑、改哪个文件、文档优先级、不许擅自改数值。目录树从 README 拿掉。活任务仍在 TODO.md。
+
 ## 2026-04-10 · 地图和未完成事项提到根目录
 
 用户指出 MAP 和未完成计划不该藏在 `docs/`。仓库地图写进 `README.md`，活任务写进根目录 `TODO.md`。删掉 `docs/MAP.md`。`docs/plans/architecture/gacha-only-apk.md` 降为工程备忘，入口是 TODO。
