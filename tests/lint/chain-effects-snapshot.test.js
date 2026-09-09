@@ -20,7 +20,7 @@ const REGISTRY_PATH = resolve(__dirname, '../../src/data/chains/registry.ts');
 
 // 锁定的快照 MD5。改动 registry.ts 后需要更新这个值。
 // 更新前请确认:
-//   1. 改动是用户明确要求的(不是"贴近官方"擅自改) —— CLAUDE.md 铁律 2
+//   1. 改动是用户明确要求的(不是"贴近官方"擅自改) —— SPEC.md：设计文档 > 官方数据
 //   2. 改动原因记录在 commit message / PR 描述
 //   3. 跑过 tests/battle/chains.test.js 全绿
 // 2026-07-11 更新:接受 cfb6198「feat: 游戏开局设置 + 经验书选择 + UI 改进」对共鸣链 effect
@@ -45,7 +45,7 @@ describe('lint · 铁律 2:registry.ts 数值快照', () => {
     lintWarn({
       rule: '铁律 2:已实装角色数值不动',
       reason: `registry.ts 是 50 角色 × 6 链的 ChainDef(effect + text)。
-CLAUDE.md 铁律 2 明确:已实装角色的机制/数值/公式/共鸣链效果一律不动,无论看到什么官方数据。
+SPEC.md：已实装角色的机制/数值/公式/共鸣链效果一律不动,无论看到什么官方数据。
 看官方数据和代码不一致时,记录差异报告用户,等待决定;严禁因"贴近官方"擅自改数值。
 架构优化时严禁顺手改角色行为和数值。`,
       violations,

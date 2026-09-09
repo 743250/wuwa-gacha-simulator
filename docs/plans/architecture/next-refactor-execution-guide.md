@@ -99,7 +99,7 @@ domain → rerenderAll/modal/toast
 
 ### 4.1 先读这些文件
 
-- `CLAUDE.md`
+- `README.md` / `SPEC.md` / `docs/MAP.md`
 - `docs/plans/architecture/plan.md`
 - `package.json`
 - `tsconfig.json`

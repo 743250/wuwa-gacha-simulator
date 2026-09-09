@@ -4,26 +4,27 @@
 
 ```
 wuwa-gacha-simulator/
-├── README.md / AGENTS.md / SPEC.md / CLAUDE.md / log.md
-│     给人看的入口。协作纪律、蓝图、代码地图、工程决策。
-├── index.html / src/ / styles/ / tests/
-│     正在跑的模拟器。改功能只动这里。
+├── README.md   怎么跑
+├── SPEC.md     做成什么样
+├── log.md      为什么这么改
+├── index.html / src/ / styles/ / tests/   正在跑的模拟器
 ├── docs/sources/     官方原文（输入，不是目标）
 ├── docs/plans/       模拟器怎么做（改代码的依据）
 ├── docs/decisions/   为什么这么定
 └── scripts/          构建、抓取、一次性工具（不是运行时）
 ```
 
+根目录不再放 AGENTS.md / CLAUDE.md。
+
 ## 先读哪份
 
 | 你想… | 打开 |
 |---|---|
-| 怎么跑起来 | 根目录 `README.md` |
-| 改代码前的纪律 | `AGENTS.md` |
+| 怎么跑起来 | `README.md` |
 | 项目要做成什么样 | `SPEC.md` |
-| 某个文件在哪、角色怎么移植 | `CLAUDE.md` |
 | 最近为什么改 | `log.md` |
-| 文档总索引 | `docs/README.md` |
+| 目录怎么分 | 本文件 |
+| 资料 / 设计索引 | `docs/README.md` |
 | 角色做没做完 | `docs/plans/characters/status.md` |
 | 纯抽卡 APK 下一轮做什么 | `docs/plans/architecture/gacha-only-apk.md` |
 

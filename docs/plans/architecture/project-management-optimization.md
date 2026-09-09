@@ -58,7 +58,7 @@
 - [x] 本文档
 - [x] `docs/plans/architecture/copy-ownership.md`
 - [x] `status.md` 增加代码落地 / 战斗验收列；S 级标验收状态
-- [x] `CLAUDE.md` 链到本文 + copy-ownership；补交付铁律摘要
+- [x] 文案归属写在 `copy-ownership.md`；入口文档后来收成 README / SPEC / log
 - [x] 会话 Task 收口为活任务（历史 completed 可删）
 
 ### Phase B — P0 横切

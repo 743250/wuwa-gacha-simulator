@@ -7,7 +7,6 @@ single/*
 .vite/
 *.log
 .tmp_*
-.claude/worktrees/
 single/assets/
 single/index.html
 
@@ -21,3 +20,8 @@ b9e46a1372eb2a72df044a2750426c74a4873991facb8b74a0f882a2bff30e05.jpg
 
 # preview:char 生成的一次性预览产物
 char-preview.html
+
+# agent tool scratch (not project docs)
+.claude/
+AGENTS.md
+CLAUDE.md

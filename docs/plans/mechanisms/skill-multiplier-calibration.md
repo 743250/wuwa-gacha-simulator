@@ -153,7 +153,7 @@
 1. `balance.js` `ACTION_MULTIPLIER`
 2. `skillLines.js` 工厂公式 **改为读 balance**（或共享常量），删除写死 100/180/220/400
 3. `skillHints.js` 所有仍手写 180%/400%/220% 的分支按角色文档或新默认对账
-4. CLAUDE.md 战斗指令表同步
+4. 战斗指令表以 `src/battle/balance.js` 为准，需要时写进 SPEC / log
 5. 角色设计指南新增「AP 经济与官方锚」小节
 6. **不**批量改 L2 专属数字，除非该角色文档已校准且用户点名
 

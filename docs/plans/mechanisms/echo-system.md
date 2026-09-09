@@ -117,9 +117,9 @@ equipEchoes: [null, null, null, null, null],  // 5 个声骸槽，存 echo.id
 | `tests/battle/stats.test.js` 追加 | echo 加成通过 computeBattleStats 生效 |
 | `tests/battle/combat.test.js` 追加 | 套装效果在战斗中生效 |
 
-### Step 10: CLAUDE.md 更新
+### Step 10: 项目文档更新
 
-在项目文档索引中加一条声骸系统说明。
+声骸说明写在 `docs/plans/mechanisms/echo-system.md`，需要时在 `log.md` 记一笔。
 
 ---
 

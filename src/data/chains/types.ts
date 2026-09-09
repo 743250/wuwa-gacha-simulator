@@ -6,7 +6,7 @@
 //   3. src/ui/panels/roleModal/skillHints/ — customLines(工厂版技能文案,部分角色)
 //   4. src/ui/panels/roleModal/terms.js — 术语高亮(CHAIN_TERM_PATTERNS)
 //
-// 问题:加/改一条链要碰 4 处,易失同步(CLAUDE.md 铁律 10 就是这个问题的补丁)。
+// 问题:加/改一条链要碰 4 处,易失同步。权威源见 docs/plans/architecture/copy-ownership.md。
 //
 // 目标:一个 ChainDef 包含 4 个消费面各自需要的数据,由 4 个渲染路径分别读取。
 // 迁移是 codemod 工程(84 角色 × 4 处 = 数千行),分多会话推进。
@@ -18,7 +18,7 @@
 /** 共鸣链战斗 effect 的标准类型(对应 chainEffects.js 现有 effect 字段) */
 // 注:原设计是严格 union,但现有 chainEffects.js 用 'atk'/'skillDmg'/'teamAllDmg' 等
 // 不在 union 中的标识符(共 15+ 标准 + 角色专属如 'jiyanTongBian')。
-// CLAUDE.md 铁律 2 禁止改角色机制,重命名 effect 标识符会牵动 chains.js 战斗分发,
+// 禁止顺手改角色机制,重命名 effect 标识符会牵动 chains.js 战斗分发,
 // 风险高。改用 string 兼容现有数据,类型安全让位给数据真实性。
 export type ChainEffectType = string;
 
