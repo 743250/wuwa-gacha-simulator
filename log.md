@@ -3,6 +3,10 @@
 > git 管「改了什么」，这份记录「为什么这么改、当时怎么取舍」。按日期倒序。
 > 只记有意义的决策与判断，不记流水账（流水账进 git commit）。
 
+## 2026-04-10 · README 按 AGENTS.md 原文落地
+
+用户要求：未完成写在单独交接文档；README 不要自作聪明改写成目录说明，照抄 AGENTS.md。README 现为原 AGENTS 正文（失效的 docs/MAP.md 核心文件条已去掉，改指 TODO.md / SPEC.md / log.md）。TODO.md 只留临时交接。
+
 ## 2026-04-10 · README 补回纪律和代码地图
 
 删 AGENTS.md / CLAUDE.md 时，防坑、改文件清单、数值铁律没迁过去，README 只剩空目录说明。按用户指出补回：怎么跑、改哪个文件、文档优先级、不许擅自改数值。目录树从 README 拿掉。活任务仍在 TODO.md。
