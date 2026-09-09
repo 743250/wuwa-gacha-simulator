@@ -3,6 +3,10 @@
 > git 管「改了什么」，这份记录「为什么这么改、当时怎么取舍」。按日期倒序。
 > 只记有意义的决策与判断，不记流水账（流水账进 git commit）。
 
+## 2026-04-10 · 地图和未完成事项提到根目录
+
+用户指出 MAP 和未完成计划不该藏在 `docs/`。仓库地图写进 `README.md`，活任务写进根目录 `TODO.md`。删掉 `docs/MAP.md`。`docs/plans/architecture/gacha-only-apk.md` 降为工程备忘，入口是 TODO。
+
 ## 2026-04-10 · 根目录文档收成三份
 
 按用户口径：根目录只留 `README.md` / `SPEC.md` / `log.md`。删除 `AGENTS.md`、`CLAUDE.md`、`.claude/`，并写进 `.gitignore` 防止工具再生成入库。活入口改指这三份 + `docs/MAP.md`。`log.md` 和角色 status 里提到旧文件名的历史段落不改写。

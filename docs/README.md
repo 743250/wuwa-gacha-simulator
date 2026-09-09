@@ -1,6 +1,6 @@
 # 文档体系
 
-先看 [MAP.md](MAP.md) 找路。本页是索引。
+找路和未完成事项在仓库根目录：[README.md](../README.md)、[TODO.md](../TODO.md)。本页只索引 `docs/` 里的资料和设计。
 
 三类文档不要混：**官方资料 `sources/`、设计指导 `plans/`、决策 `decisions/`**。角色 / 敌人 / 机制 / 架构在各自子目录。
 
@@ -25,7 +25,7 @@
 | [plans/enemies/README.md](plans/enemies/README.md) | 敌人设计指导(机制类型 / 数值系统 / 17 BOSS 索引) |
 | [plans/mechanisms/README.md](plans/mechanisms/README.md) | 机制设计指导(副本 / 深塔 / 海墟 / 声骸) |
 | [plans/architecture/README.md](plans/architecture/README.md) | 架构优化计划(与游戏机制无关) |
-| [plans/architecture/gacha-only-apk.md](plans/architecture/gacha-only-apk.md) | **纯抽卡 APK**：分析页复刻、独立入口、角色静态补全 |
+| [TODO.md](../TODO.md) | **未完成事项（根目录，不藏）** |
 | [plans/architecture/project-management-optimization.md](plans/architecture/project-management-optimization.md) | **交付流程**：角色 DoD、看板、P0 横切 |
 | [plans/architecture/copy-ownership.md](plans/architecture/copy-ownership.md) | **文案/数值源归属**（registry / skillHints / terms） |
 | [plans/角色设计指南.md](plans/角色设计指南.md) | 做新角色的设计流程 |
