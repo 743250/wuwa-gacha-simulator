@@ -2,6 +2,7 @@
 
 > 状态: 本轮核心改造完成，仍保留明确尾债；**内容债/交付流程优先于下一轮大 refactor**
 > 当前计划见 [plan.md](plan.md)
+> **纯抽卡 APK / 分析页复刻**见 [gacha-only-apk.md](gacha-only-apk.md)（2026-04-10 待识图开工）
 > **项目管理与角色 DoD**见 [project-management-optimization.md](project-management-optimization.md)（2026-07-13 起生效）
 > 文案源归属见 [../copy-ownership.md](../copy-ownership.md)
 

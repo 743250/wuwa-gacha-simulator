@@ -23,6 +23,7 @@
 | [plans/enemies/README.md](plans/enemies/README.md) | 敌人设计指导(机制类型 / 数值系统 / 17 BOSS 索引) |
 | [plans/mechanisms/README.md](plans/mechanisms/README.md) | 机制设计指导(副本 / 深塔 / 海墟 / 声骸) |
 | [plans/architecture/README.md](plans/architecture/README.md) | 架构优化计划(与游戏机制无关) |
+| [plans/architecture/gacha-only-apk.md](plans/architecture/gacha-only-apk.md) | **纯抽卡 APK**：分析页复刻、独立入口、角色静态补全 |
 | [plans/architecture/project-management-optimization.md](plans/architecture/project-management-optimization.md) | **交付流程**：角色 DoD、看板、P0 横切 |
 | [plans/copy-ownership.md](plans/copy-ownership.md) | **文案/数值源归属**（registry / skillHints / terms） |
 
