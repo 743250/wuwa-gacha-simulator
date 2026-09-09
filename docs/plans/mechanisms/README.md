@@ -29,6 +29,7 @@
 | 战斗机制抽象重构（破韧/Stack/Form/TempStat/SwitchHook） | [combat-abstractions.md](combat-abstractions.md) | 计划阶段,逐步实施 |
 | 无音区与声骸系统翻新 | [tacet-field-refactor.md](tacet-field-refactor.md) | 计划已确认,等子代理核实关卡后实施 |
 | 现实生活、经济与资产节点系统 | [life-simulation-system.md](life-simulation-system.md) | 讨论草案，已确认定时节点与非终止式结局 |
+| 召唤物系统 | [召唤物系统.md](召唤物系统.md) | 草稿：真召唤（赫卡忒）与伪召唤（墨鹤）分层 |
 
 ## 版本缩放
 

@@ -5,13 +5,16 @@ Rules A, B, C as specified.
 """
 import re
 import sys
+from pathlib import Path
 
+ROOT = Path(__file__).resolve().parents[2]
+CHAR_DIR = ROOT / "docs" / "plans" / "characters"
 FILES = [
-    "/data/data/com.termux/files/home/AI code工作区/wuwa-gacha-simulator/docs/plans/characters/弗洛洛.md",
-    "/data/data/com.termux/files/home/AI code工作区/wuwa-gacha-simulator/docs/plans/characters/奥古斯塔.md",
-    "/data/data/com.termux/files/home/AI code工作区/wuwa-gacha-simulator/docs/plans/characters/尤诺.md",
-    "/data/data/com.termux/files/home/AI code工作区/wuwa-gacha-simulator/docs/plans/characters/仇远.md",
-    "/data/data/com.termux/files/home/AI code工作区/wuwa-gacha-simulator/docs/plans/characters/千咲.md",
+    CHAR_DIR / "弗洛洛.md",
+    CHAR_DIR / "奥古斯塔.md",
+    CHAR_DIR / "尤诺.md",
+    CHAR_DIR / "仇远.md",
+    CHAR_DIR / "千咲.md",
 ]
 
 # Rule A: buff/debuff (order matters, longest first)

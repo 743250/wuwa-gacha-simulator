@@ -14,7 +14,7 @@ const FILES = [
   "千咲.md",
 ];
 
-const DIR = "/data/data/com.termux/files/home/AI code工作区/wuwa-gacha-simulator/docs/plans/characters";
+const DIR = path.join(__dirname, '..', '..', 'docs', 'plans', 'characters');
 
 // Rule A: buff/debuff (order matters, longest first)
 const BUFF_RULES = [

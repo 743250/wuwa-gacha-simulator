@@ -49,6 +49,7 @@ npm run build      # 构建
 
 ## 核心文件
 
+- `docs/MAP.md` 仓库地图（先看这个找文件）
 - `src/main.js` 入口 · `src/state.js` 全局状态 · `src/save.js` 存档
 - `docs/plans/characters/status.md` 角色实装状态与验收标准
 - `docs/README.md` 文档总索引

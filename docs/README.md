@@ -1,6 +1,8 @@
 # 文档体系
 
-四类文档:**官方资料 sources/、设计指导 plans/、**分开成角色 / 敌人 / 机制 / 架构四份。
+先看 [MAP.md](MAP.md) 找路。本页是索引。
+
+三类文档不要混：**官方资料 `sources/`、设计指导 `plans/`、决策 `decisions/`**。角色 / 敌人 / 机制 / 架构在各自子目录。
 
 ## 数据来源 sources/
 
@@ -8,9 +10,9 @@
 
 | 目录/文件 | 内容 |
 |---|---|
-| [sources/characters/](sources/characters/) | 51 个角色官方技能/共鸣链原文([README](sources/characters/README.md)) |
+| [sources/characters/](sources/characters/) | 角色官方技能/共鸣链原文（[README](sources/characters/README.md)，人数以数据文件为准） |
 | [sources/enemies/](sources/enemies/) | 敌方数据(世界 BOSS 机制/完整数据库/[README](sources/enemies/README.md)) |
-| [sources/mechanisms/](sources/mechanisms/) | 副本/深塔/海墟/声骸官方数据([dungeons](sources/mechanisms/dungeons.md) · [tower](sources/mechanisms/tower-of-adversity.md) · [wastes](sources/mechanisms/whimpering-wastes.md) · [echo](sources/mechanisms/echo-system.md)) |
+| [sources/mechanisms/](sources/mechanisms/) | 副本/深塔/海墟/声骸/无音区/伤害公式等官方数据 |
 | [sources/tier-list.md](sources/tier-list.md) | 强度榜(数值天花板对照) |
 
 ## 设计指导 plans/
@@ -25,7 +27,8 @@
 | [plans/architecture/README.md](plans/architecture/README.md) | 架构优化计划(与游戏机制无关) |
 | [plans/architecture/gacha-only-apk.md](plans/architecture/gacha-only-apk.md) | **纯抽卡 APK**：分析页复刻、独立入口、角色静态补全 |
 | [plans/architecture/project-management-optimization.md](plans/architecture/project-management-optimization.md) | **交付流程**：角色 DoD、看板、P0 横切 |
-| [plans/copy-ownership.md](plans/copy-ownership.md) | **文案/数值源归属**（registry / skillHints / terms） |
+| [plans/architecture/copy-ownership.md](plans/architecture/copy-ownership.md) | **文案/数值源归属**（registry / skillHints / terms） |
+| [plans/角色设计指南.md](plans/角色设计指南.md) | 做新角色的设计流程 |
 
 单角色 / 单敌人 / 单机制计划分别在对应目录下。角色进度两列见 [plans/characters/status.md](plans/characters/status.md)（代码落地 / 战斗验收）。
 

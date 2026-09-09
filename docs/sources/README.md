@@ -10,25 +10,26 @@
 
 ## 目录
 
-### 角色(51)
-- [characters/](characters/) — 库街区 API 抓取的 51 个角色官方技能组 + 6 链原文
-- [characters/README.md](characters/README.md) — 角色索引
+### 角色
+- [characters/README.md](characters/README.md) — 本目录说明（人数以数据文件为准，不在此手写）
 - [characters/individual/](characters/individual/) — 单角色 JSON（面板 / 技能 desc / 链）
 - [characters/encore-full-data.json](characters/encore-full-data.json) — encore 汇总
 - [characters/skill-multipliers-lv10.md](characters/skill-multipliers-lv10.md) — **技能满级 Lv10 合计 ATK%**（官方锚；以 WIKI 抓取为准）
 - [characters/wiki-skill-mults/](characters/wiki-skill-mults/) — biligame 共鸣者页技能表解析 JSON（`scripts/fetch-wiki-skill-mults.mjs`）
-- [characters/shorekeeper.md](characters/shorekeeper.md) — 守岸人完整官方条目(`entryId=1286814658335739904`)
 
 ### 敌人
 - [enemies/README.md](enemies/README.md) — 17 世界 BOSS 英中名对照 + 元素核验 + 深塔血量参考
 - [enemies/complete-database.md](enemies/complete-database.md) — 198 个敌人 · 7 元素 · 5 职业(2026-06-25 采集)
 - [enemies/world-boss-mechanics.md](enemies/world-boss-mechanics.md) — 17 世界 BOSS 官方机制 + 模拟器差距
 
-### 机制(副本 / 深塔 / 海墟 / 声骸)
-- [mechanisms/dungeons.md](mechanisms/dungeons.md) — 锻造挑战 15 / 模拟战训 / 无音区 20 / 世界 BOSS 17 / 周本 9 + 波片消耗 + 奖励表(2026-06-25)
-- [mechanisms/tower-of-adversity.md](mechanisms/tower-of-adversity.md) — 逆境深塔:三区结构 / 活力系统 / 环境轮换 / 血量膨胀 / 敌人轮换
-- [mechanisms/whimpering-wastes.md](mechanisms/whimpering-wastes.md) — 冥歌海墟:12 层双队制 / 信物 30+ / 焚烬 / 积分 / 奖励
-- [mechanisms/echo-system.md](mechanisms/echo-system.md) — 声骸系统:数据坞 / COST / 套装 / 主副词条 / 调谐 / 声骸图鉴
+### 机制(副本 / 深塔 / 海墟 / 声骸 / 公式)
+- [mechanisms/dungeons.md](mechanisms/dungeons.md) — 锻造挑战 / 模拟战训 / 无音区 / 世界 BOSS / 周本
+- [mechanisms/tower-of-adversity.md](mechanisms/tower-of-adversity.md) — 逆境深塔
+- [mechanisms/whimpering-wastes.md](mechanisms/whimpering-wastes.md) — 冥歌海墟
+- [mechanisms/echo-system.md](mechanisms/echo-system.md) — 声骸系统
+- [mechanisms/tacet-fields-official.md](mechanisms/tacet-fields-official.md) — 无音区官方关卡
+- [mechanisms/damage-formula.md](mechanisms/damage-formula.md) — 官方伤害公式摘录
+- 其余调谐/词条原文同目录。以前的 `sources/mechanics/` 已并入本目录。
 
 ### 强度榜
 - [tier-list.md](tier-list.md) — pockettactics 2026-06-18 · 3.0 patch · 0 链评分;模拟器数值天花板的官方依据

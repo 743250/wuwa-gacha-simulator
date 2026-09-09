@@ -199,7 +199,7 @@ src/
 **交付与文案源（必读）**：
 
 - 项目管理 / 角色 DoD / 看板规则：[docs/plans/architecture/project-management-optimization.md](docs/plans/architecture/project-management-optimization.md)
-- 文案与数值源归属：[docs/plans/copy-ownership.md](docs/plans/copy-ownership.md)
+- 文案与数值源归属：[docs/plans/architecture/copy-ownership.md](docs/plans/architecture/copy-ownership.md)
 
 ## 工作纪律（AI 必须遵守 · 优先级最高）
 
@@ -222,7 +222,7 @@ src/
 
 5. **角色「战斗验收」≠「代码落地」**：`status.md` 的战斗验收 ✅ 必须过 DoD（核心循环 / AP / 关键路径有数 / skillHints 数字=代码实算）。禁词扫描 + build 通过不算验收。详见项目管理优化计划。
 
-6. **文案数字必须对代码**：链文案以 `registry.ts` effect 为准；技能 tab 以 `skillHints` 对 `calcDamage`/hook 对账。禁止在 tooltip 写代码不存在的假倍率。详见 [docs/plans/copy-ownership.md](docs/plans/copy-ownership.md)。
+6. **文案数字必须对代码**：链文案以 `registry.ts` effect 为准；技能 tab 以 `skillHints` 对 `calcDamage`/hook 对账。禁止在 tooltip 写代码不存在的假倍率。详见 [docs/plans/architecture/copy-ownership.md](docs/plans/architecture/copy-ownership.md)。
 
 7. **横切契约优先于逐角文案批改**：变奏 dmgType、hook 参数顺序、HP 核倍率表等共享路径的 bug 先立项修，再扫角色，避免同类问题审 N 遍。
 

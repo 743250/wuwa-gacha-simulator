@@ -55,7 +55,7 @@
 - 关卡中文名 / 推荐等级 / 掉落套装 / BOSS / 杂兵组合
 - 难度档位数
 - 1.0 基础 9 套是合并关卡还是独立关卡
-- 归档到 `docs/sources/mechanics/tacet-fields-official.md`
+- 归档到 `docs/sources/mechanisms/tacet-fields-official.md`
 - 子代理 ID：`ac78246a29d52cf3c`，后台运行中
 
 **不用 encore.moe API**：用户指示"不要太依赖 fetch"，用 WebSearch 查社区资料。
@@ -111,5 +111,5 @@
 | `src/battle/combat.js` | 改 enemyLevel 缩放为 GrowthRates |
 | `tests/equip/echoActions.test.js` | 删 dataBankCostCap 用例 |
 | `tests/battle/stats.test.js` | 删 dataBankLevel 设置 |
-| `docs/sources/mechanics/tacet-fields-official.md` | 子代理归档 |
-| `docs/sources/mechanics/tacet-field-mechanics.md` | 已存，本次翻新依据 |
+| `docs/sources/mechanisms/tacet-fields-official.md` | 子代理归档 |
+| `docs/sources/mechanisms/tacet-field-mechanics.md` | 已存，本次翻新依据 |

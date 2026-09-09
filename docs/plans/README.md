@@ -17,10 +17,11 @@
 
 | 目录 | 内容 | 状态总表 |
 |---|---|---|
-| [characters/](characters/) | 角色移植(总览 + 51 单角色计划) | [characters/README.md](characters/README.md) |
-| [enemies/](enemies/) | 敌人移植(总览 + 17 单 BOSS 计划) | [enemies/README.md](enemies/README.md) |
-| [mechanisms/](mechanisms/) | 游戏机制移植(深塔/海墟/声骸) | [mechanisms/README.md](mechanisms/README.md) |
-| [architecture/](architecture/) | 代码架构优化(当前计划见 plan.md) | [architecture/README.md](architecture/README.md) |
+| [characters/](characters/) | 角色移植（单角色计划 + [status.md](characters/status.md)） | [characters/README.md](characters/README.md) |
+| [enemies/](enemies/) | 敌人移植 | [enemies/README.md](enemies/README.md) |
+| [mechanisms/](mechanisms/) | 游戏机制移植（含召唤物） | [mechanisms/README.md](mechanisms/README.md) |
+| [architecture/](architecture/) | 代码架构 / APK / 文案归属 | [architecture/README.md](architecture/README.md) |
+| [角色设计指南.md](角色设计指南.md) | 做新角色必读 | — |
 
 ---
 

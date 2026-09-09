@@ -323,5 +323,5 @@
 | `src/battle/characters/*.js` | L1/L2 hook |
 | `docs/plans/角色设计指南.md` | 待补 AP/锚规范 |
 | `docs/plans/characters/*.md` | 每角第 4 节 |
-| `docs/plans/copy-ownership.md` | 文案数字归属 |
+| `docs/plans/architecture/copy-ownership.md` | 文案数字归属 |
 | `docs/plans/characters/忌炎.md` | 首个 B+A 校准样板 |

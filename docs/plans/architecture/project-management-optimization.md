@@ -56,7 +56,7 @@
 ### Phase A — 流程基建
 
 - [x] 本文档
-- [x] `docs/plans/copy-ownership.md`
+- [x] `docs/plans/architecture/copy-ownership.md`
 - [x] `status.md` 增加代码落地 / 战斗验收列；S 级标验收状态
 - [x] `CLAUDE.md` 链到本文 + copy-ownership；补交付铁律摘要
 - [x] 会话 Task 收口为活任务（历史 completed 可删）

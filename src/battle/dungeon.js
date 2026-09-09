@@ -134,7 +134,7 @@ export const DUNGEONS = [
   // ===== 无音区（声骸 · 官方名 Tacet Field · 60 波片）=====
   // 设计：每关固定 BOSS + 固定套装，按版本解锁
   // 1.0 = 9 套基础；2.0 = +6 套；2.x = +16 套（含角色专属）
-  // 详见 docs/sources/mechanics/tacet-fields-official.md
+  // 详见 docs/sources/mechanisms/tacet-fields-official.md
   //
   // 模拟器抽象：声骸 → 星声 + 武器石 + 高级促剂 + 调谐器
   // 注：星声产出折半（v0.2 校准），避免主线副本越打越富
@@ -641,7 +641,7 @@ export function flattenEnemies(enemyStrs) {
 
 // 无音区精英+小怪混编：按守关 BOSS 元素从敌人库抽同元素 Elite + Common
 // 官方设定：每个无音区 = 1 守关BOSS + 1-2 精英 + 若干小怪，同套装同元素
-// 见 docs/sources/mechanics/tacet-fields-official.md
+// 见 docs/sources/mechanisms/tacet-fields-official.md
 // 返回 [{ name, scale }] 数组（小怪 scale 0.5 压量级，不抢 BOSS 戏）
 export function rollEchoMinions(bossName, seed) {
   const boss = ENEMIES[bossName];

@@ -149,7 +149,7 @@
 
 ## 已知缺口和待修
 
-1. **无音区精英 + 小怪混编已实装**：`rollEchoMinions()` 按守关 BOSS 元素从敌人库抽 1-2 个同元素 Elite（scale 0.6）+ 2-3 个同元素小怪（scale 0.5），同 BOSS 同 seed 保证阵容稳定。combat.js 支持 `opts.enemyScales` 数组做 per-enemy scale。官方设定见 `docs/sources/mechanics/tacet-fields-official.md`。
+1. **无音区精英 + 小怪混编已实装**：`rollEchoMinions()` 按守关 BOSS 元素从敌人库抽 1-2 个同元素 Elite（scale 0.6）+ 2-3 个同元素小怪（scale 0.5），同 BOSS 同 seed 保证阵容稳定。combat.js 支持 `opts.enemyScales` 数组做 per-enemy scale。官方设定见 `docs/sources/mechanisms/tacet-fields-official.md`。
 2. **POOL_BOSS_SCALE 死代码已清理**：`enemies.js` 的 `POOL_BOSS_SCALE` 常量和 number 路径的 poolScale 逻辑已删，number 参数直接当 scale 用。
 3. **worldBoss 条目的 enemyScale 死字段已删**：17 个 worldBoss 条目的 `enemyScale: 1.35-1.6` 全部删除，worldBoss 走 `{worldTier, bossLevel}` 路径本就不读此字段。
 4. **周本无冠者血量偏低**：基础血量 32 万（剧情 BOSS），副本 scale 2.5 后 132 万，远低于同池罗蕾莱 408 万、赫卡忒 458 万。这是官方 baseHP 本身偏低，保持原样不改。

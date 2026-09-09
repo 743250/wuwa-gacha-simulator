@@ -4,7 +4,7 @@
 > 当前计划见 [plan.md](plan.md)
 > **纯抽卡 APK / 分析页复刻**见 [gacha-only-apk.md](gacha-only-apk.md)（2026-04-10 待识图开工）
 > **项目管理与角色 DoD**见 [project-management-optimization.md](project-management-optimization.md)（2026-07-13 起生效）
-> 文案源归属见 [../copy-ownership.md](../copy-ownership.md)
+> 文案源归属见 [copy-ownership.md](copy-ownership.md)
 
 下一轮可直接交给执行型 AI 的详细任务书见 [next-refactor-execution-guide.md](next-refactor-execution-guide.md)。**在 S 级战斗验收与横切契约债清完前，该任务书挂起不执行。**
 
