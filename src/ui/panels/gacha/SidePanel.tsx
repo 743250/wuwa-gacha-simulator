@@ -8,6 +8,7 @@ import { useS } from '../../signals';
 import { StatsTab } from './StatsTab';
 import { ExchangeTab } from './ExchangeTab';
 import { LogTab } from './LogTab';
+import { AnalysisTab } from './AnalysisTab';
 
 export const gachaTabSignal = signal('stat');
 
@@ -22,6 +23,10 @@ export function SidePanel() {
           onClick={() => { gachaTabSignal.value = 'stat'; }}>
           统 计
         </div>
+        <div class={`s-tab${tab === 'analysis' ? ' on' : ''}`} data-s="analysis"
+          onClick={() => { gachaTabSignal.value = 'analysis'; }}>
+          分 析
+        </div>
         <div class={`s-tab${tab === 'ex' ? ' on' : ''}`} data-s="ex"
           onClick={() => { gachaTabSignal.value = 'ex'; }}>
           海 市
@@ -33,6 +38,7 @@ export function SidePanel() {
       </div>
 
       {tab === 'stat' && <StatsTab />}
+      {tab === 'analysis' && <AnalysisTab />}
       {tab === 'ex' && <ExchangeTab />}
       {tab === 'log' && <LogTab />}
     </div>

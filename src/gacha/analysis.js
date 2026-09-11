@@ -17,6 +17,8 @@
 //   - 大保底（歪后的 100% UP）不进歪率分母
 //   - 武器/常驻/新手池/新旅武器不算「歪」
 
+import { fourWeapons } from '../data/chars.js';
+
 // 鸣潮硬保 80；社区经验期望约 60~64 抽出金。主轴 = 平均抽数，辅轴 = 歪率/近况。
 // 称号档位对齐常见抽卡分析工具：不止「欧皇/非酋」，按均抽细分 + 组合副标。
 export const THRESHOLDS = {
@@ -158,10 +160,10 @@ function judgeTitle(avgPity, lossRate, lossReliable, recentRate, recentSize, luc
 
 // 平均 UP 成本：按池时间序合并「歪 + 大保底 UP」
 // fives 可为任意顺序；内部按 pool 分组再按 no 升序
-function computeAvgUpCost(fives) {
+function computeAvgUpCost(fives, poolSet = PVP_POOLS) {
   const byPool = {};
   for (const x of fives) {
-    if (!x || !PVP_POOLS.has(x.pool) || typeof x.pity !== 'number') continue;
+    if (!x || !poolSet.has(x.pool) || typeof x.pity !== 'number') continue;
     (byPool[x.pool] || (byPool[x.pool] = [])).push(x);
   }
   let costSum = 0, upCount = 0;
@@ -186,10 +188,10 @@ function computeAvgUpCost(fives) {
 // 按池内时间序：歪后的下一次 5★ 是大保底（100% UP），不进分母
 // 小保底 = 非大保底的限定池 5★（歪 or 小保底出 UP）
 // 歪率 = 小保底歪次数 / 小保底次数
-function computeSoftPityLoss(fives) {
+function computeSoftPityLoss(fives, poolSet = PVP_POOLS) {
   const byPool = {};
   for (const x of fives) {
-    if (!x || !PVP_POOLS.has(x.pool)) continue;
+    if (!x || !poolSet.has(x.pool)) continue;
     (byPool[x.pool] || (byPool[x.pool] = [])).push(x);
   }
   let softTrials = 0, softLost = 0;
@@ -240,6 +242,62 @@ function computePerPool(log) {
   }));
   list.sort((a, b) => b.pulls - a.pulls);
   return list;
+}
+
+// ===== 四池分组汇总（分析页头部卡片）=====
+//
+// 参考图的卡片按「限定池 / 专武池 / 常驻池 / 联动池」四类聚合，
+// 每类可含多个底层池键；限定/联动走 50/50 口径（统计歪），武器/常驻为 fixed。
+export const POOL_GROUPS = [
+  { key: 'limited',  label: '限定池', pools: ['eventChar'],                      pvp: true,  showLost: true,  avgLabel: 'UP平均'  },
+  { key: 'weapon',   label: '专武池', pools: ['eventWeapon'],                    pvp: false, showLost: true,  avgLabel: 'UP平均'  },
+  { key: 'standard', label: '常驻池', pools: ['standardChar', 'standardWeapon'], pvp: false, showLost: false, avgLabel: '五星平均' },
+  { key: 'collab',   label: '联动池', pools: ['collabChar', 'collabWeapon'],     pvp: true,  showLost: true,  avgLabel: 'UP平均'  },
+];
+
+/**
+ * 四池分组统计：{ key, label, pvp, pulls, five, lost, avgPity, avgUpCost }
+ * - pulls  该组总抽数
+ * - five   出金数
+ * - lost   小保底歪数（仅 pvp 组；其余为 null）
+ * - avgPity 五星平均抽数（该组所有 5★ pity 均值）
+ * - avgUpCost UP 平均成本（pvp 组按「歪+大保底 UP」合并口径；非 pvp 组为五星均值口径）
+ */
+export function computePoolGroups(S) {
+  const log = Array.isArray(S.log) ? S.log : [];
+  return POOL_GROUPS.map(g => {
+    const set = new Set(g.pools);
+    const entries = log.filter(x => x && set.has(x.pool));
+    const fives = entries.filter(x => x.r === 5);
+
+    let pitySum = 0, pityCount = 0;
+    for (const x of fives) {
+      if (typeof x.pity === 'number') { pitySum += x.pity; pityCount++; }
+    }
+    const avgPity = pityCount > 0 ? pitySum / pityCount : 0;
+
+    let lost = null, avgUpCost = avgPity;
+    if (g.pvp) {
+      const { softTrials, softLost } = computeSoftPityLoss(fives, set);
+      lost = softTrials > 0 ? softLost : 0;
+      avgUpCost = computeAvgUpCost(fives, set) || avgPity;
+    } else if (g.showLost) {
+      lost = 0; // 武器/常驻无 50/50，歪恒为 0
+    }
+
+    return {
+      key: g.key,
+      label: g.label,
+      pvp: g.pvp,
+      showLost: !!g.showLost,
+      avgLabel: g.avgLabel,
+      pulls: entries.length,
+      five: fives.length,
+      lost,
+      avgPity,
+      avgUpCost,
+    };
+  });
 }
 
 export function computeAnalysis(S) {
@@ -381,4 +439,71 @@ export function fiveStarKind(x) {
 
 export function currentPity(S, poolKey) {
   return (S && S.pity && S.pity[poolKey]) || 0;
+}
+
+// ===== 逐金明细（抽卡分析页的历史列表）=====
+//
+// 参考社区抽卡分析页的抽数分档：绿条=欧、黄条=接近期望、红条=非。
+// 档位线是媒体工具口径的近似，需要时改这里即可，不要在 UI 里写死。
+
+// 分档阈值（抽数）。superEuro/superBad 额外挂「超欧」「超非」角标。
+export const HISTORY_TIERS = {
+  superEuro: 10,  // ≤10 抽 → 超欧
+  euro: 50,       // ≤50 抽 → 欧
+  mid: 69,        // ≤69 抽 → 中
+  superBad: 74,   // ≥74 抽 → 超非
+};
+
+/** 单颗 5★ 的抽数分档：super-euro | euro | mid | bad | super-bad */
+export function historyTier(pity) {
+  const t = HISTORY_TIERS;
+  const p = typeof pity === 'number' ? pity : 0;
+  if (p <= t.superEuro) return 'super-euro';
+  if (p <= t.euro) return 'euro';
+  if (p <= t.mid) return 'mid';
+  if (p >= t.superBad) return 'super-bad';
+  return 'bad';
+}
+
+/**
+ * 逐金明细：每颗 5★ 一行，倒序（新→旧），跨池合并。
+ * row = { pool, name, pity, up, no, date, tier, fours: [{ name, kind, count }] }
+ * fours = 同池中「上一颗 5★ 之后」到「本颗 5★」之间陪跑的四星（按首次出现合并计数）。
+ * 单遍扫描，O(n)；大 log（上千抽）不会卡。
+ */
+export function detailedHistory(S) {
+  const log = Array.isArray(S.log) ? S.log : [];
+  const byPool = {};
+  for (const x of log) {
+    if (!x || !x.pool) continue;
+    (byPool[x.pool] || (byPool[x.pool] = [])).push(x);
+  }
+
+  const rows = [];
+  for (const [pool, list] of Object.entries(byPool)) {
+    list.sort((a, b) => (a.no || 0) - (b.no || 0));
+    let fours = new Map();
+    for (const x of list) {
+      if (x.r === 5) {
+        rows.push({
+          pool,
+          name: x.n,
+          pity: typeof x.pity === 'number' ? x.pity : 0,
+          up: !!x.up,
+          no: x.no,
+          date: x.date,
+          tier: historyTier(x.pity),
+          fours: [...fours.values()].map(e => ({ ...e })),
+        });
+        fours = new Map();
+      } else if (x.r === 4) {
+        const e = fours.get(x.n) || { name: x.n, kind: fourWeapons.includes(x.n) ? 'weapon' : 'char', count: 0 };
+        e.count++;
+        fours.set(x.n, e);
+      }
+    }
+  }
+
+  rows.sort((a, b) => (b.no || 0) - (a.no || 0));
+  return rows;
 }

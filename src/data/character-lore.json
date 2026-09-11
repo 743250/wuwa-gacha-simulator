@@ -10239,7 +10239,7 @@
       },
       {
         "title": "浮生",
-        "content": "发现自己身处心之集域的那一刻，丽贝卡立刻明白——她已经死了。但她选择沉默，不愿再将这份重负压在露西的肩上。\n\"说出真相只会让露西更拧巴。她要是因此对我内疚啊，可怜啊，别提会有多烦了。”\n 疾行于梦境空间的列车上，丽贝卡耸耸肩，将子弹一枚枚装填入爱枪。窗外的星光流转，绚烂璀璨一如那天夜之城中从他们头顶划过的道道霓虹。她依然是去救人，依然是为了那个她不曾理解而又一再艳羡的露西。但这一次，陪伴她的却不是那个昔日的少年，他们去救的，也不是当时那个一味逃避的少女。尽管不愿承认，但丽贝卡早已在旅途的过程中意识到了自己出现在这里的理由——即使没有大卫的托付，她依然会拿起枪，去追那个不让人省心的混蛋黑客。毕竟，她是队伍的一员，是丽贝卡最为在乎的家人。\n遵从自己的内心，肆意地去做自己想做的事——丽贝卡所想要的就是这么简单，以前是，现在也是。无论前路如何艰难，只要能将朋友救回，她愿意赴汤蹈火。\n“会飞的列车，会说话的猫，再加上你和阿布……哼，我们这队伍强得离谱！”\n “都说了我不是猫了喵……再说了，不要忘记我们的任务是找回美梦频段……”\n “放心，我早记住了。光头佬嘛，直接砸成废铁不就完了？”\n “你这不是什么都没记住吗……”\n丽贝卡呲牙露出坏笑，伸手挠了挠白猫的耳后，然后双手往兜里一插，大大咧咧地瘫坐到漂泊者身旁。\n “说起来，现在为把你卷进来这事道歉是不是有点晚了？”\n漂泊者以碰拳作为回答——仅此一举，她便知道自己被原谅了。丽贝卡咧嘴一笑，将“铁胆”甩上箭头，晃悠悠地走向车门。\n“终点站到了！走吧，干正事去！”",
+        "content": "发现自己身处心之集域的那一刻，丽贝卡立刻明白——她已经死了。但她选择沉默，不愿再将这份重负压在露西的肩上。\n\"说出真相只会让露西更拧巴。她要是因此对我内疚啊，可怜啊，别提会有多烦了。”\n 疾行于梦境空间的列车上，丽贝卡耸耸肩，将子弹一枚枚装填入爱枪。窗外的星光流转，绚烂璀璨一如那天夜之城中从他们头顶划过的道道霓虹。她依然是去救人，依然是为了那个她不曾理解而又一再艳羡的露西。但这一次，陪伴她的却不是那个昔日的少年，他们去救的，也不是当时那个一味逃避的少女。尽管不愿承认，但丽贝卡早已在旅途的过程中意识到了自己出现在这里的理由——即使没有大卫的托付，她依然会拿起枪，去追那个不让人省心的混蛋黑客。毕竟，她是队伍的一员，是丽贝卡最为在乎的家人。\n遵从自己的内心，肆意地去做自己想做的事——丽贝卡所想要的就是这么简单，以前是，现在也是。无论前路如何艰难，只要能将朋友救回，她愿意赴汤蹈火。\n“会飞的列车，会说话的猫，再加上你和阿布……哼，我们这队伍强得离谱！”\n “都说了我不是猫了喵……再说了，不要忘记我们的任务是找回美梦频段……”\n “放心，我早记住了。光头佬嘛，直接砸成废铁不就完了？”\n “你这不是什么都没记住吗……”\n丽贝卡呲牙露出坏笑，伸手挠了挠白猫的耳后，然后双手往兜里一插，大大咧咧地瘫坐到漂泊者身旁。\n “说起来，现在为把你卷进来这事道歉是不是有点晚了？”\n漂泊者以碰拳作为回答——仅此一举，她便知道自己被原谅了。丽贝卡咧嘴一笑，将“铁胆”甩上肩头，晃悠悠地走向车门。\n“终点站到了！走吧，干正事去！”",
         "hint": "好感度等级达到5后解锁"
       }
     ],
@@ -11254,6 +11254,1154 @@
         "title": "闪避反击·二",
         "content": "太慢了。",
         "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_feixue_atk_dodgeatk_03.mp3"
+      }
+    ]
+  },
+  "秧秧·玄翎": {
+    "bio": "明庭出身的音乐世家二小姐，温柔坚强、纯粹浪漫，仗剑行义。能与流息沟通的“祀声之人”。原今州夜归踏白，现暂代玄方城后玄骑使。清风骀荡，侠思飞扬，此身、此剑皆为守护。",
+    "stories": [
+      {
+        "title": "失败的记录",
+        "content": "那是她向母亲表明志向的三天之后。\n那天傍晚，秧秧家的饭桌上多了一双筷子。\n“听说，你家的娃娃想要从军？是哪一个？”饭后闲聊时，宾客饮下一杯茶，向她的父母问起。\n“嗯……目中有神，心无杂质，是能吃苦的性子吧。”宾客端详着那尚未脱去稚气的脸庞，笑着说道，“看你应该有些基础，在哪里学的？道场？那里不是教真本事的地方，想要上阵杀敌，光会那些还不够。”\n“来，让我看看你此前学了什么。”宾客起身，走到宅中院下，“可不能白蹭你母亲做的饭。”\n“好。”得到父母的应许后，她取出平日练习用的木剑，走至宾客面前，摆出架势。\n她不知道宾客是什么身份，只知道是父母的亲友。但聪明如秧秧，也知晓宾客为何会在这个时候前来赴宴，并提出要试试她的本事。\n父母支持她的愿望，却也要让她看到，为了实现愿望，她还要经历多少考验。\n她向自己的第一道考验发起冲锋，就像雏雀第一次振动翅膀，想要飞向天空。\n……\n“心性不错，可惜，资质平平，不像那些万里挑一的天才，武学之道，哪怕穷极一生，你也定走不到终点。”\n瘫倒在地的那一瞬间，她仿佛回到了第一天前往道场的那一刻。\n一无所知，茫然失措。\n“我听你的母亲谈起过你的天赋，若是继承她的衣钵，想必不假时日，你便能青出于蓝吧。”宾客拾起她脱手的木剑，“即便如此，你还打算坚持下去么？”\n她点点头，伸出手，攥住了递在她身前的剑柄。\n……\n那之后，每隔十数日，宾客便会来到秧秧家中做客，每次临走之前，她都会指点秧秧一二，时为剑术，时为兵法。她不允许秧秧称她为老师，表示自己只是一个来蹭饭的客人，对朋友家中的小孩有莫名的指导欲而已。\n“请问……我什么时候才能知道，我已经准备好了？”\n“嗯……这样好了。”\n次日清晨，秧秧家里多出了一节木桩。那木桩通体黑灰，表面坚硬如铁，即便是真正的刀剑，也难以在上面留下痕迹。\n宾客取过秧秧的木剑，随手一挥，一阵劲风过后，剑身已入木三寸。\n宾客指着那道深深的剑痕，“什么时候你不用共鸣力也能做到一样的事，就算你准备好了。”\n……\n时光飞逝，两年过去。\n少女的脸上已不见稚嫩，而那道木桩上，也留下了无数道深浅不一的剑痕。\n她屏息凝气，端正架势。剑芒如风，带起一地落叶。\n“……”\n承载了她两年光阴中所有坚持的一剑，堪堪入木一分有余。\n今天，是她与父母约定好，要离开家，前往今州的日子。\n她没能做到在出发之前达成那位“老师”的要求，但她还是要出发了。\n她向木桩深鞠一躬，将木剑留在了自家的院子里。\n告别了父母与姐姐后，她行至明庭城外，在即将经过第一道关隘的时候，她远远地看到了一个身影。\n“对不起，老师。我失败了。”\n“如果我说，你也许练习一生也做不到呢？”\n“那我可能……会难过一会儿吧。”\n“但这阻止不了你，对吗。”\n“嗯。”\n“那就好。”“老师”拍了拍她的头，转身向城内走去，“知道这世上有自己不可能做到的事，然后——”\n“一路向前吧。”",
+        "hint": "好感度等级达到1后解锁"
+      },
+      {
+        "title": "开始的记录",
+        "content": "从明庭走到今州，花了她很久、很久的时间，久到恍若隔世，久到……这一路上的见闻与遭遇，足以将她自以为积累起的一切统统打碎。\n她以为，曾经的她已经窥见过一次“真实”。她以为，自己清楚地知道，自己的剑该为谁所挥动。她能判断何为“对”，何为“错”，她明白何为“善”，何为“恶”——她的心中有一杆标尺，可随着她走过的地方越来越多，她却发现，自己无法用它去丈量世上的所有事物。\n有人心怀善意却最终酿成了悲剧，有人恶贯满盈，却也以这份恶守护了数份幸福。这个世界太过复杂，复杂到她穷尽一生，或许也没法完全理解。\n更何况，她也曾一度放弃了“理解”。\n那是在越州，她受到一名母亲的委托，去帮忙寻找她被掳走的孩子。\n掳走孩子的，是当地一支以恶神为信仰的集团，一群双手沾满罪恶，已不可用“人类”这个词去形容的疯子。\n当她跟随当地的军策府冲进集团的据点时，她所看到的景象堪称地狱。\n那一刻，所有想法从她的脑中蒸发，所有的美好，所有的善，都被她抛诸脑后。\n……\n等军策府的军人打扫完战场，拍了拍她的肩膀时，她才意识到一切已经结束。\n她听见断断续续的滴答声，自她的剑尖没入地面。她解开自己的头发，发现母亲送她的发带上，已满是触目惊心的红色。\n她记不清那段时间发生了什么，她夺走了他人的生命吗？哪怕这次没有，只要她还走在这条路上，就总会有。\n她知道如若不愿面对这样的事实，她的剑就不具备真正的力量。\n可那滋味仍不好受。\n再度启程时的她，洗净了发带上的污迹，没能洗净眼中的阴霾。\n即便受到了那位母亲由衷的感谢，即便守护了无辜之人的幸福，她却无法对他们回以一个真诚的微笑。\n她揣着这样破碎的心境踏入今州，独自一人，站在能遥望到边庭的广场中央。她知道自己接下来该前往哪里，可双脚却像灌了铅一样，始终无法迈出那一步。\n……\n“唉~你怎么一个人站在这儿？是迷路了还是怎样？”\n“我叫炽霞，是今巡——呃，‘实习’巡尉，有什么我能帮上忙的，尽管开口好啦！对了，你肚子饿了吗？我跟你说哦，来今州一定要尝尝攀花饭馆——”\n直至有名自来熟的同龄女孩朝她搭话，直至她拉着自己，朝着她还未来得及熟悉的那一切奔去。",
+        "hint": "好感度等级达到2后解锁"
+      },
+      {
+        "title": "友谊的记录",
+        "content": "“秧秧，这位是白芷，华胥研究院的研究员。在考核期间，调查今州附近新生成的无音区时，她会为你提供技术支援。”\n……\n“你好，我叫白芷——”\n“——秧秧！今天中午吃什么？阿姨喊我们去尝尝她做的新菜呢，不过，上次一起去吃的潮饼也——”\n“不好意思，调查下午就要开始，恐怕没有留给你们吃饭的时间了。”\n“人是铁饭是钢，有什么事吃完饭再……话说，你是谁啊……？”\n“……”\n那一天，当青色与火红的眼眸第一次相对的时候，她们的心中或许不约而同地冒出了同一个想法——“自己不可能和眼前这个人相处融洽。”\n“哈哈……”两道截然不同的温度立在她的两旁，可奇异的是，她却不曾感到窘迫与尴尬。\n仿佛，她早就知道会有这么一场邂逅，仿佛，她们三人之间，注定会以这种方式结识彼此。\n她想，即便气氛有些剑拔弩张，她们却仍好好地注视着对方。\n“那么，就买些东西回来，在路上吃吧。”她轻轻拍拍掌，提出了折中的方案，“白芷，户外调查也是需要体力的，可不能饿着肚子去。”\n“嗯……合理的意见。”\n“那就去上周刚开的那家……不，秧秧，你决定吧。”\n那是，蓝、白、红的三道身影第一次结伴走在今州的街道上。\n……\n“秧秧，这是华胥新制的特效药，你带给炽霞吧。吃了这个，过两天感冒就能好了。”\n“可以是可以，不过白芷，你不亲自交给她吗？”\n“嗯……”\n……\n“对了秧秧，阿姨炒了些菜，你带着吧。白芷今天不是要加班到很晚吗，这些给她当夜宵吧。”\n“可以是可以……不过炽霞，你可以亲手送给她呀。”\n“呃……”\n……\n就这样，时间一天天过去。没有刻骨铭心的记忆，也没有像戏剧那样夸张的事件。\n她们只是在用无数个平淡如水的日常，直接或间接地，慢慢地了解彼此。\n“白芷，关于接下来的调查……炽霞正好对那一片的地形很熟，所以我特地向巡宁所申请，让她过来帮我们一段时间。”\n“咳咳……看在秧秧的份上啦。由我带路，省得大家东跑西跑的，任务效率也高嘛……”\n“我知道了……”白芷阖上手里的资料，闭眼思索了片刻，“所以——”\n“——今天中午吃什么？”",
+        "hint": "好感度等级达到3后解锁"
+      },
+      {
+        "title": "封存的记录",
+        "content": "“嗒哒~秧秧，恭喜你成为踏白！这是我和白芷一起选的，喜欢吗？”\n“踏白需要经常草行露宿，你的头发不好打理，这顶帽子也许能帮你防些风雨，还是很实用的。”\n“这些都不重要不重要~重要的是——秧秧戴上一定会很好看，对吧？”\n“谢谢……白芷，炽霞。”\n她从朋友的手中接过这份礼物，将它戴在头顶上。\n那一瞬间，她好似回到了许多年前。\n……\n“……怎么了，秧秧？”灯火斑斓的庙会上，姐姐注意到她停驻在一家店铺前，忘神地盯着货架上的某样东西，“啊，你是不是想要那顶帽子？嗯……不错呀，你看你看，上面还纹着小鸟呢。”\n“但是，好贵……”她看一眼架上的价格，低头看向手里攥着的零钱，微微退后一步，“走吧姐姐，之前说好了，我们一起去买麦芽糖的……”\n“嗯！果然很好看！”还没等她回过神来，那顶帽子就被戴在了她的头上。\n“姐姐……！？不可以乱拿别人的东西——”她有点慌乱，却看到穗穗不知从哪掏出了一个钱袋，在她面前晃荡。\n“哼哼~秧秧，你对姐姐的财力可是一无所知呀。”穗穗贼贼笑着，袋子里的钱币叮铃作响，“一顶帽子而已，对姐姐的小金库来说洒洒水啦。”\n“但是，那是姐姐辛苦赚到的——”\n“这有什么！”穗穗拉起她的手，带她向更热闹的地方跑去，“我可是你姐啊，我的就是你的，啊，你的当然也是我的咯~”\n……\n对她而言，从出生的那一刻起，“姐姐”一直是一个“理所应当”的存在。\n理所应当地一起嬉笑打闹，理所应当地向彼此分享一切，理所应当地……出现在她每天的生活里。\n直到她做出那个决定，她才意识到，她马上就要与所有她曾认为“理所应当”的事物告别了。\n如果不迈出那一步，她就永远无法成为自己想要的“自己”，如果迈出了那一步，一切她所熟悉的、依赖的关系，就要变形成新的模样。\n她将和姐姐有关的一切封存在了明庭的家里。也许有一天，等她要离开今州时，她也会将和如今的自己有关的一切，封存在这里吗？\n她不知道，不过，她知道的是——\n此时此刻，从脑袋上传来的温暖，与多年前别无二致。\n她知道自己已不再是那个随姐姐在庙会中奔跑的小女孩。\n她知道姐姐的来信，下月就到。",
+        "hint": "好感度等级达到4后解锁"
+      },
+      {
+        "title": "未寄出的记录",
+        "content": "那一天的相遇，是偶然吗？还是必然呢。\n初醒时的你忘记了一切，可你那对金色的眼瞳告诉我，你所背负的，你所经历的，或许远远超出我能想象的范围。\n你总是毫不犹豫地冲到所有人的前面，你总是想着，让自己身处风暴的中心。\n那是你的选择吗？还是说，它已经变成了你的本能了呢？\n你总是……比别人迈出更远的步伐，不论多少人曾与你并肩同行，你总会……走到大家都触及不到的地方。\n但我想，这个世界上不存在注定孤独的灵魂。\n也许，我只是为了我自己，才想要这么做。\n我只是想去守护一个……嗯……不那么懂得守护自己的人。\n虽然我们相处的时光，对于你的旅途而言，可能只是茫茫大海中的一朵浮浪。\n可这份情感，这份冲动，无关资格与时间。\n它只是我的……一个有些奢侈的愿望。\n我希望，无论开心或悲伤，无论顺境或逆境，当你需要依靠，当你也需要向人倾诉的时候，我能站在你的身旁。\n我希望……\n……\n她的笔尖停下了。\n她盯着那份写了一半的信，默读了一遍又一遍。\n最终，她将那张信纸折叠，装进信封，将它藏在了抽屉下面。\n她重新取出一张信纸，开始在上面书写。\n漂泊者，最近如何？一切都还顺利吗？",
+        "hint": "好感度等级达到5后解锁"
+      }
+    ],
+    "words": [
+      {
+        "title": "心声·一",
+        "content": "……我本以为，再次见到你的时候，我会涌出很多心绪，会有很多话，多到不知道该先说哪一句，但……真到了这一刻，我发现我的心里，除了开心之外，就什么也找不到了。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_yangyang2_sys_toplayer01.mp3"
+      },
+      {
+        "title": "心声·二",
+        "content": "你不在的日子里，今州也发生了很多事，虽然大部分都在信里写过了……但，有些经历，肯定当面说更有意思……所以，你在黑海岸，在拉古那，在七丘，在拉海洛的旅途与冒险，你在信里提及的那些故事，可以重新再和我讲一遍吗？",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_yangyang2_sys_toplayer02.mp3"
+      },
+      {
+        "title": "心声·三",
+        "content": "后玄骑使……虽说只是暂代一段时间，但这也相当于一份新的责任，我还得花点时间习惯。今州那边……虽然也有些放不下，但那里有炽霞、白芷，还有今令尹和忌炎将军他们……光是提到这些名字，就觉得安心了很多。希望有一天，我的名字，对他人而言，也能拥有这样的份量。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_yangyang2_sys_toplayer03.mp3"
+      },
+      {
+        "title": "心声·四",
+        "content": "出发去玄方地界前的那个晚上，我做了一个噩梦……在那个梦里，我好像……一直在寻找着什么人，一个……在梦里的我从未遇见的人。直到从梦中醒来，我才意识到，那个人就是你……不过，就像你在信中说的那样，噩梦只是噩梦，现在的我能看见你，能触碰到你，能感受到你……我想，这之后，我再也不会做那样的梦了。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_yangyang2_sys_toplayer04.mp3"
+      },
+      {
+        "title": "心声·五",
+        "content": "我知道，即便再次见面，我们也总会有分别的那一刻。但这一次，故事就装在我们彼此的心里，无需再借用书信的形式分享了。而且，正是因为经历过分别时的惆怅，相对的，下一次重逢就会更值得期待……说不定到时候，就换成是我去找你了呢？",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_yangyang2_sys_toplayer05.mp3"
+      },
+      {
+        "title": "秧秧的喜好",
+        "content": "以前，姐姐会经常带我去放风筝。姐姐说，只要我在，哪怕是没有风的天也能放得了风筝啦。但要比谁的风筝飞得更高的时候，姐姐就会一直盯着我，生怕我作弊了。其实，如果我想作弊的话，姐姐肯定发现不了就是了。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_yangyang2_sys_taste.mp3"
+      },
+      {
+        "title": "秧秧的烦恼",
+        "content": "一路走来，我遇见过形形色色的人，其中有朋友，有过客，也有……敌人，那是即便向彼此倾诉一切，也无法互相理解，互相容忍的存在。我想，只要我还继续走在这条道路上，这样的人，我也会遇见越来越多吧。但我不会因此害怕前进，理想与信念化作了我手中的剑，既然是剑，就不只会被用来保护，伤害他人的觉悟，我也……早就做好了。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_yangyang2_sys_worry.mp3"
+      },
+      {
+        "title": "喜欢的食物",
+        "content": "母亲的手艺……我和姐姐都很喜欢，不过，应该还是比不了父亲吧。当初，父亲就是因为吃了母亲做的饭，才……咳咳——{PlayerName}想尝尝的话，我也可以露一手哦？虽然还没学到家，但……如果有人帮我试吃的话，我想我会进步很快的。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_yangyang2_sys_foodlike.mp3"
+      },
+      {
+        "title": "讨厌的食物",
+        "content": "不喜欢吃的食物……我没什么不喜欢吃的，硬要说的话……如果餐桌上只有一个人，无论饭菜多么丰盛，也会稍显寡味吧。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_yangyang2_sys_foodhate.mp3"
+      },
+      {
+        "title": "抱负和理想",
+        "content": "“守护”的方式有很多，或是路见不平拔剑相助，或是慷慨解囊仗义疏财，又或是洗耳聆听，替人排忧解闷……可不论哪一种，都需要“力量”去支撑。所以，我会一直、一直向前，我不苛求找到守护一切的“力量”，但至少现在……我想向前到同你并肩的位置。和你一起，能够守护的事物，也会变得更多些吧。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_yangyang2_sys_dream.mp3"
+      },
+      {
+        "title": "凝音·一",
+        "content": "曾供奉在衔翎村的那柄剑……直到最后我才知道，它的身上寄存了一丝玄翎雀的频率。玄翎雀……它们在弥留之际想要传递出去的，有痛苦，有悲伤，但藏在仇怨与愤懑之下的，是爱，是不舍，是一首……由各种各样的声音编奏而成的，生命之歌。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_yangyang2_sys_storyobj.mp3"
+      },
+      {
+        "title": "凝音·二",
+        "content": "我之前没来到过玄方地界，可是……从这里传来的流息，却总带给我一种熟悉的感觉。了解了玄翎雀的传说之后，我隐隐觉得，它好像与流息有某种共通之处……若它们还存在于世上——不，虽然只是一种预感，但在未来的某一天，玄方地界的人们，肯定能再度看到玄翎雀飞翔的身姿吧。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_yangyang2_sys_storyexp.mp3"
+      },
+      {
+        "title": "关于穗穗",
+        "content": "姐姐……她总是很自信，也很可靠。小时候的我一直看着她的背影，觉得这世上没有能难倒她的事。她有时候也很执拗，会任由自己的小脾气发作……姐姐不是完美无瑕的人，偶尔，她也会在不想被我看到的地方收拾自己脆弱的一面。在不同的人眼里，姐姐或许有很多面孔，是世家的大小姐，是狡猾的竞争对手，是八面玲珑的商会会长……可对我来说，姐姐就是姐姐啦。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_yangyang2_sys_about_suisui.mp3"
+      },
+      {
+        "title": "关于今汐",
+        "content": "今令尹……她的成熟与稳重，很容易让大家忘记她的年龄。或许比起更成熟的大人，比起她心中期望的自己，她会觉得自己做的还不够多。可对于我，对于每一个受过她帮助的今州子民而言，她就是大家心目中，今州最好的令尹。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_yangyang2_sys_about_jinxi.mp3"
+      },
+      {
+        "title": "关于卡提希娅",
+        "content": "黎那汐塔的圣女、流浪骑士……今后的她，会像风一样踏足黎那汐塔的每一片土地吧。我和她的共同点……？声痕的位置都在额头……这应该只是巧合——都会变身……呃……还是有些不一样的……不过，要是能变成比现在的自己更成熟一些的样子……唔，好难想象……",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_yangyang2_sys_about_katixiya.mp3"
+      },
+      {
+        "title": "关于椋羽",
+        "content": "在玄方地界，椋羽帮了我很多。说起来，我暂代后玄骑使的这段时间里，她还是我的前辈呢。虽然她平日里总是皱着眉头，但和她熟络之后就能明白，她的心中装着所有她重视的人。就像无声细雨，总是默默付出，却害羞到不想让任何人知道。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_yangyang2_sys_about_liangyu.mp3"
+      },
+      {
+        "title": "关于母亲",
+        "content": "母亲啊……她是名冠瑝珑的制曲大师，听父亲说，母亲在比现在的我还小的时候，就已经在器乐大赛上一举夺魁，独秀一枝了。这些年来，母亲渐渐不在乐界抛头露面，转而专心经营家业，很多人传母亲已经荒废了制曲技艺……那当然是谣言啦，母亲的曲谱，可是我和姐姐从小在家里见过最多的东西，数量比父亲的藏书还要略胜一筹呢。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_yangyang2_sys_about_muqin.mp3"
+      },
+      {
+        "title": "关于父亲",
+        "content": "小时候，父亲对姐姐和我说，他只是个普普通通，想早点退休的教书先生。后来我才知道，父亲的学生们是群怎样的“大人物”……我决定离开家去今州的那一天，父亲送了我一支笔，他说，无论遇上开心还是悲伤的事，用笔写下，总比憋在心里要好。父亲担心我出门在外，找不到能诉说心事的人，不过幸运的是，我找到啦。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_yangyang2_sys_about_fuqin.mp3"
+      },
+      {
+        "title": "关于流息",
+        "content": "流息……它们在很长一段时间里，其实并非真正的声音……然而，不知从什么时候起，流息里似乎多了一些什么，一道若隐若现的回响，一声如梦似幻的呼唤……我能听到的事物变得越来越多，无论是现在的，还是过去的……我不知道这到底意味着什么，但我不会畏惧这份变化。风教会了我很多，也帮助了我很多，也许最后的答案需要我自己去寻找，但我相信，它就藏在风里。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_yangyang2_sys_about_liuxi.mp3"
+      },
+      {
+        "title": "生日祝福",
+        "content": "祝你生日快乐，祝你生日快乐，祝你生日快乐，祝你生日快乐……！这一次，这首歌，也一如既往地，献给你。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_yangyang2_sys_birthcele.mp3"
+      },
+      {
+        "title": "闲趣·一",
+        "content": "飞吧……飞吧……",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_yangyang2_idle_idle02.mp3"
+      },
+      {
+        "title": "闲趣·二",
+        "content": "嗯……呵呵……",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_yangyang2_idle_idle01.mp3"
+      },
+      {
+        "title": "闲趣·三",
+        "content": "……呼……日积跬步，以至千里。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_yangyang2_idle_idle03.mp3"
+      },
+      {
+        "title": "自我介绍",
+        "content": "原今州夜归踏白，现玄方城后玄骑使临时代理，秧秧——太正式了吗？嗯……既然身份发生了变化，再做一次自我介绍也是需要的。不过，其他的就不必说了吧，总之，这段时间里，我们互相照顾吧。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_yangyang2_sys_introduction.mp3"
+      },
+      {
+        "title": "初奏",
+        "content": "……好久不见，{PlayerName}。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_yangyang2_sys_gacha.mp3"
+      },
+      {
+        "title": "入队·一",
+        "content": "听凭风的指引。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_yangyang2_sys_jointeam_01.mp3"
+      },
+      {
+        "title": "入队·二",
+        "content": "嗯，我就在你身旁。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_yangyang2_sys_jointeam_02.mp3"
+      },
+      {
+        "title": "入队·三",
+        "content": "没关系，交给我吧。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_yangyang2_sys_jointeam_03.mp3"
+      },
+      {
+        "title": "突破·一",
+        "content": "我会尽快熟悉这份力量……！",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_yangyang2_sys_rankup01.mp3"
+      },
+      {
+        "title": "突破·二",
+        "content": "片音或重，玙璠可轻……",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_yangyang2_sys_rankup02.mp3"
+      },
+      {
+        "title": "突破·三",
+        "content": "在愈发强烈的流息之中，有一个名字……一直在我耳边隐隐盘绕……「祀声之人」……那是指我……还是说……",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_yangyang2_sys_rankup03.mp3"
+      },
+      {
+        "title": "突破·四",
+        "content": "苍翎会飞过天际，飞过旷野，它会抵达前人未至的沧海彼岸，会架起一道……连接万音的桥梁。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_yangyang2_sys_rankup04.mp3"
+      },
+      {
+        "title": "突破·五",
+        "content": "我将这片翎羽交给你，它不只是一道护身符，也是我的誓言。即便有一天，你去往了这世上任何一道风也吹拂不到的地方，即便……我无法再从流息中听到你的声音，只要你还带着它，只要你呼唤了我的名字，我就会来到你的身旁。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_yangyang2_sys_rankup05.mp3"
+      },
+      {
+        "title": "普攻·一",
+        "content": "休想逃！",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_yangyang2_atk_atk04_01.mp3"
+      },
+      {
+        "title": "普攻·二",
+        "content": "朔风解意！",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_yangyang2_atk_atk04_02.mp3"
+      },
+      {
+        "title": "普攻·三",
+        "content": "……风华缭乱！",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_yangyang2_atk_atk08_01.mp3"
+      },
+      {
+        "title": "普攻·四",
+        "content": "随风而去！",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_yangyang2_atk_atk08_02.mp3"
+      },
+      {
+        "title": "重击·一",
+        "content": "剑止烈音！",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_yangyang2_atk_heavyatk01_sp_01.mp3"
+      },
+      {
+        "title": "重击·二",
+        "content": "定音！",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_yangyang2_atk_heavyatk01_sp_02.mp3"
+      },
+      {
+        "title": "重击·三",
+        "content": "激浊扬清！",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_yangyang2_atk_heavyatk01_sp_03.mp3"
+      },
+      {
+        "title": "空中攻击·一",
+        "content": "坠！",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_yangyang2_atk_fallingatk02_end_01.mp3"
+      },
+      {
+        "title": "空中攻击·二",
+        "content": "落！",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_yangyang2_atk_fallingatk02_end_02.mp3"
+      },
+      {
+        "title": "空中攻击·三",
+        "content": "簌簌凌霄！",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_yangyang2_atk_fallingatk_sp04_01.mp3"
+      },
+      {
+        "title": "空中攻击·四",
+        "content": "万音流转！",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_yangyang2_atk_fallingatk_sp04_02.mp3"
+      },
+      {
+        "title": "空中攻击·五",
+        "content": "湮象归虚！",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_yangyang2_atk_fallingatk_sp04_03.mp3"
+      },
+      {
+        "title": "极限闪避",
+        "content": "看到了！",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_yangyang2_com_limitdodge01_01.mp3"
+      },
+      {
+        "title": "逆势回击·一",
+        "content": "逆转！",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_yangyang2_com_parry_01.mp3"
+      },
+      {
+        "title": "逆势回击·二",
+        "content": "化解！",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_yangyang2_com_parry_02.mp3"
+      },
+      {
+        "title": "闪避反击",
+        "content": "破绽百出！",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_yangyang2_atk_dodgeatk_01.mp3"
+      }
+    ]
+  },
+  "穗穗": {
+    "bio": "出身明庭的世家大小姐，昭明商会的年轻理事。以水扇牵丝，以商道成锦，手中无刀剑，亦能织就人间太平。",
+    "stories": [
+      {
+        "title": "春",
+        "content": "春日迟迟，明庭的院子里，花开得正盛。\n穗穗趴在书案前，手里攥着画笔，腮帮子上还蹭了一抹赭石色。她画了好一会儿，终于直起身来，端详着自己这幅大作——纸上一团一团的色块，青的、蓝的、赭的，交错在一起，说不清画了什么，反正看着暖融融的。穗穗满意地点点头，拎起画纸就往外跑，裙角带起一阵风，吹得纸张翻动，簌簌作响。\n\n“秧秧！秧秧——”\n\n那张薄薄的画纸转瞬就到了秧秧手里。穗穗两手撑着琴案，盯着妹妹的脸：\"你看出来是什么了吗？\"\n秧秧看了一会儿，指尖碰了碰右边那团金色的东西，又碰了碰左边那团白色的：“应该是……两只凑在一起的小鸟。”\n穗穗眼睛亮了，一掌拍在案上：“对嘛！就是鸟！我就说那些大人眼神不好，他们偏说是鸡仔！”\n“不是鸡仔。”秧秧把画纸放平，歪着头看了看，“小鸡的尾巴是耷下去的，这个翘着呢。”\n“对吧对吧！”穗穗恨不得把妹妹举起来转一圈，“就你看得懂！”\n秧秧被夸了也不怎么得意，只是嘴角弯了弯，伸手指了指右团那只淡金色的：“这只是姐姐？”\n“嗯！右边是我，左边是你。”穗穗凑过来，拿画笔杆子指着左边那只雪白的鸟，“你看，小小的，就跟你一样。”\n\n那些年的春天就是这样过的。窗外是满架新开的花，粉白相间，密密匝匝地压低了绿叶，风一过便簌簌落几片花瓣，沾在琴案上、画纸上、姐妹俩的发梢上。日光柔软地铺下来，把院子里的一切都镀上一层薄薄的蜜色，鸟雀在檐下跳来跳去，叫声轻快又明亮，和着琴声悠扬地飘来。穗穗就在这样的光景里趴在案上躲懒，或是干脆坐在廊下，把画纸举得高高的，对着阳光看那些色彩晕开的样子……\n那时候日子真是慢啊。檐下的光影一寸一寸地挪，挪着挪着，一个下午就如此过去——再到回神时，便已挥别数十个春日了。",
+        "hint": "好感度等级达到1后解锁"
+      },
+      {
+        "title": "夏",
+        "content": "入夏之后，院中闷得像倒扣在蒸笼里。\n蝉声从早到晚地响着，一浪高过一浪，连檐下那缸荷花都蔫头耷脑，跟穗穗此刻的心情差不多。她趴在窗台上，看外边被晒得发白的天色，秧秧坐在身后的矮凳上练曲子，反反复复弹了七八遍，音调被热气泡得发软，穗穗听了半晌，觉得自己再待下去脑子也要跟那琴声似的化成一滩。\n“姐姐你要出去吗？”听到穗穗翻身起来的声响，秧秧手上一停。　　\n“去河边。”穗穗已经迈出门槛了，回头冲妹妹一笑，长发甩过肩头，“那边有风，在家闷死了。”\n“外面太阳大得很……”\n“晒不死！”声音已经在院墙拐角了。\n\n河岸离家不算远，穿过两条巷子就到。穗穗走得快，折扇攥在手里，啪嗒啪嗒打着掌心。一拐上河堤，风便迎面而来，带着淡淡的潮润与凉意，裹着水草清甜的香气。那边正熙攘一片，近旁摊子上中年男人拨着算盘，算珠噼里啪啦地响，嘴里逐笔念着数。穗穗托腮看了一会儿，忍不住凑近两步，看着算盘进位归位，珠子在档中飞来跑去，她看得入迷，下意识跟着数，嘴唇轻轻翕动。\n那掌柜收了最后那档，抬头，正对上一双亮堂堂的眼睛，吓了一跳：“哪家的小丫头？”\n“刘掌柜，一共是三百二十七匹吧？”穗穗没答他的话，先报了数。刘掌柜低头看了眼账簿，又看了看她，胡子底下的嘴角绷不住了：“跟着我算盘数的？”\n“不用跟，您念数的时候我心算的。”穗穗笑嘻嘻的，一点都不怯，“前头那笔茶叶是一百零六斤半，是不是？我刚在那儿听了一耳朵。”\n刘掌柜把算盘往桌上一搁，上下打量她：“你这丫头……要不来我铺子里干吧？”\n“那您给多少月钱？”\n旁边几个人纷纷笑起来，刘掌柜也笑了，拿扇骨点了点她：“小老板，去去去，别在这儿捣乱。”\n穗穗也不恼，又摇着扇子晃到隔壁药材摊。摊上摆满了走水路运来的药材，穗穗好奇发问，走陆路不是更快？摊主便好脾气地讲给她听：“是快，但也更颠。药材经不起颠，这东西颠碎了可就不值钱了。”\n穗穗接过来，放在鼻子底下闻了闻，又小心放回去。走水路七天，走陆路三天，可碎了就折大半本钱，所以是时间换货值当——她把这笔账在心里过了一遍，觉得有意思极了。\n太阳慢慢沉下去，河岸上的人渐渐稀疏。最后几艘货船解了缆绳，船帆被晚风鼓起来，影子拖曳在落满碎金的水面上慢慢漂远。\n穗穗还坐在石阶上，摇着的折扇停了。她仰起头，追着那些船看，看它们过了浅滩，过了河心，终于渐渐矮下去，矮成天边一粒深色的点。\n“要去哪儿呢……”\n没有人回答她，她心里却已有了答案。那些船上装着粮食、布匹、药材，是来自北方的、南方的、山里的、水边的，它们要穿过江河，翻过山岭，去往很远很远的地方，去往那些……她还不曾到过的远方。\n\n总有一天我也要上那条船。站在船头，手里攥着货单。\n天色暗透之前，穗穗站起来，拍了拍裙上的灰。石阶上还残着日光的些许暖气，她起身，回头望了望那条河，在无边夜色之间，零星灯火缀于水面，何等美丽，何等让人眷恋的……太平世间。",
+        "hint": "好感度等级达到2后解锁"
+      },
+      {
+        "title": "秋",
+        "content": "秋来明庭，风卷着枯黄落叶贴上窗棂，又被揭走，像有人慢慢翻着一本旧书。\n秧秧要走了，去今州，做踏白。这事定下来已有半月，家里人嘴上不说，却各自忙着，像有什么活计是赶在她走前必须做完的。\n穗穗在屋里帮妹妹收拾行囊，樟木箱开了大半日，箱底铺着去年晒过的艾草，闻着仍有一股清苦。她把秧秧的衣裳一件件抖开，又依次叠紧，窗外有虫还在叫，断断续续，像是不甘心入秋。\n\n掺着樟木气息的秋阳，温和地落在她手背上。她抬眼，看见堂屋那根承重柱。\n柱上一道道横刻，从膝盖那么高，一直爬到她耳侧。最低的两道是秧秧的，七岁，九岁，是父亲蹲下来替她比划的，刀痕很浅，怕伤了孩子。穗穗记得那年的秧秧还站不太稳，要扶着柱子，幼小的孩子却分外乖巧，自己看了心中都隐隐生出骄傲之意——这是我的妹妹。\n再往上，就是自己的那道了，落于十四岁那年。那年她曾闹着要出门闯荡，要随人去别处学医，父亲没说不许，只让她在这柱子前站了半日：柱上的刻痕一道压着一道，她盯着看，看自己一寸一寸往上长……穗穗有些茫然地想，自己的成长速度似是很快，又似是很慢。个头窜了不少，但论及处世经验，又好像还多的是要学的。\n属于秧秧的刻痕越往上越密。去年腊月那道，是秧秧自己刻的，比自己只矮半指。今年开春以后，她便基本和自己一样高了。\n\n院外零星传来几声鸟叫，穗穗推门出去，秋阳撞在脸上，裹着几分暖意。檐下那只蓝背的雀正从枝桠间跃起，翅膀扑扇两下，惊得几片黄叶簌簌而落。秧秧正从院子另一头过来，她在阶前停了停，看见姐姐站在廊下，便走过来。穗穗也冲她笑了笑。\n“什么时候动身？”\n“明早。”\n穗穗“哦”了一声。她想再说点别的，话到舌尖又咽了回去。她伸手替秧秧拢了拢披风的领子，秧秧没动，等姐姐手收回去，秧秧才低声说了句：“我会回来的。”\n穗穗笑了一下：“去吧。今州风大，照顾好自己。”\n秧秧应了，刚巧父母喊她，她便往那边过去。她走得不快，腰板挺得很直，像已经在习惯做一个踏白。\n于是廊下又只剩穗穗一个人。那只蓝背的小鸟不知什么时候回来了，再次站在那枝桠上，仰着头叫了两声。叶子落了一阶又一阶，她弯腰捡起，想着该把它夹进哪一本书里，又觉得夹进哪里都一样。\n毕竟秋天总是要过去的。\n\n穗穗起身，听见院墙外遥遥传来马的嘶鸣，像是今州方向传来的回音——她知道不可能，但还是听了半晌，才终于转身回房。\n樟木箱还开着，等她回去合上。",
+        "hint": "好感度等级达到3后解锁"
+      },
+      {
+        "title": "冬",
+        "content": "梦州的冬天不常下雪，偏是这一年，仅半日雪色便轻轻柔柔覆在了湖面之上。船家把橹摇得慢，识趣地不开口叨扰。\n穗穗坐在船头，膝上搁着白瓷壶，壶嘴冒出来的白气一出即散。她替对面那位斟了杯，又将自己面前的杯子也斟满，茶汤落进杯里的声响极轻，却盖过桨叶拨水。\n谈判并不顺利。对方不愿让利，这场对局已经僵持了三日之久。今早穗穗派人递了帖，说先将此事放放，请来湖上坐坐。对方姗姗来迟，直到日头偏西，才披着灰斗篷上船，进来时只略略颔首。\n小舟飘向湖心。湖面起了一层薄雾，远处的山影正缓缓淡下去。\n难得散漫悠然的境地，穗穗自然没再提账目。她向来是聪明会说话的，便率先起头，从家乡谈起——讲家乡的水，清得能看见底下石头一颗一颗错落有致；讲幼时在河岸看商队卸货，麻袋码起来比她高出数尺，大人们在岸上算账，算盘声脆，令人着迷；讲离家那年落了场雨，雨声淅淅沥沥，隔着蒙蒙雨幕连来送行的父母的面孔也看不甚分明……那些渺远的故事乘一叶扁舟，摇摇晃晃，经隔多年，来到梦州这蒙着白雪的湖上。\n“对我而言，看过越多东西，越是爱这人世间。”穗穗说，“我想让那些好东西去到该去的地方。粮食到饥荒处，药材到病榻前，布匹到寒门中，但那些东西不会自己走到需要的人手里，总得有人把它们串起来。我不想只做那个看着的人。”\n对方没接话，只把茶杯搁回膝上，侧脸看湖。穗穗瞧见她搁在杯沿的指头压紧又松开，松开又压紧，最终只是逸出一声清浅的叹息。\n船靠岸时，才发觉雪又大了几分。梦州的雪细绒绒，像谁手里抖落的棉絮。对方踏上石阶，回头看了她眼，最终说出了那句明日再谈，这才撑起伞，走进雪幕里去。穗穗望着没于雪色之中的灰影，知道此事已现了转机。\n\n穗穗在岸边站了会儿才走。住的小院在湖东，进门时鞋底已然湿透。她蹲在炉前生火，火星溅了几下才燃起来，热气从炭里渗出，先暖了手背，再爬上面颊。窗外雪无声落，她靠着炉沿坐下，眼皮渐渐沉了。\n梦里是家乡的夏天，日头白得晃眼，屋内晒出一股木头的香气。商队卸着茶砖，船工扛着盐袋，铜钱串子被掌柜往柜台上一甩，叮叮当当，比琴乐声还好听。小穗穗才到大人腰高，站在账房窗台底下，踮脚趴在窗沿往里看，看得入迷，有人喊她都顾不上应，只兀自亮着那双眼睛。\n她那时不懂商道是什么，只觉得天底下最有趣的事都在这小小窗格里头。先生抬眼瞧见她，笑了笑，从笔筒里抽出支旧笔，自窗里递出来。穗穗伸手去接，那笔比她指头还粗，握在手里沉甸甸的，她攥着不肯放，从窗台底下慢慢站起来，铜钱声、骡马铃、伙计的吆喝、船工的号子，全都涌过来，将这小小的人簇拥在当中。她笑了，连眼睛都弯了起来，满满当当皆是欣喜。",
+        "hint": "好感度等级达到4后解锁"
+      },
+      {
+        "title": "她走过的四季",
+        "content": "入夜时分的玄方地界，暮色正从天际一寸一寸沉下去。\n穗穗走在城中长街上，鞋底踏过青石板，步子不紧不慢。天边的余晖还没散尽，将整条街都镀染上淡淡的橘色，檐角挂着的灯笼还未点亮，只在风里轻轻晃着。铺子陆续开始收摊，人们进进出出，搬着门板，偶尔传来几句闲话，散在暮风里，听不真切。穗穗从那些光影里穿过去，身影被拉得很长很长。\n\n快到要举办朝月会的时节了。街边铺子门前堆着几十匹彩绸，伙计搬进搬出，老板娘靠在门框上点数，嘴里念着数字，眉梢带笑。几个孩子从穗穗身边跑过去，路过拐角处那几只正热腾腾冒着香味的机关炉鼎时，又纷纷驻足，眼睛发亮地咽了半天的口水，这才终于恋恋不舍地走了。\n穗穗支着下巴，打量了一会儿。店家摆的是个卖“锦霞珠”的摊，那油亮软糯、喷香扑鼻的肉丸缀着碧色葱花，齐齐整整列在蒸笼中，看着就叫人食指大动。穗穗伸手点了点。\n“烦请来一笼锦霞珠。”\n店家抬头，瞧见面前站着个年轻姑娘，笑眼盈盈的，便也笑着应了声。穗穗接过装好的锦霞珠，付过钱，又多递了一份贝币过去。\n“方才跑过去的那几个孩子，一人给装一个吧。”她拎起袋子，声音轻盈地飘回来，“不用说谁买的。”\n店家愣了愣。那钱留在摊面上，身影已经消失在了人群中。\n\n暮色沉下去，茶楼酒肆的灯陆续亮起来，暖黄的光从窗格子里漏出来铺在地上。穗穗踩着那些光走，手里拎着那袋热气腾腾的肉丸，风将耳边碎发吹到脸上也没腾出手去拢。\n想起今天出门急，水扇忘带在身上了。她笑了一声，倒不在意，能让她动扇子的时候本来就不多，真正要紧的风浪早在守城战那几天翻过去了。眼下的日子寻常得很，寻常到她有空在街上闲逛，有空停下来看人们是怎样度过一个再普通不过的黄昏。\n脚步不知不觉快了。\n穿过前头那条窄巷，再过一座小桥就到了。妹妹在那里，那个人也在那里。她不知道那头此刻是不是已经点起了灯，不知道{Male=他们;Female=她们}能不能吃得惯这道菜？\n她曾走过明庭的春夏，水面波光粼粼，美不胜收，小小的穗穗奔跑在喧嚷人群中，任风扬起她的长发，满心满眼只有那生动、鲜活直叫人不舍移开目光的烟火万象；亦走过梦州的秋冬，于湖上起雾的早晨泛舟去谈生意，于落雪的傍晚独坐窗下，炉火噼啪响着，手里攥着迢迢而来的家书，看了一遍又一遍，直到墨迹被热气氲开。\n如今又走到了这个傍晚。脚下是玄方地界的路，手里有给惦记的人带的东西。穗穗把袋子换了只手拎，步子越来越快，风从长街那头灌过来吹得袖摆翻飞，街面上是朦胧错落的灯影，她眯了眯眼，没慢下来。\n桥就在前面了。",
+        "hint": "好感度等级达到5后解锁"
+      }
+    ],
+    "words": [
+      {
+        "title": "心声·一",
+        "content": "云青青兮欲雨，水澹澹兮生烟……你看，今日这烟雨色如何？我在梦州城中行商时，常见这样的天气，与玄方城处有细微的差别，和我故乡的景致更是不一样……或许这世间的雨，也各有各的脾气呢。但就是这样的细雨，落在青石板上溅起水花，亦落在数十载以前的我身上，我听到了它呼唤我的声音，自此水随我意，或流或息，轻轻拨弄时，它便会应我而来。\n如今走在雨中，不必撑伞，也不必躲。雨丝识得我，我也识得它们。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_suisui_sys_toplayer01.mp3"
+      },
+      {
+        "title": "心声·二",
+        "content": "说到故乡，不由想起小时身在明庭的那段时间。三月里草长莺飞，天色一日比一日轻快，我常拉着秧秧去院里放纸鸢，风一起，线便绷得直直的，迢迢牵着天边的云。我嫌它飞得不够高，总要多跑几步，非要让它压过别人的才甘心。院中鸟雀啁啾，树影婆娑，日光从枝叶间筛下来，碎金似的铺了一身……那就是我记忆中最好看的光景。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_suisui_sys_toplayer02.mp3"
+      },
+      {
+        "title": "心声·三",
+        "content": "那时候的春天，和风柔软，天色澄蓝，院墙中偶有琴声悠悠地飘来。你知道，我们家当然是不缺乐声的，堂前屋后，丝竹管弦终日不绝，流水似地淌过我耳边。当然啦~父母都由着我的性子，从不逼我坐在琴凳上规规矩矩地练指法。秧秧不一样，她打小就能安安静静地听完整支曲子，小手学着大人的样儿在膝头点拍子……相比之下，我还是更爱跑到敞亮的地方去跳跳舞。脚下一点，衣袖一转，借风势起落，像是把整片天光都揽进怀中，没有比这更惬意的事了。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_suisui_sys_toplayer03.mp3"
+      },
+      {
+        "title": "心声·四",
+        "content": "至于院外呢，那是另一个世界。我喜欢去码头边，听货船靠岸时缆绳勒进木桩的闷声，商贩扯着嗓子叫卖的吆喝，算盘珠子噼里啪啦的脆响……这些声音比任何乐曲都让我着迷。我常蹲在货摊前看账本，有模有样地替人家算几笔账，又或是摊开舆图，指着某处说“这条路绕远了，走水路能省两天”。大人们起初只当我是小孩胡闹，转头才发现我说得竟有几分道理，母亲后来跟父亲提起，笑说穗穗兴许是有从商的天赋呢……嗯，你觉得呢？",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_suisui_sys_toplayer04.mp3"
+      },
+      {
+        "title": "心声·五",
+        "content": "那时候我只是觉得热闹，直到后来，经历了一些事、见证了一些事，才逐渐懂得，所谓“太平盛世”并非理所当然，而是需要人去努力维系的脆弱之物——而我，想成为这样的人。我爱这大好河山，更爱这世间烟火，既如此，自然不能只守一隅之安。可我也知道，一人的力量终究有限，我见过灾后的村庄，见过流离失所的人，见过再多货物也填不满的缺口……那并非是我一己之力能改变的现状。\n你说……倘若这万里山河真有一日要押上一注，有没有人，能同我一起织就理想中的光景？\n我想要的是生机与盛世。而在你眼里，我看到了它得以流转的可能。\n所以这条路，若你愿意……就与我一同吧。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_suisui_sys_toplayer05.mp3"
+      },
+      {
+        "title": "穗穗的喜好",
+        "content": "啊……那可多了去了，近来尤其沉迷这些古玩字画，哪怕只是坊间仿作也有趣得很——有些门道，得亲眼看过才知道，原来坊间会用这种工艺去实现啊~其实我自己也画了些，还挺像样的，要不要看看？",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_suisui_sys_taste.mp3"
+      },
+      {
+        "title": "穗穗的烦恼",
+        "content": "烦恼吗……大部分烦恼都可以靠钱解决啦，唯有一件事：妹妹长大了怎么办？唉，你说，她怎么就不需要我牵着了呢？",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_suisui_sys_worry.mp3"
+      },
+      {
+        "title": "喜欢的食物",
+        "content": "当然是各类点心！什么豌豆磨的黄玉糕，芸豆裹的豆沙卷，还有软乎乎的金粉糍团，甜而不腻，入口即化……还有梦州这儿的“满轮映雪”我也喜欢，软糯里带点儿清香，和故乡的风味全然不同，总有一天我得带回去给家人尝尝。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_suisui_sys_foodlike.mp3"
+      },
+      {
+        "title": "讨厌的食物",
+        "content": "虽然来了梦州这带很久，不过至今还习惯不了腌菜呢……唉，很是可惜，每每看到那晶莹剔透精致绝伦的菜肴我却居然没法下口，实难不让人扼腕。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_suisui_sys_foodhate.mp3"
+      },
+      {
+        "title": "抱负和理想",
+        "content": "我要的并非一方富庶。我要的是物畅其流，人畅其所，我要此地灯火长明，岁岁不熄。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_suisui_sys_dream.mp3"
+      },
+      {
+        "title": "凝音·一",
+        "content": "水饺，过来~喏，你看它，很好玩儿吧？它很喜欢水，每当我用共鸣能力调和水流时，水饺就会欢喜地在周遭打转……嗯，小鸟就是很好哄的。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_suisui_sys_storyobj.mp3"
+      },
+      {
+        "title": "凝音·二",
+        "content": "虽然家里一直由着我的性子，但真走上商道，也不是仅凭一时冲动的事。起初不过是去街上听听，看商贩们是怎么定规矩、怎么谈生意，再自己逐步去尝试，看着账本上的数字渐渐变化，看着一条条商路从无到有，看着那些经由我手的货物变成别人手里的粮食、布料、药材……这比什么都更有成就感。商道嘛，说到底不是算计，是让人活下去的路。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_suisui_sys_storyexp.mp3"
+      },
+      {
+        "title": "关于秧秧",
+        "content": "从小身边的人就说，我和秧秧，只有这张脸生得相像，性格却全然不同。我爱往外跑，见什么都要凑一眼，她则温柔内敛，久而久之，旁人就爱拿这事打趣，问我们当真是亲姐妹吗？我和秧秧都不会为这种话不满，毕竟我们都心知，世上再找不出第二个能与彼此如此相似的人。我妹妹看着温软，可骨子里比谁都勇敢和坚韧，她是能带来风的人，也是能替身后人挡住风的人。这些，我一直都知道。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_suisui_sys_about_yangyang.mp3"
+      },
+      {
+        "title": "关于心",
+        "content": "与瑝珑其他处的的岁主不同，心给人的感觉……并非遥不可及的神明，相反，我能从她身上窥见属于“人”的一部分。或许正是知道她对这世间的喜爱，我才敢怀抱笃信，走至她眼前。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_suisui_sys_about_xin.mp3"
+      },
+      {
+        "title": "关于清宵",
+        "content": "我手下曾有商队报告，他们在玄方地界附近遭遇残象围困，却有幸得到了一位“仙人”的帮助。前不久，我备了些薄礼找到了清宵司骑，想连着守城战的份好好感谢她。她什么也没收，倒是喝了几杯我亲手泡的茶。哎，这么说起来，仙人喝了都说好的茶饮，会不会很有卖点？",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_suisui_sys_about_qingxiao.mp3"
+      },
+      {
+        "title": "关于景燃",
+        "content": "「鬼猫挈灯」……坊间传得神乎其神，说他提一盏幽灯，着一身玄衣，来去如影，出入间总带着几分幽冥之气。我与他不过寥寥数面，只觉他年纪虽轻，眼底却不像是没见过风浪的样子，这般不羁出格之人，反倒让我有了几分好奇——不知这样的人，会不会有什么在意的、能够掣肘他的东西呢？",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_suisui_sys_about_jingran.mp3"
+      },
+      {
+        "title": "关于母亲",
+        "content": "外人谈及她，总要先称一句“制曲名家”，不过对我而言，她就是那个会雨天坐在廊下，怀抱着我和秧秧给我们讲些天南海北故事的母亲。我总是急急地问后面的剧情，比我还小一点的秧秧则似懂非懂，只乖乖仰头望着她……哎，我们就是这样长大的啊~",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_suisui_sys_about_muqin.mp3"
+      },
+      {
+        "title": "关于父亲",
+        "content": "我总觉得，这世上再难有比他更开明的父亲了。明明是教书先生，可从不见他摆什么长辈架子，说话风趣得很，信手拈来的典故也能讲得像在说书，每次收到他寄来的家书，总要被逗笑几回——明明千里之外的事，经他一写，就像是邻家的热闹一般。怎么样，等空了要去明庭坐坐吗？那边的风光也很美，我们家有最好的茶。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_suisui_sys_about_fuqin.mp3"
+      },
+      {
+        "title": "生日祝福",
+        "content": "今日是你的生辰，我可记着呢。\n本想替你张罗一场盛大筵席，菜肴摆满，谁都走不开的那种——可转念一想，这样的热闹什么时候都能有，至于今日，便留你依照自己的心意来吧。想热闹便去热闹，想清净也无人敢打扰，难得这样的好日子，自然要偏着自己一点。\n我这人向来贪心，好日子要慢慢过，好的相逢，自然也不会只有一时热闹。天下之大，时日之长，珍馐满堂也好，独一盏茶也罢，尽管向我开口便是。\n愿你年年有今日，岁岁有今朝。此行从心，所至皆明。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_suisui_sys_birthcele.mp3"
+      },
+      {
+        "title": "闲趣·一",
+        "content": "看好了哦，水饺……如何？栩栩如生。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_suisui_idle_idle01.mp3"
+      },
+      {
+        "title": "闲趣·二",
+        "content": "但愿民康物阜，海晏河清。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_suisui_idle_idle02.mp3"
+      },
+      {
+        "title": "闲趣·三",
+        "content": "（语气词）",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_suisui_idle_idle03.mp3"
+      },
+      {
+        "title": "自我介绍",
+        "content": "若这还不够铺平前路，那就以这万里河山，来为我的心作注。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_suisui_sys_nature.mp3"
+      },
+      {
+        "title": "初奏",
+        "content": "清流往复处，自有春山可望。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_suisui_sys_gacha.mp3"
+      },
+      {
+        "title": "入队·一",
+        "content": "正合我意。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_suisui_sys_jointeam_01.mp3"
+      },
+      {
+        "title": "入队·二",
+        "content": "这阵仗……有几分意思。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_suisui_sys_jointeam_02.mp3"
+      },
+      {
+        "title": "入队·三",
+        "content": "嗯，正是时候。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_suisui_sys_jointeam_03.mp3"
+      },
+      {
+        "title": "突破·一",
+        "content": "水声……我听见了。不只是溪流抑或雨落，而是更深的……从万物深处里渗出的共鸣，唤醒山涧，唤醒江河。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_suisui_sys_rankup01.mp3"
+      },
+      {
+        "title": "突破·二",
+        "content": "细雨蒙蒙的梦州，多数人出门总要撑一把油纸伞，或是匆匆躲进屋檐下。而我无妨，只慢悠悠走在雨里便好，雨丝会绕过我肩头，轻巧地落去别处……嗯，靠近我一些，便无需打伞了。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_suisui_sys_rankup02.mp3"
+      },
+      {
+        "title": "突破·三",
+        "content": "我想，这世间最动人的，莫过于抬眼便能望见的好光景。晨光初透时，江面上浮着碎金，渔船三三两两，橹声咿哑。待市集开了，热气腾腾的包子笼屉一掀，白雾裹着香气散开，混着不远处茶楼的丝竹声，以及孩童追逐的笑闹声……而如今，我不仅能听见它们，还能感受到它们背后的脉络，这些声音交织在一起，便是我最舍不下的人间。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_suisui_sys_rankup03.mp3"
+      },
+      {
+        "title": "突破·四",
+        "content": "商道二字，说来无非是买进卖出，可细细看去，每一条商路的尽头，都连着寻常人家。北方的粮，南方的茶，山里的药材，水边的布匹——总得有人把它们串起来，像穿针引线一般，将这头的丰盈补到那头的短缺。那些看不见的货物往来，其实是一双双手，在托着这世间烟火气，令它生生不息……水能穿石，也能润物；商能逐利，亦能济世。这就是我想做的事。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_suisui_sys_rankup04.mp3"
+      },
+      {
+        "title": "突破·五",
+        "content": "这山河如此历历如画，人间如此熙来攘往，一个人看难免寂寞，多一人在身侧，一切便刚刚正好。所以……往后那些光景，就一同去看吧，这天下之大，还多的是未曾见过的无边风月，等着你我。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_suisui_sys_rankup05.mp3"
+      },
+      {
+        "title": "普攻·一",
+        "content": "东风入律。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_suisui_atk_atk04_01.mp3"
+      },
+      {
+        "title": "普攻·二",
+        "content": "霞卷云舒。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_suisui_atk_atk04_02.mp3"
+      },
+      {
+        "title": "普攻·三",
+        "content": "盈盈一水间。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_suisui_atk_atk04_03.mp3"
+      },
+      {
+        "title": "普攻·四",
+        "content": "烟雨霁。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_suisui_atk_atk03_pro_01.mp3"
+      },
+      {
+        "title": "普攻·五",
+        "content": "棹歌轻。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_suisui_atk_atk04_pro_01.mp3"
+      },
+      {
+        "title": "普攻·六",
+        "content": "云归岫。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_suisui_atk_atk03_pro_02.mp3"
+      },
+      {
+        "title": "普攻·七",
+        "content": "月满汀。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_suisui_atk_atk04_pro_02.mp3"
+      },
+      {
+        "title": "普攻·八",
+        "content": "舟一叶。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_suisui_atk_atk03_pro_03.mp3"
+      },
+      {
+        "title": "普攻·九",
+        "content": "载山青。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_suisui_atk_atk04_pro_03.mp3"
+      },
+      {
+        "title": "重击·一",
+        "content": "疏钟渡水。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_suisui_atk_heavyatk03_01.mp3"
+      },
+      {
+        "title": "重击·二",
+        "content": "浮岚漾碧。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_suisui_atk_heavyatk03_02.mp3"
+      },
+      {
+        "title": "重击·三",
+        "content": "澄江如练。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_suisui_atk_heavyatk03_03.mp3"
+      },
+      {
+        "title": "空中攻击·一",
+        "content": "空翠湿衣。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_suisui_atk_fallingatk_pro_end_01.mp3"
+      },
+      {
+        "title": "空中攻击·二",
+        "content": "飞鸢衔青。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_suisui_atk_fallingatk_pro_end_02.mp3"
+      },
+      {
+        "title": "空中攻击·三",
+        "content": "较若画一。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_suisui_atk_fallingatk_pro_end_03.mp3"
+      },
+      {
+        "title": "极限闪避·一",
+        "content": "慢了呀。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_suisui_com_limitdodge01_01.mp3"
+      },
+      {
+        "title": "极限闪避·二",
+        "content": "水流如此。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_suisui_skill_dodge01_01.mp3"
+      },
+      {
+        "title": "极限闪避·三",
+        "content": "看明白了么？",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_suisui_com_limitdodge02_01.mp3"
+      },
+      {
+        "title": "闪避反击",
+        "content": "未免心急了点。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_suisui_atk_dodgeatk_01.mp3"
+      }
+    ]
+  },
+  "清宵": {
+    "bio": "隐世剑修，挂名玄方城镇玄司骑，为人清冷疏离，淡漠无情，琴剑双绝。\n她亦是世人口中的“剑仙”，执剑护佑一方山河，岁月悠长，寒芒如初。",
+    "stories": [
+      {
+        "title": "司骑之事",
+        "content": "镇玄司骑现身军策府，确实是难得一见的事。\n当清宵从飞剑上下来时，军策府里的人们纷纷停下了手头的事，向她行起了注目礼。\n她方才接到秋鸿卫长的梁鸢传信，前往某座咎庭处理意外逃逸的数十只残象。现在前来，是向卫长告知下结果。\n“都解决了。”清宵简短地说。\n卫长点头道谢，但眉头仍未舒展。近些年咎庭的换防常出现纰漏，不是残象趁乱逃脱，就是机关故障引发异常。现任后玄三骑虽骁勇善战，配合无间，但自从其中一位重伤告退后，是一名年轻的定玄卫在战阵中临时补缺。她资历尚浅，终究有力不能及的地方。得尽快选拔正式的人选。\n不过，这些事务与清宵无关。在她即将踩上飞剑时，一个犹豫的声音喊住了她。\n“仙子姐姐！不，清宵司骑，我想……和您学剑，可以吗？”\n清宵回头见到了一个扎着利落马尾的少女——椋羽手里拿着一柄长枪，显得有些迟疑。\n“我跟青枳和杜仲一起作战了一段时间，他们或许还是更习惯和剑配合，我用的却是枪……所以……”\n“我不擅长教人，你也不必学剑。”清宵的语气依旧淡漠。\n“这样啊，我知道了……”椋羽眼神一黯，“谢谢您，我会再想想办法的。”\n“但我可以试试教你学枪。”\n“啊？”\n\n眼前的女子身法飘逸，翩若惊鸿，手中银枪灵动自如，应势而动，在空中划过数道月白色轨迹。枪在她手中不像是武人的兵器，反倒更像是书法用的毫笔。一招一式皆如行云流水，收放自如。\n椋羽惊得快合不拢嘴了：“清宵司骑……原来您还会用枪？”\n“以前见人用过。天下武学皆有相通之处，若能做到心意所至，枪尖即达，你的枪在与人配合上未必不如剑。”清宵说着，将长枪递给椋羽，“你来一遍。”\n椋羽硬着头皮跟着清宵演示的招式练了一遍，却是章法全无，漏洞百出。\n“再来。”清宵说。\n一直练到了黄昏，椋羽仍未学到家。清宵并没有进行循序渐进的教导，她所演示的枪法太过高深，动势中蕴含着万千气象。椋羽始终没有放弃，感受着枪势的变化。在不经意的某个瞬间，她手中枪尖伴着流风破空，爆发出前所未有的威势。\n恍神之际，椋羽听到一阵轻轻的掌声，那正是来自清宵。\n“你学会了。”\n“可我完全跟不上您的路数……”\n“若真能做到一模一样，反倒不是你自己的领悟了。”清宵的神色少见地有些温和，“你的心念已经到了，所欠缺的，就唯有时间了。”\n椋羽怔怔地看着清宵，过了好一会儿，才若有所悟地点点头。\n\n后来，军策府正式迎来了一位新的后玄骑使。在就任仪式上，镇玄司骑也罕见地到场了。\n清宵远远看着椋羽身披银甲，英姿飒爽，依稀窥见了两百年前一位故人的风貌。\n你又无故介入凡间之事，徒增因果。\n有个声音在耳边响起，嗓音与清宵几乎相同。\n她很可能有一天会倒在和残象厮杀的战场上，就像铃坊，就像……若云。\n这一回，你打算护他们多久？能护他们多久？\n清宵没有回应。",
+        "hint": "好感度等级达到1后解锁"
+      },
+      {
+        "title": "云渊之后",
+        "content": "雨水正缓缓升起，清宵呼出一口气，持剑望向夜空中的两个月亮。\n最醒目的那轮满月泛着紫色幻光，几乎占据了大半夜空——无相燹主正冷眼注视着云陵谷，注视着她。无论她用飞剑斩杀了多少残象，都会有源源不断的兵力填补空缺。必须尽快找到鸣式力量的源头，了结它，否则残象便会无穷无尽。\n——要快些了，渊城还在等她。\n\n雪从树梢上落在了肩膀上，打坐的清宵睁开眼，从回忆中脱离。\n云渊之役结束后不久，玄方地界反常地下了三天大雪，就连她居住的这座无名峰也覆上了白雪。\n一个身材高挑的黑发女子踩着雪来到了清宵身后，双手端庄地安放在身前。\n“你是……心。”清宵轻轻地说。\n“哎，清宵仙子怎么认出来的？因为味道吗？”\n心有些诧异，抬手对着自己东嗅西嗅。随着黑发变得雪白，祂的一对狐耳再也藏不住，自头顶冒了出来，服饰妆容也随之一变。清宵起身，面色沉静地凝视着眼前的“神明”。\n“先前鸣式来袭的时候，你在什么地方？”她冷冷地问。\n隐约有凛冽的剑意化作无形的锋芒，笼罩在两人的周围。\n“当时我就在神宫之内，清宵。大家……都已经尽力了。“心的狐耳微微耷拉下去。\n两人就这样对视着，直到又有些积雪从树梢上落了下来。\n“……是我急躁了。”清宵垂下眼帘。\n“其实，我是来邀请你的。”心向清宵走近了一步，“如今玄方地界百废待兴，隐患众多。我想向军策府提议增加一个为你而设的职位，镇玄司骑。有个官方的身份，想必许多地方会方便不少。”\n“镇玄司骑……”\n“你无需承担什么俗务，只要在紧要关头帮帮玄方地界就行。即便你接了，哪天想走也可以随时退出。不知你意下如何？”\n见清宵沉默着，心露出微笑。\n“倒不用现在就答复。既然玄方城已经建好了，你可以先搬过去慢慢想。”\n清宵摇摇头：“……不了。此地清幽僻静，远离人烟，于修行正合适。”\n“还是这个理由吗？没关系，玄方城随时欢迎你。”\n心说完便转身走去，似乎就要离开。走出几步后，她停了下来，侧过头。\n“再过几个月……就又要举办朝月会了，也算是大家的想法。到时候，一起来过节吧，清宵。”\n清宵看着心化作一道狐影离去。她走到崖边，眺望刚经历过战火的玄方地界。原本渊城所在的位置，只剩下一片寂静的深渊。长风掠过她的耳畔，如泣如诉。",
+        "hint": "好感度等级达到2后解锁"
+      },
+      {
+        "title": "斩心魔",
+        "content": "修行者惯常以修心为业，追求共鸣力运用的极致，在修行时少不了与自我对峙。\n很久以前，清宵刚上山修行，师父便交给她一个重要的任务。\n“清儿，为师修为已至瓶颈，预备斩除心中的魔障，以求突破。为此，需要你担任执剑之人。”\n“执剑之人……？”\n“如若为师出了差池，为心魔夺舍，你便斩了我吧。”\n彼时的静微真人神情平静，语气平淡，仿佛在说一件和吃饭喝水无异的小事。\n“徒儿做不到。”清宵摇摇头。\n“即便初入修行，你那身剑术也是出类拔萃，已能堪此重任。”\n“不，徒儿怎能对师父做这样的事……这……大逆不道。”\n静微少见地笑了：“大道无情，修行本就如行棋弈局，落子无悔。还是说，万一为师失败了，你愿意看到我身陷超频，神志疯魔的模样？”\n清宵沉默许久，终究是应了下来。\n翌日深夜，凭着师父给的一缕频率，清宵得以进入了她的内景之中。\n静微内景中的景色是一座高耸入云的山峰，上面覆满了白雪。如今整座山峰都被浓雾笼罩，数米开外便不能视物。清宵坐在峰顶，将剑横放在大腿上，忐忑不安地等待师父和心魔决出结果。\n万一师父输给了心魔，她真的能对师父挥剑吗？清宵不知道答案。\n一炷香过后，清宵隐约看到前方的雾气中出现了一个人影。她当即起身，单手握剑，横于胸前，摆了个起手式。随着雾气逐渐散去，人影也越来越清晰，直到完全显露身姿。\n“清儿，为师成了。”静微淡淡地说。\n此时，峰顶的雾气已完全散去，旭日东升，霞光万丈。\n“……师父，我入门宴上的那碗红烧肉味道可好？”清宵问。\n“为师不曾点过红烧肉。”静微答。\n当真是师父回来了。剑差点脱手坠地，清宵如释重负。\n\n“修行路上，修行者都会遇到心魔吗？”\n在离开内景的路上，清宵问静微。\n“它生于你我的自我，只要活得够久，总会遇到的。”静微依旧神情淡漠，似乎斩除心魔没给她带来任何变化。\n“若是与心魔对峙，便只有你死我活的结果吗？”清宵低头问。\n“不错，哪怕你执意拖延，也终有一日需要做个了断。”\n过了一会儿，清宵抬起头：“既然心魔是自我的一部分，那徒儿想看看有没有别的路可走。”\n此言一出，静微停下脚步，对着身旁的徒弟眯起了眼睛。\n“想法很好。但若你哪一天心魔缠身，为师并不会为你出手。”\n倒像是师父会说的话，她是完美的修行者，从不沾染尘缘和因果。如今她斩除了心中杂念，当然更凉薄了。清宵倒也不觉得意外。\n“到时候，你也学我一样，收个好徒弟吧。”\n“……咦？”\n清宵看向静微的脸庞，后者淡然的神情里似乎带着些许笑意。",
+        "hint": "好感度等级达到3后解锁"
+      },
+      {
+        "title": "剑心未改",
+        "content": "在修行入定的半梦半醒间，清宵偶尔会坠入极为久远的往事之中——\n“阿清，那个被你打跑的老剑客又来了！”\n村里的孩子们来报信的时候，阿清正坐在树荫下一边翻阅秘籍，一边用树枝比划剑招。她腕上红绳的珠玉在斑驳的阳光下泛着灵动的光。\n这本秘籍描绘了不少精深的剑术，即使她对着练习了无数遍，也只能模仿个大概，更别说学得其神韵了。\n“咳咳，帮忙看着我的羊，我再去会会他。”\n上个月惹的风寒还没完全好，她忍不住咳嗽了几下。\n前几天那名外来的老剑客在村里的小客栈喝了些药酿，便趁着劲头，想强行赊账。他剑未出鞘，就把来拦他的伙计们都打趴下了。最后是她手持一根树枝，凭着记忆里的剑法，刺在了他右手虎口，将他的剑打落了。\n老剑客依旧抱着剑坐在客栈大堂的中央，但不同的是，这次他在桌上也放了一把剑。\n“坐吧。等你很久了，小姑娘。你之前用的剑术很不同寻常。”\n“这又与你何干？”\n阿清大大方方地坐在了老剑客的对面。\n“容老夫问一句，你为何习剑？”\n“为了强身健体……为了对付像你这样闹事的人。”\n老剑客哂笑了一下：“不够。哪怕剑术能千人敌、万人敌，在这个世道上仍然不够。你将来会遇到的困难，总是比你手上的剑厉害。”\n“最起码……我能护住身边的人。”阿清说。\n听到这里，老剑客将桌上的剑往阿清的方向推了推。\n“好，那就不要忘了。今后用它练吧，树枝终究比不上真剑。”\n阿清将信将疑地将“剑”拿了起来，重量沉甸甸的，她还需要习惯。然后，她看出了些端倪。\n“这……倒更像是一把刀。”\n它看上去低调朴实，唯有护手处有一抹显眼金色，却似乎蕴着不小的威势。\n“如果你想学{TA}的剑，用它入门自然会快些。”\n后来有一天，残象潮汹涌而来，毁掉了阿清出身的家乡，使她自此开始漂泊。彼时她的剑在残象面前只能自保，即使竭尽全力，也不过救下了十几位乡亲。在带人撤离的路上，她曾远远望见几道冲天而起的剑气，残象潮在不久后便平息了。不知为何，这让她想起了那名老剑客。",
+        "hint": "好感度等级达到4后解锁"
+      },
+      {
+        "title": "道是无情却有情",
+        "content": "某一天，那个人离开后，清宵回到了峰顶的小屋里。当她坐下时，不远处的老旧梳妆镜映出了另一个模样的她。\n镜子里，身着月白长裙的蓝发女子有着一双紫色的眼眸。她正看着自己的眼睛——\n\n这样就足够了吗？\n“已经足够了。”\n不对不对，你心里还藏了不少事。\n清宵，你为什么都收{TA}为徒了，也没说出来，你曾想过做{TA}的……徒弟？\n“我已另有师承。”\n呵，静微师父可从未认过你的剑法是她教的。\n你和那个人说了那本秘籍是重要的机缘。但你没说，年少的你摩挲着秘籍，想象{TA}会是什么人的那些日夜。\n你说了你曾在瑝珑寻过{TA}的踪迹。但你没说，你当年下山云游的原因，除了解答师父给的那道天问，便是想找到{TA}。\n“嗯，这确实是清宵……有过的想法。”\n“当初若有机会，这也不失为一种别的选择。”\n既然如此……既然你留着这些杂念，为什么不敢坦率地说出来？\n“不是不敢，而是……不能。”\n“既然{TA}这一世选择了重新来过，我就不该让这些陈年旧事给{TA}增添纷扰。”\n很好。\n不久后，{TA}想必就会为了这尘世踏上新的旅途。你身为师父，又该怎么办？\n“……且惜当下。徒儿总归是要远行的，我在玄方地界，也还有该做的事。”\n“这几段不长不短的同行，已足够告慰过往的岁月。”\n我听腻了你的大道理，也看腻了你的故作姿态。\n“我不会骗自己。更何况……”\n\n清宵将指尖安放在弦上，抚起了琴，清雅的琴音随即盈满了整个屋子。\n镜子里的她叹息了一声，却也露出了微笑。\n山海皆可平，久别总有再相逢。\n说与不说的一切，早已寄托于或曾纷乱的弦音之中了。",
+        "hint": "好感度等级达到5后解锁"
+      }
+    ],
+    "words": [
+      {
+        "title": "心声·一",
+        "content": "上回周游瑝珑已是数百年前，如今各州应有了不小的变化。等该做的事做成了，我想外出云游一段时日。也许，我可以去更远的地方，顺着你苏醒以来的行迹走走。听说黎那汐塔还有位从海潮中领悟剑道的圣女？若能拜访交流一番，想必会有不少新体悟。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_qingxiao_sys_toplayer01.mp3"
+      },
+      {
+        "title": "心声·二",
+        "content": "我惯常在琴中温养剑意，剑意本就因心念而生，久而久之，我的琴音里便混入了不少心音。但我此前从未想过，有人能直接从琴音中读出我的心绪。高山流水，知音难觅。待到云开月明，再听我为你抚一曲吧。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_qingxiao_sys_toplayer02.mp3"
+      },
+      {
+        "title": "心声·三",
+        "content": "之前的那场守城战，来晚的我在高处俯视满目疮痍的战场，望见了奋战其中的你。那一刻，我们的位置与当年互换了，我也理解了你那时的心情。从过去到现在，你总会为了不确定的未来尽心竭力。即使我们所做的一切，最终只是将潮水推迟了片刻，也绝非徒劳。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_qingxiao_sys_toplayer03.mp3"
+      },
+      {
+        "title": "心声·四",
+        "content": "这个起手式，你可认得？嗯，这就是我踏上修行前惯用的剑招，也是我当初习剑的契机。接下来的比剑无关共鸣力，仅仅是剑法和心力的较量。谁输了，谁就负责扫道馆门前的落叶吧。徒儿，看剑。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_qingxiao_sys_toplayer04.mp3"
+      },
+      {
+        "title": "心声·五",
+        "content": "徒儿，玄方地界只是你漫长旅途的暂歇之地，不久后，你想必会再度远行。这段相处的时日，于我已是难得可贵。下次重逢，会是相隔数月，相隔数年，还是如曾经那般，相隔百年？嗯……来日方长，总有相见的机会。待到那时，你我只需将一路的见闻，尽数交托给手中的剑。仅是剑意相接，便胜过千言万语了。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_qingxiao_sys_toplayer05.mp3"
+      },
+      {
+        "title": "清宵的喜好",
+        "content": "修行的间歇，我会记述当下的见闻和体悟。自习得凌空书字后，我就很少使用纸笔，更多时候，是用剑气在内景中铭刻旧事。刻下来了，便难忘记。世事如过眼云烟，但只要仍有人记得，便不算完全消散。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_qingxiao_sys_taste.mp3"
+      },
+      {
+        "title": "清宵的烦恼",
+        "content": "我头顶的双角与共鸣力相伴而生，维持如今形态已逾百年。近来，它竟隐隐有生长的趋势。如果它将来再往上延伸几寸，多少会有些不适应。若真如此，或许我可以用剑削……没什么。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_qingxiao_sys_worry.mp3"
+      },
+      {
+        "title": "喜欢的食物",
+        "content": "我对饮食没有偏好，修行本就要节制口腹之欲，乃至常年服气辟谷。若说有什么印象深刻的，便是当年渊城朝月会期间，在渊中鲜里尝过的那些菜肴了。尽管渊城已经逝去，它们的味道仍然传承至今。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_qingxiao_sys_foodlike.mp3"
+      },
+      {
+        "title": "讨厌的食物",
+        "content": "重州菜大多用料浓厚，口味辛辣，我吃不习惯。心知道了，便在请我品尝的糕点里偷偷加了些产自重州的辣酱。当时我虽然不动声色，还是忍不住喝了不少茶水……",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_qingxiao_sys_foodhate.mp3"
+      },
+      {
+        "title": "抱负和理想",
+        "content": "成仙得道……？那是大多数修行者所希求的终点，我也曾想过。但大道无垠，翻过高山之后，所见的仍是高山。我们总是行在路上，无非是谁走得更远一些。事到如今，我潜心修行，磨砺剑道，不过是……图个心安。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_qingxiao_sys_dream.mp3"
+      },
+      {
+        "title": "凝音·一",
+        "content": "当初我拜师修行，却很难静下心，便瞒着师父在身上缠了不少据说有清心效力的丝带。此举果然有了成效，随着修为精进，我便一根根解了下来，只留了左手上这些。后来我才得知，师父从一开始就知道，只是当面没戳穿。她说这些丝带其实没什么神奇功效，我不过是借此得了些信心，少了些杂念。现在我留着它，也是为了提醒自己——修行贵在心诚。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_qingxiao_sys_storyobj.mp3"
+      },
+      {
+        "title": "凝音·二",
+        "content": "我在玄方地界这些年，偶尔会下山助人。久而久之，山下便有了不少关于我的传闻，其中夸张的成分总要多些。有人奉我为行满功成的仙人，在家中供奉香火，也有人将镇玄司骑当做无所不能的象征。起初我还会否认，后来便听之任之了。毕竟，“玄方地界有仙人坐镇”，这种说法总会让人们安心一些。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_qingxiao_sys_storyexp.mp3"
+      },
+      {
+        "title": "关于心",
+        "content": "心随性自由，情感丰沛，与瑝珑其他岁主性情全然不同。当初，便是祂邀请我在玄方城挂名“镇玄司骑”一职的。那时祂常常上山，和我讲玄方地界的逸闻琐事，一开口便难停下。唯有我弹琴时，祂才会安静片刻。聆听琴音时，心偶尔会流露些许落寞的神色……祂一直以为在我面前掩饰得很好。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_qingxiao_sys_about_xin.mp3"
+      },
+      {
+        "title": "关于长离",
+        "content": "离火确实是世间罕见的凶险之物。我的清心术法也仅能做到缓和她所受的灼痛。若想不焚及自身，唯有修持心境，掌控共鸣力的流动。如今她已能将离火运用自如，先前损耗的寿数固然难以追还，但只要她不再过度消耗自己，今后应无大碍。这，也是得益于你的影响。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_qingxiao_sys_about_changli.mp3"
+      },
+      {
+        "title": "关于秧秧",
+        "content": "初见她时，我一度以为是玄翎回来了。她能看清世间冷暖，听见他人心声，剑意看似温和，却带着不输他人的坚韧。冥冥之中，有什么事物一直在追着她，甚至催促她踏上远行。或许，不是她像玄翎，而是玄翎像她。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_qingxiao_sys_about_yangyang.mp3"
+      },
+      {
+        "title": "关于卜灵",
+        "content": "这孩子天赋异禀，悟性极佳，雷法已有小成，在旁人面前却极少显山露水。当初我对她严加考校，是想试一试她的潜能。如若她虔于道法修行，或许不用多少年，便能追上她师父的境界，但这条路显然不适合她。前些时日，她给我寄来一柄会发光的骑士佩剑，说是在黎那汐塔淘来的旅行纪念品。嗯……也算她有心吧。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_qingxiao_sys_about_buling.mp3"
+      },
+      {
+        "title": "关于景燃",
+        "content": "早些年，他师父碰见我后，随口向我问起那次蜃境之行的吉凶。我虽不精卜算，却也替他占了一卦……大凶。他咧嘴一笑便去了。后来，这少年披上他师父的行头，脸上笑容比之他师父又多上几分不羁。哪怕前路诡谲、福浅命薄，但求恩仇快意、无拘无缚……也不算枉了此生。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_qingxiao_sys_about_jingran.mp3"
+      },
+      {
+        "title": "关于若云",
+        "content": "若云是从小吃百家饭长大的，总想着要用机关术为家乡做些什么。如今的玄方地界，有许多事物能追溯到她昔日的研究。她早逝的父母为她取这个名字，是希望她能像天边的流云一样轻松自由地活着，但她最后的选择远没有那么轻盈……她当年寻得的那名剑仙，也终究没能照拂到她。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_qingxiao_sys_about_ruoyun.mp3"
+      },
+      {
+        "title": "关于静微",
+        "content": "师父在大道上走得极远，她了却尘缘，超脱因果，已然是仙人之姿。她是教我吐纳修行之法，授我清心琴艺的恩师，但我并未怎么听她话。嗯，她老人家仍健在。若你有一天见到她本尊，代我向她问好吧。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_qingxiao_sys_about_jingwei.mp3"
+      },
+      {
+        "title": "生日祝福",
+        "content": "今日是你的生辰。坐吧，听我为你抚一曲。你为这世间奔走，平日少有闲暇，现在也该歇一歇了。桌上这碗面？嗯，是长寿面。面团是我亲手揉制，面条则是用飞剑削出来的……第一次试着做，也不知道味道如何，你不妨先尝尝？徒儿，这世上并无赐福的仙法，但我由衷地祝福你，在漫长的人生中万事顺遂，得偿所愿。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_qingxiao_sys_birthcele.mp3"
+      },
+      {
+        "title": "闲趣·一",
+        "content": "（语气词）",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_qingxiao_idle_idle01.mp3"
+      },
+      {
+        "title": "闲趣·二",
+        "content": "分形散影，化虚凝实……收。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_qingxiao_idle_idle02.mp3"
+      },
+      {
+        "title": "闲趣·三",
+        "content": "（语气词）",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_qingxiao_idle_idle03.mp3"
+      },
+      {
+        "title": "自我介绍",
+        "content": "镇玄司骑，清宵，一介修行之人。岁月迢迢，既在此间重逢，便携剑同行吧。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_qingxiao_sys_introduction.mp3"
+      },
+      {
+        "title": "初奏",
+        "content": "弦凝千古寂，剑起满天清。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_qingxiao_sys_gacha.mp3"
+      },
+      {
+        "title": "入队·一",
+        "content": "再次同行吧。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_qingxiao_sys_jointeam_01.mp3"
+      },
+      {
+        "title": "入队·二",
+        "content": "前路难测，别离我太远。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_qingxiao_sys_jointeam_02.mp3"
+      },
+      {
+        "title": "入队·三",
+        "content": "临行前，不妨听我抚琴一曲。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_qingxiao_sys_jointeam_03.mp3"
+      },
+      {
+        "title": "突破·一",
+        "content": "修行不必急于一时，持之以恒，便可精进。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_qingxiao_sys_rankup01.mp3"
+      },
+      {
+        "title": "突破·二",
+        "content": "这缕剑意已将你我的身心相连，既然承了你的恩惠，今后便让我反哺于你吧。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_qingxiao_sys_rankup02.mp3"
+      },
+      {
+        "title": "突破·三",
+        "content": "心湖变得愈发明静……正因有你在身侧，我才能没有后顾之忧地直面心中的执妄。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_qingxiao_sys_rankup03.mp3"
+      },
+      {
+        "title": "突破·四",
+        "content": "虽说“师不必贤于弟子”，但终究是我获益多，你获益少。徒儿，我该如何补偿你？",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_qingxiao_sys_rankup04.mp3"
+      },
+      {
+        "title": "突破·五",
+        "content": "当年我云游世间，纵横山海，自忖剑法已可通神，想来真是心境浅薄。天高地迥，剑无止境。手中剑能守住珍视之物，护住珍视之人，方能称为真神通。徒儿，今后若有人想伤你……先问过为师的剑。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_qingxiao_sys_rankup05.mp3"
+      },
+      {
+        "title": "普攻·一",
+        "content": "流光。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_qingxiao_atk_atk03_01.mp3"
+      },
+      {
+        "title": "普攻·二",
+        "content": "破阵。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_qingxiao_atk_atk04_01.mp3"
+      },
+      {
+        "title": "普攻·三",
+        "content": "裂空。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_qingxiao_atk_atk04_02.mp3"
+      },
+      {
+        "title": "普攻·四",
+        "content": "化剑。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_qingxiao_atk_atk03_sp_01.mp3"
+      },
+      {
+        "title": "普攻·五",
+        "content": "分光掠影。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_qingxiao_atk_atk03_sp_02.mp3"
+      },
+      {
+        "title": "普攻·六",
+        "content": "灭迹除形。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_qingxiao_atk_atk04_sp_01.mp3"
+      },
+      {
+        "title": "普攻·七",
+        "content": "诛邪镇煞。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_qingxiao_atk_atk04_sp_02.mp3"
+      },
+      {
+        "title": "重击·一",
+        "content": "凝神定心。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_qingxiao_atk_heavyatk01_01.mp3"
+      },
+      {
+        "title": "重击·二",
+        "content": "心剑合一。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_qingxiao_atk_heavyatk01_02.mp3"
+      },
+      {
+        "title": "重击·三",
+        "content": "尽快做个了断。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_qingxiao_atk_heavyatk01_03.mp3"
+      },
+      {
+        "title": "重击·四",
+        "content": "弦音碎玉，剑起坤舆。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_qingxiao_atk_heavyatk02_01.mp3"
+      },
+      {
+        "title": "重击·五",
+        "content": "素影清光，可撼沧溟。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_qingxiao_atk_heavyatk02_02.mp3"
+      },
+      {
+        "title": "重击·六",
+        "content": "不知能接我几剑？",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_qingxiao_atk_heavyatk02_03.mp3"
+      },
+      {
+        "title": "空中攻击·一",
+        "content": "罡风。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_qingxiao_atk_airatk01_01.mp3"
+      },
+      {
+        "title": "空中攻击·二",
+        "content": "朔雨。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_qingxiao_atk_airatk01_02.mp3"
+      },
+      {
+        "title": "空中攻击·三",
+        "content": "行云。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_qingxiao_atk_airatk02_01.mp3"
+      },
+      {
+        "title": "空中攻击·四",
+        "content": "贯虹。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_qingxiao_atk_airatk02_02.mp3"
+      },
+      {
+        "title": "极限闪避",
+        "content": "不难探知。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_qingxiao_com_limitdodge_01.mp3"
+      },
+      {
+        "title": "逆势回击·一",
+        "content": "化劫。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_qingxiao_com_parry_01.mp3"
+      },
+      {
+        "title": "逆势回击·二",
+        "content": "破。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_qingxiao_com_parry_02.mp3"
+      },
+      {
+        "title": "闪避反击·一",
+        "content": "换我出剑了。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_qingxiao_atk_dodgeatk_01.mp3"
+      },
+      {
+        "title": "闪避反击·二",
+        "content": "……聒噪。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_qingxiao_atk_dodgeatk_02.mp3"
+      }
+    ]
+  },
+  "景燃": {
+    "bio": "生于梦州的寻幽客，行走于蜃境与遗墟之间，以双目窥破万物余响与旧世遗痕。\n其行事不依宗门法度，不敬神佛规序，踏蜃入境，穿幽越冥，只循己心而断是非，自成一途。",
+    "stories": [
+      {
+        "title": "第一回：未完待续",
+        "content": "景燃卡住了。笔尖悬在纸面上方，饱蘸的墨汁聚成圆滚滚的一滴，啪嗒一声砸在纸上，还是没能变成一个字。\n案头乱七八糟堆着一沓手稿。蜃境深处空无人烟的古城、循着月色迁徙的青铜鸟群、黄沙底下每逢雷雨便会作响的古钟……前面的写得倒还顺利，偏偏到了这一页，思绪像被什么东西绊住了脚，半寸也挪不动。\n景燃盯着纸页看了半晌，愣是没能从那片空白里再抠出半个字来，终于认命似的叹了口气。\n“行吧。”\n笔被随手丢回笔架。他整个人向后一倒，四仰八叉地躺到了地板上。\n\n窗扉没关严，晚风挟着凉意钻进屋中，地上铺开一道窄长月光。外头虫鸣声断断续续，景燃枕着手腕盯着房梁，写不出东西的时候，他总习惯性地去想些事。\n——比如刚来师父家的那段日子。\n那时师父总拎着他领子骂他不省心，别家孩子顶多是去枝头掏鸟窝，他却敢顺着祠堂的立柱往梁上爬；别人天一黑就赶回家，他偏要提盏灯笼往荒宅里钻。师娘只晾件衣裳的工夫，一转头人就没了踪影，往往要找遍半个衔翎村，最后才能在什么废井边或是破庙里把他逮出来。\n有一年夏天，村里流传起一桩怪事。山坡上那座荒废多年的土地庙，据说每逢夜深便有鬼影出没，几个孩子蹲在树下讲得绘声绘色，说什么有红衣女子自墙中现身，戚戚然地唱了整夜小曲……越讲越瘆人，到最后众人都缩起了脖子，惟有景燃听得兴致盎然，当晚就只身去了那庙里。\n第二天清晨，师娘烟舒举着扫帚满村找人，找到的时候，景燃正坐在庙顶上啃李子。他称得上是嗜甜如命了，这会儿满足得眼睛都眯了起来。\n\n“鬼呢？”烟舒在下面大喊。\n“没见着。”\n“那你一晚上待那儿干什么？”\n景燃想了想。\n“数蝙蝠。”\n烟舒差点把扫帚柄掰断。\n\n想到这里，景燃忍不住笑了一声。\n这些年好像一直是这样。小时候爱往荒宅里钻，长大后爱往蜃境里闯，越是旁人避之不及的地方，他越想进去看看。师父总骂他闲不住，烟舒起初也常为此生气，可自从师父走后，她反倒不怎么拦他了。只是无论他去了多远，每次回来时，院里总会替他留着一盏灯。\n这些年里，他见过悬满铜铃的旧城，见过埋藏于山腹深处的遗迹，见过许多早已无人记得的人和事。每次从蜃境回来，总有一群孩子缠着他讲这回又遇见了什么稀奇事，起初景燃还会勉强耐着性子说上几句，后来发现根本讲不过来，索性提笔记下。\n这一记，便有了《寻幽记》。\n起初不过是为了省些口舌，写着写着却逐渐认真起来。那些埋没在荒烟蔓草间的旧事，那些无人知晓的悲欢离合，那些只存在于蜃境深处的奇景异象，总该有人把它们带出来，留在人间。\n所以写下来也好。写给那些围着他讨故事听的孩子看，写给茶楼里伸长脖子等下文的人看，也写给家里那盏总会亮到深夜的灯看——让烟舒知道当年那个三天两头把自己弄丢的小子，这些年又去了哪些地方，又见识了多少稀奇古怪的东西。\n想到这里，景燃翻了个身，重新望向桌上的手稿。\n纸页在月光下泛着微白，第一百四十九回依旧空着。不过也没什么大不了的，反正他也不是头一回拖稿。\n\n就在这时，院外忽然传来一声中气十足的怒喝。\n“阿景——！”\n景燃浑身一激灵。\n“灯怎么还亮着！不睡觉了是不是？！”\n景燃一个鲤鱼打挺从地上翻起来，三步并作两步冲到桌前，捏着烛芯就是一吹。火光随即熄灭，屋内顿时暗了下来，只余月色静静淌满一地。\n他望着窗外那轮月亮，无声弯了弯嘴角。\n写不出来也无妨，反正明天还长。",
+        "hint": "好感度等级达到1后解锁"
+      },
+      {
+        "title": "第二回：风雪寄身",
+        "content": "其实刚被师父捡回家那阵子，景燃还不是如今这副模样。\n那时他话很少，师父喊他吃饭，他会应一声，却总等旁人都动了筷子才肯伸手；师娘给他添菜，他低头把碗接过去，半天憋不出一句谢字。夜里睡觉时，总是习惯性蜷在墙角，像是生怕一睁眼，这地方也会和从前那些暂时落脚的地方一样，转眼便消失。\n他知道这家人待自己是真心的。可那些暌违了太久的温暖落在身上，反倒叫他有些手足无措。\n\n这年，梦州下了一场很大的雪。\n清晨推门时，院里的老树已经被雪压得低垂下来，枝桠间积着厚厚一层白。阿念蹲在廊下滚雪团，冻得鼻尖通红还乐此不疲，而屋内，烟舒正熬着粥，热气裹着米香从窗缝里悠悠飘出来。\n景燃站在门口看了很久。这些最是寻常不过的瞬间，却叫他想起很多年前，也是这样的天气，父亲替他拢好外衫，母亲牵着他的手，一家三口踩着积雪往山上走。山神庙前挂着褪色的红绸，香炉里烟气袅袅升起。供桌上的果子冻得发硬，他偷偷伸手去摸，被母亲笑着拍开手背。\n他突然很想父母。\n于是趁着无人注意，他取了灯，独自出了门。\n\n可那座庙里等着他的，并不是什么庇佑众生的山神。\n风雪封山之时，庙门轰然闭合。供台后的石塑裂开一道缝隙，香火气从中溢散，那山猫身披金漆，顶着神像的面皮高踞于台上，却连一句真话都吐不出来。\n烛火摇曳，风雪呼号。待景燃将其封入命灯之中时，鲜血也已浸透衣衫。他撑着灯站起身，推开庙门，门外风雪依旧，只是来时的那条石阶已消失得无影无踪，原本蜿蜒下山的小路被齐腰高的荒草彻底吞没。\n“障眼法啊。”景燃哼笑了一声，将命灯提得高了些，一步深一步浅地踩过积雪。\n\n等到家时，天已黑透。景燃本想神不知鬼不觉翻墙进屋，谁知刚落地，旁边窗户就吱呀一声开了。阿念抱着枕头探出脑袋，眨巴两下眼：“阿兄，你流血了。”\n景燃心里咯噔一下。“嘘。”\n“师娘知道吗？”\n“不知道。快回去睡觉！”\n阿念若有所思点点头，把脑袋缩了回去。下一刻，整座院子都响起她中气十足的喊声：“娘——阿兄又受伤啦——！”\n景燃转身就跑。没跑掉，烟舒已经从廊下出来了。\n\n后来景燃每每想起那一夜，都觉得自己宁愿再回去和山猫打一架。\n屋里灯火亮得晃眼，药汤的苦气混着药粉味弥漫开来。阿念抱着一把瓜子，搬着小板凳坐在旁边看热闹，烟舒一边替他上药，一边不紧不慢地训人，景燃低着头装死，额角被药粉按得直跳，愣是一声不敢吭。\n“好了。”烟舒替他包扎好最后一道伤口，伸手在他额头上轻轻敲了一下：“下次再乱跑试试。”\n景燃捂着额头，难得没顶嘴。倒是阿念嚼着瓜子，眼睛眨巴眨巴：“算啦算啦，我听到阿兄已经认错了。”\n“我没有。”\n“你有！”\n“没有。”\n“有。”\n小姑娘声音清脆得像檐下风铃，一声接一声吵得人脑仁疼，争着争着，景燃先不自觉弯了嘴角。屋里灯火暖融融铺开，映着烟舒收拾纱布药瓶的侧影，阿念仍不依不饶地与他争辩，谁也没察觉他正出神。\n景燃垂下眼，看着面前那只热气袅袅的药碗，苦味顺着热气直冲鼻子。他端起碗皱着眉一口气灌了大半，整张脸皱成一团。烟舒回过头看了一眼，把桌上那碟蜜饯朝他推了推。\n火光摇曳，映着三个人的影子，长长短短铺了一地。屋外的风裹着雪粒刮过屋檐，檐角的冰凌被吹得轻轻碰撞，发出极细的声响，像有人在很远的地方摇铃。\n他把蜜饯在齿间咬碎，满口都是甜。",
+        "hint": "好感度等级达到2后解锁"
+      },
+      {
+        "title": "第三回：一梦无归",
+        "content": "十五岁那年，景燃正式成了寻幽客。\n他走过许多蜃境。有的蜃境漂浮于无边湖泽之上，数十座楼阁被浓雾托举着悬于水面，白日里空空荡荡，入夜后却会亮起灯火，推开门扉，只见席间宾客满座，觥筹交错。可待天明雾散，楼中便只剩积灰的桌椅，昨夜谈笑风生的人，早化为水底沉眠多年的枯骨。\n有的蜃境则沉在群山之下，地底埋着一座倒悬石城。城中无活人，街巷两侧却挂满灯笼，每逢夜半便会无风自燃，幽绿火光沿着长街一路亮到城中央的祭坛。景燃在那里待了三天，最后还是凭自己这双眼睛找到出口。\n有一回，景燃问师父：“寻幽客到底是在找什么？”\n那老头正蹲在火堆旁烤馒头，闻言头也不抬：“找死人。”\n景燃翻了个白眼，心说又来。老头好像看穿了他的心思似的，嗤笑一声：“那你说，蜃境里最多的是什么？”\n“……死人？”\n“死人留下的东西。”老头纠正他，“今天热热闹闹的一群人，过个百八十年，剩下的也不过是一座空城、一块残碑，或是几句连来处都没人记得的话。可总得有人得去把那些东西翻出来看看，看得懂它们，才能知道前头的人是怎么死，后头的人又该怎么活。”\n他将烤好的馒头丢过去：“记好了。”\n\n后来很多年里，他见过无数埋藏于尘土中的旧事。譬如某位古国将军临终前藏在山腹里的遗言，譬如一卷残书亲眼见过的亡国之夜，又譬如某块石碑曾陪伴主人走过数千里的归乡路。\n渐渐地，他似乎有些明白师父的话了。\n死如灯灭，可总有些东西不甘心就这样散去。它们藏在断碑残卷里，藏在荒城古道间，借着风声、借着余响，将旧日的故事一遍遍说给后来人听，于是他要把它们从尘土里翻出来，带回有天光的人间。\n\n那几年里，景燃与师父同行的时间最多。\n这二人的关系，亦父亦师又亦敌。他们曾为一块价值千金的古玉璧动手，景燃被他用刀背按在断碑上，最后还是景燃拿嘴皮子赢了，师父骂他是个来讨前世债的孽障。\n他不拜祖师，不烧香纸，自成一套路数。旁人说他是邪路子，可就是没人能把他困在绝路里。\n他说：“祖师爷要我死，我偏不死。你说咱俩谁错了？”\n他看似散漫，却知何处可闯、何险当避。偶尔独坐望月，眼神渺远，仿佛在数那些再也回不来的人。\n最后一次同师父出去，是老头亲自挑的地方。传闻那是龙脉断绝之窟，煞气冲天，景燃随他深入九重，却在最后一关前地动山摇。乱石崩落间，师父一掌将他推出裂口，自己反身坠向塌陷的深渊。\n一年后的雨夜，那疯老头入梦来，将他上下打量，轻嗤一声：“混得倒还不错，无虞无恙。”不等他回嘴，那身影便转过身，摆摆手，向着雾气深处慢悠悠走远了。\n他猛地睁开眼。\n窗外雨声淅沥，檐角积水连成细线，不断坠落。屋里静得很，桌上的灯早已燃尽，只余下一缕淡淡的余烟。\n梦散得干干净净。只有雨还在下，一声接一声，落满长夜。",
+        "hint": "好感度等级达到3后解锁"
+      },
+      {
+        "title": "第四回：一程江月",
+        "content": "午后的街市向来热闹。街边支着各式摊棚，卖糖人的老人正慢悠悠熬着糖浆，金黄糖丝在勺尖拉出细亮的弧光，包子铺前热气腾腾，混着辣椒与肉香飘出老远，空地上搭着机关戏台，几个素偶踩着鼓点翻腾跳跃，引得人们一阵阵喝彩。\n景燃先去绸缎铺替烟舒挑了匹月白细布，又给阿念买了只会自己蹦跶的机关玉兔。付钱时老板笑眯眯地夸他眼光不错，景燃却没什么底气——给师娘和师妹挑东西向来比下蜃境麻烦得多。前阵子他给阿念带个机关拨浪鼓回去，鼓面上画着两个圆滚滚的小福娃，一转起来便会摇头晃脑，手上拉开一张写着“吉祥如意”的纸卷。景燃觉得挺有意思，然阿念抱着手臂看了半天，十分老成地叹了口气：“阿兄，我已经不是玩这个的年纪了。”\n那拨浪鼓最后落到了景燃自己手里。他悻悻地坐在灯下玩了半夜，心想这不挺好玩的嘛……至今也没想明白问题出在哪儿。\n想到这里，景燃顺手把那只机关玉兔买了下来。这个阿念肯定得喜欢了。\n临走前，他又绕去糕点铺，买了一份满轮映雪——雪白的糖糕层层叠叠，像新雪堆出来的一轮圆月，老板笑着问他是不是给家里人带的，景燃没答，只拎着纸包晃悠悠往河边去了。\n\n今日仇远离开梦州。\n渡口风大，江面碎金浮动，停泊的客船已经解开了大半缆绳。景燃远远便看见那道身影立在船边，一袭黑衣被江风吹得猎猎作响，依旧是那副生人勿近的模样。景燃想起很多年前，师父喝高了酒，总爱提起这么个人，说是难能一见的奇才，惹得他那时候天天惦记着，如今倒是见着了，可惜没机会见一见他怀中剑的本事。\n仇远显然也注意到了他，转身微微颔首。\n景燃摆摆手走过去，在栏杆边站定，先往江里看了一眼，才懒洋洋开口：“东西收好了？”\n仇远知道他说的是从木禺那儿得来的活字块，点了点头，正要开口，景燃却先一步抬手打断：“打住。”\n“——你们明庭那些陈芝麻烂谷子的是是非非，我没兴趣听。该知道的我知道，不该知道的我也不想知道，无需讲与我听。”\n江风吹过河面，卷起细碎波光。\n“不过这回，我帮你拿到了想要的东西。”景燃偏过头，冲他扬了扬眉，“这人情我可记着呢。”\n仇远微微偏过头，那双深灰的眼中不起波澜。\n“你想要什么？”\n“现在没想好。”景燃笑了，“等哪天想起来了，再找你讨。”\n仇远静了片刻，最终点头：“好。”\n景燃这才满意，顺手将一直提着的纸包塞进他怀里：“送别礼，收好了。”\n\n江风自河面吹来，卷起两人的衣摆。远处船家已经开始催人登船，渡口渐渐热闹起来，仇远收起纸包，转身朝渡船走去。走出几步后，他忽然停下。\n“景燃。”\n“嗯？”\n“替我向你师父上炷香。”\n景燃微微一怔。片刻后，他笑着应了一声：“行。”\n\n渡船缓缓离岸。江水拍打船舷，荡开层层涟漪，船影顺流而去，渐渐融入暮色与江雾之间。景燃站在岸边，看着那道背影一点点远去，直到最后船身隐没在水天相接的昏黄里。\n晚风掠过河面，吹得岸边芦苇轻轻摇曳。\n他忽然想起很多年前，师父坐在院门口边剥花生边与他说起那个擅剑的年轻人，说到兴起处便笑着拍自己的肩，说你小子也不差，等再长大些，就带你去重州亲自跟他比划两招——那时候的景燃对遥远的重州没什么概念，他只是顺着师父的话抬起头，望向梦州的天边，暮色正从山脊另一头漫过来，飞鸟掠过长空，朝着更遥远的地方振翅。\n景燃低头笑了笑，转身往回走去。\n此时夕阳已沉入群山之后，天边只余下一线流金。长街两侧的灯笼次第亮起，暖黄灯火沿着青石路一路蜿蜒出去，他顺着那灯火，望见归家的路。",
+        "hint": "好感度等级达到4后解锁"
+      },
+      {
+        "title": "书中未载之事",
+        "content": "中午的茶楼总是很热闹。堂中摆着十几张桌子，跑堂提着铜壶在人群间来回穿梭，茶香、酒气与谈笑声混在一起，久久未歇。二楼临窗的位置坐着个少年，一手支着下巴，一手慢悠悠地往嘴里丢花生，楼下说书人讲得正起劲，声音穿过满堂喧闹，不断往楼上飘。\n“只见那乌木古船破雾而出，船头明晃晃悬灯三百，灯火照彻千年古海。船上人影幢幢，却个个面色青灰，不似活人。待到登船细看时……”\n醒木一拍，满堂寂静。众人正屏息凝神等下文，说书人却忽然端起茶盏喝了一口。\n“欲知后事如何——且听下回分解！”\n短暂寂静后，茶楼险些被掀翻。说书人也很无奈：“诸位莫急，不是我不讲，实在是最新一回《寻幽记》只写到这里……”\n此话一出，怨声更大了。\n“每回都卡在最精彩的时候！”\n“这都拖了半个月了吧？”\n“半个月算什么？”旁边有人拍桌，“上回'鬼猫挈灯'可消失了整整三个月！”\n景燃差点被嘴里的花生呛着。他默默把视线挪向窗外，假装此事与自己毫无关系，偏偏就在这时，对面的椅子被拉开了：“原来罪魁祸首躲在这儿？”\n\n来人一身青衫，怀里抱着厚厚一摞书稿，正是负责替《寻幽记》校录刊印的守词。景燃抬头，看见来人，笑了：“来得正好。”他招招手，“这顿我请。”\n“无事献殷勤，非奸即盗。”守词把怀里的书稿“啪”地拍在桌上，“第二卷写多少了？”\n景燃脸上的笑意顿时淡了三分，整个人像没骨头似的往桌上一趴，下巴抵着手臂，拖长了声音：“没灵感啊——”\n“少来。”\n“真的。”景燃叹气，“天天写蜃境遗墟，那些啰嗦事我自己都快看烦了。”\n守词挑眉：“所以？”\n“所以我准备换个主角。”\n这回轮到守词愣住了。景燃掰着手指数给他听：“第一卷也差不多该收尾了，正好换个新鲜点的。总不能每次都是我提着灯到处乱跑吧？”\n“什么样的人能当你的主角？”\n景燃想了想：“大概……是个很难让人看透的人。”\n他撑着下巴，目光落向窗外。\n“你见过那样的人吗？沉稳克制，通透可靠，旁人还在权衡得失的时候，{Male=他;Female=她}已经知道自己该往哪儿走，旁人急着替人抉择的时候，{Male=他;Female=她}却总把选项留给对方自己。”\n守词却越听越觉得离谱：“哪有这样的人？这种得是供在庙里的神像。”\n\n景燃刚想反驳，目光却忽然落向窗外。\n正午的长街正是热闹的时候，来往行人熙熙攘攘，日光沿着青瓦一路流淌下来，于街面铺开一层暖金。人潮之中，一道熟悉的身影正自街口而来，景燃先是一怔，随即弯起眼睛，扬声道——“{PlayerName}！”\n这一嗓子喊得毫不遮掩，声音穿过长街，对方停下脚步，下意识循声望来。天光恰好落进那双金色眼瞳里，明亮得让人移不开视线。\n景燃抬手朝窗外晃了晃，回头冲守词得意一笑：“看见没？活的。”\n守词：“……”\n偏偏这一嗓子也把茶楼里其他人的注意力吸引了过来。有人循着声音望向二楼，有人眯起眼仔细辨认，忽然间，不知是谁猛地一拍桌子。\n“等等——上边那个人影……是不是鬼猫挈灯大师啊？”\n茶楼骤然一静。下一刻，十几双眼睛齐刷刷抬了起来。景燃：“……”他默默放下手里的糖糕。\n“大师？！是大师本尊？！”\n“好啊！可算抓到人了！”\n“乌木古船里面到底是怎么回事？！”\n“第二卷什么时候出啊？”\n一时间桌椅碰撞声四起，原本还在喝茶的人呼啦啦全站了起来，连说书先生都伸长脖子往楼上看。眼看着四面八方的人就要围上来，景燃闭了闭眼，露出一个“我就知道”的表情。\n“守词。”他伸手抄起桌上的《寻幽记》，“回见！”\n随后在满堂惊呼中，他一脚踏上窗沿。二楼临街，离地足有丈余，旁边食客只觉得眼前一花，少年身影已从栏边纵身跃下，衣摆被风扬起，身形轻快得像一只掠出檐角的飞鸟。\n下一瞬，他稳稳落在长街之上。衣袂翻飞，又很快归于平静。\n“跑了！”不知是谁大喊了一声，茶楼里再次兵荒马乱起来。\n楼内已经传来纷乱的脚步声和呼喊声，景燃却像没事人似的拍了拍衣摆，几步穿过人群来到{PlayerName}面前。他回头看了看后边密密麻麻的人影，又看了看眼前的人，挑眉一笑。\n“来得正好。快走快走，请你吃东西去。”\n“——再晚一步，怕是真要被他们抓去写下一回了。”",
+        "hint": "好感度等级达到5后解锁"
+      }
+    ],
+    "words": [
+      {
+        "title": "心声·一",
+        "content": "跟你讲件有意思的事——上回我去汇珍坊淘货，看见有人捏着本《寻幽记》四处问——“鬼猫挈灯是不是真干过这行”？我就顺嘴回了句纯属虚构，当不得真。结果那人非但不信，还当场翻着书跟我掰扯，说什么写得太真了，绝对不是编的。然后就开始滔滔不绝地讲里头那些奇闻诡事，讲得是风生水起，绘声绘色，我居然也不知不觉听得入了神……你笑什么？那人说得比写出来的还精彩，我是真被讲进去了。要是你也觉得好玩，不如我复述一遍给你听？",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_jingran_sys_toplayer01.mp3"
+      },
+      {
+        "title": "心声·二",
+        "content": "你问为什么写书？哎……其实一开始压根没想过会有这么多人看。那会儿常下蜃境，回来时总能撞见巷口有几个小孩儿在等我，眼巴巴地想听新鲜事。我就顺嘴编些话给他们听，什么古井自个儿冒水啦，纸人半夜走路啦……结果呢，讲着讲着倒被缠上了，那就干脆写下来吧——谁想翻就翻，总好过我每回出门都被堵在巷口。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_jingran_sys_toplayer02.mp3"
+      },
+      {
+        "title": "心声·三",
+        "content": "当然，听得最多的该是我身边这只倒霉猫了——不爱听也得听着，既然拿了我的寿数，陪我说几句话也是应当吧？我知道它在慢慢耗着我的性命，但没关系，我不要日升日落的轮回，我要的是每一天都足够滚烫的日子，要么光芒万丈，要么魄散魂飞，谁稀罕那不死不活的所谓“长久”？这样的人生，才值得我打起点兴趣。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_jingran_sys_toplayer03.mp3"
+      },
+      {
+        "title": "心声·四",
+        "content": "这些年我一直独来独往，毕竟寻幽入境这种事，向来是孤身叩门，不回头，也不等人，无牵无挂方可前行。再到后来我只身潜进琢钧堂，胸腔里翻来覆去烧着的，也不过“血债血偿”四个字，其余一切都无关紧要。\n我向来觉得只身一人没什么不好，轻省，也不用顾忌谁，可这次与你并肩一战后，倒让我久违地产生了些新的想法：往后若再入蜃境，身边要是能有你这样的人同行……想来这一行总不会无聊。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_jingran_sys_toplayer04.mp3"
+      },
+      {
+        "title": "心声·五",
+        "content": "这一路走来，我见过很多人，也见过很多选择。有人向上求光，也有像我这样的，从一开始便习惯向下入暗。你是天上那位来救世的，我不是，我是要往下走的。只是这次相逢，我从你身上看见了许多从前想都不曾想过的东西，也算是……受益良多。就像之前说的，除家人外，我本没什么留恋的，但是遇到了你，便觉得这世上好像也并非是全然无趣的。\n所以——多谢了。下回再见时，我会给你带点地底下的新鲜玩意儿的。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_jingran_sys_toplayer05.mp3"
+      },
+      {
+        "title": "景燃的喜好",
+        "content": "感兴趣的事？当然是下蜃境。托这双眼睛的福，进蜃境后那些平日潜藏的频率都一览无遗，什么旧时沉器、无名古卷，上面附着的频率逮着我就想说话，聒噪得我脑袋发疼。不过嘛，偶尔也能从它们嘴里听到些活人一辈子碰不上的奇事，算是……赚了吧。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_jingran_sys_taste.mp3"
+      },
+      {
+        "title": "景燃的烦恼",
+        "content": "烦恼的事吗……唉，作息昼夜颠倒这个能算一件吧？写书全靠夜里的灵感，蜃境也大多是入夜后才好去，一来二去，就养成习惯了。白天偶尔有人来找，我趴桌上眯着，被敲醒还以为又见鬼了。说白了还是得怪夜晚不够长。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_jingran_sys_worry.mp3"
+      },
+      {
+        "title": "喜欢的食物",
+        "content": "硬要说的话……甜食吧，主要是师娘做的发糕倒还不错，刚出笼、还带点热气的白软糕胚，上面撒着红绿青红丝，咬下去是那种干净的甜香……说着说着倒有点……啧，还真有点想了。你下次一定得来尝尝，师娘可念了好久了，总说要好好招待你一回。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_jingran_sys_foodlike.mp3"
+      },
+      {
+        "title": "讨厌的食物",
+        "content": "……其实我对大部分吃食都没什么耐心。要说最讨厌的还是牛奶，一喝就肚子痛……太酸的也不行，苦味的当然更不行——又不是在喝药。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_jingran_sys_foodhate.mp3"
+      },
+      {
+        "title": "抱负和理想",
+        "content": "木禺既死，大仇已报，我也只能暂时回归无所事事的日子了。寻幽客还是寻幽客，路照走，蜃境照进，等空下来时也终于又能坐回去写点字，这阵子上街时总听见有人念叨《寻幽记》怎么还不更新，听得我都有点如芒在背……\n等写完新一回，我会继续追查木禺背后的事。这玄方城内的桩桩件件想必也不是他凭一己之力便能促成，背后到底藏着些怎样的势力——我倒是想逐一看看，逐一把他们……粉身碎骨。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_jingran_sys_dream.mp3"
+      },
+      {
+        "title": "凝音·一",
+        "content": "这枚玉佩，是我父母留下的。其实我已经记不太清他们的模样了，只记得小时候每年我生辰时，他们总会带我去山上的庙里祈福，那时庙里总是香烟袅袅，虽是冬日却总是阳光甚好，他们无比虔诚地将这枚写着我名字的玉佩奉在台前。如今，我早已不信什么神佛天命，留在记忆中的也不是那些求来的签与愿，而是当时雪后初霁的日光……还有他们牵着我往山上走时的背影。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_jingran_sys_storyobj.mp3"
+      },
+      {
+        "title": "凝音·二",
+        "content": "是对我这“异相瞳”感兴趣么？……左边这只绿色的，是眼睛原本的颜色，右眼则是觉醒共鸣能力之后才变成的金色，最开始还看不习惯，不过后来发现能由此瞧见那些不干净的离散频率，有点像人们口中的阴阳眼。这么说来……你的眼睛也是金色的。感觉你的金色和旁人的不太一样，在你身上……就挺相称的。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_jingran_sys_storyexp.mp3"
+      },
+      {
+        "title": "关于穗穗",
+        "content": "大名鼎鼎的「重明折花」女士……行事利落，头脑清明，待人接物亦是八面玲珑。听说昭明商会在她主持之下日益兴盛，更有各州乃至瑝珑之外的奇珍古物，都在其中流转往来——这倒让我有些在意。我见过不少埋没的古物残器，若真有人能将这些散落之物一一收拢，再重新送入人间流转……倒也算是本事。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_jingran_sys_about_suisui.mp3"
+      },
+      {
+        "title": "关于清宵",
+        "content": "据说，多年前有个小女孩慕名上山找仙人，却半路撞上了残象。她慌不择路，跌落山崖，结果却被一柄破空而来的飞剑所救。那个小女孩嘛，后来成了我师娘。哎，这故事我小时候听我师娘讲了不下十次，我从没信过，直到那日望见一人一剑掠过长空……玄方地界虽没有真神仙，却有镇玄司骑。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_jingran_sys_about_qingxiao.mp3"
+      },
+      {
+        "title": "关于木禺",
+        "content": "一介昏聩之徒罢了。为了那点可笑的执念罔顾人命，将生死视作儿戏，当初就该把他拖到那些枉死之人……还有我父母的坟前，叫他磕到头破血流为止——真可惜，死得太便宜他了。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_jingran_sys_about_muyu.mp3"
+      },
+      {
+        "title": "关于师父",
+        "content": "一生穿行于蜃境中的人，最后也长眠于倾塌的蜃境里。那老头子若还在，大概也会点点头，说这就是寻幽客该有的归处——他一早就这样教过我。我曾与他为一些罕见古物在蜃境中大打出手，也曾在性命攸关之刻被他救于水火。旁人听了，大约只会说一句命数如此，可我——当然是不信什么命的。他没走完的路，自有我替他接着走下去，我会走得很远很远……绝不回头。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_jingran_sys_about_shifu.mp3"
+      },
+      {
+        "title": "关于仇远",
+        "content": "我俩师父算是旧识，我小时候可没少听那老头子提起他，说什么“年纪轻轻，剑已经快得不像话”，听得我那阵子天天惦记着要找他比一场。只是后来，师父渐渐不提了，我再追问时还要被师父呵斥。这回于玄方城匆匆一面，倒是懂了师父当初那些话的意思——此人像一把久未出鞘……却仍在暗处微微鸣动的剑。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_jingran_sys_about_qiuyuan.mp3"
+      },
+      {
+        "title": "关于山猫",
+        "content": "噢你说汤团子……哈哈，对，就被关在灯里的那只山猫。叫它什么全由着我当下的心情来，之前还叫过佚名呢，看它不爽得嗷嗷叫挺解闷的。别看它看着服帖，当初收它进来可是费了我好一番功夫。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_jingran_sys_about_shanmao.mp3"
+      },
+      {
+        "title": "生日祝福",
+        "content": "生辰快乐，{PlayerName}。我自己不爱过这一天，不过师娘和小师妹喜欢热闹，她们生辰的时候，总要我替她们折腾一番，挂灯、买点心、准备长寿面……这些事做得多了，也算熟门熟路，交给我操办就行。\n我这人你知道的，不烧香不叩首不求神佛，所以自然没法替人去求什么福运平安。但既是你，好像也用不着求什么，没什么是你做不到的。\n今天，就安心当寿星吧。其余的全部交给我。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_jingran_sys_birthcele.mp3"
+      },
+      {
+        "title": "闲趣·一",
+        "content": "《寻幽记》第一百四十六回：只见房内蛛丝满布，尘絮如雪，唯有一烛幽幽燃于案上。窗外隐现一人影，其色惨绿，恍若鬼魅……",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_jingran_idle_idle01_01.mp3"
+      },
+      {
+        "title": "闲趣·二",
+        "content": "《寻幽记》第一百四十八回：地宫内鬼影憧憧，腐气浸骨。回首觑时，惊觉身后之人竟已化作一尊泥偶，唇边犹挂一丝诡笑……",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_jingran_idle_idle01_02.mp3"
+      },
+      {
+        "title": "闲趣·三",
+        "content": "唔……红油透亮，卖相不错。……想尝尝？……抢不到那不能怪我咯。\n……啧，吃不了辣还逞什么能？滚进来。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_jingran_idle_idle03.mp3"
+      },
+      {
+        "title": "自我介绍",
+        "content": "景燃，寻幽客。行于阴阳未判之处，踏遍祸福未卜之途，借阴路而行，自也向死地而生。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_jingran_sys_introduction.mp3"
+      },
+      {
+        "title": "初奏",
+        "content": "阴鬼皆伏……何惮虚妄。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_jingran_sys_gacha.mp3"
+      },
+      {
+        "title": "入队·一",
+        "content": "终于轮到我了？",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_jingran_sys_jointeam_01.mp3"
+      },
+      {
+        "title": "入队·二",
+        "content": "要赌命么？自是奉陪。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_jingran_sys_jointeam_02.mp3"
+      },
+      {
+        "title": "入队·三",
+        "content": "冥途大开……求之不得。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_jingran_sys_jointeam_03.mp3"
+      },
+      {
+        "title": "突破·一",
+        "content": "阴炁缠身众鬼随行，听着确实是桩烦人事，但熟悉后，觉得这样也不错。反正如今都已供我驱使了。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_jingran_sys_rankup01.mp3"
+      },
+      {
+        "title": "突破·二",
+        "content": "命灯里燃着的火，是从我身上借出去的。不必觉得可惜，我的命自是只烧不省。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_jingran_sys_rankup02.mp3"
+      },
+      {
+        "title": "突破·三",
+        "content": "眼睛……有些灼烫，有些从前看不明晰的东西，如今也慢慢显现了。夜里走路的时候，巷口的风，墙后的影子，地底下那些乱七八糟的声音，全都混在一起，吵得人耳根发痒，可真安静下来以后，又忍不住去听……怪烦的。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_jingran_sys_rankup03.mp3"
+      },
+      {
+        "title": "突破·四",
+        "content": "最近耳边清净了不少，总算能分清哪些是风声，哪些是魇声，哪些……是人间。\n以前总觉得脚下踩的不是活路，前边也长久不见天光。分明已经习惯了那样的日子，但在我的不知不觉中……似乎也有什么正在改变。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_jingran_sys_rankup04.mp3"
+      },
+      {
+        "title": "突破·五",
+        "content": "我不信天命。倘若真有什么所谓命数，那这东西未免太可笑了些。我见过太多好人横死，恶人长生，有人良善正直却没落得善终，有人却能踩着旁人尸骨活得风光体面，只轻飘飘丢下一句“命该如此”，便能替一切不公找好由头么？我当然不认。\n若这世上真有早已注定好的路，我也要亲手将它折向别处。我要忤逆那命数。我会踏平那命数。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_jingran_sys_rankup05.mp3"
+      },
+      {
+        "title": "普攻·一",
+        "content": "碎骨。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_jingran_atk_atk04_01.mp3"
+      },
+      {
+        "title": "普攻·二",
+        "content": "谶死。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_jingran_atk_atk04_02.mp3"
+      },
+      {
+        "title": "普攻·三",
+        "content": "破煞。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_jingran_atk_atk04_03.mp3"
+      },
+      {
+        "title": "普攻·四",
+        "content": "蚀尽。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_jingran_atk_atk08_01.mp3"
+      },
+      {
+        "title": "普攻·五",
+        "content": "摄形。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_jingran_atk_atk08_02.mp3"
+      },
+      {
+        "title": "普攻·六",
+        "content": "当斫此魄！",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_jingran_atk_atk08_03.mp3"
+      },
+      {
+        "title": "重击·一",
+        "content": "诸形尽销！",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_jingran_atk_heavyatk01_01.mp3"
+      },
+      {
+        "title": "重击·二",
+        "content": "生魂不渡！",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_jingran_atk_heavyatk01_02.mp3"
+      },
+      {
+        "title": "重击·三",
+        "content": "皆照……此身。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_jingran_atk_heavyatk01_03.mp3"
+      },
+      {
+        "title": "重击·四",
+        "content": "鬼神不测！",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_jingran_atk_heavyatk02_01.mp3"
+      },
+      {
+        "title": "重击·五",
+        "content": "共赴……三途。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_jingran_atk_heavyatk02_02.mp3"
+      },
+      {
+        "title": "重击·六",
+        "content": "躲什么？",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_jingran_atk_heavyatk02_03.mp3"
+      },
+      {
+        "title": "空中攻击·一",
+        "content": "此灯不照生人路。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_jingran_skill_qte_start_01.mp3"
+      },
+      {
+        "title": "空中攻击·二",
+        "content": "一刃挑开生死名。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_jingran_skill_qte_start_02.mp3"
+      },
+      {
+        "title": "空中攻击·三",
+        "content": "莫问，鬼神来处。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_jingran_skill_qte_start_03.mp3"
+      },
+      {
+        "title": "极限闪避",
+        "content": "就这点本事么？",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_jingran_com_limitdodge01_01.mp3"
+      },
+      {
+        "title": "逆势回击",
+        "content": "噤声。",
+        "voiceZh": "https://api.encore.moe/resource/Data/Game/Aki/WwiseAudio/Events/zh/play_favor_word_jingran_com_parry_01.mp3"
       }
     ]
   }

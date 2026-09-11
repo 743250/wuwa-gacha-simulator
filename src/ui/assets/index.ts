@@ -4,3 +4,4 @@
 export * from './art.ts';
 export * from './audio.ts';
 export * from './weaponArt.ts';
+export * from './roleHead.ts';

@@ -34,6 +34,9 @@
 ### 强度榜
 - [tier-list.md](tier-list.md) — pockettactics 2026-06-18 · 3.0 patch · 0 链评分;模拟器数值天花板的官方依据
 
+### 音频
+- [audio.md](audio.md) — 角色语音 URL 规律与覆盖（**「初奏」= 出货语音**，54/57）;抽卡 UI 音效 / BGM **拿不到**及原因;要拿只能解游戏 `.pak` 的路线
+
 ### 游戏表精炼 / 外部索引（2026-07-25 入库）
 - [game-tables/](game-tables/) — 从 `.tmp_research` 抽出的声骸/成长等小表（[README](game-tables/README.md) · [INVENTORY](game-tables/INVENTORY.md)）
 - [external-refs.md](external-refs.md) — 外部数据源、可借鉴开源项目、整合原则与缺口

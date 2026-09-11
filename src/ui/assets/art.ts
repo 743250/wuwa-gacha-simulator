@@ -211,8 +211,20 @@ export const ROLE_ART: Record<string, RoleArtRef> = {
   '漂泊者·衍射': { portrait: 'https://api.encore.moe/resource/Data/Game/Aki/UI/UIResources/Common/Image/PixActivity/T_ActivityRoleNvzhu.webp' },
   '漂泊者·湮灭': { portrait: 'https://api.encore.moe/resource/Data/Game/Aki/UI/UIResources/Common/Image/PixActivity/T_ActivityRoleNanzhu.webp' },
   '漂泊者·气动': { portrait: 'https://api.encore.moe/resource/Data/Game/Aki/UI/UIResources/Common/Image/PixActivity/T_ActivityRoleNvzhu.webp' },
-  '秧秧·玄翎': { portrait: 'https://api.encore.moe/resource/Data/Game/Aki/UI/UIResources/Common/Image/PixActivity/T_ActivityRoleXuanling.webp' },
-  '穗穗': { portrait: 'https://api.encore.moe/resource/Data/Game/Aki/UI/UIResources/Common/Image/PixActivity/T_ActivityRoleSuisui.webp' },
+  '秧秧·玄翎': { portrait: 'https://api.encore.moe/resource/Data/Game/Aki/UI/UIResources/Common/Image/PixActivity/T_ActivityRoleXuanLing.webp' },
+  // 清宵/景燃：encore 返回的 RolePortrait 文件名大小写有误(404)，按服务器实际文件改成
+  // 第二音节首字母大写 (QingXiao / JingRan)，已实测 200。
+  // bannerBg 只有清宵/穗穗能在灰机 wiki 找到官方「唤取」横图；景燃(9/10 上线)、秧秧·玄翎
+  // 暂无唤取图，留空走 portrait 兜底（GachaBanner 已有回落逻辑）。
+  '清宵': {
+    portrait: 'https://api.encore.moe/resource/Data/Game/Aki/UI/UIResources/Common/Image/PixActivity/T_ActivityRoleQingXiao.webp',
+    bannerBg: 'https://huiji-public.huijistatic.com/wuwa/uploads/1/15/%E6%B8%85%E5%AE%B5-%E5%94%A4%E5%8F%96%E7%AB%8B%E7%BB%98.jpg',
+  },
+  '穗穗': {
+    portrait: 'https://api.encore.moe/resource/Data/Game/Aki/UI/UIResources/Common/Image/PixActivity/T_ActivityRoleSuiSui.webp',
+    bannerBg: 'https://huiji-public.huijistatic.com/wuwa/uploads/4/49/%E5%94%A4%E5%8F%96-%E7%A9%97%E7%A9%97.jpg',
+  },
+  '景燃': { portrait: 'https://api.encore.moe/resource/Data/Game/Aki/UI/UIResources/Common/Image/PixActivity/T_ActivityRoleJingRan.webp' },
 };
 
 export const VERSION_ART: Record<string, VersionArtRef> = {

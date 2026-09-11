@@ -7,10 +7,10 @@ import {
 } from '../../src/ui/assets/index.ts';
 
 describe('art 注册表:空配置兜底', () => {
-  it('ROLE_ART 全量实装角色 53 个(50 实装 + 漂泊者三形态);BANNER_ART 留空(常驻池走文字布局);版本表为空', () => {
+  it('ROLE_ART 全量实装角色 57 个(含 3.5/3.6 新增四人);BANNER_ART 留空(常驻池走文字布局);版本表为空', () => {
     expect(Object.keys(BANNER_ART)).toHaveLength(0);
     expect(Object.keys(VERSION_ART)).toHaveLength(0);
-    expect(Object.keys(ROLE_ART).length).toBe(53);
+    expect(Object.keys(ROLE_ART).length).toBe(57);
     // 代表性子集:限定/常驻/四星 + 漂泊者三形态都有
     for (const n of ['弗洛洛', '忌炎', '今汐', '守岸人', '维里奈', '秧秧', '白芷', '漂泊者·衍射', '漂泊者·湮灭', '漂泊者·气动']) {
       expect(getRoleArt(n)).toBeTruthy();
